@@ -53,6 +53,25 @@ def build_parser() -> argparse.ArgumentParser:
     export = sub.add_parser("export", parents=[common], help="从权威状态导出方案、报告与 Trace")
     export.add_argument("task_id")
 
+    strategies = sub.add_parser(
+        "strategies", parents=[common], help="只读查看版本化创作方向与完整剩余路径比较（不计费）"
+    )
+    strategies.add_argument("task_id")
+    strategies.add_argument(
+        "--search-mode", choices=("search_basic", "search_extended"), default="search_basic"
+    )
+    strategies.add_argument(
+        "--generation-mode", choices=("generate_direct", "generate_multi"), default="generate_direct"
+    )
+    strategies.add_argument("--search-queries", type=int, default=None)
+    strategies.add_argument("--include-revision", action="store_true")
+    strategies.add_argument(
+        "--direction",
+        action="append",
+        choices=("functional_demo", "user_scenario", "tutorial"),
+        default=[],
+    )
+
     sub.add_parser("list", parents=[common], help="列出当前模式下的任务")
     return parser
 
@@ -71,6 +90,37 @@ def _render_text(document: dict) -> str:
         lines = [f"模式：{document['mode']}，共 {document['count']} 个任务"]
         for task in document["tasks"]:
             lines.append(f"- {task['task_id']}  {task['status']}  {task['reason']}")
+        return "\n".join(lines)
+    if "directions" in document and "mode_table" in document:
+        lines = [
+            f"策略比较：策略表 {document.get('strategy_version')}；费用表 {document.get('pricing_version')}",
+            (
+                f"已发生 {document.get('incurred_cents')} 分；剩余 "
+                f"{document.get('remaining_budget_cents')} 分；估算不是实际支出"
+            ),
+        ]
+        for item in document["directions"]:
+            path = item["path"]
+            state = "可行" if item["feasible"] else "不可行"
+            lines.append(
+                f"- {item['label']}（{item['direction']}）：{state}；全路径 {path['total_cost_cents']} 分 / "
+                f"{path['total_duration_ms']} ms；检索 {item['search_queries']} 次；"
+                f"{'预算不足 ' if not item['budget_feasible'] else ''}"
+                f"{'时间不足' if not item['deadline_feasible'] else ''}".rstrip("；")
+            )
+            lines.append(f"  表达目标：{item['expression_goal']}")
+            if item["alternatives"]:
+                names = "、".join(
+                    f"{alt['search_mode']}+{alt['generation_mode']}({alt['total_cost_cents']} 分)"
+                    for alt in item["alternatives"][:4]
+                )
+                lines.append(f"  可行替代：{names}")
+        cheapest = document.get("cheapest_feasible")
+        if cheapest:
+            lines.append(
+                f"最低可行路径：{cheapest['direction']} / {cheapest['search_mode']} + "
+                f"{cheapest['generation_mode']} / {cheapest['total_cost_cents']} 分"
+            )
         return "\n".join(lines)
     input_view = document.get("input", {})
     progress = document.get("progress", {})
@@ -141,6 +191,15 @@ def main(argv: list[str] | None = None) -> int:
             from cta.export import export_task
 
             document = export_task(config, args.task_id)
+        elif args.command == "strategies":
+            document = service.strategy_comparison(
+                args.task_id,
+                search_mode=args.search_mode,
+                generation_mode=args.generation_mode,
+                search_queries=args.search_queries,
+                include_revision=args.include_revision,
+                directions=args.direction or None,
+            )
         elif args.command == "list":
             document = service.list_tasks()
         else:  # pragma: no cover - argparse guards this

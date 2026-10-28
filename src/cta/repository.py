@@ -461,6 +461,249 @@ def task_llm_usage(conn: sqlite3.Connection, task_id: str) -> dict:
     }
 
 
+def record_estimate(
+    conn: sqlite3.Connection,
+    *,
+    task_id: str,
+    kind: str,
+    direction: str | None,
+    search_mode: str | None,
+    generation_mode: str | None,
+    search_queries: int | None,
+    include_revision: bool,
+    strategy_version: str,
+    pricing_version: str,
+    total_cost_cents: int,
+    total_duration_ms: int,
+    incurred_cents: int,
+    remaining_cents: int | None,
+    feasible: bool,
+    detail: dict | None = None,
+) -> dict:
+    estimate_id = new_id("e_")
+    conn.execute(
+        """
+        INSERT INTO estimates (id, task_id, kind, direction, search_mode, generation_mode,
+                               search_queries, include_revision, strategy_version, pricing_version,
+                               total_cost_cents, total_duration_ms, incurred_cents, remaining_cents,
+                               feasible, detail_json, created_at)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        """,
+        (
+            estimate_id,
+            task_id,
+            kind,
+            direction,
+            search_mode,
+            generation_mode,
+            search_queries,
+            1 if include_revision else 0,
+            strategy_version,
+            pricing_version,
+            total_cost_cents,
+            total_duration_ms,
+            incurred_cents,
+            remaining_cents,
+            1 if feasible else 0,
+            json.dumps(detail or {}, ensure_ascii=False),
+            utc_now_iso(),
+        ),
+    )
+    return {
+        "estimate_id": estimate_id,
+        "kind": kind,
+        "direction": direction,
+        "search_mode": search_mode,
+        "generation_mode": generation_mode,
+        "search_queries": search_queries,
+        "include_revision": bool(include_revision),
+        "strategy_version": strategy_version,
+        "pricing_version": pricing_version,
+        "total_cost_cents": total_cost_cents,
+        "total_duration_ms": total_duration_ms,
+        "incurred_cents": incurred_cents,
+        "remaining_cents": remaining_cents,
+        "feasible": bool(feasible),
+        "nature": "estimated",
+    }
+
+
+def list_estimates(conn: sqlite3.Connection, task_id: str) -> list[dict]:
+    return [
+        {
+            "estimate_id": row["id"],
+            "kind": row["kind"],
+            "direction": row["direction"],
+            "search_mode": row["search_mode"],
+            "generation_mode": row["generation_mode"],
+            "search_queries": row["search_queries"],
+            "include_revision": bool(row["include_revision"]),
+            "strategy_version": row["strategy_version"],
+            "pricing_version": row["pricing_version"],
+            "total_cost_cents": row["total_cost_cents"],
+            "total_duration_ms": row["total_duration_ms"],
+            "incurred_cents": row["incurred_cents"],
+            "remaining_cents": row["remaining_cents"],
+            "feasible": bool(row["feasible"]),
+            "created_at": row["created_at"],
+            "nature": "estimated",
+        }
+        for row in conn.execute("SELECT * FROM estimates WHERE task_id = ? ORDER BY rowid", (task_id,))
+    ]
+
+
+def latest_estimate(conn: sqlite3.Connection, task_id: str) -> dict | None:
+    rows = list_estimates(conn, task_id)
+    return rows[-1] if rows else None
+
+
+def create_strategy_selection(
+    conn: sqlite3.Connection,
+    *,
+    task_id: str,
+    direction: str,
+    search_mode: str,
+    generation_mode: str,
+    search_queries: int,
+    include_revision: bool,
+    improvement: bool,
+    expected_benefit: str | None,
+    rationale: str,
+    strategy_version: str,
+    pricing_version: str,
+    path: dict,
+    total_cost_cents: int,
+    total_duration_ms: int,
+    incurred_cents: int,
+    remaining_cents: int | None,
+) -> dict:
+    selection_id = new_id("st_")
+    conn.execute(
+        """
+        INSERT INTO strategy_selections (id, task_id, direction, search_mode, generation_mode,
+                                         search_queries, include_revision, improvement, expected_benefit,
+                                         rationale, strategy_version, pricing_version, path_json,
+                                         total_cost_cents, total_duration_ms, incurred_cents,
+                                         remaining_cents, created_at)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        """,
+        (
+            selection_id,
+            task_id,
+            direction,
+            search_mode,
+            generation_mode,
+            search_queries,
+            1 if include_revision else 0,
+            1 if improvement else 0,
+            expected_benefit,
+            rationale,
+            strategy_version,
+            pricing_version,
+            json.dumps(path, ensure_ascii=False),
+            total_cost_cents,
+            total_duration_ms,
+            incurred_cents,
+            remaining_cents,
+            utc_now_iso(),
+        ),
+    )
+    return {
+        "selection_id": selection_id,
+        "direction": direction,
+        "search_mode": search_mode,
+        "generation_mode": generation_mode,
+        "search_queries": search_queries,
+        "include_revision": bool(include_revision),
+        "improvement": bool(improvement),
+        "expected_benefit": expected_benefit,
+        "rationale": rationale,
+        "strategy_version": strategy_version,
+        "pricing_version": pricing_version,
+        "path": path,
+        "total_cost_cents": total_cost_cents,
+        "total_duration_ms": total_duration_ms,
+        "incurred_cents": incurred_cents,
+        "remaining_cents": remaining_cents,
+        "nature": "reserved",
+    }
+
+
+def list_strategy_selections(conn: sqlite3.Connection, task_id: str) -> list[dict]:
+    return [
+        {
+            "selection_id": row["id"],
+            "direction": row["direction"],
+            "search_mode": row["search_mode"],
+            "generation_mode": row["generation_mode"],
+            "search_queries": row["search_queries"],
+            "include_revision": bool(row["include_revision"]),
+            "improvement": bool(row["improvement"]),
+            "expected_benefit": row["expected_benefit"],
+            "rationale": row["rationale"],
+            "strategy_version": row["strategy_version"],
+            "pricing_version": row["pricing_version"],
+            "path": json.loads(row["path_json"]),
+            "total_cost_cents": row["total_cost_cents"],
+            "total_duration_ms": row["total_duration_ms"],
+            "incurred_cents": row["incurred_cents"],
+            "remaining_cents": row["remaining_cents"],
+            "created_at": row["created_at"],
+            "nature": "reserved",
+        }
+        for row in conn.execute(
+            "SELECT * FROM strategy_selections WHERE task_id = ? ORDER BY rowid", (task_id,)
+        )
+    ]
+
+
+def latest_strategy_selection(conn: sqlite3.Connection, task_id: str) -> dict | None:
+    rows = list_strategy_selections(conn, task_id)
+    return rows[-1] if rows else None
+
+
+def record_stop(
+    conn: sqlite3.Connection,
+    *,
+    task_id: str,
+    kind: str,
+    reason: str,
+    gaps: list[dict] | None = None,
+) -> dict:
+    stop_id = new_id("stp_")
+    conn.execute(
+        "INSERT INTO stops (id, task_id, kind, reason, gaps_json, created_at) VALUES (?, ?, ?, ?, ?, ?)",
+        (stop_id, task_id, kind, reason, json.dumps(gaps or [], ensure_ascii=False), utc_now_iso()),
+    )
+    return {"stop_id": stop_id, "kind": kind, "reason": reason, "gaps": gaps or []}
+
+
+def list_stops(conn: sqlite3.Connection, task_id: str) -> list[dict]:
+    return [
+        {
+            "stop_id": row["id"],
+            "kind": row["kind"],
+            "reason": row["reason"],
+            "gaps": json.loads(row["gaps_json"]),
+            "created_at": row["created_at"],
+        }
+        for row in conn.execute("SELECT * FROM stops WHERE task_id = ? ORDER BY rowid", (task_id,))
+    ]
+
+
+def count_attempts(conn: sqlite3.Connection, task_id: str, kind: str, *, exclude_id: str | None = None) -> int:
+    if exclude_id is None:
+        row = conn.execute(
+            "SELECT COUNT(*) AS n FROM attempts WHERE task_id = ? AND kind = ?", (task_id, kind)
+        ).fetchone()
+    else:
+        row = conn.execute(
+            "SELECT COUNT(*) AS n FROM attempts WHERE task_id = ? AND kind = ? AND id != ?",
+            (task_id, kind, exclude_id),
+        ).fetchone()
+    return int(row["n"])
+
+
 def snapshot_state(conn: sqlite3.Connection, task_id: str) -> dict:
     task = conn.execute("SELECT * FROM tasks WHERE id = ?", (task_id,)).fetchone()
     brief = latest_brief(conn, task_id)

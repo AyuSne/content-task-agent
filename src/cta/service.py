@@ -13,7 +13,20 @@ from cta.identity import Intake, RawInput, dedupe_key, normalize
 from cta.materials import load_catalog
 from cta.pricing import load_price_table
 from cta.prompts import PROMPT_VERSION
-from cta.repository import latest_brief, latest_output, latest_review, latest_save, task_llm_usage, task_spent
+from cta.repository import (
+    latest_brief,
+    latest_estimate,
+    latest_output,
+    latest_review,
+    latest_save,
+    latest_strategy_selection,
+    list_estimates,
+    list_stops,
+    list_strategy_selections,
+    task_llm_usage,
+    task_spent,
+)
+from cta.strategy import ResourceState, compare_strategies, load_strategy_table
 
 STATUS_NEEDS_INPUT = "needs_input"
 STATUS_IN_PROGRESS = "in_progress"
@@ -52,8 +65,8 @@ class TaskService:
                 INSERT INTO tasks (id, mode, fingerprint, dedupe_key, status, reason,
                                    input_version, current_output_id, created_at, updated_at,
                                    sim_elapsed_ms, sim_start, used_rounds, paused,
-                                   materials_version, pricing_version)
-                VALUES (?, ?, ?, ?, ?, ?, 1, NULL, ?, ?, 0, ?, 0, 0, ?, ?)
+                                   materials_version, pricing_version, strategy_version)
+                VALUES (?, ?, ?, ?, ?, ?, 1, NULL, ?, ?, 0, ?, 0, 0, ?, ?, ?)
                 """,
                 (
                     task_id,
@@ -67,6 +80,7 @@ class TaskService:
                     self.config.sim_start.isoformat(),
                     load_catalog(self.config.project_root).version,
                     load_price_table(self.config.project_root).version,
+                    load_strategy_table(self.config.project_root).version,
                 ),
             )
             self._insert_input(conn, task_id, intake, now)
@@ -222,6 +236,10 @@ class TaskService:
                     "SELECT * FROM knowledge_loads WHERE task_id = ? AND agent = 'reviewer' ORDER BY id", (task_id,)
                 )
             ]
+            view["estimates"] = list_estimates(conn, task_id)
+            view["strategy_selections"] = list_strategy_selections(conn, task_id)
+            view["stops"] = list_stops(conn, task_id)
+            view["strategy"] = self._strategy_view(conn, task)
             return view
 
     def list_tasks(self) -> dict:
@@ -257,6 +275,7 @@ class TaskService:
         output = latest_output(conn, task["id"])
         review = latest_review(conn, task["id"])
         save = latest_save(conn, task["id"])
+        strategy = self._strategy_view(conn, task)
         return {
             "task_id": task["id"],
             "mode": task["mode"],
@@ -273,6 +292,7 @@ class TaskService:
             "brief": brief,
             "review": review,
             "save": save,
+            "strategy": strategy,
             "plan": self._plan_view(task, output, review, save),
             "gaps": self._gaps(conn, task, brief),
             "mode_notice": (
@@ -281,16 +301,66 @@ class TaskService:
                 else "真实模型运行；小样本观察不代表生产质量或统计显著结论。"
             ),
             "progress": self._progress_view(task, output, save),
-            "resources": self._resources_view(conn, task["id"], input_row, spent),
+            "resources": self._resources_view(conn, task, input_row, spent),
             "model_config": self.config.model_config_public(),
             "versions": {
                 "app": __version__,
                 "prompt": PROMPT_VERSION,
                 "materials": task["materials_version"],
                 "pricing": task["pricing_version"],
+                "strategy": strategy["table_version"],
             },
             "artifacts": {"campaign_versions": 0 if output is None else output["version"]},
         }
+
+    def _strategy_view(self, conn, task) -> dict:
+        table = load_strategy_table(self.config.project_root)
+        selections = list_strategy_selections(conn, task["id"])
+        return {
+            "table_version": task["strategy_version"] or table.version,
+            "directions": [spec.as_dict() for spec in table.directions.values()],
+            "latest_selection": selections[-1] if selections else None,
+            "selection_count": len(selections),
+            "mode_table_version": task["pricing_version"],
+        }
+
+    def strategy_comparison(
+        self,
+        task_id: str,
+        *,
+        search_mode: str = "search_basic",
+        generation_mode: str = "generate_direct",
+        search_queries: int | None = None,
+        include_revision: bool = False,
+        directions: list[str] | None = None,
+    ) -> dict:
+        """Read-only strategy comparison for the operator view; never executes or charges."""
+        price = load_price_table(self.config.project_root)
+        table = load_strategy_table(self.config.project_root)
+        with open_store(self.config.db_path) as conn:
+            task = self._require_task(conn, task_id)
+            input_row = conn.execute(
+                "SELECT * FROM task_inputs WHERE task_id = ? AND version = ?",
+                (task["id"], task["input_version"]),
+            ).fetchone()
+            deadline = None if input_row["deadline"] is None else datetime.fromisoformat(input_row["deadline"])
+            state = ResourceState(
+                incurred_cents=task_spent(conn, task["id"]),
+                budget_cents=input_row["budget_cents"],
+                sim_start=datetime.fromisoformat(task["sim_start"]),
+                sim_elapsed_ms=task["sim_elapsed_ms"],
+                deadline=deadline,
+            )
+            return compare_strategies(
+                table,
+                price,
+                state,
+                directions=directions,
+                search_mode=search_mode,
+                generation_mode=generation_mode,
+                search_queries=search_queries,
+                include_revision=include_revision,
+            )
 
     @staticmethod
     def _plan_view(task, output: dict | None, review: dict | None, save: dict | None) -> dict:
@@ -332,6 +402,27 @@ class TaskService:
         if latest is not None:
             for item in json.loads(latest["questions_json"]):
                 gaps.append({"source": "clarification", **item})
+        for stop in list_stops(conn, task["id"]):
+            for item in stop["gaps"]:
+                gaps.append(
+                    {
+                        "source": "stop",
+                        "stop_kind": stop["kind"],
+                        "question": item.get("gap", ""),
+                        "impact": item.get("impact", ""),
+                        "blocking": True,
+                    }
+                )
+            if not stop["gaps"]:
+                gaps.append(
+                    {
+                        "source": "stop",
+                        "stop_kind": stop["kind"],
+                        "question": stop["reason"],
+                        "impact": "",
+                        "blocking": True,
+                    }
+                )
         return gaps
 
     @staticmethod
@@ -383,9 +474,106 @@ class TaskService:
         }
 
     @staticmethod
-    def _resources_view(conn, task_id: str, input_row, spent: int) -> dict:
+    def _compact_estimate(row: dict | None) -> dict | None:
+        if row is None:
+            return None
+        return {
+            "estimate_id": row["estimate_id"],
+            "kind": row["kind"],
+            "direction": row["direction"],
+            "search_mode": row["search_mode"],
+            "generation_mode": row["generation_mode"],
+            "search_queries": row["search_queries"],
+            "include_revision": row["include_revision"],
+            "total_cost_cents": row["total_cost_cents"],
+            "total_duration_ms": row["total_duration_ms"],
+            "incurred_cents": row["incurred_cents"],
+            "remaining_cents": row["remaining_cents"],
+            "feasible": row["feasible"],
+            "strategy_version": row["strategy_version"],
+            "pricing_version": row["pricing_version"],
+            "created_at": row["created_at"],
+            "nature": "estimated",
+        }
+
+    @staticmethod
+    def _compact_selection(row: dict | None) -> dict | None:
+        if row is None:
+            return None
+        return {
+            "selection_id": row["selection_id"],
+            "direction": row["direction"],
+            "search_mode": row["search_mode"],
+            "generation_mode": row["generation_mode"],
+            "search_queries": row["search_queries"],
+            "include_revision": row["include_revision"],
+            "improvement": row["improvement"],
+            "expected_benefit": row["expected_benefit"],
+            "rationale": row["rationale"],
+            "total_cost_cents": row["total_cost_cents"],
+            "total_duration_ms": row["total_duration_ms"],
+            "incurred_cents": row["incurred_cents"],
+            "remaining_cents": row["remaining_cents"],
+            "strategy_version": row["strategy_version"],
+            "pricing_version": row["pricing_version"],
+            "created_at": row["created_at"],
+            "nature": "reserved",
+        }
+
+    @staticmethod
+    def _activity_costs(conn, task) -> dict:
+        output = latest_output(conn, task["id"])
+        entries = []
+        if output is not None:
+            for item in output["content"].get("materials", []):
+                status = item.get("status")
+                if status in ("to_acquire", "to_create"):
+                    entries.append(
+                        {
+                            "name": item.get("name"),
+                            "material_id": item.get("material_id") or None,
+                            "status": status,
+                            "amount_cents": None,
+                            "nature": "unknown",
+                            "source": "campaign.materials",
+                        }
+                    )
+        if entries:
+            return {
+                "category": "activity_cost",
+                "unit": "CNY_cent",
+                "source": "campaign.materials",
+                "status": "unknown",
+                "nature": "unknown",
+                "entries": entries,
+                "reason": "方案含待获取或待制作素材，但任务输入与材料未给出活动预算或已发生支出金额。",
+            }
+        return {
+            "category": "activity_cost",
+            "unit": "CNY_cent",
+            "source": "task_input/campaign.materials",
+            "status": "not_applicable",
+            "nature": "not_applicable",
+            "entries": [],
+            "reason": "任务输入、资料与执行未涉及活动制作或投放预算/实际支出。",
+        }
+
+    def _resources_view(self, conn, task, input_row, spent: int) -> dict:
+        task_id = task["id"]
         budget_cents = input_row["budget_cents"]
         usage = task_llm_usage(conn, task_id)
+        estimate = self._compact_estimate(latest_estimate(conn, task_id))
+        reserved = self._compact_selection(latest_strategy_selection(conn, task_id))
+        ledger_count = conn.execute(
+            "SELECT COUNT(*) AS n FROM ledger WHERE task_id = ? AND nature = 'incurred'", (task_id,)
+        ).fetchone()
+        activity = self._activity_costs(conn, task)
+        unknown = ["real_model_usage.amount"]
+        not_applicable: list[str] = []
+        if activity["status"] == "unknown":
+            unknown.append("activity_costs")
+        else:
+            not_applicable.append("activity_costs")
         return {
             "budget_cents": budget_cents,
             "sim_spent_cents": spent,
@@ -395,4 +583,43 @@ class TaskService:
             "model_requests": usage["requests"],
             "real_usage": usage,
             "real_cost": None,
+            "amount_status": {
+                "simulated_tool_fee": "incurred_and_estimated",
+                "real_model_usage": "unknown",
+                "activity_costs": activity["status"],
+            },
+            "simulated_tool_fee": {
+                "category": "simulated_tool_fee",
+                "unit": "CNY_cent",
+                "source": f"pricing:{task['pricing_version']}",
+                "nature": "incurred",
+                "incurred_cents": spent,
+                "ledger_entries": int(ledger_count["n"]),
+                "estimated": estimate,
+                "reserved": reserved,
+                "note": "预留与估算是可行性判断，不是实际支出；实际消耗只累计账本中 nature=incurred 的记录。",
+            },
+            "real_model_usage": {
+                "category": "real_model_usage",
+                "unit": "request/token",
+                "source": "DeepSeek API response usage（openai SDK）",
+                "nature": "actual_usage",
+                "requests": usage["requests"],
+                "real_requests": usage["real_requests"],
+                "mock_requests": usage["mock_requests"],
+                "unknown_usage_requests": usage["unknown_usage_requests"],
+                "prompt_tokens": usage["prompt_tokens"],
+                "completion_tokens": usage["completion_tokens"],
+                "cache_hit_tokens": usage["cache_hit_tokens"],
+                "cache_miss_tokens": usage["cache_miss_tokens"],
+                "elapsed_ms": usage["elapsed_ms"],
+                "amount": {
+                    "status": "unknown",
+                    "value_cents": None,
+                    "reason": "没有可靠的单价来源，不把 token 用量换算成金额；未发生真实请求时也不补成已核实零费用。",
+                },
+            },
+            "activity_costs": activity,
+            "unknown": unknown,
+            "not_applicable": not_applicable,
         }

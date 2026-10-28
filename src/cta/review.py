@@ -170,6 +170,8 @@ def review_task(config: Config, task_id: str) -> dict:
             return {"duplicate": True, **TaskService(config).status(task_id), "review": existing}
 
         spec = price.mode("review")
+        max_requests = int(spec.max_requests or MAX_REQUESTS)
+        max_readbacks = int(spec.max_readbacks or MAX_READBACKS)
         guard = _guard(conn, task, spec.cost_cents, spec.duration_ms)
         if guard is not None:
             raise ReviewError(guard["message"])
@@ -215,7 +217,7 @@ def review_task(config: Config, task_id: str) -> dict:
             "campaign": output["content"],
             "program_checks": _program_checks(output),
             "reviewed_version": output["version"],
-            "limits": {"max_requests": MAX_REQUESTS, "max_readbacks": MAX_READBACKS},
+            "limits": {"max_requests": max_requests, "max_readbacks": max_readbacks},
         }
         messages = [
             {"role": "system", "content": REVIEW_SYSTEM_PROMPT},
@@ -237,7 +239,7 @@ def review_task(config: Config, task_id: str) -> dict:
         readbacks_used = 0
         report = None
         errors: list[str] = []
-        while requests_used < MAX_REQUESTS:
+        while requests_used < max_requests:
             requests_used += 1
             started = datetime.now().astimezone()
             try:
@@ -303,7 +305,7 @@ def review_task(config: Config, task_id: str) -> dict:
             if arguments is None:
                 tool_result = {"ok": False, "error": "invalid_arguments", "message": "参数不是合法 JSON。"}
             elif call.name == "read_material":
-                if readbacks_used >= MAX_READBACKS:
+                if readbacks_used >= max_readbacks:
                     tool_result = {"ok": False, "error": "readback_limit", "message": "回读次数已用完。"}
                 else:
                     readbacks_used += 1

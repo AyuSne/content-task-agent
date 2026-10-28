@@ -1,0 +1,47 @@
+[
+  {
+    "type": "tool",
+    "name": "search_materials",
+    "arguments": {
+      "query": "自动卡点",
+      "mode": "basic"
+    }
+  },
+  {
+    "type": "tool",
+    "name": "compare_strategies",
+    "arguments": {
+      "search_mode": "search_basic",
+      "generation_mode": "generate_direct",
+      "search_queries": 0
+    }
+  },
+  {
+    "type": "tool",
+    "name": "choose_strategy",
+    "arguments": {
+      "direction": "functional_demo",
+      "search_mode": "search_basic",
+      "generation_mode": "generate_direct",
+      "search_queries": 0,
+      "rationale": "尝试最低成本完整路径。"
+    }
+  },
+  {
+    "type": "tool",
+    "name": "stop_incomplete",
+    "arguments": {
+      "reason": "剩余预算不足以完成生成、核验与保存，且没有更省的可行路径。",
+      "gaps": [
+        {
+          "gap": "预算缺口无法覆盖完整交付路径",
+          "impact": "无法形成可交付方案"
+        },
+        {
+          "gap": "现有资料未覆盖关键能力证据",
+          "impact": "需要补查或由用户决定替代方向"
+        }
+      ]
+    }
+  }
+]
