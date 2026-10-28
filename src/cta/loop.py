@@ -13,8 +13,9 @@ from datetime import UTC, datetime, timedelta
 
 from cta.config import Config, utc_now_iso
 from cta.db import open_store, transaction
+from cta.faults import crash
 from cta.knowledge import load_doc
-from cta.materials import MaterialCatalog, load_catalog
+from cta.materials import MaterialCatalog, load_catalog, load_task_catalog
 from cta.model import ModelResponse, create_client
 from cta.pricing import PriceTable, load_price_table
 from cta.prompts import (
@@ -23,6 +24,11 @@ from cta.prompts import (
     PROMPT_VERSION,
     SCRIPT_GENERATION_SYSTEM_PROMPT,
     TOOL_DEFINITIONS,
+)
+from cta.recovery import (
+    append_recovery_fact,
+    recover_task,
+    recovery_has_events,
 )
 from cta.render import campaign_markdown
 from cta.repository import (
@@ -33,9 +39,9 @@ from cta.repository import (
     count_purpose_requests,
     create_output,
     create_strategy_selection,
-    find_pending_tool_calls,
     finish_attempt,
     latest_brief,
+    latest_output,
     latest_review,
     latest_strategy_selection,
     record_estimate,
@@ -73,30 +79,121 @@ def _input_row(conn, task):
     ).fetchone()
 
 
-def run_task(config: Config, task_id: str, *, max_rounds: int | None = None) -> dict:
+def run_task(config: Config, task_id: str, *, max_rounds: int | None = None, explicit_resume: bool = False) -> dict:
     price = load_price_table(config.project_root)
     catalog = load_catalog(config.project_root)
     strategy_table = load_strategy_table(config.project_root)
-    run_info = {"rounds_used": 0, "stop_reason": None, "requests": 0}
+    run_info = {
+        "rounds_used": 0,
+        "stop_reason": None,
+        "requests": 0,
+        "explicit_resume": explicit_resume,
+        "recovery": None,
+    }
 
     with open_store(config.db_path) as conn:
         task = _task(conn, task_id)
-        _repair_interrupted_calls(conn, task)
-        if task["status"] == STATUS_NEEDS_INPUT:
-            run_info["stop_reason"] = "needs_input"
-            return _document(config, task_id, run_info)
         if task["status"] == STATUS_COMPLETE:
             run_info["stop_reason"] = "already_complete"
             return _document(config, task_id, run_info)
-        if task["paused"]:
-            run_info["stop_reason"] = "paused"
-            return _document(config, task_id, run_info)
-        if task["phase"] == "draft_ready":
-            run_info["stop_reason"] = "draft_ready"
+        if task["status"] == STATUS_NEEDS_INPUT and not _has_messages(conn, task_id):
+            run_info["stop_reason"] = "needs_input"
             return _document(config, task_id, run_info)
 
-        _ensure_context(conn, task, config)
+        # Verify unfinished or result-unknown actions before anything else.
+        report = recover_task(conn, task, config, explicit=explicit_resume)
+        run_info["recovery"] = report
+        task = _task(conn, task_id)
+        _ensure_base_context(conn, task, config)
+        task = _task(conn, task_id)
+
+        unpaused = False
+        if task["paused"] and not explicit_resume:
+            if recovery_has_events(report):
+                append_recovery_fact(conn, task, report)
+                _snapshot(conn, task)
+            run_info["stop_reason"] = "paused"
+            return _document(config, task_id, run_info)
+        if explicit_resume and task["paused"]:
+            with transaction(conn):
+                conn.execute(
+                    "UPDATE tasks SET paused = 0, updated_at = ? WHERE id = ?",
+                    (utc_now_iso(), task_id),
+                )
+            unpaused = True
+            task = _task(conn, task_id)
+
+        _ensure_phase_context(conn, task, config)
+        task = _task(conn, task_id)
+
+        if explicit_resume or recovery_has_events(report) or unpaused:
+            run_info["recovery_summary"] = append_recovery_fact(conn, task, report, unpaused=unpaused)
         _snapshot(conn, task)
+        task = _task(conn, task_id)
+
+        if report["save_unknown"] is not None:
+            run_info["stop_reason"] = "save_unknown"
+            return _document(config, task_id, run_info)
+        if task["status"] == STATUS_NEEDS_INPUT:
+            run_info["stop_reason"] = "needs_input"
+            return _document(config, task_id, run_info)
+
+        if explicit_resume:
+            for phase in ("draft_ready", "reviewed", "review_incomplete", "save_failed"):
+                if task["phase"] == phase:
+                    run_info["stop_reason"] = phase
+                    return _document(config, task_id, run_info)
+
+            if task["status"] == STATUS_INCOMPLETE:
+                if task["used_rounds"] >= MAX_ROUNDS:
+                    _set_incomplete(conn, task, f"达到主循环轮数上限（{MAX_ROUNDS} 轮）；显式续跑不获得新额度。")
+                    run_info["stop_reason"] = "max_rounds"
+                    return _document(config, task_id, run_info)
+                if _past_deadline(conn, task):
+                    _set_incomplete(conn, task, "模拟方案截止时间已到，保留现有成果；续跑不获得新的模拟时限。")
+                    run_info["stop_reason"] = "deadline"
+                    return _document(config, task_id, run_info)
+                resume_phase = _resume_phase(conn, task_id)
+                with transaction(conn):
+                    conn.execute(
+                        "UPDATE tasks SET status = ?, phase = ?, reason = ?, updated_at = ? WHERE id = ?",
+                        (
+                            STATUS_IN_PROGRESS,
+                            resume_phase,
+                            "显式续跑：从已保存进度继续；原输入、预算、模拟截止与已用轮数保持不变。",
+                            utc_now_iso(),
+                            task_id,
+                        ),
+                    )
+                task = _task(conn, task_id)
+                _ensure_phase_context(conn, task, config)
+                _snapshot(conn, task)
+                task = _task(conn, task_id)
+                for phase in ("draft_ready", "reviewed", "review_incomplete", "save_failed"):
+                    if task["phase"] == phase:
+                        run_info["stop_reason"] = phase
+                        return _document(config, task_id, run_info)
+        else:
+            if task["status"] == STATUS_INCOMPLETE:
+                run_info["stop_reason"] = "incomplete"
+                return _document(config, task_id, run_info)
+            if task["phase"] == "draft_ready":
+                run_info["stop_reason"] = "draft_ready"
+                return _document(config, task_id, run_info)
+
+        if task["status"] == STATUS_COMPLETE:
+            run_info["stop_reason"] = "already_complete"
+            return _document(config, task_id, run_info)
+        if task["used_rounds"] >= MAX_ROUNDS:
+            _set_incomplete(conn, task, f"达到主循环轮数上限（{MAX_ROUNDS} 轮），保留现有成果。")
+            run_info["stop_reason"] = "max_rounds"
+            return _document(config, task_id, run_info)
+        if _past_deadline(conn, task):
+            _set_incomplete(conn, task, "模拟方案截止时间已到，保留现有成果。")
+            run_info["stop_reason"] = "deadline"
+            return _document(config, task_id, run_info)
+
+        catalog = load_task_catalog(conn, task, config.project_root)
 
         try:
             client = create_client(config)
@@ -194,63 +291,96 @@ def run_task(config: Config, task_id: str, *, max_rounds: int | None = None) -> 
     return _document(config, task_id, run_info)
 
 
+def resume_task(config: Config, task_id: str, *, max_rounds: int | None = None) -> dict:
+    """Explicit cross-process resume: verify unfinished actions, then continue."""
+    return run_task(config, task_id, max_rounds=max_rounds, explicit_resume=True)
+
+
+def _has_messages(conn, task_id: str) -> bool:
+    row = conn.execute(
+        "SELECT COUNT(*) AS n FROM messages WHERE task_id = ? AND agent = 'main'", (task_id,)
+    ).fetchone()
+    return int(row["n"]) > 0
+
+
+def _resume_phase(conn, task_id: str) -> str:
+    output = latest_output(conn, task_id)
+    if output is not None:
+        review = latest_review(conn, task_id)
+        return "reviewed" if review is not None and review["status"] == "complete" else "draft_ready"
+    brief = latest_brief(conn, task_id)
+    return "brief_ready" if brief is not None else "created"
+
+
 def _document(config: Config, task_id: str, run_info: dict) -> dict:
     document = TaskService(config).status(task_id)
     document["run"] = run_info
     return document
 
 
-def _ensure_context(conn, task, config: Config) -> None:
+def _ensure_base_context(conn, task, config: Config) -> None:
+    """Append the stable system/knowledge/input prefix only for a fresh task.
+
+    A resumed task already has its actual messages, so external knowledge files
+    are never reloaded or substituted.
+    """
     with transaction(conn):
         existing = conn.execute(
             "SELECT COUNT(*) AS n FROM messages WHERE task_id = ? AND agent = 'main'", (task["id"],)
         ).fetchone()
-        if int(existing["n"]) == 0:
-            append_message(
-                conn,
-                task["id"],
-                "system",
-                MAIN_SYSTEM_PROMPT,
-                meta={"kind": "system", "prompt_version": PROMPT_VERSION},
-            )
-            doc = load_doc("campaign-creation", config.project_root)
-            conn.execute(
-                """
-                INSERT OR IGNORE INTO knowledge_loads (task_id, agent, knowledge_id, version, sha256, content, loaded_at)
-                VALUES (?, 'main', ?, ?, ?, ?, ?)
-                """,
-                (task["id"], doc.knowledge_id, doc.version, doc.sha256, doc.content, utc_now_iso()),
-            )
-            stored = conn.execute(
-                "SELECT * FROM knowledge_loads WHERE task_id = ? AND agent = 'main' AND knowledge_id = ?",
-                (task["id"], doc.knowledge_id),
-            ).fetchone()
-            append_message(
-                conn,
-                task["id"],
-                "system",
-                f"[工作知识] {stored['knowledge_id']} {stored['version']} sha256:{stored['sha256']}\n\n{stored['content']}",
-                meta={"kind": "knowledge", "knowledge_id": stored["knowledge_id"], "version": stored["version"]},
-            )
-            input_row = _input_row(conn, task)
-            task_input = {
-                "task_id": task["id"],
-                "mode": task["mode"],
-                "input_version": input_row["version"],
-                "topic": input_row["topic"],
-                "budget_cents": input_row["budget_cents"],
-                "deadline": input_row["deadline"],
-                "audience": input_row["audience"],
-                "requirements": json.loads(input_row["requirements_json"]),
-                "sim_start": task["sim_start"],
-            }
-            append_message(
-                conn,
-                task["id"],
-                "user",
-                "[任务输入] " + json.dumps(task_input, ensure_ascii=False),
-                meta={"kind": "task_input", "input_version": input_row["version"]},
-            )
+        if int(existing["n"]) > 0:
+            return
+        append_message(
+            conn,
+            task["id"],
+            "system",
+            MAIN_SYSTEM_PROMPT,
+            meta={"kind": "system", "prompt_version": PROMPT_VERSION},
+        )
+        doc = load_doc("campaign-creation", config.project_root)
+        conn.execute(
+            """
+            INSERT OR IGNORE INTO knowledge_loads (task_id, agent, knowledge_id, version, sha256, content, loaded_at)
+            VALUES (?, 'main', ?, ?, ?, ?, ?)
+            """,
+            (task["id"], doc.knowledge_id, doc.version, doc.sha256, doc.content, utc_now_iso()),
+        )
+        stored = conn.execute(
+            "SELECT * FROM knowledge_loads WHERE task_id = ? AND agent = 'main' AND knowledge_id = ?",
+            (task["id"], doc.knowledge_id),
+        ).fetchone()
+        append_message(
+            conn,
+            task["id"],
+            "system",
+            f"[工作知识] {stored['knowledge_id']} {stored['version']} sha256:{stored['sha256']}\n\n{stored['content']}",
+            meta={"kind": "knowledge", "knowledge_id": stored["knowledge_id"], "version": stored["version"]},
+        )
+        input_row = _input_row(conn, task)
+        task_input = {
+            "task_id": task["id"],
+            "mode": task["mode"],
+            "input_version": input_row["version"],
+            "topic": input_row["topic"],
+            "budget_cents": input_row["budget_cents"],
+            "deadline": input_row["deadline"],
+            "audience": input_row["audience"],
+            "requirements": json.loads(input_row["requirements_json"]),
+            "sim_start": task["sim_start"],
+        }
+        append_message(
+            conn,
+            task["id"],
+            "user",
+            "[任务输入] " + json.dumps(task_input, ensure_ascii=False),
+            meta={"kind": "task_input", "input_version": input_row["version"]},
+        )
+
+
+def _ensure_phase_context(conn, task, config: Config) -> None:
+    if task["phase"] not in ("brief_ready", "reviewed", "input_updated"):
+        return
+    with transaction(conn):
         if task["phase"] == "brief_ready":
             transition = conn.execute(
                 "SELECT COUNT(*) AS n FROM messages WHERE task_id = ? AND agent = 'main' AND meta_json LIKE '%phase_transition%'",
@@ -324,30 +454,6 @@ def _ensure_context(conn, task, config: Config) -> None:
                     ),
                     meta={"kind": "input_update", "input_version": input_row["version"]},
                 )
-
-
-def _repair_interrupted_calls(conn, task) -> None:
-    pending = find_pending_tool_calls(conn, task["id"])
-    if not pending:
-        return
-    with transaction(conn):
-        conn.execute(
-            "UPDATE attempts SET status = 'interrupted', error = ?, real_finished_at = ? WHERE task_id = ? AND status = 'running'",
-            ("进程在动作返回结果前中断", utc_now_iso(), task["id"]),
-        )
-        for call in pending:
-            append_message(
-                conn,
-                task["id"],
-                "tool",
-                json.dumps(
-                    {"ok": False, "error": "interrupted", "message": "上一次进程在该调用返回结果前中断。"},
-                    ensure_ascii=False,
-                ),
-                tool_call_id=call["id"],
-                name=call["function"]["name"],
-                meta={"kind": "recovery"},
-            )
 
 
 def _snapshot(conn, task) -> None:
@@ -452,6 +558,7 @@ def _handle_response(
                 )
             return {"terminal": False}
 
+    crash("after_tool_request")
     call = calls[0]
     parsed, error = _parse_call(call)
     if error is not None:
@@ -472,7 +579,7 @@ def _handle_response(
     elif call.name == "propose_campaign":
         result, terminal = _propose_campaign(conn, task, parsed, catalog)
     elif call.name == "generate_script":
-        result = _generate_script(conn, task, parsed, price, catalog, config, client)
+        result = _generate_script(conn, task, parsed, price, catalog, config, client, tool_call_id=call.id)
         terminal = False
     elif call.name == "request_clarification":
         result, terminal = _request_clarification(conn, task, parsed)
@@ -482,8 +589,14 @@ def _handle_response(
     elif call.name == "stop_incomplete":
         result, terminal = _stop_incomplete(conn, task, parsed)
     else:
-        result = _execute_business_tool(conn, task, call.name, parsed, price, catalog, config, strategy_table)
+        result = _execute_business_tool(
+            conn, task, call.name, parsed, price, catalog, config, strategy_table, tool_call_id=call.id
+        )
         terminal = False
+
+    crash("after_tool_effect")
+    if call.name == "propose_campaign":
+        crash("after_campaign_effect")
 
     with transaction(conn):
         append_message(
@@ -523,9 +636,11 @@ def _execute_business_tool(
     catalog: MaterialCatalog,
     config: Config,
     strategy_table,
+    *,
+    tool_call_id: str | None = None,
 ) -> dict:
     if name == "search_materials":
-        return _search(conn, task, parsed, price, catalog)
+        return _search(conn, task, parsed, price, catalog, tool_call_id=tool_call_id)
     if name == "read_material":
         material_id = parsed.get("material_id")
         if not isinstance(material_id, str) or not material_id:
@@ -551,7 +666,15 @@ def _injected_search_failures() -> int:
         return 1
 
 
-def _search(conn, task, parsed: dict, price: PriceTable, catalog: MaterialCatalog) -> dict:
+def _search(
+    conn,
+    task,
+    parsed: dict,
+    price: PriceTable,
+    catalog: MaterialCatalog,
+    *,
+    tool_call_id: str | None = None,
+) -> dict:
     query = parsed.get("query")
     mode = parsed.get("mode", "basic")
     if not isinstance(query, str) or not query.strip():
@@ -571,9 +694,10 @@ def _search(conn, task, parsed: dict, price: PriceTable, catalog: MaterialCatalo
         cost_cents=spec.cost_cents,
         duration_ms=spec.duration_ms,
         pricing_version=price.version,
-        meta={"query": query, "mode": mode},
+        meta={"query": query, "mode": mode, "tool_call_id": tool_call_id},
     )
     conn.commit()
+    crash("search_after_start")
     fail_first = _injected_search_failures()
     if fail_first and count_attempts(conn, task["id"], "search_materials", exclude_id=attempt_id) < fail_first:
         finish_attempt(conn, attempt_id, status="failed", error="injected search failure (CTA_FAIL_SEARCH)")
@@ -923,7 +1047,17 @@ def _guard_generation_path(conn, task, generation_mode: str, price: PriceTable) 
     return None
 
 
-def _generate_script(conn, task, parsed: dict, price: PriceTable, catalog: MaterialCatalog, config: Config, client) -> dict:
+def _generate_script(
+    conn,
+    task,
+    parsed: dict,
+    price: PriceTable,
+    catalog: MaterialCatalog,
+    config: Config,
+    client,
+    *,
+    tool_call_id: str | None = None,
+) -> dict:
     strategy = parsed.get("strategy")
     generation_mode = parsed.get("generation_mode", "generate_direct")
     focus = parsed.get("focus", "")
@@ -943,6 +1077,7 @@ def _generate_script(conn, task, parsed: dict, price: PriceTable, catalog: Mater
     if guard is not None:
         return guard
 
+    internal_requests = 1 if generation_mode == "generate_direct" else int(spec.max_internal_requests or 3)
     attempt_id = start_attempt(
         conn,
         task=task,
@@ -951,9 +1086,15 @@ def _generate_script(conn, task, parsed: dict, price: PriceTable, catalog: Mater
         cost_cents=spec.cost_cents,
         duration_ms=spec.duration_ms,
         pricing_version=price.version,
-        meta={"strategy": strategy, "focus": focus},
+        meta={
+            "strategy": strategy,
+            "focus": focus,
+            "tool_call_id": tool_call_id,
+            "internal_requests": internal_requests,
+        },
     )
     conn.commit()
+    crash("generation_after_start")
 
     knowledge_row = conn.execute(
         "SELECT content FROM knowledge_loads WHERE task_id = ? AND agent = 'main' AND knowledge_id = 'campaign-creation'",
@@ -1057,6 +1198,7 @@ def _generate_script(conn, task, parsed: dict, price: PriceTable, catalog: Mater
                 attempt_id=attempt_id,
                 meta={"kind": "generation_response", "candidate": candidate_index + 1},
             )
+        crash("generation_after_response")
         if response.error:
             errors.append(response.error)
             continue

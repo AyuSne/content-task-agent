@@ -144,6 +144,15 @@ CREATE TABLE IF NOT EXISTS knowledge_loads (
     UNIQUE(task_id, agent, knowledge_id)
 );
 
+CREATE TABLE IF NOT EXISTS material_snapshots (
+    task_id TEXT NOT NULL REFERENCES tasks(id) ON DELETE CASCADE,
+    material_id TEXT NOT NULL,
+    version TEXT NOT NULL,
+    content_json TEXT NOT NULL,
+    loaded_at TEXT NOT NULL,
+    PRIMARY KEY (task_id, material_id)
+);
+
 CREATE TABLE IF NOT EXISTS briefs (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     task_id TEXT NOT NULL REFERENCES tasks(id) ON DELETE CASCADE,

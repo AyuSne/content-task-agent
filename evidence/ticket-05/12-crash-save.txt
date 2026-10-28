@@ -1,0 +1,5 @@
+command: python -m cta save t_84c2af7b154a
+CTA_FAULT_CRASH=save_after_record
+returncode: 70
+stdout: 
+stderr: 

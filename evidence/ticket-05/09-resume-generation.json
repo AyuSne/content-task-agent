@@ -1,0 +1,398 @@
+{
+  "task_id": "t_84c2af7b154a",
+  "mode": "mock",
+  "status": "in_progress",
+  "reason": "完整方案草稿 v1 已保存，等待内容核验。",
+  "duplicate": false,
+  "created_at": "2026-10-28T18:17:24+00:00",
+  "updated_at": "2026-10-28T18:17:33+00:00",
+  "input": {
+    "version": 1,
+    "topic": "生成中断场景",
+    "budget": "10.00",
+    "budget_cents": 1000,
+    "deadline": "2026-10-30T04:00:00+00:00",
+    "audience": "大学生",
+    "requirements": [
+      "突出自动卡点"
+    ],
+    "raw": {
+      "topic": "生成中断场景",
+      "budget": "10",
+      "deadline": "2026-10-30T12:00:00+08:00",
+      "audience": "大学生",
+      "requirements": [
+        "突出自动卡点"
+      ]
+    },
+    "fingerprint": "a24025de660184a649898d5f9edfcf15a53ad65cdeb53b247f0bc016016ca384"
+  },
+  "validation": {
+    "errors": [],
+    "interpretations": []
+  },
+  "brief": {
+    "version": 1,
+    "content": {
+      "goal": "让大学生在社团招新季了解帧剪的自动卡点",
+      "audience": "18-24 岁大学生（合成调研样本）",
+      "product_facts": [
+        {
+          "claim": "自动卡点可把视频片段对齐到节拍点",
+          "material_id": "M-001",
+          "quote": "把用户选中的视频片段对齐到节拍点",
+          "scope": "iOS/Android 4.2 及以上；15/30/60 秒成片",
+          "use": "主脚本卡点段"
+        }
+      ],
+      "creative_requirements": [
+        {
+          "text": "突出自动卡点",
+          "source": "用户输入"
+        }
+      ],
+      "assumptions": [
+        {
+          "text": "活动平台为短视频信息流",
+          "basis": "题材常识，待确认"
+        }
+      ],
+      "suggestions": [
+        {
+          "text": "采用校园社团情境",
+          "basis": "M-003 调研"
+        }
+      ],
+      "unknowns": [
+        {
+          "question": "是否需要投放预算？",
+          "impact": "影响内容条数",
+          "blocking": false
+        }
+      ],
+      "sources": [
+        {
+          "material_id": "M-001",
+          "used_for": "能力依据"
+        },
+        {
+          "material_id": "M-003",
+          "used_for": "受众依据"
+        }
+      ],
+      "blocking_unknowns": 0
+    },
+    "created_at": "2026-10-28T18:17:27+00:00"
+  },
+  "review": null,
+  "save": null,
+  "plan": {
+    "version": "plan-2026-10-29.v1",
+    "steps": [
+      {
+        "step": "brief",
+        "title": "业务简报",
+        "status": "done"
+      },
+      {
+        "step": "campaign_draft",
+        "title": "完整活动方案草稿",
+        "status": "done"
+      },
+      {
+        "step": "review",
+        "title": "内容核验",
+        "status": "current"
+      },
+      {
+        "step": "save",
+        "title": "核实保存与导出",
+        "status": "pending"
+      }
+    ]
+  },
+  "todos": [
+    {
+      "step": "review",
+      "title": "内容核验",
+      "status": "current"
+    },
+    {
+      "step": "save",
+      "title": "核实保存与导出",
+      "status": "pending"
+    }
+  ],
+  "recovery": {
+    "explicit_resume": true,
+    "prior_status": "in_progress",
+    "prior_phase": "brief_ready",
+    "prior_reason": "业务简报已形成，等待进入方案生成。",
+    "pending_calls": 1,
+    "recovered_calls": [],
+    "interrupted_calls": [
+      {
+        "tool": "generate_script",
+        "tool_call_id": "call_3",
+        "attempt_id": "a_00f6c66d4b61f96c",
+        "outcome": "interrupted"
+      }
+    ],
+    "interrupted_attempts": [],
+    "save_unknown": null,
+    "unpaused": false,
+    "reused": {
+      "input_version": 1,
+      "brief_version": 1,
+      "output_version": null,
+      "review": null,
+      "save": null,
+      "knowledge": [
+        {
+          "knowledge_id": "campaign-creation",
+          "version": "2026-10-29.v1",
+          "sha256": "cb8712c967bd12925344c7adfe7a9900c93de7724c80a22687dc0793fed0e081"
+        }
+      ],
+      "materials": {
+        "version": "2026-10-29.v1",
+        "count": 10
+      },
+      "search_results": 1,
+      "attempts": 2,
+      "spent_cents": 140
+    },
+    "todos": [
+      {
+        "step": "campaign_draft",
+        "title": "完整活动方案草稿",
+        "status": "current"
+      },
+      {
+        "step": "review",
+        "title": "内容核验",
+        "status": "pending"
+      },
+      {
+        "step": "save",
+        "title": "核实保存与导出",
+        "status": "pending"
+      }
+    ],
+    "task_id": "t_84c2af7b154a",
+    "mode": "mock",
+    "input_version": 1,
+    "brief_version": 1,
+    "output_version": null,
+    "review_id": null,
+    "save_status": null,
+    "save_verified": null,
+    "sim_elapsed_ms": 10000,
+    "sim_start": "2026-10-29T00:00:00+08:00",
+    "used_rounds": 3,
+    "spent_cents": 140,
+    "requests": 3,
+    "instruction": "这是新进程追加的恢复事实。只继续未完成的有界步骤；已恢复的有效检索、草稿和评审直接复用，不要重新执行或重新计费；原预算、模拟截止和已用轮数不变，续跑不获得新额度。"
+  },
+  "gaps": [
+    {
+      "source": "brief",
+      "question": "是否需要投放预算？",
+      "impact": "影响内容条数",
+      "blocking": false
+    }
+  ],
+  "mode_notice": "Mock 仅验证流程、状态与确定性规则，不代表真实模型决策或语义质量。",
+  "progress": {
+    "sim_start": "2026-10-29T00:00:00+08:00",
+    "sim_now": "2026-10-29T00:00:18+08:00",
+    "sim_elapsed_ms": 18000,
+    "used_rounds": 5,
+    "max_rounds": 12,
+    "paused": false,
+    "current_output": {
+      "output_id": "o_5ac5bc002dcc6a72",
+      "version": 1,
+      "status": "draft",
+      "strategy": "user_scenario"
+    },
+    "save": null,
+    "phase": "draft_ready",
+    "brief_version": 1,
+    "last_run_at": "2026-10-28T18:17:33+00:00"
+  },
+  "resources": {
+    "budget_cents": 1000,
+    "sim_spent_cents": 260,
+    "remaining_cents": 740,
+    "real_requests": 0,
+    "mock_requests": 6,
+    "model_requests": 6,
+    "real_usage": {
+      "requests": 6,
+      "real_requests": 0,
+      "mock_requests": 6,
+      "unknown_usage_requests": 5,
+      "usage_complete": false,
+      "prompt_tokens": 800,
+      "completion_tokens": 400,
+      "cache_hit_tokens": 0,
+      "cache_miss_tokens": 0,
+      "elapsed_ms": 0
+    },
+    "real_cost": null
+  },
+  "model_config": {
+    "provider": "deepseek",
+    "sdk": "openai",
+    "base_url": "https://api.deepseek.com",
+    "model": "deepseek-flash",
+    "api_key": "missing",
+    "thinking": false,
+    "streaming": false,
+    "sdk_auto_retries": 0
+  },
+  "versions": {
+    "app": "0.1.0",
+    "prompt": "main-2026-10-29.v2",
+    "materials": "2026-10-29.v1",
+    "pricing": "2026-10-29.v1"
+  },
+  "artifacts": {
+    "campaign_versions": 1
+  },
+  "run": {
+    "rounds_used": 2,
+    "stop_reason": "draft_ready",
+    "requests": 2,
+    "explicit_resume": true,
+    "recovery": {
+      "explicit_resume": true,
+      "prior_status": "in_progress",
+      "prior_phase": "brief_ready",
+      "prior_reason": "业务简报已形成，等待进入方案生成。",
+      "pending_calls": 1,
+      "recovered_calls": [],
+      "interrupted_calls": [
+        {
+          "tool": "generate_script",
+          "tool_call_id": "call_3",
+          "attempt_id": "a_00f6c66d4b61f96c",
+          "outcome": "interrupted"
+        }
+      ],
+      "interrupted_attempts": [],
+      "save_unknown": null,
+      "unpaused": false,
+      "reused": {
+        "input_version": 1,
+        "brief_version": 1,
+        "output_version": null,
+        "review": null,
+        "save": null,
+        "knowledge": [
+          {
+            "knowledge_id": "campaign-creation",
+            "version": "2026-10-29.v1",
+            "sha256": "cb8712c967bd12925344c7adfe7a9900c93de7724c80a22687dc0793fed0e081"
+          }
+        ],
+        "materials": {
+          "version": "2026-10-29.v1",
+          "count": 10
+        },
+        "search_results": 1,
+        "attempts": 2,
+        "spent_cents": 140
+      },
+      "todos": [
+        {
+          "step": "campaign_draft",
+          "title": "完整活动方案草稿",
+          "status": "current"
+        },
+        {
+          "step": "review",
+          "title": "内容核验",
+          "status": "pending"
+        },
+        {
+          "step": "save",
+          "title": "核实保存与导出",
+          "status": "pending"
+        }
+      ]
+    },
+    "recovery_summary": {
+      "explicit_resume": true,
+      "prior_status": "in_progress",
+      "prior_phase": "brief_ready",
+      "prior_reason": "业务简报已形成，等待进入方案生成。",
+      "pending_calls": 1,
+      "recovered_calls": [],
+      "interrupted_calls": [
+        {
+          "tool": "generate_script",
+          "tool_call_id": "call_3",
+          "attempt_id": "a_00f6c66d4b61f96c",
+          "outcome": "interrupted"
+        }
+      ],
+      "interrupted_attempts": [],
+      "save_unknown": null,
+      "unpaused": false,
+      "reused": {
+        "input_version": 1,
+        "brief_version": 1,
+        "output_version": null,
+        "review": null,
+        "save": null,
+        "knowledge": [
+          {
+            "knowledge_id": "campaign-creation",
+            "version": "2026-10-29.v1",
+            "sha256": "cb8712c967bd12925344c7adfe7a9900c93de7724c80a22687dc0793fed0e081"
+          }
+        ],
+        "materials": {
+          "version": "2026-10-29.v1",
+          "count": 10
+        },
+        "search_results": 1,
+        "attempts": 2,
+        "spent_cents": 140
+      },
+      "todos": [
+        {
+          "step": "campaign_draft",
+          "title": "完整活动方案草稿",
+          "status": "current"
+        },
+        {
+          "step": "review",
+          "title": "内容核验",
+          "status": "pending"
+        },
+        {
+          "step": "save",
+          "title": "核实保存与导出",
+          "status": "pending"
+        }
+      ],
+      "task_id": "t_84c2af7b154a",
+      "mode": "mock",
+      "input_version": 1,
+      "brief_version": 1,
+      "output_version": null,
+      "review_id": null,
+      "save_status": null,
+      "save_verified": null,
+      "sim_elapsed_ms": 10000,
+      "sim_start": "2026-10-29T00:00:00+08:00",
+      "used_rounds": 3,
+      "spent_cents": 140,
+      "requests": 3,
+      "instruction": "这是新进程追加的恢复事实。只继续未完成的有界步骤；已恢复的有效检索、草稿和评审直接复用，不要重新执行或重新计费；原预算、模拟截止和已用轮数不变，续跑不获得新额度。"
+    }
+  }
+}

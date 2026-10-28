@@ -1,0 +1,140 @@
+{
+  "task_id": "t_84c2af7b154a",
+  "mode": "mock",
+  "status": "in_progress",
+  "reason": "已创建，尚未开始执行；当前没有已生成产物。",
+  "duplicate": false,
+  "created_at": "2026-10-28T18:17:24+00:00",
+  "updated_at": "2026-10-28T18:17:24+00:00",
+  "input": {
+    "version": 1,
+    "topic": "生成中断场景",
+    "budget": "10.00",
+    "budget_cents": 1000,
+    "deadline": "2026-10-30T04:00:00+00:00",
+    "audience": "大学生",
+    "requirements": [
+      "突出自动卡点"
+    ],
+    "raw": {
+      "topic": "生成中断场景",
+      "budget": "10",
+      "deadline": "2026-10-30T12:00:00+08:00",
+      "audience": "大学生",
+      "requirements": [
+        "突出自动卡点"
+      ]
+    },
+    "fingerprint": "a24025de660184a649898d5f9edfcf15a53ad65cdeb53b247f0bc016016ca384"
+  },
+  "validation": {
+    "errors": [],
+    "interpretations": []
+  },
+  "brief": null,
+  "review": null,
+  "save": null,
+  "plan": {
+    "version": "plan-2026-10-29.v1",
+    "steps": [
+      {
+        "step": "brief",
+        "title": "业务简报",
+        "status": "current"
+      },
+      {
+        "step": "campaign_draft",
+        "title": "完整活动方案草稿",
+        "status": "pending"
+      },
+      {
+        "step": "review",
+        "title": "内容核验",
+        "status": "pending"
+      },
+      {
+        "step": "save",
+        "title": "核实保存与导出",
+        "status": "pending"
+      }
+    ]
+  },
+  "todos": [
+    {
+      "step": "brief",
+      "title": "业务简报",
+      "status": "current"
+    },
+    {
+      "step": "campaign_draft",
+      "title": "完整活动方案草稿",
+      "status": "pending"
+    },
+    {
+      "step": "review",
+      "title": "内容核验",
+      "status": "pending"
+    },
+    {
+      "step": "save",
+      "title": "核实保存与导出",
+      "status": "pending"
+    }
+  ],
+  "recovery": null,
+  "gaps": [],
+  "mode_notice": "Mock 仅验证流程、状态与确定性规则，不代表真实模型决策或语义质量。",
+  "progress": {
+    "sim_start": "2026-10-29T00:00:00+08:00",
+    "sim_now": "2026-10-29T00:00:00+08:00",
+    "sim_elapsed_ms": 0,
+    "used_rounds": 0,
+    "max_rounds": 12,
+    "paused": false,
+    "current_output": null,
+    "save": null,
+    "phase": "created",
+    "brief_version": 0,
+    "last_run_at": null
+  },
+  "resources": {
+    "budget_cents": 1000,
+    "sim_spent_cents": 0,
+    "remaining_cents": 1000,
+    "real_requests": 0,
+    "mock_requests": 0,
+    "model_requests": 0,
+    "real_usage": {
+      "requests": 0,
+      "real_requests": 0,
+      "mock_requests": 0,
+      "unknown_usage_requests": 0,
+      "usage_complete": true,
+      "prompt_tokens": 0,
+      "completion_tokens": 0,
+      "cache_hit_tokens": 0,
+      "cache_miss_tokens": 0,
+      "elapsed_ms": 0
+    },
+    "real_cost": null
+  },
+  "model_config": {
+    "provider": "deepseek",
+    "sdk": "openai",
+    "base_url": "https://api.deepseek.com",
+    "model": "deepseek-flash",
+    "api_key": "missing",
+    "thinking": false,
+    "streaming": false,
+    "sdk_auto_retries": 0
+  },
+  "versions": {
+    "app": "0.1.0",
+    "prompt": "main-2026-10-29.v2",
+    "materials": "2026-10-29.v1",
+    "pricing": "2026-10-29.v1"
+  },
+  "artifacts": {
+    "campaign_versions": 0
+  }
+}

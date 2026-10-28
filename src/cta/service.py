@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import hashlib
 import json
 import secrets
 from datetime import datetime, timedelta
@@ -15,6 +16,7 @@ from cta.pricing import load_price_table
 from cta.prompts import PROMPT_VERSION
 from cta.repository import (
     append_message,
+    append_snapshot,
     latest_brief,
     latest_estimate,
     latest_output,
@@ -24,6 +26,8 @@ from cta.repository import (
     list_estimates,
     list_stops,
     list_strategy_selections,
+    pending_todos,
+    snapshot_state,
     task_llm_usage,
     task_spent,
 )
@@ -211,6 +215,32 @@ class TaskService:
             task = self._require_task(conn, task_id)
             return self._view(conn, task, duplicate=False)
 
+    def pause(self, task_id: str) -> dict:
+        """Pause explicitly without touching the simulated clock or round count."""
+        with open_store(self.config.db_path) as conn:
+            task = self._require_task(conn, task_id)
+            if task["status"] != STATUS_IN_PROGRESS:
+                raise ValueError("只有进行中的任务可以暂停。")
+            if not task["paused"]:
+                now = utc_now_iso()
+                with transaction(conn):
+                    conn.execute(
+                        "UPDATE tasks SET paused = 1, updated_at = ? WHERE id = ?",
+                        (now, task_id),
+                    )
+                    append_message(
+                        conn,
+                        task_id,
+                        "user",
+                        "[暂停] 运营显式暂停；模拟时钟、预算、截止与已用轮数保持不变，由显式续跑继续。",
+                        meta={"kind": "pause"},
+                    )
+                    append_snapshot(conn, task_id, snapshot_state(conn, task_id))
+                task = self._require_task(conn, task_id)
+            view = self._view(conn, task, duplicate=False)
+            view["paused_now"] = True
+            return view
+
     def inspect(self, task_id: str) -> dict:
         with open_store(self.config.db_path) as conn:
             task = self._require_task(conn, task_id)
@@ -372,6 +402,34 @@ class TaskService:
                 }
                 for row in conn.execute("SELECT * FROM task_inputs WHERE task_id = ? ORDER BY version", (task_id,))
             ]
+            view["material_snapshots"] = [
+                {
+                    "material_id": row["material_id"],
+                    "version": row["version"],
+                    "sha256": hashlib.sha256(row["content_json"].encode("utf-8")).hexdigest(),
+                    "chars": len(json.loads(row["content_json"]).get("text", "")),
+                    "loaded_at": row["loaded_at"],
+                }
+                for row in conn.execute(
+                    "SELECT * FROM material_snapshots WHERE task_id = ? ORDER BY material_id", (task_id,)
+                )
+            ]
+            view["snapshots"] = [
+                {"hash": row["hash"], "content": json.loads(row["content_json"]), "created_at": row["created_at"]}
+                for row in conn.execute("SELECT * FROM snapshots WHERE task_id = ? ORDER BY id", (task_id,))
+            ]
+            view["recoveries"] = [
+                {
+                    "seq": row["seq"],
+                    "summary": json.loads(row["meta_json"]).get("summary"),
+                    "created_at": row["created_at"],
+                }
+                for row in conn.execute(
+                    "SELECT * FROM messages WHERE task_id = ? AND agent = 'main' "
+                    "AND meta_json LIKE '%recovery_fact%' ORDER BY seq",
+                    (task_id,),
+                )
+            ]
             return view
 
     def list_tasks(self) -> dict:
@@ -408,6 +466,11 @@ class TaskService:
         review = latest_review(conn, task["id"])
         save = latest_save(conn, task["id"])
         strategy = self._strategy_view(conn, task)
+        recovery_row = conn.execute(
+            "SELECT meta_json, created_at FROM messages WHERE task_id = ? AND agent = 'main' "
+            "AND meta_json LIKE '%recovery_fact%' ORDER BY seq DESC LIMIT 1",
+            (task["id"],),
+        ).fetchone()
         return {
             "task_id": task["id"],
             "mode": task["mode"],
@@ -426,6 +489,8 @@ class TaskService:
             "save": save,
             "strategy": strategy,
             "plan": self._plan_view(task, output, review, save),
+            "todos": pending_todos(task, output, review, save),
+            "recovery": None if recovery_row is None else json.loads(recovery_row["meta_json"]).get("summary"),
             "gaps": self._gaps(conn, task, brief),
             "mode_notice": (
                 "Mock 仅验证流程、状态与确定性规则，不代表真实模型决策或语义质量。"

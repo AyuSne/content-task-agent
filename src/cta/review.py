@@ -12,7 +12,7 @@ from datetime import datetime
 from cta.config import Config, utc_now_iso
 from cta.db import open_store, transaction
 from cta.knowledge import load_doc
-from cta.materials import load_catalog
+from cta.materials import load_task_catalog
 from cta.model import ModelResponse, create_client
 from cta.pricing import load_price_table
 from cta.prompts import REVIEW_PROMPT_VERSION, REVIEW_SYSTEM_PROMPT, REVIEW_TOOL_DEFINITIONS
@@ -163,12 +163,12 @@ def _read_material(conn, task_id: str, catalog, material_id) -> dict:
 
 def review_task(config: Config, task_id: str) -> dict:
     price = load_price_table(config.project_root)
-    catalog = load_catalog(config.project_root)
     with open_store(config.db_path) as conn:
         task = _task(conn, task_id)
         output = latest_output(conn, task["id"])
         if output is None:
             raise ReviewError("当前任务还没有可核验的完整方案草稿。")
+        catalog = load_task_catalog(conn, task, config.project_root)
         existing = latest_review(conn, task["id"])
         if existing is not None and existing["output_id"] == output["output_id"] and existing["status"] == "complete":
             return {**TaskService(config).status(task_id), "duplicate": True, "review": existing}
