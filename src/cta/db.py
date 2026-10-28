@@ -13,7 +13,7 @@ from pathlib import Path
 
 from cta import __version__
 
-SCHEMA_VERSION = 4
+SCHEMA_VERSION = 5
 
 SCHEMA = """
 CREATE TABLE IF NOT EXISTS meta (
@@ -141,6 +141,15 @@ CREATE TABLE IF NOT EXISTS knowledge_loads (
     content TEXT NOT NULL,
     loaded_at TEXT NOT NULL,
     UNIQUE(task_id, agent, knowledge_id)
+);
+
+CREATE TABLE IF NOT EXISTS material_snapshots (
+    task_id TEXT NOT NULL REFERENCES tasks(id) ON DELETE CASCADE,
+    material_id TEXT NOT NULL,
+    version TEXT NOT NULL,
+    content_json TEXT NOT NULL,
+    loaded_at TEXT NOT NULL,
+    PRIMARY KEY (task_id, material_id)
 );
 
 CREATE TABLE IF NOT EXISTS briefs (

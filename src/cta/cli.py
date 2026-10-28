@@ -37,9 +37,16 @@ def build_parser() -> argparse.ArgumentParser:
     status = sub.add_parser("status", parents=[common], help="查询任务状态")
     status.add_argument("task_id")
 
-    run = sub.add_parser("run", parents=[common], help="执行或显式续跑主循环")
+    run = sub.add_parser("run", parents=[common], help="执行主循环")
     run.add_argument("task_id")
     run.add_argument("--max-rounds", type=int, default=None, help="仅用于测试注入的更小轮数上限")
+
+    resume = sub.add_parser("resume", parents=[common], help="显式续跑：先核实未完成动作再继续")
+    resume.add_argument("task_id")
+    resume.add_argument("--max-rounds", type=int, default=None, help="仅用于测试注入的更小轮数上限")
+
+    pause = sub.add_parser("pause", parents=[common], help="暂停任务，模拟时钟不推进")
+    pause.add_argument("task_id")
 
     inspect = sub.add_parser("inspect", parents=[common], help="查看消息、知识、工具结果与消耗")
     inspect.add_argument("task_id")
@@ -119,6 +126,12 @@ def main(argv: list[str] | None = None) -> int:
             from cta.loop import run_task
 
             document = run_task(config, args.task_id, max_rounds=args.max_rounds)
+        elif args.command == "resume":
+            from cta.loop import resume_task
+
+            document = resume_task(config, args.task_id, max_rounds=args.max_rounds)
+        elif args.command == "pause":
+            document = service.pause(args.task_id)
         elif args.command == "inspect":
             document = service.inspect(args.task_id)
         elif args.command == "review":

@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import os
 import re
 from dataclasses import dataclass
 from pathlib import Path
@@ -10,6 +11,14 @@ from pathlib import Path
 from cta.config import find_project_root
 
 DEFAULT_MATERIALS_VERSION = "2026-10-29.v1"
+
+
+def _catalog_path(project_root: Path) -> Path:
+    """Test-only override keeps an injected catalog outside the shared fixtures."""
+    override = os.environ.get("CTA_MATERIALS_PATH")
+    if override:
+        return Path(override)
+    return project_root / "fixtures" / "materials" / "catalog.json"
 
 
 @dataclass(frozen=True)
@@ -144,6 +153,61 @@ class MaterialCatalog:
 
 def load_catalog(project_root: Path | None = None) -> MaterialCatalog:
     root = project_root or find_project_root()
-    path = root / "fixtures" / "materials" / "catalog.json"
+    path = _catalog_path(root)
     payload = json.loads(path.read_text(encoding="utf-8"))
     return MaterialCatalog(payload, path)
+
+
+def load_task_catalog(conn, task, project_root: Path) -> MaterialCatalog:
+    """Freeze the task's material bodies at first use and restore that snapshot.
+
+    A changed external fixture or a cold material cache must not silently
+    replace bodies the task already used; recovery reads the saved snapshot.
+    """
+    from cta.config import utc_now_iso
+    from cta.db import transaction
+
+    rows = conn.execute(
+        "SELECT * FROM material_snapshots WHERE task_id = ? ORDER BY material_id",
+        (task["id"],),
+    ).fetchall()
+    if rows:
+        version = rows[0]["version"]
+        materials = []
+        for row in rows:
+            saved = json.loads(row["content_json"])
+            materials.append(
+                {
+                    "id": saved.get("material_id", row["material_id"]),
+                    "title": saved.get("title", ""),
+                    "kind": saved.get("kind", ""),
+                    "source": saved.get("source", ""),
+                    "scope": saved.get("scope", ""),
+                    "text": saved.get("text", ""),
+                }
+            )
+        return MaterialCatalog({"version": version, "materials": materials}, Path("<task-snapshot>"))
+
+    catalog = load_catalog(project_root)
+    now = utc_now_iso()
+    with transaction(conn):
+        for material in catalog.materials.values():
+            conn.execute(
+                """
+                INSERT OR IGNORE INTO material_snapshots
+                    (task_id, material_id, version, content_json, loaded_at)
+                VALUES (?, ?, ?, ?, ?)
+                """,
+                (
+                    task["id"],
+                    material.id,
+                    catalog.version,
+                    json.dumps(material.as_dict(), ensure_ascii=False),
+                    now,
+                ),
+            )
+        conn.execute(
+            "UPDATE tasks SET materials_version = ?, updated_at = ? WHERE id = ?",
+            (catalog.version, now, task["id"]),
+        )
+    return catalog

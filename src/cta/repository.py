@@ -83,7 +83,12 @@ def api_messages(conn: sqlite3.Connection, task_id: str, agent: str = "main") ->
 
 
 def find_pending_tool_calls(conn: sqlite3.Connection, task_id: str, agent: str = "main") -> list[dict]:
-    """Return tool calls that have no matching tool result (interrupted round)."""
+    """Return tool calls that have no matching tool result (interrupted round).
+
+    Recovery needs to know when the request was appended so it can verify
+    whether the business effect (brief, output, clarification, ...) happened
+    after the request and therefore belongs to it.
+    """
     rows = read_messages(conn, task_id, agent)
     answered = {row["tool_call_id"] for row in rows if row["role"] == "tool" and row["tool_call_id"]}
     pending = []
@@ -91,7 +96,7 @@ def find_pending_tool_calls(conn: sqlite3.Connection, task_id: str, agent: str =
         if row["role"] == "assistant" and row["tool_calls_json"]:
             for call in json.loads(row["tool_calls_json"]):
                 if call["id"] not in answered:
-                    pending.append(call)
+                    pending.append({**call, "requested_at": row["created_at"], "request_seq": row["seq"]})
     return pending
 
 
@@ -376,6 +381,43 @@ def latest_save(conn: sqlite3.Connection, task_id: str) -> dict | None:
     }
 
 
+PLAN_VERSION = "plan-2026-10-29.v1"
+
+
+def plan_view(task, output: dict | None, review: dict | None, save: dict | None) -> dict:
+    """The task plan shared by status views, reports and recovery."""
+    brief_done = int(task["brief_version"]) > 0
+    phase = task["phase"]
+    draft_done = output is not None
+    review_done = review is not None and review["status"] == "complete"
+    save_done = save is not None and save["verified"]
+    return {
+        "version": PLAN_VERSION,
+        "steps": [
+            {"step": "brief", "title": "业务简报", "status": "done" if brief_done else "current"},
+            {
+                "step": "campaign_draft",
+                "title": "完整活动方案草稿",
+                "status": "done" if draft_done else ("current" if phase == "brief_ready" else "pending"),
+            },
+            {
+                "step": "review",
+                "title": "内容核验",
+                "status": "done" if review_done else ("current" if phase in ("draft_ready", "review_incomplete") else "pending"),
+            },
+            {
+                "step": "save",
+                "title": "核实保存与导出",
+                "status": "done" if save_done else ("current" if phase in ("reviewed", "save_failed", "save_unknown") else "pending"),
+            },
+        ],
+    }
+
+
+def pending_todos(task, output: dict | None, review: dict | None, save: dict | None) -> list[dict]:
+    return [dict(step) for step in plan_view(task, output, review, save)["steps"] if step["status"] != "done"]
+
+
 def create_save(
     conn: sqlite3.Connection,
     *,
@@ -465,21 +507,35 @@ def snapshot_state(conn: sqlite3.Connection, task_id: str) -> dict:
     task = conn.execute("SELECT * FROM tasks WHERE id = ?", (task_id,)).fetchone()
     brief = latest_brief(conn, task_id)
     output = latest_output(conn, task_id)
+    review = latest_review(conn, task_id)
+    save = latest_save(conn, task_id)
     questions = conn.execute(
         "SELECT questions_json FROM clarifications WHERE task_id = ? ORDER BY id DESC LIMIT 1", (task_id,)
+    ).fetchone()
+    recovery_count = conn.execute(
+        "SELECT COUNT(*) AS n FROM messages WHERE task_id = ? AND agent = 'main' AND meta_json LIKE '%recovery_fact%'",
+        (task_id,),
     ).fetchone()
     return {
         "phase": task["phase"],
         "status": task["status"],
+        "paused": bool(task["paused"]),
         "input_version": task["input_version"],
         "brief_version": task["brief_version"],
         "output_version": None if output is None else output["version"],
+        "review": None
+        if review is None
+        else {"review_id": review["review_id"], "status": review["status"], "verdict": review["verdict"]},
+        "save": None
+        if save is None
+        else {"save_id": save["save_id"], "status": save["status"], "verified": save["verified"]},
         "sim_elapsed_ms": task["sim_elapsed_ms"],
         "used_rounds": task["used_rounds"],
         "spent_cents": task_spent(conn, task_id),
         "brief_goal": (brief or {}).get("content", {}).get("goal"),
         "open_questions": [] if questions is None else json.loads(questions["questions_json"]),
-        "save": None,
+        "todos": pending_todos(task, output, review, save),
+        "recovery_count": int(recovery_count["n"]),
     }
 
 

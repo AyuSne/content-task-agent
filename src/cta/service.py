@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import hashlib
 import json
 import secrets
 from datetime import datetime, timedelta
@@ -13,7 +14,19 @@ from cta.identity import Intake, RawInput, dedupe_key, normalize
 from cta.materials import load_catalog
 from cta.pricing import load_price_table
 from cta.prompts import PROMPT_VERSION
-from cta.repository import latest_brief, latest_output, latest_review, latest_save, task_llm_usage, task_spent
+from cta.repository import (
+    append_message,
+    append_snapshot,
+    latest_brief,
+    latest_output,
+    latest_review,
+    latest_save,
+    pending_todos,
+    plan_view,
+    snapshot_state,
+    task_llm_usage,
+    task_spent,
+)
 
 STATUS_NEEDS_INPUT = "needs_input"
 STATUS_IN_PROGRESS = "in_progress"
@@ -99,6 +112,32 @@ class TaskService:
         with open_store(self.config.db_path) as conn:
             task = self._require_task(conn, task_id)
             return self._view(conn, task, duplicate=False)
+
+    def pause(self, task_id: str) -> dict:
+        """Pause explicitly without touching the simulated clock or round count."""
+        with open_store(self.config.db_path) as conn:
+            task = self._require_task(conn, task_id)
+            if task["status"] != STATUS_IN_PROGRESS:
+                raise ValueError("只有进行中的任务可以暂停。")
+            if not task["paused"]:
+                now = utc_now_iso()
+                with transaction(conn):
+                    conn.execute(
+                        "UPDATE tasks SET paused = 1, updated_at = ? WHERE id = ?",
+                        (now, task_id),
+                    )
+                    append_message(
+                        conn,
+                        task_id,
+                        "user",
+                        "[暂停] 运营显式暂停；模拟时钟、预算、截止与已用轮数保持不变，由显式续跑继续。",
+                        meta={"kind": "pause"},
+                    )
+                    append_snapshot(conn, task_id, snapshot_state(conn, task_id))
+                task = self._require_task(conn, task_id)
+            view = self._view(conn, task, duplicate=False)
+            view["paused_now"] = True
+            return view
 
     def inspect(self, task_id: str) -> dict:
         with open_store(self.config.db_path) as conn:
@@ -222,6 +261,36 @@ class TaskService:
                     "SELECT * FROM knowledge_loads WHERE task_id = ? AND agent = 'reviewer' ORDER BY id", (task_id,)
                 )
             ]
+            view["material_snapshots"] = [
+                {
+                    "material_id": row["material_id"],
+                    "version": row["version"],
+                    "sha256": hashlib.sha256(row["content_json"].encode("utf-8")).hexdigest(),
+                    "chars": len(json.loads(row["content_json"]).get("text", "")),
+                    "loaded_at": row["loaded_at"],
+                }
+                for row in conn.execute(
+                    "SELECT * FROM material_snapshots WHERE task_id = ? ORDER BY material_id", (task_id,)
+                )
+            ]
+            view["snapshots"] = [
+                {"hash": row["hash"], "content": json.loads(row["content_json"]), "created_at": row["created_at"]}
+                for row in conn.execute(
+                    "SELECT * FROM snapshots WHERE task_id = ? ORDER BY id", (task_id,)
+                )
+            ]
+            view["recoveries"] = [
+                {
+                    "seq": row["seq"],
+                    "summary": json.loads(row["meta_json"]).get("summary"),
+                    "created_at": row["created_at"],
+                }
+                for row in conn.execute(
+                    "SELECT * FROM messages WHERE task_id = ? AND agent = 'main' "
+                    "AND meta_json LIKE '%recovery_fact%' ORDER BY seq",
+                    (task_id,),
+                )
+            ]
             return view
 
     def list_tasks(self) -> dict:
@@ -257,6 +326,11 @@ class TaskService:
         output = latest_output(conn, task["id"])
         review = latest_review(conn, task["id"])
         save = latest_save(conn, task["id"])
+        recovery_row = conn.execute(
+            "SELECT meta_json, created_at FROM messages WHERE task_id = ? AND agent = 'main' "
+            "AND meta_json LIKE '%recovery_fact%' ORDER BY seq DESC LIMIT 1",
+            (task["id"],),
+        ).fetchone()
         return {
             "task_id": task["id"],
             "mode": task["mode"],
@@ -273,7 +347,9 @@ class TaskService:
             "brief": brief,
             "review": review,
             "save": save,
-            "plan": self._plan_view(task, output, review, save),
+            "plan": plan_view(task, output, review, save),
+            "todos": pending_todos(task, output, review, save),
+            "recovery": None if recovery_row is None else json.loads(recovery_row["meta_json"]).get("summary"),
             "gaps": self._gaps(conn, task, brief),
             "mode_notice": (
                 "Mock 仅验证流程、状态与确定性规则，不代表真实模型决策或语义质量。"
@@ -290,35 +366,6 @@ class TaskService:
                 "pricing": task["pricing_version"],
             },
             "artifacts": {"campaign_versions": 0 if output is None else output["version"]},
-        }
-
-    @staticmethod
-    def _plan_view(task, output: dict | None, review: dict | None, save: dict | None) -> dict:
-        brief_done = int(task["brief_version"]) > 0
-        phase = task["phase"]
-        draft_done = output is not None
-        review_done = review is not None and review["status"] == "complete"
-        save_done = save is not None and save["verified"]
-        return {
-            "version": "plan-2026-10-29.v1",
-            "steps": [
-                {"step": "brief", "title": "业务简报", "status": "done" if brief_done else "current"},
-                {
-                    "step": "campaign_draft",
-                    "title": "完整活动方案草稿",
-                    "status": "done" if draft_done else ("current" if phase == "brief_ready" else "pending"),
-                },
-                {
-                    "step": "review",
-                    "title": "内容核验",
-                    "status": "done" if review_done else ("current" if phase in ("draft_ready", "review_incomplete") else "pending"),
-                },
-                {
-                    "step": "save",
-                    "title": "核实保存与导出",
-                    "status": "done" if save_done else ("current" if phase in ("reviewed", "save_failed") else "pending"),
-                },
-            ],
         }
 
     @staticmethod
