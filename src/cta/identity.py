@@ -129,11 +129,21 @@ def _parse_budget(raw: str | None, errors: list[ValidationError]) -> int | None:
     if amount <= 0:
         errors.append(ValidationError("budget", "not_positive", "任务预算必须大于 0。"))
         return None
-    quantized = amount.quantize(Decimal("0.01"))
+    try:
+        with localcontext() as ctx:
+            ctx.prec = max(28, amount.adjusted() + 4)
+            quantized = amount.quantize(Decimal("0.01"))
+    except (InvalidOperation, ValueError):
+        errors.append(ValidationError("budget", "out_of_range", "任务预算超出可处理范围。"))
+        return None
     if quantized != amount:
         errors.append(ValidationError("budget", "too_precise", "任务预算最多保留两位小数。"))
         return None
-    return int(quantized * 100)
+    cents = int(quantized * 100)
+    if cents > 2**63 - 1:
+        errors.append(ValidationError("budget", "out_of_range", "任务预算超出可存储范围。"))
+        return None
+    return cents
 
 
 def _parse_deadline(

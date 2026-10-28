@@ -20,6 +20,19 @@ def cli_env(tmp_path, monkeypatch):
     return tmp_path
 
 
+@pytest.fixture
+def model_script(tmp_path, monkeypatch):
+    """Write a scripted model response list and point the CLI at it."""
+    path = tmp_path / "model-script.json"
+
+    def write(items):
+        path.write_text(json.dumps(items, ensure_ascii=False), encoding="utf-8")
+        monkeypatch.setenv("CTA_MODEL_SCRIPT", str(path))
+        return path
+
+    return write
+
+
 def run_cli(*args):
     from cta.cli import main
 
@@ -38,13 +51,15 @@ def cli_json(*args):
     return json.loads(out)
 
 
-def run_cli_process(*args, data_dir):
+def run_cli_process(*args, data_dir, extra_env=None):
     env = dict(os.environ)
     env["CTA_DATA_DIR"] = str(data_dir)
     env["CTA_SIM_START"] = "2026-10-29T00:00:00+08:00"
     env["DEEPSEEK_API_KEY"] = "sk-test-super-secret-key"
     env["PYTHONUTF8"] = "1"
     env["PYTHONIOENCODING"] = "utf-8"
+    if extra_env:
+        env.update(extra_env)
     return subprocess.run(
         [sys.executable, "-m", "cta", *args],
         cwd=REPO_ROOT,

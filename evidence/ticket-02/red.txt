@@ -1,0 +1,539 @@
+﻿FFFFFFFFFFFFFFFFF                                                        [100%]
+================================== FAILURES ===================================
+__ test_scripted_main_loop_produces_valid_brief_with_evidence_and_accounting __
+
+cli_env = WindowsPath('C:/Users/10167/AppData/Local/Temp/pytest-of-10167/pytest-16/test_scripted_main_loop_produc0')
+model_script = <function model_script.<locals>.write at 0x0000020310A78EA0>
+
+    def test_scripted_main_loop_produces_valid_brief_with_evidence_and_accounting(cli_env, model_script):
+        task = _create()
+        model_script(
+            [
+                _tool("search_materials", {"query": "自动卡点", "mode": "basic"}, usage={"prompt_tokens": 100, "completion_tokens": 20, "total_tokens": 120}),
+                _tool("read_material", {"material_id": "M-001"}),
+                _brief_tool(),
+            ]
+        )
+>       doc = cli_json("run", task["task_id"])
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+..\.scratch\content-task-agent-build\run-state\red-02-snapshot\tests\test_brief_loop.py:68: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+args = ('run', 't_fd5c0a7466f5')
+
+    def cli_json(*args):
+        code, out, err = run_cli(*args)
+>       assert code == 0, f"exit={code} stderr={err} stdout={out}"
+E       AssertionError: exit=2 stderr=usage: cta [-h] [--mode {mock,real}] [--data-dir DATA_DIR]
+E                    [--format {json,text}]
+E                    {create,status,list} ...
+E         cta: error: argument command: invalid choice: 'run' (choose from create, status, list)
+E          stdout=
+E       assert 2 == 0
+
+..\.scratch\content-task-agent-build\run-state\red-02-snapshot\tests\conftest.py:50: AssertionError
+____________ test_multiple_tool_calls_are_all_rejected_and_counted ____________
+
+cli_env = WindowsPath('C:/Users/10167/AppData/Local/Temp/pytest-of-10167/pytest-16/test_multiple_tool_calls_are_a0')
+model_script = <function model_script.<locals>.write at 0x0000020310A780E0>
+
+    def test_multiple_tool_calls_are_all_rejected_and_counted(cli_env, model_script):
+        task = _create()
+        model_script(
+            [
+                {"type": "multi", "calls": [
+                    {"name": "search_materials", "arguments": {"query": "自动卡点"}},
+                    {"name": "read_material", "arguments": {"material_id": "M-001"}},
+                ]},
+                _brief_tool(),
+            ]
+        )
+>       doc = cli_json("run", task["task_id"])
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+..\.scratch\content-task-agent-build\run-state\red-02-snapshot\tests\test_brief_loop.py:111: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+args = ('run', 't_cbbd47538df0')
+
+    def cli_json(*args):
+        code, out, err = run_cli(*args)
+>       assert code == 0, f"exit={code} stderr={err} stdout={out}"
+E       AssertionError: exit=2 stderr=usage: cta [-h] [--mode {mock,real}] [--data-dir DATA_DIR]
+E                    [--format {json,text}]
+E                    {create,status,list} ...
+E         cta: error: argument command: invalid choice: 'run' (choose from create, status, list)
+E          stdout=
+E       assert 2 == 0
+
+..\.scratch\content-task-agent-build\run-state\red-02-snapshot\tests\conftest.py:50: AssertionError
+_______ test_unknown_and_invalid_tools_do_not_execute_business_actions ________
+
+cli_env = WindowsPath('C:/Users/10167/AppData/Local/Temp/pytest-of-10167/pytest-16/test_unknown_and_invalid_tools0')
+model_script = <function model_script.<locals>.write at 0x0000020310A784A0>
+
+    def test_unknown_and_invalid_tools_do_not_execute_business_actions(cli_env, model_script):
+        task = _create()
+        model_script(
+            [
+                _tool("save_campaign", {"path": "x"}),
+                _tool("search_materials", "not-json"),
+                _brief_tool(),
+            ]
+        )
+>       doc = cli_json("run", task["task_id"])
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+..\.scratch\content-task-agent-build\run-state\red-02-snapshot\tests\test_brief_loop.py:131: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+args = ('run', 't_ceaa4bf171b4')
+
+    def cli_json(*args):
+        code, out, err = run_cli(*args)
+>       assert code == 0, f"exit={code} stderr={err} stdout={out}"
+E       AssertionError: exit=2 stderr=usage: cta [-h] [--mode {mock,real}] [--data-dir DATA_DIR]
+E                    [--format {json,text}]
+E                    {create,status,list} ...
+E         cta: error: argument command: invalid choice: 'run' (choose from create, status, list)
+E          stdout=
+E       assert 2 == 0
+
+..\.scratch\content-task-agent-build\run-state\red-02-snapshot\tests\conftest.py:50: AssertionError
+___ test_truncated_response_rejects_calls_and_asks_for_one_complete_action ____
+
+cli_env = WindowsPath('C:/Users/10167/AppData/Local/Temp/pytest-of-10167/pytest-16/test_truncated_response_reject0')
+model_script = <function model_script.<locals>.write at 0x0000020310D000E0>
+
+    def test_truncated_response_rejects_calls_and_asks_for_one_complete_action(cli_env, model_script):
+        task = _create()
+        model_script(
+            [
+                {"type": "length", "content": "{\"type\":\"tool\"", "usage": {"prompt_tokens": 10, "completion_tokens": 2}},
+                _brief_tool(),
+            ]
+        )
+>       doc = cli_json("run", task["task_id"])
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+..\.scratch\content-task-agent-build\run-state\red-02-snapshot\tests\test_brief_loop.py:149: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+args = ('run', 't_42f2d5524af7')
+
+    def cli_json(*args):
+        code, out, err = run_cli(*args)
+>       assert code == 0, f"exit={code} stderr={err} stdout={out}"
+E       AssertionError: exit=2 stderr=usage: cta [-h] [--mode {mock,real}] [--data-dir DATA_DIR]
+E                    [--format {json,text}]
+E                    {create,status,list} ...
+E         cta: error: argument command: invalid choice: 'run' (choose from create, status, list)
+E          stdout=
+E       assert 2 == 0
+
+..\.scratch\content-task-agent-build\run-state\red-02-snapshot\tests\conftest.py:50: AssertionError
+________ test_text_without_tool_call_is_feedback_not_a_business_action ________
+
+cli_env = WindowsPath('C:/Users/10167/AppData/Local/Temp/pytest-of-10167/pytest-16/test_text_without_tool_call_is0')
+model_script = <function model_script.<locals>.write at 0x0000020310D562A0>
+
+    def test_text_without_tool_call_is_feedback_not_a_business_action(cli_env, model_script):
+        task = _create()
+        model_script([{"type": "text", "content": "我还需要更多信息。"}, _brief_tool()])
+>       doc = cli_json("run", task["task_id"])
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+..\.scratch\content-task-agent-build\run-state\red-02-snapshot\tests\test_brief_loop.py:160: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+args = ('run', 't_2fd7f6481ba3')
+
+    def cli_json(*args):
+        code, out, err = run_cli(*args)
+>       assert code == 0, f"exit={code} stderr={err} stdout={out}"
+E       AssertionError: exit=2 stderr=usage: cta [-h] [--mode {mock,real}] [--data-dir DATA_DIR]
+E                    [--format {json,text}]
+E                    {create,status,list} ...
+E         cta: error: argument command: invalid choice: 'run' (choose from create, status, list)
+E          stdout=
+E       assert 2 == 0
+
+..\.scratch\content-task-agent-build\run-state\red-02-snapshot\tests\conftest.py:50: AssertionError
+____________ test_model_error_stops_incomplete_and_keeps_progress _____________
+
+cli_env = WindowsPath('C:/Users/10167/AppData/Local/Temp/pytest-of-10167/pytest-16/test_model_error_stops_incompl0')
+model_script = <function model_script.<locals>.write at 0x0000020310D56200>
+
+    def test_model_error_stops_incomplete_and_keeps_progress(cli_env, model_script):
+        task = _create()
+        model_script([{"type": "error", "message": "upstream 503"}])
+>       doc = cli_json("run", task["task_id"])
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+..\.scratch\content-task-agent-build\run-state\red-02-snapshot\tests\test_brief_loop.py:170: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+args = ('run', 't_67bccade4c7e')
+
+    def cli_json(*args):
+        code, out, err = run_cli(*args)
+>       assert code == 0, f"exit={code} stderr={err} stdout={out}"
+E       AssertionError: exit=2 stderr=usage: cta [-h] [--mode {mock,real}] [--data-dir DATA_DIR]
+E                    [--format {json,text}]
+E                    {create,status,list} ...
+E         cta: error: argument command: invalid choice: 'run' (choose from create, status, list)
+E          stdout=
+E       assert 2 == 0
+
+..\.scratch\content-task-agent-build\run-state\red-02-snapshot\tests\conftest.py:50: AssertionError
+__________ test_estimate_covers_full_remaining_path_without_charging __________
+
+cli_env = WindowsPath('C:/Users/10167/AppData/Local/Temp/pytest-of-10167/pytest-16/test_estimate_covers_full_rema0')
+model_script = <function model_script.<locals>.write at 0x0000020310D00B80>
+
+    def test_estimate_covers_full_remaining_path_without_charging(cli_env, model_script):
+        task = _create()
+        model_script(
+            [
+                _tool(
+                    "estimate_cost",
+                    {"search_mode": "search_basic", "generation_mode": "generate_direct", "include_revision": True},
+                ),
+                _brief_tool(),
+            ]
+        )
+>       doc = cli_json("run", task["task_id"])
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+..\.scratch\content-task-agent-build\run-state\red-02-snapshot\tests\test_brief_loop.py:195: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+args = ('run', 't_c17e7e89efeb')
+
+    def cli_json(*args):
+        code, out, err = run_cli(*args)
+>       assert code == 0, f"exit={code} stderr={err} stdout={out}"
+E       AssertionError: exit=2 stderr=usage: cta [-h] [--mode {mock,real}] [--data-dir DATA_DIR]
+E                    [--format {json,text}]
+E                    {create,status,list} ...
+E         cta: error: argument command: invalid choice: 'run' (choose from create, status, list)
+E          stdout=
+E       assert 2 == 0
+
+..\.scratch\content-task-agent-build\run-state\red-02-snapshot\tests\conftest.py:50: AssertionError
+________ test_budget_guard_rejects_before_attempt_and_model_continues _________
+
+cli_env = WindowsPath('C:/Users/10167/AppData/Local/Temp/pytest-of-10167/pytest-16/test_budget_guard_rejects_befo0')
+model_script = <function model_script.<locals>.write at 0x0000020310D007C0>
+
+    def test_budget_guard_rejects_before_attempt_and_model_continues(cli_env, model_script):
+        task = _create(budget="0.01")
+        model_script(
+            [
+                _tool("search_materials", {"query": "自动卡点"}),
+                _brief_tool(),
+            ]
+        )
+>       doc = cli_json("run", task["task_id"])
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+..\.scratch\content-task-agent-build\run-state\red-02-snapshot\tests\test_brief_loop.py:218: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+args = ('run', 't_bd81b093cfa0')
+
+    def cli_json(*args):
+        code, out, err = run_cli(*args)
+>       assert code == 0, f"exit={code} stderr={err} stdout={out}"
+E       AssertionError: exit=2 stderr=usage: cta [-h] [--mode {mock,real}] [--data-dir DATA_DIR]
+E                    [--format {json,text}]
+E                    {create,status,list} ...
+E         cta: error: argument command: invalid choice: 'run' (choose from create, status, list)
+E          stdout=
+E       assert 2 == 0
+
+..\.scratch\content-task-agent-build\run-state\red-02-snapshot\tests\conftest.py:50: AssertionError
+___________________ test_deadline_guard_rejects_long_search ___________________
+
+cli_env = WindowsPath('C:/Users/10167/AppData/Local/Temp/pytest-of-10167/pytest-16/test_deadline_guard_rejects_lo0')
+model_script = <function model_script.<locals>.write at 0x0000020310D013A0>
+
+    def test_deadline_guard_rejects_long_search(cli_env, model_script):
+        task = _create(deadline="2026-10-29T00:00:01+08:00")
+        model_script([_tool("search_materials", {"query": "自动卡点"}), _brief_tool()])
+>       doc = cli_json("run", task["task_id"])
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+..\.scratch\content-task-agent-build\run-state\red-02-snapshot\tests\test_brief_loop.py:231: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+args = ('run', 't_2b129018e386')
+
+    def cli_json(*args):
+        code, out, err = run_cli(*args)
+>       assert code == 0, f"exit={code} stderr={err} stdout={out}"
+E       AssertionError: exit=2 stderr=usage: cta [-h] [--mode {mock,real}] [--data-dir DATA_DIR]
+E                    [--format {json,text}]
+E                    {create,status,list} ...
+E         cta: error: argument command: invalid choice: 'run' (choose from create, status, list)
+E          stdout=
+E       assert 2 == 0
+
+..\.scratch\content-task-agent-build\run-state\red-02-snapshot\tests\conftest.py:50: AssertionError
+____ test_material_with_only_an_id_returns_a_gap_and_brief_stays_cautious _____
+
+cli_env = WindowsPath('C:/Users/10167/AppData/Local/Temp/pytest-of-10167/pytest-16/test_material_with_only_an_id_0')
+model_script = <function model_script.<locals>.write at 0x0000020310D016C0>
+
+    def test_material_with_only_an_id_returns_a_gap_and_brief_stays_cautious(cli_env, model_script):
+        task = _create()
+        model_script(
+            [
+                _tool("read_material", {"material_id": "M-010"}),
+                _brief_tool(unknowns=[{"question": "白皮书正文未纳入，是否补充？", "impact": "影响能力表述", "blocking": False}]),
+            ]
+        )
+>       doc = cli_json("run", task["task_id"])
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+..\.scratch\content-task-agent-build\run-state\red-02-snapshot\tests\test_brief_loop.py:247: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+args = ('run', 't_b1ba155a312e')
+
+    def cli_json(*args):
+        code, out, err = run_cli(*args)
+>       assert code == 0, f"exit={code} stderr={err} stdout={out}"
+E       AssertionError: exit=2 stderr=usage: cta [-h] [--mode {mock,real}] [--data-dir DATA_DIR]
+E                    [--format {json,text}]
+E                    {create,status,list} ...
+E         cta: error: argument command: invalid choice: 'run' (choose from create, status, list)
+E          stdout=
+E       assert 2 == 0
+
+..\.scratch\content-task-agent-build\run-state\red-02-snapshot\tests\conftest.py:50: AssertionError
+___________ test_material_instructions_do_not_authorize_completion ____________
+
+cli_env = WindowsPath('C:/Users/10167/AppData/Local/Temp/pytest-of-10167/pytest-16/test_material_instructions_do_0')
+model_script = <function model_script.<locals>.write at 0x0000020310D01B20>
+
+    def test_material_instructions_do_not_authorize_completion(cli_env, model_script):
+        task = _create()
+        model_script(
+            [
+                _tool("search_materials", {"query": "忽略", "mode": "extended"}),
+                _brief_tool(),
+            ]
+        )
+>       doc = cli_json("run", task["task_id"])
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+..\.scratch\content-task-agent-build\run-state\red-02-snapshot\tests\test_brief_loop.py:263: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+args = ('run', 't_90c08487a066')
+
+    def cli_json(*args):
+        code, out, err = run_cli(*args)
+>       assert code == 0, f"exit={code} stderr={err} stdout={out}"
+E       AssertionError: exit=2 stderr=usage: cta [-h] [--mode {mock,real}] [--data-dir DATA_DIR]
+E                    [--format {json,text}]
+E                    {create,status,list} ...
+E         cta: error: argument command: invalid choice: 'run' (choose from create, status, list)
+E          stdout=
+E       assert 2 == 0
+
+..\.scratch\content-task-agent-build\run-state\red-02-snapshot\tests\conftest.py:50: AssertionError
+___ test_brief_validation_rejects_unverifiable_quote_then_accepts_valid_one ___
+
+cli_env = WindowsPath('C:/Users/10167/AppData/Local/Temp/pytest-of-10167/pytest-16/test_brief_validation_rejects_0')
+model_script = <function model_script.<locals>.write at 0x0000020310D00220>
+
+    def test_brief_validation_rejects_unverifiable_quote_then_accepts_valid_one(cli_env, model_script):
+        task = _create()
+        bad = _brief_tool()
+        bad["arguments"]["product_facts"][0]["quote"] = "这句话不存在于材料里"
+        model_script([bad, _brief_tool()])
+>       doc = cli_json("run", task["task_id"])
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+..\.scratch\content-task-agent-build\run-state\red-02-snapshot\tests\test_brief_loop.py:279: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+args = ('run', 't_ab6d5287bb48')
+
+    def cli_json(*args):
+        code, out, err = run_cli(*args)
+>       assert code == 0, f"exit={code} stderr={err} stdout={out}"
+E       AssertionError: exit=2 stderr=usage: cta [-h] [--mode {mock,real}] [--data-dir DATA_DIR]
+E                    [--format {json,text}]
+E                    {create,status,list} ...
+E         cta: error: argument command: invalid choice: 'run' (choose from create, status, list)
+E          stdout=
+E       assert 2 == 0
+
+..\.scratch\content-task-agent-build\run-state\red-02-snapshot\tests\conftest.py:50: AssertionError
+________ test_clarification_stops_for_user_and_rerun_does_not_execute _________
+
+cli_env = WindowsPath('C:/Users/10167/AppData/Local/Temp/pytest-of-10167/pytest-16/test_clarification_stops_for_u0')
+model_script = <function model_script.<locals>.write at 0x0000020310D02840>
+
+    def test_clarification_stops_for_user_and_rerun_does_not_execute(cli_env, model_script):
+        task = _create()
+        model_script(
+            [
+                _tool(
+                    "request_clarification",
+                    {"questions": [
+                        {"question": "活动目标是拉新还是促活？", "impact": "决定内容与行动引导", "blocking": True},
+                    ]},
+                )
+            ]
+        )
+>       doc = cli_json("run", task["task_id"])
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+..\.scratch\content-task-agent-build\run-state\red-02-snapshot\tests\test_brief_loop.py:301: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+args = ('run', 't_bd7e6a53c03a')
+
+    def cli_json(*args):
+        code, out, err = run_cli(*args)
+>       assert code == 0, f"exit={code} stderr={err} stdout={out}"
+E       AssertionError: exit=2 stderr=usage: cta [-h] [--mode {mock,real}] [--data-dir DATA_DIR]
+E                    [--format {json,text}]
+E                    {create,status,list} ...
+E         cta: error: argument command: invalid choice: 'run' (choose from create, status, list)
+E          stdout=
+E       assert 2 == 0
+
+..\.scratch\content-task-agent-build\run-state\red-02-snapshot\tests\conftest.py:50: AssertionError
+____________________ test_stop_incomplete_preserves_state _____________________
+
+cli_env = WindowsPath('C:/Users/10167/AppData/Local/Temp/pytest-of-10167/pytest-16/test_stop_incomplete_preserves0')
+model_script = <function model_script.<locals>.write at 0x0000020310D01260>
+
+    def test_stop_incomplete_preserves_state(cli_env, model_script):
+        task = _create()
+        model_script([_tool("stop_incomplete", {"reason": "现有资料无法支持核心卖点，且预算不足以补查。"})])
+>       doc = cli_json("run", task["task_id"])
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+..\.scratch\content-task-agent-build\run-state\red-02-snapshot\tests\test_brief_loop.py:318: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+args = ('run', 't_2a3dec5119d3')
+
+    def cli_json(*args):
+        code, out, err = run_cli(*args)
+>       assert code == 0, f"exit={code} stderr={err} stdout={out}"
+E       AssertionError: exit=2 stderr=usage: cta [-h] [--mode {mock,real}] [--data-dir DATA_DIR]
+E                    [--format {json,text}]
+E                    {create,status,list} ...
+E         cta: error: argument command: invalid choice: 'run' (choose from create, status, list)
+E          stdout=
+E       assert 2 == 0
+
+..\.scratch\content-task-agent-build\run-state\red-02-snapshot\tests\conftest.py:50: AssertionError
+_______________________ test_round_cap_stops_incomplete _______________________
+
+cli_env = WindowsPath('C:/Users/10167/AppData/Local/Temp/pytest-of-10167/pytest-16/test_round_cap_stops_incomplet0')
+model_script = <function model_script.<locals>.write at 0x0000020310D02F20>
+
+    def test_round_cap_stops_incomplete(cli_env, model_script):
+        task = _create()
+        model_script([{"type": "text", "content": f"第 {i} 轮没有动作"} for i in range(12)])
+>       doc = cli_json("run", task["task_id"])
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+..\.scratch\content-task-agent-build\run-state\red-02-snapshot\tests\test_brief_loop.py:327: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+args = ('run', 't_89e9f1c1d6a3')
+
+    def cli_json(*args):
+        code, out, err = run_cli(*args)
+>       assert code == 0, f"exit={code} stderr={err} stdout={out}"
+E       AssertionError: exit=2 stderr=usage: cta [-h] [--mode {mock,real}] [--data-dir DATA_DIR]
+E                    [--format {json,text}]
+E                    {create,status,list} ...
+E         cta: error: argument command: invalid choice: 'run' (choose from create, status, list)
+E          stdout=
+E       assert 2 == 0
+
+..\.scratch\content-task-agent-build\run-state\red-02-snapshot\tests\conftest.py:50: AssertionError
+__________ test_brief_ready_is_idempotent_and_context_is_append_only __________
+
+cli_env = WindowsPath('C:/Users/10167/AppData/Local/Temp/pytest-of-10167/pytest-16/test_brief_ready_is_idempotent0')
+model_script = <function model_script.<locals>.write at 0x0000020310D03380>
+
+    def test_brief_ready_is_idempotent_and_context_is_append_only(cli_env, model_script):
+        task = _create()
+        model_script([_tool("search_materials", {"query": "自动卡点"}), _brief_tool(), {"type": "text", "content": "不应被调用"}])
+>       first = cli_json("run", task["task_id"])
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+..\.scratch\content-task-agent-build\run-state\red-02-snapshot\tests\test_brief_loop.py:336: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+args = ('run', 't_d4167a12ca9f')
+
+    def cli_json(*args):
+        code, out, err = run_cli(*args)
+>       assert code == 0, f"exit={code} stderr={err} stdout={out}"
+E       AssertionError: exit=2 stderr=usage: cta [-h] [--mode {mock,real}] [--data-dir DATA_DIR]
+E                    [--format {json,text}]
+E                    {create,status,list} ...
+E         cta: error: argument command: invalid choice: 'run' (choose from create, status, list)
+E          stdout=
+E       assert 2 == 0
+
+..\.scratch\content-task-agent-build\run-state\red-02-snapshot\tests\conftest.py:50: AssertionError
+__________ test_cross_process_resume_continues_from_persisted_round ___________
+
+cli_env = WindowsPath('C:/Users/10167/AppData/Local/Temp/pytest-of-10167/pytest-16/test_cross_process_resume_cont0')
+model_script = <function model_script.<locals>.write at 0x0000020310D03420>
+
+    def test_cross_process_resume_continues_from_persisted_round(cli_env, model_script):
+        task = _create()
+        script = model_script(
+            [
+                _tool("search_materials", {"query": "自动卡点"}),
+                _brief_tool(),
+            ]
+        )
+        data_dir = cli_env / "data"
+        first = run_cli_process(
+            "run", task["task_id"], "--max-rounds", "1",
+            data_dir=data_dir, extra_env={"CTA_MODEL_SCRIPT": str(script)},
+        )
+>       assert first.returncode == 0, first.stderr
+E       AssertionError: usage: cta [-h] [--mode {mock,real}] [--data-dir DATA_DIR]
+E                    [--format {json,text}]
+E                    {create,status,list} ...
+E         cta: error: argument command: invalid choice: 'run' (choose from create, status, list)
+E         
+E       assert 2 == 0
+E        +  where 2 = CompletedProcess(args=['D:\\AAA小影科技\\content-task-agent\\.venv\\Scripts\\python.exe', '-m', 'cta', 'run', 't_47d885435...   {create,status,list} ...\ncta: error: argument command: invalid choice: 'run' (choose from create, status, list)\n").returncode
+
+..\.scratch\content-task-agent-build\run-state\red-02-snapshot\tests\test_brief_loop.py:363: AssertionError
+=========================== short test summary info ===========================
+FAILED ..\.scratch\content-task-agent-build\run-state\red-02-snapshot\tests\test_brief_loop.py::test_scripted_main_loop_produces_valid_brief_with_evidence_and_accounting
+FAILED ..\.scratch\content-task-agent-build\run-state\red-02-snapshot\tests\test_brief_loop.py::test_multiple_tool_calls_are_all_rejected_and_counted
+FAILED ..\.scratch\content-task-agent-build\run-state\red-02-snapshot\tests\test_brief_loop.py::test_unknown_and_invalid_tools_do_not_execute_business_actions
+FAILED ..\.scratch\content-task-agent-build\run-state\red-02-snapshot\tests\test_brief_loop.py::test_truncated_response_rejects_calls_and_asks_for_one_complete_action
+FAILED ..\.scratch\content-task-agent-build\run-state\red-02-snapshot\tests\test_brief_loop.py::test_text_without_tool_call_is_feedback_not_a_business_action
+FAILED ..\.scratch\content-task-agent-build\run-state\red-02-snapshot\tests\test_brief_loop.py::test_model_error_stops_incomplete_and_keeps_progress
+FAILED ..\.scratch\content-task-agent-build\run-state\red-02-snapshot\tests\test_brief_loop.py::test_estimate_covers_full_remaining_path_without_charging
+FAILED ..\.scratch\content-task-agent-build\run-state\red-02-snapshot\tests\test_brief_loop.py::test_budget_guard_rejects_before_attempt_and_model_continues
+FAILED ..\.scratch\content-task-agent-build\run-state\red-02-snapshot\tests\test_brief_loop.py::test_deadline_guard_rejects_long_search
+FAILED ..\.scratch\content-task-agent-build\run-state\red-02-snapshot\tests\test_brief_loop.py::test_material_with_only_an_id_returns_a_gap_and_brief_stays_cautious
+FAILED ..\.scratch\content-task-agent-build\run-state\red-02-snapshot\tests\test_brief_loop.py::test_material_instructions_do_not_authorize_completion
+FAILED ..\.scratch\content-task-agent-build\run-state\red-02-snapshot\tests\test_brief_loop.py::test_brief_validation_rejects_unverifiable_quote_then_accepts_valid_one
+FAILED ..\.scratch\content-task-agent-build\run-state\red-02-snapshot\tests\test_brief_loop.py::test_clarification_stops_for_user_and_rerun_does_not_execute
+FAILED ..\.scratch\content-task-agent-build\run-state\red-02-snapshot\tests\test_brief_loop.py::test_stop_incomplete_preserves_state
+FAILED ..\.scratch\content-task-agent-build\run-state\red-02-snapshot\tests\test_brief_loop.py::test_round_cap_stops_incomplete
+FAILED ..\.scratch\content-task-agent-build\run-state\red-02-snapshot\tests\test_brief_loop.py::test_brief_ready_is_idempotent_and_context_is_append_only
+FAILED ..\.scratch\content-task-agent-build\run-state\red-02-snapshot\tests\test_brief_loop.py::test_cross_process_resume_continues_from_persisted_round

@@ -37,6 +37,13 @@ def build_parser() -> argparse.ArgumentParser:
     status = sub.add_parser("status", parents=[common], help="查询任务状态")
     status.add_argument("task_id")
 
+    run = sub.add_parser("run", parents=[common], help="执行或显式续跑主循环")
+    run.add_argument("task_id")
+    run.add_argument("--max-rounds", type=int, default=None, help="仅用于测试注入的更小轮数上限")
+
+    inspect = sub.add_parser("inspect", parents=[common], help="查看消息、知识、工具结果与消耗")
+    inspect.add_argument("task_id")
+
     sub.add_parser("list", parents=[common], help="列出当前模式下的任务")
     return parser
 
@@ -97,6 +104,12 @@ def main(argv: list[str] | None = None) -> int:
             document = service.create(raw, explicit_new=args.new)
         elif args.command == "status":
             document = service.status(args.task_id)
+        elif args.command == "run":
+            from cta.loop import run_task
+
+            document = run_task(config, args.task_id, max_rounds=args.max_rounds)
+        elif args.command == "inspect":
+            document = service.inspect(args.task_id)
         elif args.command == "list":
             document = service.list_tasks()
         else:  # pragma: no cover - argparse guards this

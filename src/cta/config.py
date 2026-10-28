@@ -82,6 +82,7 @@ class Config:
     data_root: Path
     mode_dir: Path
     db_path: Path
+    exports_dir: Path
     sim_start: datetime
     base_url: str
     model: str
@@ -131,6 +132,7 @@ def load_config(mode: str | None = None, data_dir: str | os.PathLike[str] | None
         data_root=root,
         mode_dir=mode_dir,
         db_path=mode_dir / "tasks.db",
+        exports_dir=mode_dir / "exports",
         sim_start=sim_start,
         base_url=os.environ.get("DEEPSEEK_BASE_URL") or DEFAULT_BASE_URL,
         model=os.environ.get("DEEPSEEK_MODEL") or DEFAULT_MODEL,

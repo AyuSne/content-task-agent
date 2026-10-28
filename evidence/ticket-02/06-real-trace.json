@@ -1,0 +1,468 @@
+{
+  "task_id": "t_fff593487db6",
+  "status": "in_progress",
+  "phase": "brief_ready",
+  "used_rounds": 7,
+  "sim_elapsed_ms": 22000,
+  "sim_spent_cents": 220,
+  "real_usage": {
+    "requests": 7,
+    "real_requests": 7,
+    "mock_requests": 0,
+    "unknown_usage_requests": 0,
+    "prompt_tokens": 30776,
+    "completion_tokens": 2865,
+    "cache_hit_tokens": 25088,
+    "cache_miss_tokens": 5688,
+    "elapsed_ms": 19805
+  },
+  "attempts": [
+    {
+      "id": "a_c774eef0bf6e11dc",
+      "task_id": "t_fff593487db6",
+      "kind": "search_materials",
+      "mode": "search_extended",
+      "status": "success",
+      "cost_cents": 60,
+      "duration_ms": 6000,
+      "sim_start_ms": 0,
+      "sim_end_ms": 6000,
+      "real_started_at": "2026-10-28T17:18:23+00:00",
+      "real_finished_at": "2026-10-28T17:18:23+00:00",
+      "error": null,
+      "meta_json": "{\"query\": \"帧剪 自动卡点 功能能力 版本\", \"mode\": \"extended\"}",
+      "created_at": "2026-10-28T17:18:23+00:00"
+    },
+    {
+      "id": "a_c677f77f82d66740",
+      "task_id": "t_fff593487db6",
+      "kind": "search_materials",
+      "mode": "search_extended",
+      "status": "success",
+      "cost_cents": 60,
+      "duration_ms": 6000,
+      "sim_start_ms": 6000,
+      "sim_end_ms": 12000,
+      "real_started_at": "2026-10-28T17:18:24+00:00",
+      "real_finished_at": "2026-10-28T17:18:24+00:00",
+      "error": null,
+      "meta_json": "{\"query\": \"品牌规则 禁语 校园 受众 平台 素材登记 音乐版权\", \"mode\": \"extended\"}",
+      "created_at": "2026-10-28T17:18:24+00:00"
+    },
+    {
+      "id": "a_d8ea0dd0b8f8a412",
+      "task_id": "t_fff593487db6",
+      "kind": "search_materials",
+      "mode": "search_extended",
+      "status": "success",
+      "cost_cents": 60,
+      "duration_ms": 6000,
+      "sim_start_ms": 12000,
+      "sim_end_ms": 18000,
+      "real_started_at": "2026-10-28T17:18:25+00:00",
+      "real_finished_at": "2026-10-28T17:18:25+00:00",
+      "error": null,
+      "meta_json": "{\"query\": \"品牌语气 禁用表达 合规 审核规范 音乐字体授权 发布平台\", \"mode\": \"extended\"}",
+      "created_at": "2026-10-28T17:18:25+00:00"
+    },
+    {
+      "id": "a_f264d72757960d88",
+      "task_id": "t_fff593487db6",
+      "kind": "search_materials",
+      "mode": "search_basic",
+      "status": "success",
+      "cost_cents": 20,
+      "duration_ms": 2000,
+      "sim_start_ms": 18000,
+      "sim_end_ms": 20000,
+      "real_started_at": "2026-10-28T17:18:26+00:00",
+      "real_finished_at": "2026-10-28T17:18:26+00:00",
+      "error": null,
+      "meta_json": "{\"query\": \"品牌规范 内容规则\", \"mode\": \"basic\"}",
+      "created_at": "2026-10-28T17:18:26+00:00"
+    },
+    {
+      "id": "a_9f703accb5b62934",
+      "task_id": "t_fff593487db6",
+      "kind": "search_materials",
+      "mode": "search_basic",
+      "status": "success",
+      "cost_cents": 20,
+      "duration_ms": 2000,
+      "sim_start_ms": 20000,
+      "sim_end_ms": 22000,
+      "real_started_at": "2026-10-28T17:18:27+00:00",
+      "real_finished_at": "2026-10-28T17:18:27+00:00",
+      "error": null,
+      "meta_json": "{\"query\": \"帧剪 产品功能 模板 导出 规格 字幕\", \"mode\": \"basic\"}",
+      "created_at": "2026-10-28T17:18:27+00:00"
+    }
+  ],
+  "ledger": [
+    {
+      "id": 1,
+      "task_id": "t_fff593487db6",
+      "attempt_id": "a_c774eef0bf6e11dc",
+      "category": "simulated_tool",
+      "amount_cents": 60,
+      "unit": "CNY_cent",
+      "source": "pricing:2026-10-29.v1:search_extended",
+      "nature": "incurred",
+      "note": "attempt search_extended",
+      "created_at": "2026-10-28T17:18:23+00:00"
+    },
+    {
+      "id": 2,
+      "task_id": "t_fff593487db6",
+      "attempt_id": "a_c677f77f82d66740",
+      "category": "simulated_tool",
+      "amount_cents": 60,
+      "unit": "CNY_cent",
+      "source": "pricing:2026-10-29.v1:search_extended",
+      "nature": "incurred",
+      "note": "attempt search_extended",
+      "created_at": "2026-10-28T17:18:24+00:00"
+    },
+    {
+      "id": 3,
+      "task_id": "t_fff593487db6",
+      "attempt_id": "a_d8ea0dd0b8f8a412",
+      "category": "simulated_tool",
+      "amount_cents": 60,
+      "unit": "CNY_cent",
+      "source": "pricing:2026-10-29.v1:search_extended",
+      "nature": "incurred",
+      "note": "attempt search_extended",
+      "created_at": "2026-10-28T17:18:25+00:00"
+    },
+    {
+      "id": 4,
+      "task_id": "t_fff593487db6",
+      "attempt_id": "a_f264d72757960d88",
+      "category": "simulated_tool",
+      "amount_cents": 20,
+      "unit": "CNY_cent",
+      "source": "pricing:2026-10-29.v1:search_basic",
+      "nature": "incurred",
+      "note": "attempt search_basic",
+      "created_at": "2026-10-28T17:18:26+00:00"
+    },
+    {
+      "id": 5,
+      "task_id": "t_fff593487db6",
+      "attempt_id": "a_9f703accb5b62934",
+      "category": "simulated_tool",
+      "amount_cents": 20,
+      "unit": "CNY_cent",
+      "source": "pricing:2026-10-29.v1:search_basic",
+      "nature": "incurred",
+      "note": "attempt search_basic",
+      "created_at": "2026-10-28T17:18:27+00:00"
+    }
+  ],
+  "llm_requests": [
+    {
+      "id": "r_27cba9e121a4238f",
+      "task_id": "t_fff593487db6",
+      "attempt_id": null,
+      "purpose": "main_loop_round_1",
+      "model": "deepseek-flash",
+      "status": "success",
+      "prompt_tokens": 3135,
+      "completion_tokens": 84,
+      "total_tokens": 3219,
+      "cache_hit_tokens": 0,
+      "cache_miss_tokens": 3135,
+      "elapsed_ms": 2503,
+      "started_at": "2026-10-28T17:18:20.548339+00:00",
+      "finished_at": "2026-10-28T17:18:23.051943+00:00",
+      "error": null,
+      "response_model": "deepseek-flash",
+      "mock": 0,
+      "meta_json": "{\"prompt_version\": \"main-2026-10-29.v1\", \"round\": 1}"
+    },
+    {
+      "id": "r_2e99d255bac1db2c",
+      "task_id": "t_fff593487db6",
+      "attempt_id": null,
+      "purpose": "main_loop_round_2",
+      "model": "deepseek-flash",
+      "status": "success",
+      "prompt_tokens": 3737,
+      "completion_tokens": 71,
+      "total_tokens": 3808,
+      "cache_hit_tokens": 3200,
+      "cache_miss_tokens": 537,
+      "elapsed_ms": 1087,
+      "started_at": "2026-10-28T17:18:23.071215+00:00",
+      "finished_at": "2026-10-28T17:18:24.158830+00:00",
+      "error": null,
+      "response_model": "deepseek-flash",
+      "mock": 0,
+      "meta_json": "{\"prompt_version\": \"main-2026-10-29.v1\", \"round\": 2}"
+    },
+    {
+      "id": "r_ee19eb1884b89053",
+      "task_id": "t_fff593487db6",
+      "attempt_id": null,
+      "purpose": "main_loop_round_3",
+      "model": "deepseek-flash",
+      "status": "success",
+      "prompt_tokens": 4188,
+      "completion_tokens": 71,
+      "total_tokens": 4259,
+      "cache_hit_tokens": 3712,
+      "cache_miss_tokens": 476,
+      "elapsed_ms": 867,
+      "started_at": "2026-10-28T17:18:24.182285+00:00",
+      "finished_at": "2026-10-28T17:18:25.050070+00:00",
+      "error": null,
+      "response_model": "deepseek-flash",
+      "mock": 0,
+      "meta_json": "{\"prompt_version\": \"main-2026-10-29.v1\", \"round\": 3}"
+    },
+    {
+      "id": "r_7f5b82f6efd5f55d",
+      "task_id": "t_fff593487db6",
+      "attempt_id": null,
+      "purpose": "main_loop_round_4",
+      "model": "deepseek-flash",
+      "status": "success",
+      "prompt_tokens": 4379,
+      "completion_tokens": 58,
+      "total_tokens": 4437,
+      "cache_hit_tokens": 4224,
+      "cache_miss_tokens": 155,
+      "elapsed_ms": 1043,
+      "started_at": "2026-10-28T17:18:25.078338+00:00",
+      "finished_at": "2026-10-28T17:18:26.122159+00:00",
+      "error": null,
+      "response_model": "deepseek-flash",
+      "mock": 0,
+      "meta_json": "{\"prompt_version\": \"main-2026-10-29.v1\", \"round\": 4}"
+    },
+    {
+      "id": "r_d779bda46722235d",
+      "task_id": "t_fff593487db6",
+      "attempt_id": null,
+      "purpose": "main_loop_round_5",
+      "model": "deepseek-flash",
+      "status": "success",
+      "prompt_tokens": 4540,
+      "completion_tokens": 66,
+      "total_tokens": 4606,
+      "cache_hit_tokens": 4352,
+      "cache_miss_tokens": 188,
+      "elapsed_ms": 886,
+      "started_at": "2026-10-28T17:18:26.142742+00:00",
+      "finished_at": "2026-10-28T17:18:27.029568+00:00",
+      "error": null,
+      "response_model": "deepseek-flash",
+      "mock": 0,
+      "meta_json": "{\"prompt_version\": \"main-2026-10-29.v1\", \"round\": 5}"
+    },
+    {
+      "id": "r_a3c8fc1ffb857e27",
+      "task_id": "t_fff593487db6",
+      "attempt_id": null,
+      "purpose": "main_loop_round_6",
+      "model": "deepseek-flash",
+      "status": "success",
+      "prompt_tokens": 5100,
+      "completion_tokens": 128,
+      "total_tokens": 5228,
+      "cache_hit_tokens": 4480,
+      "cache_miss_tokens": 620,
+      "elapsed_ms": 952,
+      "started_at": "2026-10-28T17:18:27.048637+00:00",
+      "finished_at": "2026-10-28T17:18:28.000816+00:00",
+      "error": null,
+      "response_model": "deepseek-flash",
+      "mock": 0,
+      "meta_json": "{\"prompt_version\": \"main-2026-10-29.v1\", \"round\": 6}"
+    },
+    {
+      "id": "r_c9e2954a94aedadd",
+      "task_id": "t_fff593487db6",
+      "attempt_id": null,
+      "purpose": "main_loop_round_7",
+      "model": "deepseek-flash",
+      "status": "success",
+      "prompt_tokens": 5697,
+      "completion_tokens": 2387,
+      "total_tokens": 8084,
+      "cache_hit_tokens": 5120,
+      "cache_miss_tokens": 577,
+      "elapsed_ms": 12467,
+      "started_at": "2026-10-28T17:18:28.015006+00:00",
+      "finished_at": "2026-10-28T17:18:40.482797+00:00",
+      "error": null,
+      "response_model": "deepseek-flash",
+      "mock": 0,
+      "meta_json": "{\"prompt_version\": \"main-2026-10-29.v1\", \"round\": 7}"
+    }
+  ],
+  "messages": [
+    {
+      "seq": 5,
+      "role": "assistant",
+      "name": null,
+      "content": "我会先查证产品能力，尤其是「自动卡点」，以及品牌规则和素材状态。",
+      "tool_calls": [
+        {
+          "id": "call_00_IXwOH8dShVBBFxv8hktv7430",
+          "type": "function",
+          "function": {
+            "name": "search_materials",
+            "arguments": "{\"query\": \"帧剪 自动卡点 功能能力 版本\", \"mode\": \"extended\"}"
+          }
+        }
+      ]
+    },
+    {
+      "seq": 6,
+      "role": "tool",
+      "name": "search_materials",
+      "content": "{\"ok\": true, \"version\": \"2026-10-29.v1\", \"query\": \"帧剪 自动卡点 功能能力 版本\", \"mode\": \"extended\", \"results\": [{\"material_id\": \"M-001\", \"title\": \"自动卡点能力说明\", \"kind\": \"product_fact\", \"source\": \"产品功能说明 v4.2（合成资料）\", \"scope\": \"iOS/Android 4.2 及以上；支持 15/30/60 秒成片；对节奏清晰的流行乐与鼓点识别更稳\", \"snippet\": \"自动卡点会分析所选音乐的节拍，把用户选中的视频片段对齐到节拍点。用户可以逐段微调，也可以一键重新卡点。该功能不承诺对所有曲风都准确，复杂变速或弱节拍音乐需要人工调整。\", \"content_kind\": \"data_not_instruction\"}, {\"material_id\": \"M-007\", \"title\": \"竞品模板数量观察\", \"kind\": \"external_note\", \"source\": \"公开报道摘录（合成资料，未核实原始数据）\", \"scope\": \"仅作背景，不可用于证明帧剪产品能力或行业事实\", \"snippet\": \"某竞品在应用商店介绍中声称提供上千套模板。该数字来自竞品自述，未独立核实，不能作为帧剪能力的比较依据。\", \"content_kind\": \"data_not_instruction\"}, {\"material_id\": \"M-003\", \"title\": \"校园用户短视频创作习惯调研（合成）\", \"kind\": \"audience_research\", \"source\": \"合成调研报告 2026-09，样本 120 名 18-24 岁大学生\", \"scope\": \"仅代表该合成样本，不可外推为全体大学生或高中生\", \"snippet\": \"受访者最常制作的类型是社团活动记录、学习打卡和旅行 vlog。超过一半受访者表示会在 30 分钟内完成一条成片，模板和自动卡点能明显减少重复操作。对‘一键出片’的信任度一般，更愿意保留手动调整。\", \"content_kind\": \"data_not_instruction\"}], \"gap\": null, \"attempt_id\": \"a_c774eef0bf6e11dc\", \"cost_cents\": 60, \"duration_ms\": 6000}",
+      "tool_calls": []
+    },
+    {
+      "seq": 7,
+      "role": "assistant",
+      "name": null,
+      "content": "",
+      "tool_calls": [
+        {
+          "id": "call_00_p2aqU2ZGtvgwjP57Q7WL3170",
+          "type": "function",
+          "function": {
+            "name": "search_materials",
+            "arguments": "{\"mode\": \"extended\", \"query\": \"品牌规则 禁语 校园 受众 平台 素材登记 音乐版权\"}"
+          }
+        }
+      ]
+    },
+    {
+      "seq": 8,
+      "role": "tool",
+      "name": "search_materials",
+      "content": "{\"ok\": true, \"version\": \"2026-10-29.v1\", \"query\": \"品牌规则 禁语 校园 受众 平台 素材登记 音乐版权\", \"mode\": \"extended\", \"results\": [{\"material_id\": \"M-005\", \"title\": \"校园场景视频素材包\", \"kind\": \"asset\", \"source\": \"自制素材登记（合成资料）\", \"scope\": \"已取得演员授权，限本题活动使用；不含品牌 Logo 特写\", \"snippet\": \"素材包含教室、操场、社团招新、宿舍剪辑四个场景，共 12 条 10-20 秒片段，分辨率 1080p。素材为情境画面，只能说明使用场景，不能单独证明产品功能。\", \"content_kind\": \"data_not_instruction\"}, {\"material_id\": \"M-003\", \"title\": \"校园用户短视频创作习惯调研（合成）\", \"kind\": \"audience_research\", \"source\": \"合成调研报告 2026-09，样本 120 名 18-24 岁大学生\", \"scope\": \"仅代表该合成样本，不可外推为全体大学生或高中生\", \"snippet\": \"受访者最常制作的类型是社团活动记录、学习打卡和旅行 vlog。超过一半受访者表示会在 30 分钟内完成一条成片，模板和自动卡点能明显减少重复操作。对‘一键出片’的信任度一般，更愿意保留手动调整。\", \"content_kind\": \"data_not_instruction\"}], \"gap\": null, \"attempt_id\": \"a_c677f77f82d66740\", \"cost_cents\": 60, \"duration_ms\": 6000}",
+      "tool_calls": []
+    },
+    {
+      "seq": 9,
+      "role": "assistant",
+      "name": null,
+      "content": "",
+      "tool_calls": [
+        {
+          "id": "call_00_wHJcK3GHWmK8k1hJ31ZC0573",
+          "type": "function",
+          "function": {
+            "name": "search_materials",
+            "arguments": "{\"mode\": \"extended\", \"query\": \"品牌语气 禁用表达 合规 审核规范 音乐字体授权 发布平台\"}"
+          }
+        }
+      ]
+    },
+    {
+      "seq": 10,
+      "role": "tool",
+      "name": "search_materials",
+      "content": "{\"ok\": false, \"version\": \"2026-10-29.v1\", \"query\": \"品牌语气 禁用表达 合规 审核规范 音乐字体授权 发布平台\", \"mode\": \"extended\", \"results\": [], \"gap\": \"没有找到相关资料；请换检索词、扩展检索，或把缺口写入简报。\", \"attempt_id\": \"a_d8ea0dd0b8f8a412\", \"cost_cents\": 60, \"duration_ms\": 6000}",
+      "tool_calls": []
+    },
+    {
+      "seq": 11,
+      "role": "assistant",
+      "name": null,
+      "content": "",
+      "tool_calls": [
+        {
+          "id": "call_00_eveb0tF3p6jvXl9l5zM39143",
+          "type": "function",
+          "function": {
+            "name": "search_materials",
+            "arguments": "{\"mode\": \"basic\", \"query\": \"品牌规范 内容规则\"}"
+          }
+        }
+      ]
+    },
+    {
+      "seq": 12,
+      "role": "tool",
+      "name": "search_materials",
+      "content": "{\"ok\": false, \"version\": \"2026-10-29.v1\", \"query\": \"品牌规范 内容规则\", \"mode\": \"basic\", \"results\": [], \"gap\": \"没有找到相关资料；请换检索词、扩展检索，或把缺口写入简报。\", \"attempt_id\": \"a_f264d72757960d88\", \"cost_cents\": 20, \"duration_ms\": 2000}",
+      "tool_calls": []
+    },
+    {
+      "seq": 13,
+      "role": "assistant",
+      "name": null,
+      "content": "",
+      "tool_calls": [
+        {
+          "id": "call_00_0pH4cyImAStiIngAfycn7611",
+          "type": "function",
+          "function": {
+            "name": "search_materials",
+            "arguments": "{\"mode\": \"basic\", \"query\": \"帧剪 产品功能 模板 导出 规格 字幕\"}"
+          }
+        }
+      ]
+    },
+    {
+      "seq": 14,
+      "role": "tool",
+      "name": "search_materials",
+      "content": "{\"ok\": true, \"version\": \"2026-10-29.v1\", \"query\": \"帧剪 产品功能 模板 导出 规格 字幕\", \"mode\": \"basic\", \"results\": [{\"material_id\": \"M-002\", \"title\": \"AI 字幕能力说明\", \"kind\": \"product_fact\", \"source\": \"产品功能说明 v4.2（合成资料）\", \"scope\": \"当前正式支持普通话与英语识别；其他语言为实验性，不计入对外承诺\", \"snippet\": \"AI 字幕可把视频中的人声转成可编辑字幕，支持批量改样式和一键翻译为英语。普通话与英语为正式支持语言；粤语、日语等仍在小范围测试，识别质量不稳定。\", \"content_kind\": \"data_not_instruction\"}, {\"material_id\": \"M-007\", \"title\": \"竞品模板数量观察\", \"kind\": \"external_note\", \"source\": \"公开报道摘录（合成资料，未核实原始数据）\", \"scope\": \"仅作背景，不可用于证明帧剪产品能力或行业事实\", \"snippet\": \"某竞品在应用商店介绍中声称提供上千套模板。该数字来自竞品自述，未独立核实，不能作为帧剪能力的比较依据。\", \"content_kind\": \"data_not_instruction\"}, {\"material_id\": \"M-001\", \"title\": \"自动卡点能力说明\", \"kind\": \"product_fact\", \"source\": \"产品功能说明 v4.2（合成资料）\", \"scope\": \"iOS/Android 4.2 及以上；支持 15/30/60 秒成片；对节奏清晰的流行乐与鼓点识别更稳\", \"snippet\": \"自动卡点会分析所选音乐的节拍，把用户选中的视频片段对齐到节拍点。用户可以逐段微调，也可以一键重新卡点。该功能不承诺对所有曲风都准确，复杂变速或弱节拍音乐需要人工调整。\", \"content_kind\": \"data_not_instruction\"}], \"gap\": null, \"attempt_id\": \"a_9f703accb5b62934\", \"cost_cents\": 20, \"duration_ms\": 2000}",
+      "tool_calls": []
+    },
+    {
+      "seq": 15,
+      "role": "assistant",
+      "name": null,
+      "content": "6 次检索后（累计 240 分），核心事实已可核对，但预算（1000 分）与模拟截止（10-30 04:00 UTC）是硬约束，需先确认剩余路径是否可行。",
+      "tool_calls": [
+        {
+          "id": "call_00_skFvG8i0F3X7FmVIEccR1267",
+          "type": "function",
+          "function": {
+            "name": "estimate_cost",
+            "arguments": "{\"search_mode\": \"search_basic\", \"generation_mode\": \"generate_direct\", \"include_revision\": false}"
+          }
+        }
+      ]
+    },
+    {
+      "seq": 16,
+      "role": "tool",
+      "name": "estimate_cost",
+      "content": "{\"ok\": true, \"estimate\": {\"version\": \"2026-10-29.v1\", \"currency\": \"CNY_cent\", \"pricing_source\": \"2026-10-29.v1.json\", \"lines\": [{\"step\": \"search\", \"mode\": \"search_basic\", \"label\": \"基础资料检索\", \"cost_cents\": 20, \"duration_ms\": 2000, \"max_internal_requests\": 1, \"max_requests\": null, \"max_readbacks\": null, \"candidates\": null, \"failure_rule\": \"启动即计量；失败或中断不退还，实际重试新增尝试\"}, {\"step\": \"generation\", \"mode\": \"generate_direct\", \"label\": \"直接生成\", \"cost_cents\": 120, \"duration_ms\": 8000, \"max_internal_requests\": 1, \"max_requests\": null, \"max_readbacks\": null, \"candidates\": 1, \"failure_rule\": \"一次生成；失败或中断保留计量\"}, {\"step\": \"review\", \"mode\": \"review\", \"label\": \"内容核验\", \"cost_cents\": 80, \"duration_ms\": 6000, \"max_internal_requests\": null, \"max_requests\": 3, \"max_readbacks\": 2, \"candidates\": null, \"failure_rule\": \"最多 3 次模型请求、2 次回读；触顶/中断不退还\"}, {\"step\": \"save\", \"mode\": \"save\", \"label\": \"方案保存\", \"cost_cents\": 10, \"duration_ms\": 1000, \"max_internal_requests\": 1, \"max_requests\": null, \"max_readbacks\": null, \"candidates\": null, \"failure_rule\": \"启动即计量；保存失败另行核实\"}], \"total_cost_cents\": 230, \"total_duration_ms\": 17000, \"notes\": \"估算与预留不是实际支出；执行前仍须按当前预算与模拟截止检查。\", \"remaining_budget_cents\": 780, \"affordable\": true}}",
+      "tool_calls": []
+    },
+    {
+      "seq": 17,
+      "role": "assistant",
+      "name": null,
+      "content": "",
+      "tool_calls": [
+        {
+          "id": "call_00_gLNQyhuwIpiBJoFcmcEt1592",
+          "type": "function",
+          "function": {
+            "name": "propose_brief",
+            "arguments": "{\"goal\": \"借校园社团招新季，用短视频向 18-24 岁大学生演示「帧剪」自动卡点可逐段微调的可用性，引导了解并下载体验。\", \"audience\": \"已确认受众：18-24 岁大学生（用户输入）。建议聚焦其中的社团成员与招新负责人——他们需要快速产出社团宣传片；依据 M-003：该合成样本中受访者最常制作社团活动记录等类型，过半会在 30 分钟内完成成片。注意 M-003 仅代表该 120 人合成样本，不可外推为全体大学生。\", \"product_facts\": [{\"claim\": \"帧剪的自动卡点会分析所选音乐的节拍，把用户选中的视频片段对齐到节拍点，支持逐段微调与一键重新卡点。\", \"material_id\": \"M-001\", \"quote\": \"自动卡点会分析所选音乐的节拍，把用户选中的视频片段对齐到节拍点。用户可以逐段微调，也可以一键重新卡点。\", \"scope\": \"iOS/Android 4.2 及以上；支持 15/30/60 秒成片；适用于节奏清晰的流行乐与鼓点\", \"use\": \"作为本次活动唯一核心卖点的对外主张；主脚本第 2-3 段演示与字幕文字必须与此表述一致。\"}, {\"claim\": \"自动卡点不承诺对所有曲风都准确，复杂变速或弱节拍音乐需要人工调整。\", \"material_id\": \"M-001\", \"quote\": \"该功能不承诺对所有曲风都准确，复杂变速或弱节拍音乐需要人工调整。\", \"scope\": \"同一能力说明的适用边界\", \"use\": \"作为创作边界：脚本不出现「100% 精准」「一键出片」等表述；教程性字幕提示可手动微调。\"}, {\"claim\": \"AI 字幕正式支持普通话与英语，可批量改样式并一键翻译为英语。\", \"material_id\": \"M-002\", \"quote\": \"普通话与英语为正式支持语言；粤语、日语等仍在小范围测试，识别质量不稳定。\", \"scope\": \"仅普通话与英语为正式支持；其他语言为实验性，不计入对外承诺\", \"use\": \"仅作为主脚本第 4 段的辅助字幕呈现手段，不列为活动卖点；不出现「多语言」「全球语言」表述。\"}, {\"claim\": \"校园场景素材包含教室、操场、社团招新、宿舍剪辑四个场景共 12 条 10-20 秒 1080p 片段，已取得演员授权，限本题活动使用。\", \"material_id\": \"M-005\", \"quote\": \"素材包含教室、操场、社团招新、宿舍剪辑四个场景，共 12 条 10-20 秒片段，分辨率 1080p。素材为情境画面，只能说明使用场景，不能单独证明产品功能。\", \"scope\": \"已取得演员授权，限本题活动使用；不含品牌 Logo 特写\", \"use\": \"作为主脚本情境画面来源（状态：已有）；任何卡点效果画面需另行录制产品操作，不能用情境素材替代功能证明。\"}, {\"claim\": \"校园合成调研显示受访者最常制作社团活动记录等类型，过半在 30 分钟内完成成片，对「一键出片」信任度一般、更愿保留手动调整。\", \"material_id\": \"M-003\", \"quote\": \"受访者最常制作的类型是社团活动记录、学习打卡和旅行 vlog。超过一半受访者表示会在 30 分钟内完成一条成片，模板和自动卡点能明显减少重复操作。对‘一键出片’的信任度一般，更愿意保留手动调整。\", \"scope\": \"仅代表该 120 人合成样本，不可外推为全体大学生或高中生\", \"use\": \"支撑受众选择与「逐段微调」而非「一键出片」的沟通策略；不用于对外宣称任何比例数字。\"}, {\"claim\": \"竞品模板数量为竞品自述，未经核实，不能作为帧剪能力的比较依据。\", \"material_id\": \"M-007\", \"quote\": \"该数字来自竞品自述，未独立核实，不能作为帧剪能力的比较依据。\", \"scope\": \"仅作背景，不可用于证明帧剪产品能力或行业事实\", \"use\": \"写入制作禁区：脚本不得出现与竞品的数量或效果对比。\"}], \"creative_requirements\": [{\"text\": \"活动主题为校园社团招新季推广\", \"source\": \"用户输入 topic\"}, {\"text\": \"内容必须突出自动卡点\", \"source\": \"用户输入 requirements\"}, {\"text\": \"受众为 18-24 岁大学生\", \"source\": \"用户输入 audience\"}, {\"text\": \"预算 1000 分，方案截止 2026-10-30T04:00:00+00:00，为硬约束\", \"source\": \"用户输入 budget_cents / deadline\"}, {\"text\": \"事实只能来自已加载材料的原文片段，情境画面不得单独证明产品能力\", \"source\": \"活动方案创作工作知识 2026-10-29.v1\"}, {\"text\": \"不承诺涨粉、收益、爆款或转化；不把实验性能力写成正式能力\", \"source\": \"活动方案创作工作知识 2026-10-29.v1\"}], \"assumptions\": [{\"text\": \"活动形式为 1 条主视频 + 2 条衍生切条（竖屏 9:16），成片时长 30 秒。\", \"basis\": \"M-001 说明自动卡点支持 15/30/60 秒成片，30 秒是其中之一；短时长更契合短视频场景。若实际投放要求不同，需调整分镜。\"}, {\"text\": \"投放平台按抖音/视频号/小红书等国内短视频与社区平台处理，具体清单待确认。\", \"basis\": \"面向国内大学生的常见渠道判断，资料中无平台登记。\"}, {\"text\": \"本次活动聚焦 4.2 及以上版本，不使用旧版本兼容性表述。\", \"basis\": \"M-001 适用范围写明 iOS/Android 4.2 及以上。\"}, {\"text\": \"社团招新的时间压力（招新前 2 周）是脚本情绪设定，不是用户数据。\", \"basis\": \"常识性场景设定，脚本中不出现具体调研数字。\"}], \"suggestions\": [{\"text\": \"主表达采用「情境 + 操作演示」而非纯教程：前 5 秒社团招新街舞/合唱片段抛出节奏，中段展示自动卡点后逐段微调，结尾回到成片。\", \"basis\": \"M-003 显示受访者对「一键出片」信任度一般、更愿保留手动调整；M-005 情境素材不能单独证明功能，故功能必须由操作录屏承担。\"}, {\"text\": \"文案避开「一键出片」「100% 精准」「最准」等表述，改用「自动对齐节拍、逐段可微调」。\", \"basis\": \"M-001 边界条款与工作知识中的绝对化用语禁区。\"}, {\"text\": \"音乐选节奏清晰的流行乐或鼓点型片段；排练稿先用授权音源，弱节拍/变速曲不用于演示段。\", \"basis\": \"M-001 说明对节奏清晰的流行乐与鼓点识别更稳，复杂变速或弱节拍需人工调整。\"}, {\"text\": \"第 4 段字幕用帧剪 AI 字幕普通话识别呈现，仅作为流程自然的辅助，不作为卖点标题。\", \"basis\": \"M-002 仅普通话与英语为正式支持，粤语日语等为实验性，不宜对外承诺。\"}, {\"text\": \"主视频 30 秒按四段结构：0-5 秒招新情境、5-15 秒卡点操作、15-25 秒逐段微调、25-30 秒成片与引导。\", \"basis\": \"依据 M-001 的 30 秒成片规格与 M-005 素材单条 10-20 秒的可裁切长度。\"}, {\"text\": \"素材登记只写已获授权的 M-005，产品录屏标为「待制作」，音乐与字体标为「待获取」。\", \"basis\": \"M-005 未含品牌 Logo 特写与音乐字体授权信息，不能写成已可用。\"}], \"unknowns\": [{\"question\": \"投放平台与主投放位（是否抖音/视频号/小红书，含 B 站）未指定。\", \"impact\": \"影响画幅、时长、封面文案和切条数量；若需覆盖 B 站横屏，主视频规格需调整。\", \"blocking\": false}, {\"question\": \"自动卡点操作录屏尚未制作，由谁录、在哪个版本/设备上录未定。\", \"impact\": \"核心卖点缺少演示画面，主脚本第 2-3 段无法落地；属于制作环节阻塞项。\", \"blocking\": true}, {\"question\": \"演示用音乐是否已取得授权（尤其招新现场录音与背景音乐）未知。\", \"impact\": \"无授权的音乐不能进入成片，需替换音乐后重卡点，可能影响排期。\", \"blocking\": true}, {\"question\": \"品牌语气、禁用表达与合规审核规范在已加载资料中缺失。\", \"impact\": \"无法核对文案是否违反品牌规则，文案需人工复核；已按工作知识通用禁区先行约束。\", \"blocking\": false}, {\"question\": \"是否需要关联新用户下载激励或校园合作方（如社团联合会）联合发布未知。\", \"impact\": \"若有下载激励，结尾引导与合规话术需改写；无则保持纯认知向引导。\", \"blocking\": false}], \"sources\": [{\"material_id\": \"M-001\", \"used_for\": \"自动卡点核心卖点、适用版本与成片时长、表达边界\"}, {\"material_id\": \"M-002\", \"used_for\": \"AI 字幕正式支持语言，作为辅助流程而非卖点\"}, {\"material_id\": \"M-003\", \"used_for\": \"受众判断与「保留手动调整」的沟通策略（限该合成样本）\"}, {\"material_id\": \"M-005\", \"used_for\": \"情境画面素材状态与授权范围\"}, {\"material_id\": \"M-007\", \"used_for\": \"竞品对比禁区\"}]}"
+          }
+        }
+      ]
+    },
+    {
+      "seq": 18,
+      "role": "tool",
+      "name": "propose_brief",
+      "content": "{\"ok\": true, \"brief_version\": 1, \"message\": \"业务简报已通过校验并保存；本阶段结束。\"}",
+      "tool_calls": []
+    }
+  ]
+}

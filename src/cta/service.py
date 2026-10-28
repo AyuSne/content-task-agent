@@ -9,9 +9,12 @@ from datetime import datetime, timedelta
 from cta.config import Config, to_utc_iso, utc_now_iso
 from cta.db import open_store, transaction
 from cta.identity import Intake, RawInput, dedupe_key, normalize
+from cta.repository import latest_brief, task_llm_usage
 
 STATUS_NEEDS_INPUT = "needs_input"
 STATUS_IN_PROGRESS = "in_progress"
+STATUS_INCOMPLETE = "incomplete"
+STATUS_COMPLETE = "complete"
 MAX_ROUNDS = 12
 
 
@@ -27,6 +30,7 @@ class TaskService:
 
     def create(self, raw: RawInput, *, explicit_new: bool = False) -> dict:
         intake = normalize(raw, self.config.sim_start, self.config.mode)
+        self.config.exports_dir.mkdir(parents=True, exist_ok=True)
         now = utc_now_iso()
         key = None if explicit_new else dedupe_key(self.config.mode, intake.fingerprint)
         with open_store(self.config.db_path) as conn, transaction(conn):
@@ -89,6 +93,51 @@ class TaskService:
             task = self._require_task(conn, task_id)
             return self._view(conn, task, duplicate=False)
 
+    def inspect(self, task_id: str) -> dict:
+        with open_store(self.config.db_path) as conn:
+            task = self._require_task(conn, task_id)
+            view = self._view(conn, task, duplicate=False)
+            view["briefs"] = [
+                {"version": row["version"], "content": json.loads(row["content_json"]), "created_at": row["created_at"]}
+                for row in conn.execute("SELECT * FROM briefs WHERE task_id = ? ORDER BY version", (task_id,))
+            ]
+            view["knowledge"] = [
+                {
+                    "knowledge_id": row["knowledge_id"],
+                    "version": row["version"],
+                    "sha256": row["sha256"],
+                    "chars": len(row["content"]),
+                    "loaded_at": row["loaded_at"],
+                }
+                for row in conn.execute("SELECT * FROM knowledge_loads WHERE task_id = ? ORDER BY id", (task_id,))
+            ]
+            view["messages"] = [
+                {
+                    "seq": row["seq"],
+                    "role": row["role"],
+                    "content": row["content"],
+                    "tool_calls": json.loads(row["tool_calls_json"]) if row["tool_calls_json"] else [],
+                    "tool_call_id": row["tool_call_id"],
+                    "name": row["name"],
+                    "created_at": row["created_at"],
+                }
+                for row in conn.execute(
+                    "SELECT * FROM messages WHERE task_id = ? AND agent = 'main' ORDER BY seq", (task_id,)
+                )
+            ]
+            view["attempts"] = [
+                dict(row) for row in conn.execute("SELECT * FROM attempts WHERE task_id = ? ORDER BY created_at, id", (task_id,))
+            ]
+            view["ledger"] = [dict(row) for row in conn.execute("SELECT * FROM ledger WHERE task_id = ? ORDER BY id", (task_id,))]
+            view["llm_requests"] = [
+                dict(row) for row in conn.execute("SELECT * FROM llm_requests WHERE task_id = ? ORDER BY started_at, id", (task_id,))
+            ]
+            view["clarifications"] = [
+                {"questions": json.loads(row["questions_json"]), "created_at": row["created_at"]}
+                for row in conn.execute("SELECT * FROM clarifications WHERE task_id = ? ORDER BY id", (task_id,))
+            ]
+            return view
+
     def list_tasks(self) -> dict:
         with open_store(self.config.db_path) as conn:
             rows = conn.execute("SELECT * FROM tasks ORDER BY created_at DESC, id DESC").fetchall()
@@ -118,6 +167,7 @@ class TaskService:
             (task["id"], task["input_version"]),
         ).fetchone()
         spent = self._sim_spent(conn, task["id"])
+        brief = latest_brief(conn, task["id"])
         return {
             "task_id": task["id"],
             "mode": task["mode"],
@@ -131,11 +181,47 @@ class TaskService:
                 "errors": json.loads(input_row["validation_json"]),
                 "interpretations": json.loads(input_row["interpretations_json"]),
             },
+            "brief": brief,
+            "plan": self._plan_view(task),
+            "gaps": self._gaps(conn, task, brief),
+            "mode_notice": (
+                "Mock 仅验证流程、状态与确定性规则，不代表真实模型决策或语义质量。"
+                if task["mode"] == "mock"
+                else "真实模型运行；小样本观察不代表生产质量或统计显著结论。"
+            ),
             "progress": self._progress_view(task),
-            "resources": self._resources_view(input_row, spent),
+            "resources": self._resources_view(conn, task["id"], input_row, spent),
             "model_config": self.config.model_config_public(),
             "artifacts": {},
         }
+
+    @staticmethod
+    def _plan_view(task) -> dict:
+        brief_done = int(task["brief_version"]) > 0
+        phase = task["phase"]
+        draft_current = phase == "brief_ready"
+        return {
+            "version": "plan-2026-10-29.v1",
+            "steps": [
+                {"step": "brief", "title": "业务简报", "status": "done" if brief_done else "current"},
+                {"step": "campaign_draft", "title": "完整活动方案草稿", "status": "current" if draft_current else "pending"},
+                {"step": "review", "title": "内容核验", "status": "pending"},
+                {"step": "save", "title": "核实保存与导出", "status": "pending"},
+            ],
+        }
+
+    @staticmethod
+    def _gaps(conn, task, brief: dict | None) -> list[dict]:
+        gaps = []
+        for item in (brief or {}).get("content", {}).get("unknowns", []):
+            gaps.append({"source": "brief", **item})
+        latest = conn.execute(
+            "SELECT questions_json FROM clarifications WHERE task_id = ? ORDER BY id DESC LIMIT 1", (task["id"],)
+        ).fetchone()
+        if latest is not None:
+            for item in json.loads(latest["questions_json"]):
+                gaps.append({"source": "clarification", **item})
+        return gaps
 
     @staticmethod
     def _input_view(task, input_row) -> dict:
@@ -166,17 +252,23 @@ class TaskService:
             "paused": bool(task["paused"]),
             "current_output": current_output,
             "save": None,
-            "phase": "created" if task["used_rounds"] == 0 and not task["current_output_id"] else "working",
+            "phase": task["phase"],
+            "brief_version": task["brief_version"],
+            "last_run_at": task["last_run_at"],
         }
 
     @staticmethod
-    def _resources_view(input_row, spent: int) -> dict:
+    def _resources_view(conn, task_id: str, input_row, spent: int) -> dict:
         budget_cents = input_row["budget_cents"]
+        usage = task_llm_usage(conn, task_id)
         return {
             "budget_cents": budget_cents,
             "sim_spent_cents": spent,
             "remaining_cents": None if budget_cents is None else budget_cents - spent,
-            "real_requests": 0,
+            "real_requests": usage["real_requests"],
+            "mock_requests": usage["mock_requests"],
+            "model_requests": usage["requests"],
+            "real_usage": usage,
             "real_cost": None,
         }
 

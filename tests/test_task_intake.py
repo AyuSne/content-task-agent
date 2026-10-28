@@ -189,6 +189,27 @@ def test_date_only_deadline_records_interpretation(cli_env):
     assert any("只给到日期" in note for note in body["validation"]["interpretations"])
 
 
+def test_space_separated_deadline_records_timezone_interpretation(cli_env):
+    body = cli_json("create", "--topic", "主题", "--budget", "10", "--deadline", "2026-10-30 12:00:00")
+    assert body["status"] == "in_progress"
+    assert body["input"]["deadline"] == "2026-10-30T04:00:00+00:00"
+    assert any("未带时区" in note for note in body["validation"]["interpretations"])
+
+
+def test_extreme_positive_budget_is_rejected_without_crashing(cli_env):
+    body = cli_json("create", "--topic", "主题", "--budget", "1e27", "--deadline", "2026-10-30T12:00:00+08:00")
+    assert body["status"] == "needs_input"
+    assert body["validation"]["errors"][0]["code"] == "out_of_range"
+
+
+def test_mode_output_locations_are_separate(cli_env):
+    _create()
+    _create("--mode", "real")
+    data_dir = cli_env / "data"
+    assert (data_dir / "mock" / "exports").is_dir()
+    assert (data_dir / "real" / "exports").is_dir()
+
+
 def test_bad_config_respects_text_format(cli_env, monkeypatch):
     monkeypatch.setenv("CTA_SIM_START", "not-a-date")
     code, out, _err = run_cli("--format", "text", "create")
