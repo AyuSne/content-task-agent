@@ -36,18 +36,23 @@ def _manifest(project_root: Path) -> dict:
     return json.loads((project_root / "knowledge" / "manifest.json").read_text(encoding="utf-8"))
 
 
-def load_doc(knowledge_id: str, project_root: Path | None = None) -> KnowledgeDoc:
+def load_doc(knowledge_id: str, project_root: Path | None = None, version: str | None = None) -> KnowledgeDoc:
     root = project_root or find_project_root()
     docs = {item["id"]: item for item in _manifest(root)["docs"]}
     if knowledge_id not in docs:
         raise ValueError(f"unknown knowledge: {knowledge_id}")
     entry = docs[knowledge_id]
-    path = root / "knowledge" / entry["path"]
+    selected_version = version or entry["version"]
+    path = root / "knowledge" / knowledge_id / f"{selected_version}.md"
+    if not path.is_file():
+        if version is not None:
+            raise ValueError(f"unknown knowledge version: {knowledge_id} {version}")
+        path = root / "knowledge" / entry["path"]
     content = path.read_text(encoding="utf-8")
     return KnowledgeDoc(
         knowledge_id=knowledge_id,
         title=entry["title"],
-        version=entry["version"],
+        version=selected_version,
         path=path,
         content=content,
     )

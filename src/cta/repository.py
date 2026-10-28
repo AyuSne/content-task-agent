@@ -238,6 +238,7 @@ def latest_output(conn: sqlite3.Connection, task_id: str, kind: str = "campaign"
         "version": row["version"],
         "kind": row["kind"],
         "status": row["status"],
+        "input_version": row["input_version"],
         "created_at": row["created_at"],
         "content": json.loads(row["content_json"]),
         "content_md": row["content_md"],

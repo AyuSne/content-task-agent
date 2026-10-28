@@ -14,6 +14,7 @@ from cta.materials import load_catalog
 from cta.pricing import load_price_table
 from cta.prompts import PROMPT_VERSION
 from cta.repository import (
+    append_message,
     latest_brief,
     latest_estimate,
     latest_output,
@@ -87,16 +88,17 @@ class TaskService:
             task = conn.execute("SELECT * FROM tasks WHERE id = ?", (task_id,)).fetchone()
             return self._view(conn, task, duplicate=False)
 
-    def _insert_input(self, conn, task_id: str, intake: Intake, now: str) -> None:
+    def _insert_input(self, conn, task_id: str, intake: Intake, now: str, version: int = 1) -> None:
         conn.execute(
             """
             INSERT INTO task_inputs (task_id, version, topic, budget_cents, deadline,
                                      audience, requirements_json, raw_json,
                                      validation_json, interpretations_json, created_at)
-            VALUES (?, 1, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             """,
             (
                 task_id,
+                version,
                 intake.topic,
                 intake.budget_cents,
                 None if intake.deadline_utc is None else to_utc_iso(intake.deadline_utc),
@@ -108,6 +110,101 @@ class TaskService:
                 now,
             ),
         )
+
+    def update(self, task_id: str, raw: RawInput) -> dict:
+        with open_store(self.config.db_path) as conn, transaction(conn):
+            task = self._require_task(conn, task_id)
+            old_row = conn.execute(
+                "SELECT * FROM task_inputs WHERE task_id = ? AND version = ?",
+                (task_id, task["input_version"]),
+            ).fetchone()
+            intake = normalize(raw, self.config.sim_start, self.config.mode)
+            if not intake.valid:
+                document = self._view(conn, task, duplicate=False)
+                document["update_error"] = {
+                    "code": "invalid_input",
+                    "message": intake.failure_summary(),
+                    "details": [error.as_dict() for error in intake.errors],
+                }
+                return document
+            version = int(task["input_version"]) + 1
+            old_semantic = (
+                old_row["topic"],
+                old_row["audience"],
+                json.loads(old_row["requirements_json"]),
+            )
+            new_semantic = (intake.topic, intake.audience, intake.requirements)
+            resource_only = old_semantic == new_semantic
+            now = utc_now_iso()
+            self._insert_input(conn, task_id, intake, now, version)
+            status = task["status"]
+            if not resource_only and status == STATUS_COMPLETE:
+                status = STATUS_IN_PROGRESS
+            phase = task["phase"]
+            if not resource_only:
+                phase = "input_updated"
+            reason = (
+                "资源条件已更新并重新评估；既有事实、内容与评审保留适用依据。"
+                if resource_only
+                else "任务输入已更新为新版本；既有简报、产物与评审需按变化范围复核。"
+            )
+            conn.execute(
+                "UPDATE tasks SET input_version = ?, status = ?, phase = ?, reason = ?, updated_at = ? WHERE id = ?",
+                (version, status, phase, reason, now, task_id),
+            )
+            updated = conn.execute("SELECT * FROM tasks WHERE id = ?", (task_id,)).fetchone()
+            document = self._view(conn, updated, duplicate=False)
+            document["change"] = {"kind": "resource" if resource_only else "semantic", "input_version": version}
+            return document
+
+    def adopt_knowledge(self, task_id: str, knowledge_id: str, version: str | None) -> dict:
+        from cta.knowledge import load_doc
+
+        doc = load_doc(knowledge_id, self.config.project_root, version=version)
+        with open_store(self.config.db_path) as conn, transaction(conn):
+            task = self._require_task(conn, task_id)
+            conn.execute(
+                """
+                INSERT INTO knowledge_loads (task_id, agent, knowledge_id, version, sha256, content, loaded_at)
+                VALUES (?, 'main', ?, ?, ?, ?, ?)
+                ON CONFLICT(task_id, agent, knowledge_id) DO UPDATE SET
+                    version = excluded.version, sha256 = excluded.sha256,
+                    content = excluded.content, loaded_at = excluded.loaded_at
+                """,
+                (task_id, doc.knowledge_id, doc.version, doc.sha256, doc.content, utc_now_iso()),
+            )
+            append_message(
+                conn,
+                task_id,
+                "user",
+                f"[知识采用] {doc.knowledge_id} {doc.version} sha256:{doc.sha256}；此前基于旧版本的结论需复核。",
+                meta={"kind": "knowledge_adoption", "knowledge_id": doc.knowledge_id, "version": doc.version},
+            )
+            status = STATUS_IN_PROGRESS if task["status"] == STATUS_COMPLETE else task["status"]
+            conn.execute(
+                "UPDATE tasks SET status = ?, phase = 'input_updated', reason = ?, updated_at = ? WHERE id = ?",
+                (status, f"已显式采用知识 {doc.knowledge_id} {doc.version}；需复核受影响结论。", utc_now_iso(), task_id),
+            )
+            updated = conn.execute("SELECT * FROM tasks WHERE id = ?", (task_id,)).fetchone()
+            document = self._view(conn, updated, duplicate=False)
+            document["knowledge_adoption"] = doc.as_dict()
+            return document
+
+    def adopt_material_version(self, task_id: str, version: str) -> dict:
+        from cta.materials import load_catalog
+
+        catalog = load_catalog(self.config.project_root, version=version)
+        with open_store(self.config.db_path) as conn, transaction(conn):
+            task = self._require_task(conn, task_id)
+            status = STATUS_IN_PROGRESS if task["status"] == STATUS_COMPLETE else task["status"]
+            conn.execute(
+                "UPDATE tasks SET materials_version = ?, status = ?, phase = 'input_updated', reason = ?, updated_at = ? WHERE id = ?",
+                (catalog.version, status, f"已显式采用资料版本 {catalog.version}；受影响主张与评审需复核。", utc_now_iso(), task_id),
+            )
+            updated = conn.execute("SELECT * FROM tasks WHERE id = ?", (task_id,)).fetchone()
+            document = self._view(conn, updated, duplicate=False)
+            document["materials_version"] = catalog.version
+            return document
 
     def status(self, task_id: str) -> dict:
         with open_store(self.config.db_path) as conn:
@@ -251,6 +348,19 @@ class TaskService:
                 for row in conn.execute(
                     "SELECT * FROM messages WHERE task_id = ? AND agent = 'reviewer' ORDER BY seq", (task_id,)
                 )
+            ]
+            view["input_versions"] = [
+                {
+                    "version": row["version"],
+                    "topic": row["topic"],
+                    "budget_cents": row["budget_cents"],
+                    "deadline": row["deadline"],
+                    "audience": row["audience"],
+                    "requirements": json.loads(row["requirements_json"]),
+                    "raw": json.loads(row["raw_json"]),
+                    "created_at": row["created_at"],
+                }
+                for row in conn.execute("SELECT * FROM task_inputs WHERE task_id = ? ORDER BY version", (task_id,))
             ]
             return view
 

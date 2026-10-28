@@ -142,8 +142,11 @@ class MaterialCatalog:
         }
 
 
-def load_catalog(project_root: Path | None = None) -> MaterialCatalog:
+def load_catalog(project_root: Path | None = None, version: str | None = None) -> MaterialCatalog:
     root = project_root or find_project_root()
-    path = root / "fixtures" / "materials" / "catalog.json"
+    if version:
+        path = root / "fixtures" / "materials" / f"{version}.json"
+    else:
+        path = root / "fixtures" / "materials" / "catalog.json"
     payload = json.loads(path.read_text(encoding="utf-8"))
     return MaterialCatalog(payload, path)

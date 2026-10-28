@@ -298,6 +298,32 @@ def _ensure_context(conn, task, config: Config) -> None:
                     ),
                     meta={"kind": "review_feedback", "review_id": None if review is None else review["review_id"]},
                 )
+        if task["phase"] == "input_updated":
+            existing_update = conn.execute(
+                "SELECT COUNT(*) AS n FROM messages WHERE task_id = ? AND agent = 'main' AND meta_json LIKE '%input_update%'",
+                (task["id"],),
+            ).fetchone()
+            if int(existing_update["n"]) == 0:
+                input_row = _input_row(conn, task)
+                append_message(
+                    conn,
+                    task["id"],
+                    "user",
+                    "[输入更新] "
+                    + json.dumps(
+                        {
+                            "input_version": input_row["version"],
+                            "topic": input_row["topic"],
+                            "audience": input_row["audience"],
+                            "budget_cents": input_row["budget_cents"],
+                            "deadline": input_row["deadline"],
+                            "requirements": json.loads(input_row["requirements_json"]),
+                            "instruction": "按新输入重新形成简报，并复核受影响的内容与评审；旧简报/旧稿不自动通过。",
+                        },
+                        ensure_ascii=False,
+                    ),
+                    meta={"kind": "input_update", "input_version": input_row["version"]},
+                )
 
 
 def _repair_interrupted_calls(conn, task) -> None:

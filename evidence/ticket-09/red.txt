@@ -1,0 +1,242 @@
+﻿FFFFFFF                                                                  [100%]
+================================== FAILURES ===================================
+______ test_resource_update_creates_new_input_version_and_preserves_work ______
+
+cli_env = WindowsPath('C:/Users/10167/AppData/Local/Temp/pytest-of-10167/pytest-121/test_resource_update_creates_n0')
+
+    def test_resource_update_creates_new_input_version_and_preserves_work(cli_env):
+        task = _create()
+>       code, document = _update(task["task_id"], "--budget", "20")
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+..\.scratch\content-task-agent-build\run-state\red-09-snapshot\tests\test_update_validity.py:17: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+..\.scratch\content-task-agent-build\run-state\red-09-snapshot\tests\test_update_validity.py:12: in _update
+    return code, json.loads(out)
+                 ^^^^^^^^^^^^^^^
+C:\Users\10167\AppData\Roaming\uv\python\cpython-3.13.11-windows-x86_64-none\Lib\json\__init__.py:352: in loads
+    return _default_decoder.decode(s)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\10167\AppData\Roaming\uv\python\cpython-3.13.11-windows-x86_64-none\Lib\json\decoder.py:345: in decode
+    obj, end = self.raw_decode(s, idx=_w(s, 0).end())
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <json.decoder.JSONDecoder object at 0x0000027183844C20>, s = '', idx = 0
+
+    def raw_decode(self, s, idx=0):
+        """Decode a JSON document from ``s`` (a ``str`` beginning with
+        a JSON document) and return a 2-tuple of the Python
+        representation and the index in ``s`` where the document ended.
+    
+        This can be used to decode a JSON document from a string that may
+        have extraneous data at the end.
+    
+        """
+        try:
+            obj, end = self.scan_once(s, idx)
+        except StopIteration as err:
+>           raise JSONDecodeError("Expecting value", s, err.value) from None
+E           json.decoder.JSONDecodeError: Expecting value: line 1 column 1 (char 0)
+
+C:\Users\10167\AppData\Roaming\uv\python\cpython-3.13.11-windows-x86_64-none\Lib\json\decoder.py:363: JSONDecodeError
+___________ test_invalid_update_is_rejected_and_old_version_remains ___________
+
+cli_env = WindowsPath('C:/Users/10167/AppData/Local/Temp/pytest-of-10167/pytest-121/test_invalid_update_is_rejecte0')
+
+    def test_invalid_update_is_rejected_and_old_version_remains(cli_env):
+        task = _create()
+>       code, document = _update(task["task_id"], "--budget", "0")
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+..\.scratch\content-task-agent-build\run-state\red-09-snapshot\tests\test_update_validity.py:31: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+..\.scratch\content-task-agent-build\run-state\red-09-snapshot\tests\test_update_validity.py:12: in _update
+    return code, json.loads(out)
+                 ^^^^^^^^^^^^^^^
+C:\Users\10167\AppData\Roaming\uv\python\cpython-3.13.11-windows-x86_64-none\Lib\json\__init__.py:352: in loads
+    return _default_decoder.decode(s)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\10167\AppData\Roaming\uv\python\cpython-3.13.11-windows-x86_64-none\Lib\json\decoder.py:345: in decode
+    obj, end = self.raw_decode(s, idx=_w(s, 0).end())
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <json.decoder.JSONDecoder object at 0x0000027183844C20>, s = '', idx = 0
+
+    def raw_decode(self, s, idx=0):
+        """Decode a JSON document from ``s`` (a ``str`` beginning with
+        a JSON document) and return a 2-tuple of the Python
+        representation and the index in ``s`` where the document ended.
+    
+        This can be used to decode a JSON document from a string that may
+        have extraneous data at the end.
+    
+        """
+        try:
+            obj, end = self.scan_once(s, idx)
+        except StopIteration as err:
+>           raise JSONDecodeError("Expecting value", s, err.value) from None
+E           json.decoder.JSONDecodeError: Expecting value: line 1 column 1 (char 0)
+
+C:\Users\10167\AppData\Roaming\uv\python\cpython-3.13.11-windows-x86_64-none\Lib\json\decoder.py:363: JSONDecodeError
+___________ test_semantic_update_marks_old_content_and_review_stale ___________
+
+cli_env = WindowsPath('C:/Users/10167/AppData/Local/Temp/pytest-of-10167/pytest-121/test_semantic_update_marks_old0')
+model_script = <function model_script.<locals>.write at 0x00000271862D6E80>
+
+    def test_semantic_update_marks_old_content_and_review_stale(cli_env, model_script):
+        task = _draft_ready(model_script, _review_item(REVIEW_PASS))
+        cli_json("review", task["task_id"])
+>       code, updated = _update(task["task_id"], "--audience", "研究生")
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+..\.scratch\content-task-agent-build\run-state\red-09-snapshot\tests\test_update_validity.py:42: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+..\.scratch\content-task-agent-build\run-state\red-09-snapshot\tests\test_update_validity.py:12: in _update
+    return code, json.loads(out)
+                 ^^^^^^^^^^^^^^^
+C:\Users\10167\AppData\Roaming\uv\python\cpython-3.13.11-windows-x86_64-none\Lib\json\__init__.py:352: in loads
+    return _default_decoder.decode(s)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\10167\AppData\Roaming\uv\python\cpython-3.13.11-windows-x86_64-none\Lib\json\decoder.py:345: in decode
+    obj, end = self.raw_decode(s, idx=_w(s, 0).end())
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <json.decoder.JSONDecoder object at 0x0000027183844C20>, s = '', idx = 0
+
+    def raw_decode(self, s, idx=0):
+        """Decode a JSON document from ``s`` (a ``str`` beginning with
+        a JSON document) and return a 2-tuple of the Python
+        representation and the index in ``s`` where the document ended.
+    
+        This can be used to decode a JSON document from a string that may
+        have extraneous data at the end.
+    
+        """
+        try:
+            obj, end = self.scan_once(s, idx)
+        except StopIteration as err:
+>           raise JSONDecodeError("Expecting value", s, err.value) from None
+E           json.decoder.JSONDecodeError: Expecting value: line 1 column 1 (char 0)
+
+C:\Users\10167\AppData\Roaming\uv\python\cpython-3.13.11-windows-x86_64-none\Lib\json\decoder.py:363: JSONDecodeError
+__________________ test_semantic_update_can_rebuild_brief_v2 __________________
+
+cli_env = WindowsPath('C:/Users/10167/AppData/Local/Temp/pytest-of-10167/pytest-121/test_semantic_update_can_rebui0')
+model_script = <function model_script.<locals>.write at 0x0000027188703CE0>
+
+    def test_semantic_update_can_rebuild_brief_v2(cli_env, model_script):
+        task = _create()
+>       code, _updated = _update(task["task_id"], "--topic", "研究生社团招新")
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+..\.scratch\content-task-agent-build\run-state\red-09-snapshot\tests\test_update_validity.py:54: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+..\.scratch\content-task-agent-build\run-state\red-09-snapshot\tests\test_update_validity.py:12: in _update
+    return code, json.loads(out)
+                 ^^^^^^^^^^^^^^^
+C:\Users\10167\AppData\Roaming\uv\python\cpython-3.13.11-windows-x86_64-none\Lib\json\__init__.py:352: in loads
+    return _default_decoder.decode(s)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\10167\AppData\Roaming\uv\python\cpython-3.13.11-windows-x86_64-none\Lib\json\decoder.py:345: in decode
+    obj, end = self.raw_decode(s, idx=_w(s, 0).end())
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <json.decoder.JSONDecoder object at 0x0000027183844C20>, s = '', idx = 0
+
+    def raw_decode(self, s, idx=0):
+        """Decode a JSON document from ``s`` (a ``str`` beginning with
+        a JSON document) and return a 2-tuple of the Python
+        representation and the index in ``s`` where the document ended.
+    
+        This can be used to decode a JSON document from a string that may
+        have extraneous data at the end.
+    
+        """
+        try:
+            obj, end = self.scan_once(s, idx)
+        except StopIteration as err:
+>           raise JSONDecodeError("Expecting value", s, err.value) from None
+E           json.decoder.JSONDecodeError: Expecting value: line 1 column 1 (char 0)
+
+C:\Users\10167\AppData\Roaming\uv\python\cpython-3.13.11-windows-x86_64-none\Lib\json\decoder.py:363: JSONDecodeError
+_________ test_knowledge_adoption_is_explicit_and_marks_results_stale _________
+
+cli_env = WindowsPath('C:/Users/10167/AppData/Local/Temp/pytest-of-10167/pytest-121/test_knowledge_adoption_is_exp0')
+
+    def test_knowledge_adoption_is_explicit_and_marks_results_stale(cli_env):
+        task = _create()
+        code, document, _err = run_cli(
+            "adopt-knowledge", task["task_id"], "--knowledge-id", "campaign-creation", "--version", "2026-10-30.v1"
+        )
+>       assert code == 0
+E       assert 2 == 0
+
+..\.scratch\content-task-agent-build\run-state\red-09-snapshot\tests\test_update_validity.py:70: AssertionError
+________ test_material_version_adoption_marks_facts_and_reviews_stale _________
+
+cli_env = WindowsPath('C:/Users/10167/AppData/Local/Temp/pytest-of-10167/pytest-121/test_material_version_adoption0')
+
+    def test_material_version_adoption_marks_facts_and_reviews_stale(cli_env):
+        task = _create()
+        code, document, _err = run_cli("adopt-material", task["task_id"], "--version", "2026-10-30.v1")
+>       assert code == 0
+E       assert 2 == 0
+
+..\.scratch\content-task-agent-build\run-state\red-09-snapshot\tests\test_update_validity.py:82: AssertionError
+______ test_resource_update_after_completion_does_not_reset_consumption _______
+
+cli_env = WindowsPath('C:/Users/10167/AppData/Local/Temp/pytest-of-10167/pytest-121/test_resource_update_after_com0')
+model_script = <function model_script.<locals>.write at 0x0000027188702B60>
+
+    def test_resource_update_after_completion_does_not_reset_consumption(cli_env, model_script):
+        task = _draft_ready(model_script, _review_item(REVIEW_PASS))
+        cli_json("review", task["task_id"])
+        saved = cli_json("save", task["task_id"])
+        assert saved["status"] == "complete"
+        spent = saved["resources"]["sim_spent_cents"]
+>       code, updated = _update(task["task_id"], "--budget", "30")
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+..\.scratch\content-task-agent-build\run-state\red-09-snapshot\tests\test_update_validity.py:94: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+..\.scratch\content-task-agent-build\run-state\red-09-snapshot\tests\test_update_validity.py:12: in _update
+    return code, json.loads(out)
+                 ^^^^^^^^^^^^^^^
+C:\Users\10167\AppData\Roaming\uv\python\cpython-3.13.11-windows-x86_64-none\Lib\json\__init__.py:352: in loads
+    return _default_decoder.decode(s)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\10167\AppData\Roaming\uv\python\cpython-3.13.11-windows-x86_64-none\Lib\json\decoder.py:345: in decode
+    obj, end = self.raw_decode(s, idx=_w(s, 0).end())
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <json.decoder.JSONDecoder object at 0x0000027183844C20>, s = '', idx = 0
+
+    def raw_decode(self, s, idx=0):
+        """Decode a JSON document from ``s`` (a ``str`` beginning with
+        a JSON document) and return a 2-tuple of the Python
+        representation and the index in ``s`` where the document ended.
+    
+        This can be used to decode a JSON document from a string that may
+        have extraneous data at the end.
+    
+        """
+        try:
+            obj, end = self.scan_once(s, idx)
+        except StopIteration as err:
+>           raise JSONDecodeError("Expecting value", s, err.value) from None
+E           json.decoder.JSONDecodeError: Expecting value: line 1 column 1 (char 0)
+
+C:\Users\10167\AppData\Roaming\uv\python\cpython-3.13.11-windows-x86_64-none\Lib\json\decoder.py:363: JSONDecodeError
+=========================== short test summary info ===========================
+FAILED ..\.scratch\content-task-agent-build\run-state\red-09-snapshot\tests\test_update_validity.py::test_resource_update_creates_new_input_version_and_preserves_work
+FAILED ..\.scratch\content-task-agent-build\run-state\red-09-snapshot\tests\test_update_validity.py::test_invalid_update_is_rejected_and_old_version_remains
+FAILED ..\.scratch\content-task-agent-build\run-state\red-09-snapshot\tests\test_update_validity.py::test_semantic_update_marks_old_content_and_review_stale
+FAILED ..\.scratch\content-task-agent-build\run-state\red-09-snapshot\tests\test_update_validity.py::test_semantic_update_can_rebuild_brief_v2
+FAILED ..\.scratch\content-task-agent-build\run-state\red-09-snapshot\tests\test_update_validity.py::test_knowledge_adoption_is_explicit_and_marks_results_stale
+FAILED ..\.scratch\content-task-agent-build\run-state\red-09-snapshot\tests\test_update_validity.py::test_material_version_adoption_marks_facts_and_reviews_stale
+FAILED ..\.scratch\content-task-agent-build\run-state\red-09-snapshot\tests\test_update_validity.py::test_resource_update_after_completion_does_not_reset_consumption

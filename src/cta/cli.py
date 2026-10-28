@@ -76,6 +76,23 @@ def build_parser() -> argparse.ArgumentParser:
     calibrate.add_argument("--pairs", default=None, help="校准样例 JSON 路径")
     calibrate.add_argument("--output", default=None, help="结果 JSON 输出路径")
 
+    update = sub.add_parser("update", parents=[common], help="显式更新任务输入，形成新输入版本")
+    update.add_argument("task_id")
+    update.add_argument("--topic")
+    update.add_argument("--budget")
+    update.add_argument("--deadline")
+    update.add_argument("--audience")
+    update.add_argument("--requirement", action="append", default=None)
+
+    adopt_knowledge = sub.add_parser("adopt-knowledge", parents=[common], help="显式采用新的项目知识版本")
+    adopt_knowledge.add_argument("task_id")
+    adopt_knowledge.add_argument("--knowledge-id", default="campaign-creation")
+    adopt_knowledge.add_argument("--version", required=True)
+
+    adopt_material = sub.add_parser("adopt-material", parents=[common], help="显式采用新的资料版本")
+    adopt_material.add_argument("task_id")
+    adopt_material.add_argument("--version", required=True)
+
     sub.add_parser("list", parents=[common], help="列出当前模式下的任务")
     return parser
 
@@ -184,6 +201,24 @@ def main(argv: list[str] | None = None) -> int:
             document = service.create(raw, explicit_new=args.new)
         elif args.command == "status":
             document = service.status(args.task_id)
+        elif args.command == "update":
+            current = service.status(args.task_id)
+            current_input = current["input"]
+            raw = RawInput(
+                topic=args.topic if args.topic is not None else current_input["topic"],
+                budget=args.budget if args.budget is not None else current_input["budget"],
+                deadline=args.deadline if args.deadline is not None else current_input["deadline"],
+                audience=args.audience if args.audience is not None else current_input["audience"],
+                requirements=args.requirement if args.requirement is not None else current_input["requirements"],
+            )
+            document = service.update(args.task_id, raw)
+            if "update_error" in document:
+                _emit(document, args.format)
+                return 4
+        elif args.command == "adopt-knowledge":
+            document = service.adopt_knowledge(args.task_id, args.knowledge_id, args.version)
+        elif args.command == "adopt-material":
+            document = service.adopt_material_version(args.task_id, args.version)
         elif args.command == "run":
             from cta.loop import run_task
 

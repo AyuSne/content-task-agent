@@ -44,6 +44,8 @@ def _blocking_open_questions(conn, task_id: str, output: dict) -> int:
 
 
 def _preconditions(conn, task, output: dict) -> dict | None:
+    if output.get("input_version") != task["input_version"]:
+        return {"code": "input_changed", "message": "产物基于旧输入版本，需先按新输入复核并形成新产物。"}
     review = latest_review(conn, task["id"])
     if review is None:
         return {"code": "not_reviewed", "message": "当前产物尚未经过独立内容核验。"}
