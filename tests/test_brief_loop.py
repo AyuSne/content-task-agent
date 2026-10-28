@@ -201,9 +201,10 @@ def test_estimate_covers_full_remaining_path_without_charging(cli_env, model_scr
     )
     estimate = json.loads(estimate_message["content"])["estimate"]
     steps = [line["step"] for line in estimate["lines"]]
-    assert steps == ["search", "generation", "revision", "review", "save"]
-    assert estimate["total_cost_cents"] == 20 + 120 + 120 + 80 + 10
-    assert estimate["total_duration_ms"] == 2000 + 8000 + 8000 + 6000 + 1000
+    assert steps == ["search", "generation", "review", "revision", "re_review", "save"]
+    assert estimate["total_cost_cents"] == 20 + 120 + 80 + 120 + 80 + 10
+    assert estimate["total_duration_ms"] == 2000 + 8000 + 6000 + 8000 + 6000 + 1000
+    assert estimate["nature"] == "estimated"
     assert inspected["attempts"] == []
 
 

@@ -8,7 +8,17 @@ from pathlib import Path
 
 from cta.config import Config
 from cta.render import campaign_markdown
-from cta.repository import latest_brief, latest_output, latest_review, latest_save, task_llm_usage, task_spent
+from cta.repository import (
+    latest_brief,
+    latest_estimate,
+    latest_output,
+    latest_review,
+    latest_save,
+    latest_strategy_selection,
+    list_stops,
+    task_llm_usage,
+    task_spent,
+)
 
 
 def sha256_file(path: Path) -> str:
@@ -22,7 +32,14 @@ def _write_atomic(path: Path, content: str) -> None:
     temp.replace(path)
 
 
-def execution_report_markdown(conn, task, output: dict, review: dict | None, save: dict | None) -> str:
+def execution_report_markdown(
+    conn,
+    task,
+    output: dict,
+    review: dict | None,
+    save: dict | None,
+    attempt_status_overrides: dict[str, str] | None = None,
+) -> str:
     from datetime import datetime, timedelta
 
     input_row = conn.execute(
@@ -33,6 +50,14 @@ def execution_report_markdown(conn, task, output: dict, review: dict | None, sav
     attempts = conn.execute("SELECT * FROM attempts WHERE task_id = ? ORDER BY rowid", (task["id"],)).fetchall()
     ledger = conn.execute("SELECT * FROM ledger WHERE task_id = ? ORDER BY id", (task["id"],)).fetchall()
     brief = latest_brief(conn, task["id"])
+    selection = latest_strategy_selection(conn, task["id"])
+    estimate = latest_estimate(conn, task["id"])
+    stops = list_stops(conn, task["id"])
+    activity_entries = [
+        item
+        for item in (output or {}).get("content", {}).get("materials", [])
+        if item.get("status") in ("to_acquire", "to_create")
+    ]
     sim_complete = datetime.fromisoformat(task["sim_start"]) + timedelta(milliseconds=task["sim_elapsed_ms"])
     try:
         wall_seconds = (
@@ -63,7 +88,15 @@ def execution_report_markdown(conn, task, output: dict, review: dict | None, sav
         (
             f"- 真实模型请求：{usage['requests']} 次（真实 {usage['real_requests']}，Mock {usage['mock_requests']}）；"
             f"输入 {usage['prompt_tokens']} / 输出 {usage['completion_tokens']} tokens；缓存命中 {usage['cache_hit_tokens']} / "
-            f"未命中 {usage['cache_miss_tokens']}；未知用量请求 {usage['unknown_usage_requests']}"
+            f"未命中 {usage['cache_miss_tokens']}；未知用量请求 {usage['unknown_usage_requests']}；金额：未知（无可靠单价来源）"
+        ),
+        (
+            "- 活动费用："
+            + (
+                "未知（方案含待获取/待制作素材，但输入与材料未给出金额）"
+                if activity_entries
+                else "不涉及（未涉及活动制作或投放预算/实际支出）"
+            )
         ),
         f"- 报告生成时间（真实）：{(save or {}).get('verified_at') or task['updated_at']}",
         "",
@@ -75,11 +108,61 @@ def execution_report_markdown(conn, task, output: dict, review: dict | None, sav
     for step in (output or {}).get("content", {}).get("activity", {}).get("content_items", []):
         lines.append(f"- 内容安排：{step.get('title')}（{step.get('duration_s')} 秒，{step.get('platform')}）")
     for attempt in attempts:
+        status = (attempt_status_overrides or {}).get(attempt["id"], attempt["status"])
         lines.append(
-            f"- 执行尝试 `{attempt['id']}`：{attempt['kind']} / {attempt['mode']} / {attempt['status']}；"
+            f"- 执行尝试 `{attempt['id']}`：{attempt['kind']} / {attempt['mode']} / {status}；"
             f"费用 {attempt['cost_cents']} 分；耗时 {attempt['duration_ms']} ms；错误 {attempt['error'] or '无'}"
         )
-    lines += ["", "## 账本", ""]
+    lines += ["", "## 创作策略与反馈", ""]
+    if selection is None:
+        lines.append("- 尚未记录策略选择。")
+    else:
+        lines += [
+            (
+                f"- 选定方向：{selection['direction']}；检索模式：{selection['search_mode']}；"
+                f"生成模式：{selection['generation_mode']}；已知剩余检索：{selection['search_queries']} 次；"
+                f"含返修复核：{'是' if selection['include_revision'] else '否'}"
+            ),
+            f"- 选择理由：{selection['rationale']}",
+            (
+                f"- 改进投入：{'是' if selection['improvement'] else '否'}；"
+                f"预期收益：{selection['expected_benefit'] or '不适用'}"
+            ),
+            (
+                f"- 完整路径估算：{selection['total_cost_cents']} 分 / {selection['total_duration_ms']} ms；"
+                f"策略表 {selection['strategy_version']}；费用表 {selection['pricing_version']}；预留不是实际支出"
+            ),
+        ]
+    if estimate is not None:
+        lines.append(
+            f"- 最近估算：{estimate['kind']}；{estimate['total_cost_cents']} 分；"
+            f"可行：{'是' if estimate['feasible'] else '否'}；已发生 {estimate['incurred_cents']} 分；"
+            f"剩余预算 {estimate['remaining_cents']} 分"
+        )
+    for stop in stops:
+        for gap in stop["gaps"]:
+            lines.append(
+                f"- 停止缺口（{stop['kind']}）：{gap.get('gap')}；影响：{gap.get('impact') or '未说明'}"
+            )
+        if not stop["gaps"]:
+            lines.append(f"- 停止（{stop['kind']}）：{stop['reason']}")
+    lines += ["", "## 成本口径与账本", ""]
+    lines.append(
+        f"- 模拟工具费用：单位 CNY_cent；来源 pricing:{task['pricing_version']}；"
+        f"已发生 {spent} 分；估算/预留单列，不计入已发生"
+    )
+    lines.append(
+        f"- 真实模型用量：单位 request/token；来源 API response usage；"
+        f"金额未知（不把 token 用量换算为金额）；真实请求 {usage['real_requests']} 次"
+    )
+    lines.append(
+        "- 活动费用："
+        + (
+            "未知（方案素材涉及待获取/待制作项，未提供金额）"
+            if activity_entries
+            else "不涉及"
+        )
+    )
     for row in ledger:
         lines.append(
             f"- {row['created_at']}｜{row['category']}｜{row['amount_cents']} {row['unit']}｜"
@@ -127,6 +210,11 @@ def execution_report_markdown(conn, task, output: dict, review: dict | None, sav
         lines.append("- 简报未记录未知项。")
     for gap in gaps:
         lines.append(f"- [{'关键阻塞' if gap.get('blocking') else '待确认'}] {gap.get('question')}；影响：{gap.get('impact')}")
+    for stop in stops:
+        for gap in stop["gaps"]:
+            lines.append(
+                f"- [停止缺口/{stop['kind']}] {gap.get('gap')}；影响：{gap.get('impact') or '未说明'}"
+            )
     lines += [
         "",
         "- 模拟按时不证明真实墙钟按时；制作可用不代表已制作成片。",
@@ -183,11 +271,78 @@ def trace_events(conn, task) -> list[dict]:
                 "created_at": row["created_at"],
             }
         )
+    for row in conn.execute("SELECT * FROM estimates WHERE task_id = ? ORDER BY rowid", (task["id"],)):
+        events.append(
+            {
+                "event": "estimate",
+                "task_id": task["id"],
+                "estimate_id": row["id"],
+                "kind": row["kind"],
+                "direction": row["direction"],
+                "search_mode": row["search_mode"],
+                "generation_mode": row["generation_mode"],
+                "search_queries": row["search_queries"],
+                "include_revision": bool(row["include_revision"]),
+                "strategy_version": row["strategy_version"],
+                "pricing_version": row["pricing_version"],
+                "total_cost_cents": row["total_cost_cents"],
+                "total_duration_ms": row["total_duration_ms"],
+                "incurred_cents": row["incurred_cents"],
+                "remaining_cents": row["remaining_cents"],
+                "feasible": bool(row["feasible"]),
+                "created_at": row["created_at"],
+            }
+        )
+    for row in conn.execute("SELECT * FROM strategy_selections WHERE task_id = ? ORDER BY rowid", (task["id"],)):
+        events.append(
+            {
+                "event": "strategy_selection",
+                "task_id": task["id"],
+                "selection_id": row["id"],
+                "direction": row["direction"],
+                "search_mode": row["search_mode"],
+                "generation_mode": row["generation_mode"],
+                "search_queries": row["search_queries"],
+                "include_revision": bool(row["include_revision"]),
+                "improvement": bool(row["improvement"]),
+                "expected_benefit": row["expected_benefit"],
+                "rationale": row["rationale"],
+                "strategy_version": row["strategy_version"],
+                "pricing_version": row["pricing_version"],
+                "path": json.loads(row["path_json"]),
+                "total_cost_cents": row["total_cost_cents"],
+                "total_duration_ms": row["total_duration_ms"],
+                "incurred_cents": row["incurred_cents"],
+                "remaining_cents": row["remaining_cents"],
+                "created_at": row["created_at"],
+            }
+        )
+    for row in conn.execute("SELECT * FROM stops WHERE task_id = ? ORDER BY rowid", (task["id"],)):
+        events.append(
+            {
+                "event": "stop",
+                "task_id": task["id"],
+                "stop_id": row["id"],
+                "kind": row["kind"],
+                "reason": row["reason"],
+                "gaps": json.loads(row["gaps_json"]),
+                "created_at": row["created_at"],
+            }
+        )
     return events
 
 
 def build_files(
-    conn, config: Config, task, output: dict, review: dict | None, save: dict | None, *, include_trace: bool = True
+    conn,
+    config: Config,
+    task,
+    output: dict,
+    review: dict | None,
+    save: dict | None,
+    *,
+    include_trace: bool = True,
+    report_task=None,
+    attempt_status_overrides: dict[str, str] | None = None,
 ) -> list[dict]:
     task_dir = config.exports_dir / task["id"]
     task_dir.mkdir(parents=True, exist_ok=True)
@@ -196,7 +351,17 @@ def build_files(
     files = [
         (task_dir / f"campaign-v{version}.md", output["content_md"] or campaign_markdown(campaign)),
         (task_dir / f"campaign-v{version}.json", json.dumps(campaign, ensure_ascii=False, indent=2) + "\n"),
-        (task_dir / "execution-report.md", execution_report_markdown(conn, task, output, review, save)),
+        (
+            task_dir / "execution-report.md",
+            execution_report_markdown(
+                conn,
+                report_task or task,
+                output,
+                review,
+                save,
+                attempt_status_overrides=attempt_status_overrides,
+            ),
+        ),
     ]
     if include_trace:
         files.append((task_dir / "trace.jsonl", trace_text(conn, task)))

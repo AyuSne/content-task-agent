@@ -131,6 +131,16 @@ def save_task(config: Config, task_id: str) -> dict:
 
         review = latest_review(conn, task_id)
         verified_at = utc_now_iso()
+        final_reason = f"已核实保存产物 v{output['version']} 及交付文件。"
+        report_task = dict(task)
+        report_task.update(
+            {
+                "status": "complete",
+                "phase": "complete",
+                "reason": final_reason,
+                "updated_at": verified_at,
+            }
+        )
         save = create_save(
             conn,
             task_id=task_id,
@@ -153,6 +163,8 @@ def save_task(config: Config, task_id: str) -> dict:
                 review,
                 {**save, "verified": True, "status": "verified", "verified_at": verified_at},
                 include_trace=False,
+                report_task=report_task,
+                attempt_status_overrides={attempt_id: "success"},
             )
             ok, checked = verify_records(files)
             if not ok:
@@ -170,7 +182,7 @@ def save_task(config: Config, task_id: str) -> dict:
             )
             conn.execute(
                 "UPDATE tasks SET status = 'complete', phase = 'complete', reason = ?, updated_at = ?, paused = 0 WHERE id = ?",
-                (f"已核实保存产物 v{output['version']} 及交付文件。", utc_now_iso(), task_id),
+                (final_reason, utc_now_iso(), task_id),
             )
             finish_attempt(
                 conn,

@@ -13,7 +13,7 @@ from pathlib import Path
 
 from cta import __version__
 
-SCHEMA_VERSION = 4
+SCHEMA_VERSION = 5
 
 SCHEMA = """
 CREATE TABLE IF NOT EXISTS meta (
@@ -42,6 +42,7 @@ CREATE TABLE IF NOT EXISTS tasks (
     last_run_at TEXT,
     materials_version TEXT NOT NULL DEFAULT '',
     pricing_version TEXT NOT NULL DEFAULT '',
+    strategy_version TEXT NOT NULL DEFAULT '',
     current_review_id TEXT,
     current_save_id TEXT
 );
@@ -222,6 +223,56 @@ CREATE TABLE IF NOT EXISTS saves (
     error TEXT,
     created_at TEXT NOT NULL
 );
+
+CREATE TABLE IF NOT EXISTS estimates (
+    id TEXT PRIMARY KEY,
+    task_id TEXT NOT NULL REFERENCES tasks(id) ON DELETE CASCADE,
+    kind TEXT NOT NULL,
+    direction TEXT,
+    search_mode TEXT,
+    generation_mode TEXT,
+    search_queries INTEGER,
+    include_revision INTEGER NOT NULL DEFAULT 0,
+    strategy_version TEXT NOT NULL,
+    pricing_version TEXT NOT NULL,
+    total_cost_cents INTEGER NOT NULL,
+    total_duration_ms INTEGER NOT NULL,
+    incurred_cents INTEGER NOT NULL DEFAULT 0,
+    remaining_cents INTEGER,
+    feasible INTEGER NOT NULL DEFAULT 1,
+    detail_json TEXT NOT NULL DEFAULT '{}',
+    created_at TEXT NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS strategy_selections (
+    id TEXT PRIMARY KEY,
+    task_id TEXT NOT NULL REFERENCES tasks(id) ON DELETE CASCADE,
+    direction TEXT NOT NULL,
+    search_mode TEXT NOT NULL,
+    generation_mode TEXT NOT NULL,
+    search_queries INTEGER NOT NULL,
+    include_revision INTEGER NOT NULL DEFAULT 0,
+    improvement INTEGER NOT NULL DEFAULT 0,
+    expected_benefit TEXT,
+    rationale TEXT NOT NULL,
+    strategy_version TEXT NOT NULL,
+    pricing_version TEXT NOT NULL,
+    path_json TEXT NOT NULL,
+    total_cost_cents INTEGER NOT NULL,
+    total_duration_ms INTEGER NOT NULL,
+    incurred_cents INTEGER NOT NULL DEFAULT 0,
+    remaining_cents INTEGER,
+    created_at TEXT NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS stops (
+    id TEXT PRIMARY KEY,
+    task_id TEXT NOT NULL REFERENCES tasks(id) ON DELETE CASCADE,
+    kind TEXT NOT NULL,
+    reason TEXT NOT NULL,
+    gaps_json TEXT NOT NULL DEFAULT '[]',
+    created_at TEXT NOT NULL
+);
 """
 
 
@@ -243,6 +294,7 @@ def _ensure_columns(conn: sqlite3.Connection) -> None:
         "last_run_at": "TEXT",
         "materials_version": "TEXT NOT NULL DEFAULT ''",
         "pricing_version": "TEXT NOT NULL DEFAULT ''",
+        "strategy_version": "TEXT NOT NULL DEFAULT ''",
         "current_review_id": "TEXT",
         "current_save_id": "TEXT",
     }

@@ -8,6 +8,7 @@ the model; each round is counted and failures stay visible.
 from __future__ import annotations
 
 import json
+import os
 from datetime import UTC, datetime, timedelta
 
 from cta.config import Config, utc_now_iso
@@ -28,12 +29,17 @@ from cta.repository import (
     api_messages,
     append_message,
     append_snapshot,
+    count_attempts,
     count_purpose_requests,
     create_output,
+    create_strategy_selection,
     find_pending_tool_calls,
     finish_attempt,
     latest_brief,
+    latest_strategy_selection,
+    record_estimate,
     record_llm_request,
+    record_stop,
     snapshot_state,
     start_attempt,
     task_spent,
@@ -47,6 +53,7 @@ from cta.service import (
     TaskNotFound,
     TaskService,
 )
+from cta.strategy import DIRECTIONS, ResourceState, compare_strategies, load_strategy_table
 
 TOOL_NAMES = {item["function"]["name"] for item in TOOL_DEFINITIONS}
 
@@ -68,6 +75,7 @@ def _input_row(conn, task):
 def run_task(config: Config, task_id: str, *, max_rounds: int | None = None) -> dict:
     price = load_price_table(config.project_root)
     catalog = load_catalog(config.project_root)
+    strategy_table = load_strategy_table(config.project_root)
     run_info = {"rounds_used": 0, "stop_reason": None, "requests": 0}
 
     with open_store(config.db_path) as conn:
@@ -92,7 +100,13 @@ def run_task(config: Config, task_id: str, *, max_rounds: int | None = None) -> 
         try:
             client = create_client(config)
         except Exception as exc:  # noqa: BLE001 - model boundary
-            _set_incomplete(conn, task, f"模型不可用：{config.redact(str(exc))}")
+            _set_incomplete(
+                conn,
+                task,
+                f"模型不可用：{config.redact(str(exc))}",
+                kind="model_unavailable",
+                gaps=[{"gap": "主模型不可用", "impact": "当前无法继续，保留已完成成果；配置修复后可显式续跑"}],
+            )
             run_info["stop_reason"] = "model_unavailable"
             return _document(config, task_id, run_info)
 
@@ -102,14 +116,26 @@ def run_task(config: Config, task_id: str, *, max_rounds: int | None = None) -> 
                 run_info["stop_reason"] = task["status"]
                 break
             if task["used_rounds"] >= MAX_ROUNDS:
-                _set_incomplete(conn, task, f"达到主循环轮数上限（{MAX_ROUNDS} 轮），保留现有成果。")
+                _set_incomplete(
+                    conn,
+                    task,
+                    f"达到主循环轮数上限（{MAX_ROUNDS} 轮），保留现有成果。",
+                    kind="max_rounds",
+                    gaps=[{"gap": f"达到主循环轮数上限（{MAX_ROUNDS} 轮）", "impact": "未完成步骤不再执行；需显式续跑或调整条件"}],
+                )
                 run_info["stop_reason"] = "max_rounds"
                 break
             if max_rounds is not None and run_info["rounds_used"] >= max_rounds:
                 run_info["stop_reason"] = "injected_round_cap"
                 break
             if _past_deadline(conn, task):
-                _set_incomplete(conn, task, "模拟方案截止时间已到，保留现有成果。")
+                _set_incomplete(
+                    conn,
+                    task,
+                    "模拟方案截止时间已到，保留现有成果。",
+                    kind="deadline",
+                    gaps=[{"gap": "模拟方案截止时间已到", "impact": "剩余核验/保存或返修无法在截止前完成"}],
+                )
                 run_info["stop_reason"] = "deadline"
                 break
 
@@ -145,11 +171,17 @@ def run_task(config: Config, task_id: str, *, max_rounds: int | None = None) -> 
             if response.error:
                 with transaction(conn):
                     append_message(conn, task_id, "user", f"[运行时反馈] 模型请求失败：{response.error}", meta={"kind": "runtime_feedback"})
-                _set_incomplete(conn, task, f"模型请求失败：{response.error}")
+                _set_incomplete(
+                    conn,
+                    task,
+                    f"模型请求失败：{response.error}",
+                    kind="model_error",
+                    gaps=[{"gap": "模型请求失败", "impact": "本轮无有效动作；保留已有成果与用量，需显式续跑"}],
+                )
                 run_info["stop_reason"] = "model_error"
                 break
 
-            outcome = _handle_response(conn, task, response, price, catalog, config, client)
+            outcome = _handle_response(conn, task, response, price, catalog, config, client, strategy_table)
             if outcome["terminal"]:
                 run_info["stop_reason"] = outcome["stop_reason"]
                 break
@@ -263,12 +295,13 @@ def _snapshot(conn, task) -> None:
         append_snapshot(conn, task["id"], snapshot_state(conn, task["id"]))
 
 
-def _set_incomplete(conn, task, reason: str) -> None:
+def _set_incomplete(conn, task, reason: str, *, kind: str = "stopped", gaps: list[dict] | None = None) -> None:
     with transaction(conn):
         conn.execute(
             "UPDATE tasks SET status = ?, phase = 'stopped', reason = ?, updated_at = ? WHERE id = ?",
             (STATUS_INCOMPLETE, reason, utc_now_iso(), task["id"]),
         )
+        record_stop(conn, task_id=task["id"], kind=kind, reason=reason, gaps=gaps)
 
 
 def _past_deadline(conn, task) -> bool:
@@ -281,7 +314,16 @@ def _past_deadline(conn, task) -> bool:
     return task["sim_elapsed_ms"] >= elapsed
 
 
-def _handle_response(conn, task, response: ModelResponse, price: PriceTable, catalog: MaterialCatalog, config: Config, client) -> dict:
+def _handle_response(
+    conn,
+    task,
+    response: ModelResponse,
+    price: PriceTable,
+    catalog: MaterialCatalog,
+    config: Config,
+    client,
+    strategy_table,
+) -> dict:
     calls = list(response.tool_calls)
     if response.finish_reason == "length":
         with transaction(conn):
@@ -377,7 +419,7 @@ def _handle_response(conn, task, response: ModelResponse, price: PriceTable, cat
     elif call.name == "stop_incomplete":
         result, terminal = _stop_incomplete(conn, task, parsed)
     else:
-        result = _execute_business_tool(conn, task, call.name, parsed, price, catalog, config)
+        result = _execute_business_tool(conn, task, call.name, parsed, price, catalog, config, strategy_table)
         terminal = False
 
     with transaction(conn):
@@ -409,7 +451,16 @@ def _parse_call(call) -> tuple[dict, dict | None]:
     return parsed, None
 
 
-def _execute_business_tool(conn, task, name: str, parsed: dict, price: PriceTable, catalog: MaterialCatalog, config: Config) -> dict:
+def _execute_business_tool(
+    conn,
+    task,
+    name: str,
+    parsed: dict,
+    price: PriceTable,
+    catalog: MaterialCatalog,
+    config: Config,
+    strategy_table,
+) -> dict:
     if name == "search_materials":
         return _search(conn, task, parsed, price, catalog)
     if name == "read_material":
@@ -419,7 +470,22 @@ def _execute_business_tool(conn, task, name: str, parsed: dict, price: PriceTabl
         return catalog.read(material_id)
     if name == "estimate_cost":
         return _estimate(conn, task, parsed, price)
+    if name == "compare_strategies":
+        return _compare_strategies(conn, task, parsed, price, strategy_table)
+    if name == "choose_strategy":
+        return _choose_strategy(conn, task, parsed, price, strategy_table)
     return {"ok": False, "error": "unknown_tool", "message": f"未知工具：{name}"}
+
+
+def _injected_search_failures() -> int:
+    """Test-only environment injection: fail the first N search attempts of a task."""
+    raw = os.environ.get("CTA_FAIL_SEARCH")
+    if not raw:
+        return 0
+    try:
+        return max(0, int(raw))
+    except ValueError:
+        return 1
 
 
 def _search(conn, task, parsed: dict, price: PriceTable, catalog: MaterialCatalog) -> dict:
@@ -445,15 +511,47 @@ def _search(conn, task, parsed: dict, price: PriceTable, catalog: MaterialCatalo
         meta={"query": query, "mode": mode},
     )
     conn.commit()
+    fail_first = _injected_search_failures()
+    if fail_first and count_attempts(conn, task["id"], "search_materials", exclude_id=attempt_id) < fail_first:
+        finish_attempt(conn, attempt_id, status="failed", error="injected search failure (CTA_FAIL_SEARCH)")
+        conn.commit()
+        return {
+            "ok": False,
+            "error": "tool_failed",
+            "injected": True,
+            "message": "检索执行失败：injected search failure (CTA_FAIL_SEARCH)；本次尝试与消耗已保留。",
+            "attempt_id": attempt_id,
+            "cost_cents": spec.cost_cents,
+            "duration_ms": spec.duration_ms,
+        }
     try:
         result = catalog.search(query, mode)
     except Exception as exc:  # noqa: BLE001 - business tool boundary
         finish_attempt(conn, attempt_id, status="failed", error=str(exc)[:500])
         conn.commit()
-        return {"ok": False, "error": "tool_failed", "message": f"检索执行失败：{exc}", "attempt_id": attempt_id}
+        return {
+            "ok": False,
+            "error": "tool_failed",
+            "message": f"检索执行失败：{exc}",
+            "attempt_id": attempt_id,
+            "cost_cents": spec.cost_cents,
+            "duration_ms": spec.duration_ms,
+        }
     finish_attempt(conn, attempt_id, status="success")
     conn.commit()
     return {**result, "attempt_id": attempt_id, "cost_cents": spec.cost_cents, "duration_ms": spec.duration_ms}
+
+
+def _resource_state(conn, task) -> ResourceState:
+    input_row = _input_row(conn, task)
+    deadline = None if input_row["deadline"] is None else datetime.fromisoformat(input_row["deadline"])
+    return ResourceState(
+        incurred_cents=task_spent(conn, task["id"]),
+        budget_cents=input_row["budget_cents"],
+        sim_start=datetime.fromisoformat(task["sim_start"]),
+        sim_elapsed_ms=task["sim_elapsed_ms"],
+        deadline=deadline,
+    )
 
 
 def _estimate(conn, task, parsed: dict, price: PriceTable) -> dict:
@@ -462,19 +560,29 @@ def _estimate(conn, task, parsed: dict, price: PriceTable) -> dict:
     search_mode = parsed.get("search_mode")
     generation_mode = parsed.get("generation_mode")
     include_revision = parsed.get("include_revision", False)
+    search_queries = parsed.get("search_queries", 1)
     if not isinstance(include_revision, bool):
         return {"ok": False, "error": "invalid_arguments", "message": "include_revision 必须是布尔值。"}
+    if not isinstance(search_queries, int) or isinstance(search_queries, bool) or not 0 <= search_queries <= 6:
+        return {"ok": False, "error": "invalid_arguments", "message": "search_queries 必须是 0 到 6 的整数。"}
     if search_mode not in ("search_basic", "search_extended"):
         return {"ok": False, "error": "invalid_arguments", "message": "search_mode 无效。"}
     if generation_mode not in ("generate_direct", "generate_multi"):
         return {"ok": False, "error": "invalid_arguments", "message": "generation_mode 无效。"}
-    estimate = price.estimate(search_mode, generation_mode, include_revision=include_revision)
+    estimate = price.estimate(
+        search_mode,
+        generation_mode,
+        search_queries=search_queries,
+        include_revision=include_revision,
+    )
     input_row = _input_row(conn, task)
-    remaining = None if input_row["budget_cents"] is None else input_row["budget_cents"] - task_spent(conn, task["id"])
+    spent = task_spent(conn, task["id"])
+    remaining = None if input_row["budget_cents"] is None else input_row["budget_cents"] - spent
     sim_start = datetime.fromisoformat(task["sim_start"])
     projected = sim_start + timedelta(milliseconds=task["sim_elapsed_ms"] + estimate["total_duration_ms"])
     estimate["projected_sim_complete"] = projected.isoformat()
     estimate["deadline"] = input_row["deadline"]
+    estimate["incurred_cents"] = spent
     estimate["remaining_budget_cents"] = remaining
     estimate["budget_gap_cents"] = None if remaining is None else remaining - estimate["total_cost_cents"]
     estimate["affordable"] = remaining is None or estimate["total_cost_cents"] <= remaining
@@ -486,7 +594,235 @@ def _estimate(conn, task, parsed: dict, price: PriceTable) -> dict:
         allowed_ms = (deadline - sim_start).total_seconds() * 1000
         estimate["time_gap_ms"] = int(allowed_ms - (task["sim_elapsed_ms"] + estimate["total_duration_ms"]))
         estimate["within_deadline"] = estimate["time_gap_ms"] >= 0
-    return {"ok": True, "estimate": estimate}
+    feasible = bool(estimate["affordable"] and estimate["within_deadline"] is not False)
+    with transaction(conn):
+        recorded = record_estimate(
+            conn,
+            task_id=task["id"],
+            kind="cost_estimate",
+            direction=None,
+            search_mode=search_mode,
+            generation_mode=generation_mode,
+            search_queries=search_queries,
+            include_revision=include_revision,
+            strategy_version=task["strategy_version"],
+            pricing_version=price.version,
+            total_cost_cents=estimate["total_cost_cents"],
+            total_duration_ms=estimate["total_duration_ms"],
+            incurred_cents=spent,
+            remaining_cents=remaining,
+            feasible=feasible,
+            detail={"estimate": estimate},
+        )
+    estimate["estimate_id"] = recorded["estimate_id"]
+    estimate["nature"] = "estimated"
+    return {"ok": True, "estimate": estimate, "estimate_id": recorded["estimate_id"]}
+
+
+def _compare_strategies(conn, task, parsed: dict, price: PriceTable, strategy_table) -> dict:
+    search_mode = parsed.get("search_mode")
+    generation_mode = parsed.get("generation_mode")
+    if search_mode not in ("search_basic", "search_extended"):
+        return {"ok": False, "error": "invalid_arguments", "message": "search_mode 无效。"}
+    if generation_mode not in ("generate_direct", "generate_multi"):
+        return {"ok": False, "error": "invalid_arguments", "message": "generation_mode 无效。"}
+    include_revision = parsed.get("include_revision", False)
+    if not isinstance(include_revision, bool):
+        return {"ok": False, "error": "invalid_arguments", "message": "include_revision 必须是布尔值。"}
+    search_queries = parsed.get("search_queries")
+    if search_queries is not None and (
+        not isinstance(search_queries, int) or isinstance(search_queries, bool) or not 0 <= search_queries <= 6
+    ):
+        return {"ok": False, "error": "invalid_arguments", "message": "search_queries 必须是 0 到 6 的整数。"}
+    directions = parsed.get("directions")
+    if directions is not None and (
+        not isinstance(directions, list)
+        or not directions
+        or not all(isinstance(item, str) for item in directions)
+    ):
+        return {"ok": False, "error": "invalid_arguments", "message": "directions 必须是非空字符串数组。"}
+    state = _resource_state(conn, task)
+    try:
+        comparison = compare_strategies(
+            strategy_table,
+            price,
+            state,
+            directions=directions,
+            search_mode=search_mode,
+            generation_mode=generation_mode,
+            search_queries=search_queries,
+            include_revision=include_revision,
+        )
+    except ValueError as exc:
+        return {"ok": False, "error": "invalid_arguments", "message": str(exc)}
+    cheapest = comparison["cheapest_feasible"]
+    if cheapest is not None:
+        total_cost = cheapest["total_cost_cents"]
+        total_duration = cheapest["total_duration_ms"]
+    else:
+        total_cost = min(item["path"]["total_cost_cents"] for item in comparison["directions"])
+        total_duration = min(item["path"]["total_duration_ms"] for item in comparison["directions"])
+    detail = {key: value for key, value in comparison.items() if key != "mode_table"}
+    with transaction(conn):
+        recorded = record_estimate(
+            conn,
+            task_id=task["id"],
+            kind="strategy_comparison",
+            direction=None,
+            search_mode=search_mode,
+            generation_mode=generation_mode,
+            search_queries=search_queries,
+            include_revision=include_revision,
+            strategy_version=strategy_table.version,
+            pricing_version=price.version,
+            total_cost_cents=total_cost,
+            total_duration_ms=total_duration,
+            incurred_cents=state.incurred_cents,
+            remaining_cents=state.remaining_budget_cents,
+            feasible=cheapest is not None,
+            detail=detail,
+        )
+    comparison["estimate_id"] = recorded["estimate_id"]
+    comparison["nature"] = "estimated"
+    return comparison
+
+
+def _choose_strategy(conn, task, parsed: dict, price: PriceTable, strategy_table) -> dict:
+    direction = parsed.get("direction")
+    search_mode = parsed.get("search_mode")
+    generation_mode = parsed.get("generation_mode")
+    rationale = parsed.get("rationale")
+    include_revision = parsed.get("include_revision", False)
+    improvement = parsed.get("improvement", False)
+    expected_benefit = parsed.get("expected_benefit")
+    search_queries = parsed.get("search_queries")
+    if direction not in DIRECTIONS:
+        return {"ok": False, "error": "invalid_arguments", "message": "direction 必须是三种创作方向之一。"}
+    if search_mode not in ("search_basic", "search_extended"):
+        return {"ok": False, "error": "invalid_arguments", "message": "search_mode 无效。"}
+    if generation_mode not in ("generate_direct", "generate_multi"):
+        return {"ok": False, "error": "invalid_arguments", "message": "generation_mode 无效。"}
+    if not isinstance(rationale, str) or not rationale.strip():
+        return {"ok": False, "error": "invalid_arguments", "message": "rationale 必须说明选择理由。"}
+    if not isinstance(include_revision, bool) or not isinstance(improvement, bool):
+        return {"ok": False, "error": "invalid_arguments", "message": "include_revision 与 improvement 必须是布尔值。"}
+    if search_queries is not None and (
+        not isinstance(search_queries, int) or isinstance(search_queries, bool) or not 0 <= search_queries <= 6
+    ):
+        return {"ok": False, "error": "invalid_arguments", "message": "search_queries 必须是 0 到 6 的整数。"}
+    if expected_benefit is not None and not isinstance(expected_benefit, str):
+        return {"ok": False, "error": "invalid_arguments", "message": "expected_benefit 必须是字符串。"}
+    if improvement and (not isinstance(expected_benefit, str) or not expected_benefit.strip()):
+        return {
+            "ok": False,
+            "error": "invalid_arguments",
+            "message": "improvement=true 时必须说明 expected_benefit（改善目标与预期收益）。",
+        }
+    state = _resource_state(conn, task)
+    try:
+        comparison = compare_strategies(
+            strategy_table,
+            price,
+            state,
+            directions=[direction],
+            search_mode=search_mode,
+            generation_mode=generation_mode,
+            search_queries=search_queries,
+            include_revision=include_revision,
+        )
+    except ValueError as exc:
+        return {"ok": False, "error": "invalid_arguments", "message": str(exc)}
+    item = comparison["directions"][0]
+    detail = {
+        "direction": direction,
+        "search_mode": search_mode,
+        "generation_mode": generation_mode,
+        "search_queries": item["search_queries"],
+        "include_revision": include_revision,
+        "improvement": improvement,
+        "expected_benefit": expected_benefit.strip() if isinstance(expected_benefit, str) else None,
+        "path": item["path"],
+        "budget_feasible": item["budget_feasible"],
+        "deadline_feasible": item["deadline_feasible"],
+        "infeasibility": item["infeasibility"],
+    }
+    with transaction(conn):
+        recorded_estimate = record_estimate(
+            conn,
+            task_id=task["id"],
+            kind="strategy_choice",
+            direction=direction,
+            search_mode=search_mode,
+            generation_mode=generation_mode,
+            search_queries=item["search_queries"],
+            include_revision=include_revision,
+            strategy_version=strategy_table.version,
+            pricing_version=price.version,
+            total_cost_cents=item["path"]["total_cost_cents"],
+            total_duration_ms=item["path"]["total_duration_ms"],
+            incurred_cents=state.incurred_cents,
+            remaining_cents=state.remaining_budget_cents,
+            feasible=item["feasible"],
+            detail=detail,
+        )
+    if not item["feasible"]:
+        return {
+            "ok": False,
+            "error": "strategy_infeasible",
+            "message": "所选创作方向与完整剩余路径当前不可行；未记录选择，也未产生模拟消耗。请改走可行替代或停止并说明缺口。",
+            "direction": direction,
+            "path": item["path"],
+            "budget_feasible": item["budget_feasible"],
+            "deadline_feasible": item["deadline_feasible"],
+            "infeasibility": item["infeasibility"],
+            "alternatives": item["alternatives"],
+            "cheapest_feasible": comparison["cheapest_feasible"],
+            "estimate_id": recorded_estimate["estimate_id"],
+            "selection_recorded": False,
+            "nature": "estimated",
+        }
+    with transaction(conn):
+        selection = create_strategy_selection(
+            conn,
+            task_id=task["id"],
+            direction=direction,
+            search_mode=search_mode,
+            generation_mode=generation_mode,
+            search_queries=item["search_queries"],
+            include_revision=include_revision,
+            improvement=improvement,
+            expected_benefit=expected_benefit.strip() if isinstance(expected_benefit, str) else None,
+            rationale=rationale.strip(),
+            strategy_version=strategy_table.version,
+            pricing_version=price.version,
+            path=item["path"],
+            total_cost_cents=item["path"]["total_cost_cents"],
+            total_duration_ms=item["path"]["total_duration_ms"],
+            incurred_cents=state.incurred_cents,
+            remaining_cents=state.remaining_budget_cents,
+        )
+    return {
+        "ok": True,
+        "selection_id": selection["selection_id"],
+        "direction": direction,
+        "label": item["label"],
+        "search_mode": search_mode,
+        "generation_mode": generation_mode,
+        "search_queries": item["search_queries"],
+        "include_revision": include_revision,
+        "improvement": improvement,
+        "expected_benefit": selection["expected_benefit"],
+        "rationale": selection["rationale"],
+        "total_cost_cents": item["path"]["total_cost_cents"],
+        "total_duration_ms": item["path"]["total_duration_ms"],
+        "path": item["path"],
+        "alternatives": item["alternatives"],
+        "cheapest_feasible": comparison["cheapest_feasible"],
+        "estimate_id": recorded_estimate["estimate_id"],
+        "selection_recorded": True,
+        "nature": "reserved",
+        "message": "策略选择与完整路径已记录；预留不是实际支出，执行前仍按当前预算与模拟截止检查。",
+    }
 
 
 def _guard_generation_path(conn, task, generation_mode: str, price: PriceTable) -> dict | None:
@@ -594,7 +930,9 @@ def _generate_script(conn, task, parsed: dict, price: PriceTable, catalog: Mater
             ),
         },
     ]
-    internal_requests = 1 if generation_mode == "generate_direct" else int(spec.max_internal_requests or 3)
+    candidate_cap = int(spec.candidates or spec.max_internal_requests or 1)
+    request_cap = int(spec.max_internal_requests or candidate_cap)
+    internal_requests = max(1, min(candidate_cap, request_cap))
     existing = count_purpose_requests(conn, task["id"], "script_generation")
     candidates = []
     errors = []
@@ -673,6 +1011,14 @@ def _generate_script(conn, task, parsed: dict, price: PriceTable, catalog: Mater
             continue
         candidates.append(normalized)
 
+    selection = latest_strategy_selection(conn, task["id"])
+    selection_warning = None
+    if selection is not None and selection["generation_mode"] != generation_mode:
+        selection_warning = (
+            f"当前已记录策略选择使用 {selection['generation_mode']}，本次为 {generation_mode}；"
+            "如果条件已变化，请说明依据并用 choose_strategy 重新记录选择。"
+        )
+    partial = 0 < len(candidates) < internal_requests
     if not candidates:
         finish_attempt(
             conn,
@@ -688,6 +1034,12 @@ def _generate_script(conn, task, parsed: dict, price: PriceTable, catalog: Mater
             "message": "脚本生成没有得到完整有效候选；已保留尝试与消耗。",
             "details": errors[:6],
             "attempt_id": attempt_id,
+            "cost_cents": spec.cost_cents,
+            "internal_requests": internal_requests,
+            "expected_candidates": internal_requests,
+            "candidate_count": 0,
+            "partial": False,
+            "selection_warning": selection_warning,
         }
 
     best = max(candidates, key=lambda item: len(item.get("segments", [])))
@@ -695,7 +1047,7 @@ def _generate_script(conn, task, parsed: dict, price: PriceTable, catalog: Mater
         conn,
         attempt_id,
         status="success",
-        meta={"internal_requests": internal_requests, "candidates": len(candidates)},
+        meta={"internal_requests": internal_requests, "candidates": len(candidates), "partial": partial},
     )
     conn.commit()
     return {
@@ -706,7 +1058,15 @@ def _generate_script(conn, task, parsed: dict, price: PriceTable, catalog: Mater
         "cost_cents": spec.cost_cents,
         "internal_requests": internal_requests,
         "candidate_count": len(candidates),
-        "message": "脚本候选定稿完成；请把它整合进完整活动方案后调用 propose_campaign。",
+        "expected_candidates": internal_requests,
+        "partial": partial,
+        "candidate_errors": errors[:6] if partial else [],
+        "selection_warning": selection_warning,
+        "message": (
+            "脚本生成部分成功：只有部分候选有效；已保留有效候选、失败尝试与消耗，请决定采用、补生成或停止。"
+            if partial
+            else "脚本候选定稿完成；请把它整合进完整活动方案后调用 propose_campaign。"
+        ),
     }
 
 
@@ -1271,9 +1631,31 @@ def _stop_incomplete(conn, task, parsed: dict) -> tuple[dict, bool]:
     reason = parsed.get("reason")
     if not isinstance(reason, str) or not reason.strip():
         return {"ok": False, "error": "invalid_arguments", "message": "reason 必须是非空字符串。"}, False
+    raw_gaps = parsed.get("gaps", [])
+    if not isinstance(raw_gaps, list):
+        return {"ok": False, "error": "invalid_arguments", "message": "gaps 必须是数组。"}, False
+    if len(raw_gaps) > 6:
+        return {"ok": False, "error": "invalid_arguments", "message": "gaps 最多 6 条。"}, False
+    gaps = []
+    for index, item in enumerate(raw_gaps):
+        if not isinstance(item, dict):
+            return {"ok": False, "error": "invalid_arguments", "message": f"gaps[{index}] 必须是对象。"}, False
+        gap = item.get("gap")
+        impact = item.get("impact", "")
+        if not isinstance(gap, str) or not gap.strip():
+            return {"ok": False, "error": "invalid_arguments", "message": f"gaps[{index}].gap 不能为空。"}, False
+        if not isinstance(impact, str):
+            return {"ok": False, "error": "invalid_arguments", "message": f"gaps[{index}].impact 必须是字符串。"}, False
+        gaps.append({"gap": gap.strip(), "impact": impact.strip()})
     with transaction(conn):
         conn.execute(
             "UPDATE tasks SET status = ?, phase = 'stopped', reason = ?, updated_at = ? WHERE id = ?",
             (STATUS_INCOMPLETE, reason.strip(), utc_now_iso(), task["id"]),
         )
-    return {"ok": True, "message": "任务已停止并保留现有成果。"}, True
+        record_stop(conn, task_id=task["id"], kind="model_stop", reason=reason.strip(), gaps=gaps)
+    return {
+        "ok": True,
+        "gaps": gaps,
+        "message": "任务已停止并保留现有成果与消耗。"
+        + ("" if gaps else " 未提供具体缺口；请补充无法解决的缺口与影响。"),
+    }, True

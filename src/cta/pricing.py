@@ -78,25 +78,43 @@ class PriceTable:
             "total_duration_ms": sum(spec.duration_ms for _, spec in specs),
         }
 
-    def estimate(self, search_mode: str, generation_mode: str, *, include_revision: bool = False) -> dict:
-        names = ["search", "generation", "review", "save"]
-        selected = {
-            "search": search_mode,
-            "generation": generation_mode,
-            "review": self.full_path.get("review", "review"),
-            "save": self.full_path.get("save", "save"),
-        }
+    def estimate(
+        self,
+        search_mode: str,
+        generation_mode: str,
+        *,
+        search_queries: int = 1,
+        include_revision: bool = False,
+    ) -> dict:
+        """Cost/time of the still-remaining delivery path.
+
+        ``search_queries`` counts the known necessary searches still ahead.
+        ``include_revision`` adds one revision and the re-review that follows a
+        content change; save stays last because a changed draft must be checked
+        before it can be saved.
+        """
+        if not isinstance(search_queries, int) or isinstance(search_queries, bool) or search_queries < 0:
+            raise ValueError("search_queries must be a non-negative integer")
+        search_spec = self.mode(search_mode)
+        generation_spec = self.mode(generation_mode)
+        review_spec = self.mode(self.full_path.get("review", "review"))
+        save_spec = self.mode(self.full_path.get("save", "save"))
+        lines = [
+            {"step": "search", "index": index + 1, "count": 1, **search_spec.as_dict()}
+            for index in range(search_queries)
+        ]
+        lines.append({"step": "generation", **generation_spec.as_dict()})
+        lines.append({"step": "review", **review_spec.as_dict()})
         if include_revision:
-            names.insert(2, "revision")
-            selected["revision"] = "revision"
-        lines = []
-        for name in names:
-            spec = self.mode(selected[name])
-            lines.append({"step": name, **spec.as_dict()})
+            lines.append({"step": "revision", **self.mode("revision").as_dict()})
+            lines.append({"step": "re_review", **review_spec.as_dict()})
+        lines.append({"step": "save", **save_spec.as_dict()})
         return {
             "version": self.version,
             "currency": self.currency,
             "pricing_source": str(self.path.name),
+            "search_queries": search_queries,
+            "include_revision": bool(include_revision),
             "lines": lines,
             "total_cost_cents": sum(line["cost_cents"] for line in lines),
             "total_duration_ms": sum(line["duration_ms"] for line in lines),

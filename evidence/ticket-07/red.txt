@@ -1,0 +1,588 @@
+FFFFFFFFFFFFFF                                                           [100%]
+================================== FAILURES ===================================
+_____ test_compare_strategies_returns_versioned_full_paths_without_charge _____
+
+cli_env = WindowsPath('C:/Users/10167/AppData/Local/Temp/pytest-of-10167/pytest-93/test_compare_strategies_return0')
+model_script = <function model_script.<locals>.write at 0x000001AC231F51C0>
+
+    def test_compare_strategies_returns_versioned_full_paths_without_charge(cli_env, model_script):
+        task = _create()
+        model_script(
+            [
+                _tool("search_materials", {"query": "自动卡点", "mode": "basic"}),
+                _tool(
+                    "compare_strategies",
+                    {"search_mode": "search_basic", "generation_mode": "generate_direct"},
+                ),
+                _tool("stop_incomplete", {"reason": "仅比较策略，暂不生成。"}),
+            ]
+        )
+        doc = cli_json("run", task["task_id"])
+        assert doc["status"] == "incomplete"
+        assert doc["resources"]["sim_spent_cents"] == 20
+    
+        inspected = cli_json("inspect", task["task_id"])
+        result = json.loads(
+            next(
+                message["content"]
+                for message in inspected["messages"]
+                if message["name"] == "compare_strategies"
+            )
+        )
+>       assert result["ok"] is True
+E       assert False is True
+
+tests\test_strategy.py:42: AssertionError
+_____________ test_strategies_cli_view_is_read_only_and_complete ______________
+
+cli_env = WindowsPath('C:/Users/10167/AppData/Local/Temp/pytest-of-10167/pytest-93/test_strategies_cli_view_is_re0')
+
+    def test_strategies_cli_view_is_read_only_and_complete(cli_env):
+        task = _create()
+        before = cli_json("status", task["task_id"])
+>       view = cli_json("strategies", task["task_id"])
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\test_strategy.py:83: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+args = ('strategies', 't_0b91741395d8')
+
+    def cli_json(*args):
+        code, out, err = run_cli(*args)
+>       assert code == 0, f"exit={code} stderr={err} stdout={out}"
+E       AssertionError: exit=2 stderr=usage: cta [-h] [--mode {mock,real}] [--data-dir DATA_DIR]
+E                    [--format {json,text}]
+E                    {create,status,run,inspect,review,save,export,list} ...
+E         cta: error: argument command: invalid choice: 'strategies' (choose from create, status, run, inspect, review, save, export, list)
+E          stdout=
+E       assert 2 == 0
+
+tests\conftest.py:50: AssertionError
+_ test_choose_strategy_rejects_infeasible_path_then_records_feasible_alternative _
+
+cli_env = WindowsPath('C:/Users/10167/AppData/Local/Temp/pytest-of-10167/pytest-93/test_choose_strategy_rejects_i0')
+model_script = <function model_script.<locals>.write at 0x000001AC2577BEC0>
+
+    def test_choose_strategy_rejects_infeasible_path_then_records_feasible_alternative(cli_env, model_script):
+        task = _create(budget="2.50")
+        model_script(
+            [
+                _tool("search_materials", {"query": "自动卡点", "mode": "basic"}),
+                _tool(
+                    "choose_strategy",
+                    {
+                        "direction": "user_scenario",
+                        "search_mode": "search_extended",
+                        "generation_mode": "generate_multi",
+                        "search_queries": 1,
+                        "rationale": "情境方向资料更多，先考虑高配路径。",
+                    },
+                ),
+                _tool(
+                    "choose_strategy",
+                    {
+                        "direction": "user_scenario",
+                        "search_mode": "search_basic",
+                        "generation_mode": "generate_direct",
+                        "search_queries": 1,
+                        "rationale": "高配路径超出剩余预算，改用可行替代。",
+                    },
+                ),
+                _tool("stop_incomplete", {"reason": "仅验证策略选择与预留，不生成。"}),
+            ]
+        )
+        doc = cli_json("run", task["task_id"])
+        assert doc["status"] == "incomplete"
+        assert doc["resources"]["sim_spent_cents"] == 20
+    
+        inspected = cli_json("inspect", task["task_id"])
+        choices = [
+            json.loads(message["content"])
+            for message in inspected["messages"]
+            if message["name"] == "choose_strategy"
+        ]
+        assert choices[0]["ok"] is False
+>       assert choices[0]["error"] == "strategy_infeasible"
+E       AssertionError: assert 'unknown_tool' == 'strategy_infeasible'
+E         
+E         - strategy_infeasible
+E         + unknown_tool
+
+tests\test_strategy.py:136: AssertionError
+__ test_choose_improvement_requires_expected_benefit_and_records_reservation __
+
+cli_env = WindowsPath('C:/Users/10167/AppData/Local/Temp/pytest-of-10167/pytest-93/test_choose_improvement_requir0')
+model_script = <function model_script.<locals>.write at 0x000001AC257AFEC0>
+
+    def test_choose_improvement_requires_expected_benefit_and_records_reservation(cli_env, model_script):
+        task = _create()
+        model_script(
+            [
+                _tool("search_materials", {"query": "自动卡点", "mode": "basic"}),
+                _tool(
+                    "choose_strategy",
+                    {
+                        "direction": "user_scenario",
+                        "search_mode": "search_basic",
+                        "generation_mode": "generate_multi",
+                        "search_queries": 0,
+                        "improvement": True,
+                        "rationale": "多候选择优可以比较开场。",
+                    },
+                ),
+                _tool(
+                    "choose_strategy",
+                    {
+                        "direction": "user_scenario",
+                        "search_mode": "search_basic",
+                        "generation_mode": "generate_multi",
+                        "search_queries": 0,
+                        "improvement": True,
+                        "expected_benefit": "比较三个开场候选，降低单一候选的风险",
+                        "rationale": "多候选的额外模拟费用可由更高确定性抵消。",
+                    },
+                ),
+                _tool("stop_incomplete", {"reason": "仅验证改进选择的记录。"}),
+            ]
+        )
+        cli_json("run", task["task_id"])
+        inspected = cli_json("inspect", task["task_id"])
+        choices = [
+            json.loads(message["content"])
+            for message in inspected["messages"]
+            if message["name"] == "choose_strategy"
+        ]
+        assert choices[0]["ok"] is False
+>       assert "expected_benefit" in choices[0]["message"]
+E       AssertionError: assert 'expected_benefit' in '未知工具：choose_strategy；本轮未执行任何业务动作。'
+
+tests\test_strategy.py:199: AssertionError
+______ test_stop_incomplete_records_concrete_gaps_and_preserves_success _______
+
+cli_env = WindowsPath('C:/Users/10167/AppData/Local/Temp/pytest-of-10167/pytest-93/test_stop_incomplete_records_c0')
+model_script = <function model_script.<locals>.write at 0x000001AC257AC040>
+
+    def test_stop_incomplete_records_concrete_gaps_and_preserves_success(cli_env, model_script):
+        task = _create()
+        model_script(
+            [
+                _tool("search_materials", {"query": "自动卡点", "mode": "basic"}),
+                _tool(
+                    "stop_incomplete",
+                    {
+                        "reason": "剩余预算无法覆盖核验与保存，且没有可行替代。",
+                        "gaps": [
+                            {"gap": "预算无法覆盖核验与保存", "impact": "不能形成可交付方案"},
+                            {"gap": "现有资料不足以支撑关键能力主张", "impact": "需要补查或由用户决定"},
+                        ],
+                    },
+                ),
+            ]
+        )
+        doc = cli_json("run", task["task_id"])
+        assert doc["status"] == "incomplete"
+        assert "预算无法覆盖" in doc["reason"]
+        stop_gaps = [gap for gap in doc["gaps"] if gap["source"] == "stop"]
+>       assert len(stop_gaps) == 2
+E       assert 0 == 2
+E        +  where 0 = len([])
+
+tests\test_strategy.py:230: AssertionError
+_ test_resources_separate_incurred_estimated_reserved_and_unknown_vs_not_applicable _
+
+cli_env = WindowsPath('C:/Users/10167/AppData/Local/Temp/pytest-of-10167/pytest-93/test_resources_separate_incurr0')
+model_script = <function model_script.<locals>.write at 0x000001AC258A5DA0>
+
+    def test_resources_separate_incurred_estimated_reserved_and_unknown_vs_not_applicable(cli_env, model_script):
+        task = _create()
+        fresh = cli_json("status", task["task_id"])
+>       fees = fresh["resources"]["simulated_tool_fee"]
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       KeyError: 'simulated_tool_fee'
+
+tests\test_strategy.py:242: KeyError
+___ test_improvement_after_workable_baseline_keeps_both_successful_attempts ___
+
+cli_env = WindowsPath('C:/Users/10167/AppData/Local/Temp/pytest-of-10167/pytest-93/test_improvement_after_workabl0')
+model_script = <function model_script.<locals>.write at 0x000001AC258A6AC0>
+
+    def test_improvement_after_workable_baseline_keeps_both_successful_attempts(cli_env, model_script):
+        from test_review_save import REVIEW_PASS, _review_item
+    
+        task = _create()
+        model_script(
+            [
+                _tool("search_materials", {"query": "自动卡点", "mode": "basic"}),
+                _tool("propose_brief", BRIEF),
+                _tool(
+                    "choose_strategy",
+                    {
+                        "direction": "user_scenario",
+                        "search_mode": "search_basic",
+                        "generation_mode": "generate_direct",
+                        "search_queries": 0,
+                        "rationale": "直接生成已能形成可交付脚本。",
+                    },
+                ),
+                _tool("generate_script", {"strategy": "user_scenario", "generation_mode": "generate_direct"}),
+                _generation_item(),
+                _tool(
+                    "choose_strategy",
+                    {
+                        "direction": "user_scenario",
+                        "search_mode": "search_basic",
+                        "generation_mode": "generate_multi",
+                        "search_queries": 0,
+                        "improvement": True,
+                        "expected_benefit": "比较三个开场候选，降低单一候选的表达风险",
+                        "rationale": "基础方案已可行；额外投入有明确改善目标，且完整路径仍可行。",
+                    },
+                ),
+                _tool("generate_script", {"strategy": "user_scenario", "generation_mode": "generate_multi"}),
+                _generation_item(),
+                _generation_item(),
+                _generation_item(),
+                _campaign_tool(CAMPAIGN),
+                _review_item(REVIEW_PASS),
+            ]
+        )
+        first = cli_json("run", task["task_id"])
+        assert first["progress"]["phase"] == "brief_ready"
+        draft = cli_json("run", task["task_id"])
+        assert draft["progress"]["phase"] == "draft_ready"
+        assert draft["resources"]["sim_spent_cents"] == 20 + 120 + 300
+    
+        reviewed = cli_json("review", task["task_id"])
+        saved = cli_json("save", task["task_id"])
+        assert reviewed["review"]["verdict"] == "pass"
+        assert saved["status"] == "complete"
+        assert saved["resources"]["sim_spent_cents"] == 20 + 120 + 300 + 80 + 10
+    
+        inspected = cli_json("inspect", task["task_id"])
+>       selections = inspected["strategy_selections"]
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       KeyError: 'strategy_selections'
+
+tests\test_strategy.py:335: KeyError
+_______ test_budget_feedback_chooses_feasible_alternative_and_completes _______
+
+cli_env = WindowsPath('C:/Users/10167/AppData/Local/Temp/pytest-of-10167/pytest-93/test_budget_feedback_chooses_f0')
+model_script = <function model_script.<locals>.write at 0x000001AC258A7420>
+
+    def test_budget_feedback_chooses_feasible_alternative_and_completes(cli_env, model_script):
+        from test_review_save import REVIEW_PASS, _review_item
+    
+        task = _create(budget="2.50")
+        model_script(
+            [
+                _tool("search_materials", {"query": "自动卡点", "mode": "basic"}),
+                _tool(
+                    "compare_strategies",
+                    {
+                        "search_mode": "search_extended",
+                        "generation_mode": "generate_multi",
+                        "search_queries": 1,
+                        "directions": ["user_scenario", "tutorial"],
+                    },
+                ),
+                _tool(
+                    "choose_strategy",
+                    {
+                        "direction": "user_scenario",
+                        "search_mode": "search_extended",
+                        "generation_mode": "generate_multi",
+                        "search_queries": 1,
+                        "rationale": "先考虑高配路径。",
+                    },
+                ),
+                _tool(
+                    "choose_strategy",
+                    {
+                        "direction": "user_scenario",
+                        "search_mode": "search_basic",
+                        "generation_mode": "generate_direct",
+                        "search_queries": 1,
+                        "rationale": "高配超出剩余预算；基本检索加直接生成仍能覆盖完整交付路径。",
+                    },
+                ),
+                _tool("propose_brief", BRIEF),
+                _tool("generate_script", {"strategy": "user_scenario", "generation_mode": "generate_direct"}),
+                _generation_item(),
+                _campaign_tool(),
+                _review_item(REVIEW_PASS),
+            ]
+        )
+        first = cli_json("run", task["task_id"])
+        assert first["progress"]["phase"] == "brief_ready"
+        draft = cli_json("run", task["task_id"])
+        assert draft["progress"]["phase"] == "draft_ready"
+        cli_json("review", task["task_id"])
+        saved = cli_json("save", task["task_id"])
+        assert saved["status"] == "complete"
+        assert saved["resources"]["sim_spent_cents"] == 20 + 120 + 80 + 10
+    
+        inspected = cli_json("inspect", task["task_id"])
+        comparison = json.loads(
+            next(message["content"] for message in inspected["messages"] if message["name"] == "compare_strategies")
+        )
+>       assert comparison["ok"] is True
+E       assert False is True
+
+tests\test_strategy.py:413: AssertionError
+________ test_no_feasible_path_stops_with_gap_and_records_no_selection ________
+
+cli_env = WindowsPath('C:/Users/10167/AppData/Local/Temp/pytest-of-10167/pytest-93/test_no_feasible_path_stops_wi0')
+model_script = <function model_script.<locals>.write at 0x000001AC258A4D60>
+
+    def test_no_feasible_path_stops_with_gap_and_records_no_selection(cli_env, model_script):
+        task = _create(budget="0.50")
+        model_script(
+            [
+                _tool("search_materials", {"query": "自动卡点", "mode": "basic"}),
+                _tool(
+                    "compare_strategies",
+                    {
+                        "search_mode": "search_basic",
+                        "generation_mode": "generate_direct",
+                        "search_queries": 0,
+                    },
+                ),
+                _tool(
+                    "choose_strategy",
+                    {
+                        "direction": "functional_demo",
+                        "search_mode": "search_basic",
+                        "generation_mode": "generate_direct",
+                        "search_queries": 0,
+                        "rationale": "尝试最低成本路径。",
+                    },
+                ),
+                _tool(
+                    "stop_incomplete",
+                    {
+                        "reason": "剩余预算不足以完成生成、核验与保存。",
+                        "gaps": [{"gap": "预算缺口无法覆盖完整交付路径", "impact": "无法形成可交付方案"}],
+                    },
+                ),
+            ]
+        )
+        doc = cli_json("run", task["task_id"])
+        assert doc["status"] == "incomplete"
+        assert doc["resources"]["sim_spent_cents"] == 20
+>       assert any(gap["source"] == "stop" for gap in doc["gaps"])
+E       assert False
+E        +  where False = any(<generator object test_no_feasible_path_stops_with_gap_and_records_no_selection.<locals>.<genexpr> at 0x000001AC25A7D3C0>)
+
+tests\test_strategy.py:500: AssertionError
+________ test_budget_and_deadline_feasibility_are_reported_separately _________
+
+cli_env = WindowsPath('C:/Users/10167/AppData/Local/Temp/pytest-of-10167/pytest-93/test_budget_and_deadline_feasi0')
+model_script = <function model_script.<locals>.write at 0x000001AC258A5580>
+
+    def test_budget_and_deadline_feasibility_are_reported_separately(cli_env, model_script):
+        short_deadline = _create(deadline="2026-10-29T00:00:12+08:00")
+        small_budget = _create(budget="0.50")
+        model_script(
+            [
+                _tool("search_materials", {"query": "自动卡点", "mode": "basic"}),
+                _tool(
+                    "compare_strategies",
+                    {"search_mode": "search_basic", "generation_mode": "generate_direct", "search_queries": 1},
+                ),
+                _tool(
+                    "stop_incomplete",
+                    {"reason": "按当前资源缺口停止。", "gaps": [{"gap": "资源不足", "impact": "无法完成交付"}]},
+                ),
+            ]
+        )
+        for task in (short_deadline, small_budget):
+            doc = cli_json("run", task["task_id"])
+            assert doc["status"] == "incomplete"
+    
+        deadline_doc = cli_json("inspect", short_deadline["task_id"])
+        deadline_compare = json.loads(
+            next(message["content"] for message in deadline_doc["messages"] if message["name"] == "compare_strategies")
+        )
+>       item = deadline_compare["directions"][0]
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       KeyError: 'directions'
+
+tests\test_strategy.py:545: KeyError
+_____________ test_search_failure_is_preserved_and_model_rechecks _____________
+
+cli_env = WindowsPath('C:/Users/10167/AppData/Local/Temp/pytest-of-10167/pytest-93/test_search_failure_is_preserv0')
+model_script = <function model_script.<locals>.write at 0x000001AC258DF560>
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000001AC25A90670>
+
+    def test_search_failure_is_preserved_and_model_rechecks(cli_env, model_script, monkeypatch):
+        monkeypatch.setenv("CTA_FAIL_SEARCH", "1")
+        task = _create()
+        model_script(
+            [
+                _tool("search_materials", {"query": "自动卡点", "mode": "basic"}),
+                _tool("search_materials", {"query": "自动卡点 能力 范围", "mode": "basic"}),
+                _tool("propose_brief", BRIEF),
+                _tool("stop_incomplete", {"reason": "已完成补查与简报，按计划停止。", "gaps": [{"gap": "未生成方案", "impact": "本样例仅验证检索失败处理"}]}),
+            ]
+        )
+        doc = cli_json("run", task["task_id"])
+        assert doc["progress"]["phase"] == "brief_ready"
+        assert doc["brief"]["version"] == 1
+        doc = cli_json("run", task["task_id"])
+        assert doc["status"] == "incomplete"
+        assert doc["resources"]["sim_spent_cents"] == 40
+    
+        inspected = cli_json("inspect", task["task_id"])
+        attempts = [item for item in inspected["attempts"] if item["kind"] == "search_materials"]
+>       assert [item["status"] for item in attempts] == ["failed", "success"]
+E       AssertionError: assert ['success', 'success'] == ['failed', 'success']
+E         
+E         At index 0 diff: 'success' != 'failed'
+E         Use -v to get more diff
+
+tests\test_strategy.py:583: AssertionError
+______ test_generation_failure_reestimate_and_alternative_then_complete _______
+
+cli_env = WindowsPath('C:/Users/10167/AppData/Local/Temp/pytest-of-10167/pytest-93/test_generation_failure_reesti0')
+model_script = <function model_script.<locals>.write at 0x000001AC258A6E80>
+
+    def test_generation_failure_reestimate_and_alternative_then_complete(cli_env, model_script):
+        from test_review_save import REVIEW_PASS, _review_item
+    
+        task = _create()
+        model_script(
+            [
+                _tool("search_materials", {"query": "自动卡点", "mode": "basic"}),
+                _tool("propose_brief", BRIEF),
+                _tool(
+                    "choose_strategy",
+                    {
+                        "direction": "user_scenario",
+                        "search_mode": "search_basic",
+                        "generation_mode": "generate_multi",
+                        "search_queries": 1,
+                        "rationale": "先尝试多候选择优。",
+                    },
+                ),
+                _tool("generate_script", {"strategy": "user_scenario", "generation_mode": "generate_multi"}),
+                _generation_item(type="error", message="candidate upstream 500"),
+                _generation_item(type="error", message="candidate upstream 500"),
+                _generation_item(type="error", message="candidate upstream 500"),
+                _tool(
+                    "estimate_cost",
+                    {"search_mode": "search_basic", "generation_mode": "generate_direct", "search_queries": 1},
+                ),
+                _tool(
+                    "choose_strategy",
+                    {
+                        "direction": "user_scenario",
+                        "search_mode": "search_basic",
+                        "generation_mode": "generate_direct",
+                        "search_queries": 1,
+                        "rationale": "多候选全部失败，重新估算后改用直接生成。",
+                    },
+                ),
+                _tool("generate_script", {"strategy": "user_scenario", "generation_mode": "generate_direct"}),
+                _generation_item(),
+                _campaign_tool(),
+                _review_item(REVIEW_PASS),
+            ]
+        )
+        first = cli_json("run", task["task_id"])
+        assert first["progress"]["phase"] == "brief_ready"
+        draft = cli_json("run", task["task_id"])
+        assert draft["progress"]["phase"] == "draft_ready"
+        assert draft["resources"]["sim_spent_cents"] == 20 + 300 + 120
+    
+        inspected = cli_json("inspect", task["task_id"])
+        attempts = [item for item in inspected["attempts"] if item["kind"] == "generate_script"]
+        assert [item["mode"] for item in attempts] == ["generate_multi", "generate_direct"]
+        assert [item["status"] for item in attempts] == ["failed", "success"]
+        assert attempts[0]["cost_cents"] == 300
+        estimate = json.loads(
+            next(message["content"] for message in inspected["messages"] if message["name"] == "estimate_cost")
+        )["estimate"]
+>       assert estimate["incurred_cents"] == 320
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       KeyError: 'incurred_cents'
+
+tests\test_strategy.py:654: KeyError
+_______ test_partial_generation_success_keeps_valid_candidate_and_cost ________
+
+cli_env = WindowsPath('C:/Users/10167/AppData/Local/Temp/pytest-of-10167/pytest-93/test_partial_generation_succes0')
+model_script = <function model_script.<locals>.write at 0x000001AC258DE980>
+
+    def test_partial_generation_success_keeps_valid_candidate_and_cost(cli_env, model_script):
+        from test_review_save import REVIEW_PASS, _review_item
+    
+        task = _create()
+        model_script(
+            [
+                _tool("search_materials", {"query": "自动卡点", "mode": "basic"}),
+                _tool("propose_brief", BRIEF),
+                _tool(
+                    "choose_strategy",
+                    {
+                        "direction": "user_scenario",
+                        "search_mode": "search_basic",
+                        "generation_mode": "generate_multi",
+                        "search_queries": 0,
+                        "rationale": "多候选可比较开场。",
+                    },
+                ),
+                _tool("generate_script", {"strategy": "user_scenario", "generation_mode": "generate_multi"}),
+                _generation_item(),
+                _generation_item(type="error", message="candidate upstream 500"),
+                _generation_item(type="length", content="{\"strategy\":\"user_scenario\""),
+                _campaign_tool(),
+                _review_item(REVIEW_PASS),
+            ]
+        )
+        first = cli_json("run", task["task_id"])
+        assert first["progress"]["phase"] == "brief_ready"
+        draft = cli_json("run", task["task_id"])
+        assert draft["progress"]["phase"] == "draft_ready"
+    
+        inspected = cli_json("inspect", task["task_id"])
+        result = json.loads(
+            next(message["content"] for message in inspected["messages"] if message["name"] == "generate_script")
+        )
+        assert result["ok"] is True
+>       assert result["partial"] is True
+               ^^^^^^^^^^^^^^^^^
+E       KeyError: 'partial'
+
+tests\test_strategy.py:703: KeyError
+______________ test_round_cap_records_limit_gap_and_keeps_spend _______________
+
+cli_env = WindowsPath('C:/Users/10167/AppData/Local/Temp/pytest-of-10167/pytest-93/test_round_cap_records_limit_g0')
+model_script = <function model_script.<locals>.write at 0x000001AC258DC540>
+
+    def test_round_cap_records_limit_gap_and_keeps_spend(cli_env, model_script):
+        task = _create()
+        model_script([{"type": "text", "content": f"第 {index} 轮没有动作"} for index in range(12)])
+        doc = cli_json("run", task["task_id"])
+        assert doc["status"] == "incomplete"
+        assert doc["progress"]["used_rounds"] == 12
+        inspected = cli_json("inspect", task["task_id"])
+>       assert inspected["stops"][0]["kind"] == "max_rounds"
+               ^^^^^^^^^^^^^^^^^^
+E       KeyError: 'stops'
+
+tests\test_strategy.py:726: KeyError
+=========================== short test summary info ===========================
+FAILED tests/test_strategy.py::test_compare_strategies_returns_versioned_full_paths_without_charge
+FAILED tests/test_strategy.py::test_strategies_cli_view_is_read_only_and_complete
+FAILED tests/test_strategy.py::test_choose_strategy_rejects_infeasible_path_then_records_feasible_alternative
+FAILED tests/test_strategy.py::test_choose_improvement_requires_expected_benefit_and_records_reservation
+FAILED tests/test_strategy.py::test_stop_incomplete_records_concrete_gaps_and_preserves_success
+FAILED tests/test_strategy.py::test_resources_separate_incurred_estimated_reserved_and_unknown_vs_not_applicable
+FAILED tests/test_strategy.py::test_improvement_after_workable_baseline_keeps_both_successful_attempts
+FAILED tests/test_strategy.py::test_budget_feedback_chooses_feasible_alternative_and_completes
+FAILED tests/test_strategy.py::test_no_feasible_path_stops_with_gap_and_records_no_selection
+FAILED tests/test_strategy.py::test_budget_and_deadline_feasibility_are_reported_separately
+FAILED tests/test_strategy.py::test_search_failure_is_preserved_and_model_rechecks
+FAILED tests/test_strategy.py::test_generation_failure_reestimate_and_alternative_then_complete
+FAILED tests/test_strategy.py::test_partial_generation_success_keeps_valid_candidate_and_cost
+FAILED tests/test_strategy.py::test_round_cap_records_limit_gap_and_keeps_spend
