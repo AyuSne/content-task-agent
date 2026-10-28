@@ -97,10 +97,14 @@ def run_task(config: Config, task_id: str, *, max_rounds: int | None = None, exp
         task = _task(conn, task_id)
         _ensure_base_context(conn, task, config)
         task = _task(conn, task_id)
-        _ensure_phase_context(conn, task, config)
-        task = _task(conn, task_id)
 
         unpaused = False
+        if task["paused"] and not explicit_resume:
+            if recovery_has_events(report):
+                append_recovery_fact(conn, task, report)
+                _snapshot(conn, task)
+            run_info["stop_reason"] = "paused"
+            return _document(config, task_id, run_info)
         if explicit_resume and task["paused"]:
             with transaction(conn):
                 conn.execute(
@@ -109,6 +113,9 @@ def run_task(config: Config, task_id: str, *, max_rounds: int | None = None, exp
                 )
             unpaused = True
             task = _task(conn, task_id)
+
+        _ensure_phase_context(conn, task, config)
+        task = _task(conn, task_id)
 
         if explicit_resume or recovery_has_events(report) or unpaused:
             run_info["recovery_summary"] = append_recovery_fact(conn, task, report, unpaused=unpaused)
@@ -120,9 +127,6 @@ def run_task(config: Config, task_id: str, *, max_rounds: int | None = None, exp
             return _document(config, task_id, run_info)
         if task["status"] == STATUS_NEEDS_INPUT:
             run_info["stop_reason"] = "needs_input"
-            return _document(config, task_id, run_info)
-        if task["paused"] and not explicit_resume:
-            run_info["stop_reason"] = "paused"
             return _document(config, task_id, run_info)
 
         if explicit_resume:

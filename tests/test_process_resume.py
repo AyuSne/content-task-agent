@@ -297,6 +297,163 @@ def test_incomplete_generation_output_stays_traceable_and_is_not_used_as_a_draft
     assert len(requests) == 2
 
 
+def test_pause_freezes_sim_clock_and_explicit_resume_continues_saved_progress(cli_env, model_script):
+    task = _create()
+    script = model_script(
+        [
+            _tool("search_materials", {"query": "自动卡点", "mode": "basic"}),
+            _brief_tool(),
+            _tool("generate_script", {"strategy": "user_scenario", "generation_mode": "generate_direct"}),
+            _campaign_tool(),
+            _generation_item(),
+        ]
+    )
+    data_dir = cli_env / "data"
+    first = _process_json("run", task["task_id"], data_dir=data_dir, script=script)
+    assert first["progress"]["phase"] == "brief_ready"
+    assert first["progress"]["sim_elapsed_ms"] == 2000
+    assert first["progress"]["used_rounds"] == 2
+    assert first["resources"]["sim_spent_cents"] == 20
+
+    paused = cli_json("pause", task["task_id"])
+    assert paused["progress"]["paused"] is True
+    assert paused["progress"]["sim_elapsed_ms"] == 2000
+    assert paused["progress"]["used_rounds"] == 2
+    assert paused["resources"]["sim_spent_cents"] == 20
+    paused_inspect = cli_json("inspect", task["task_id"])
+    paused_messages = len(paused_inspect["messages"])
+    paused_requests = len(paused_inspect["llm_requests"])
+    paused_attempts = len(paused_inspect["attempts"])
+    plan_before = paused_inspect["todos"]
+
+    still_paused = _process_json("run", task["task_id"], data_dir=data_dir, script=script)
+    assert still_paused["run"]["stop_reason"] == "paused"
+    assert still_paused["progress"]["paused"] is True
+    assert still_paused["progress"]["sim_elapsed_ms"] == 2000
+    assert still_paused["progress"]["used_rounds"] == 2
+    assert still_paused["resources"]["sim_spent_cents"] == 20
+    after_paused_run = cli_json("inspect", task["task_id"])
+    assert len(after_paused_run["messages"]) == paused_messages
+    assert len(after_paused_run["llm_requests"]) == paused_requests
+    assert len(after_paused_run["attempts"]) == paused_attempts
+
+    resumed = _process_json("resume", task["task_id"], data_dir=data_dir, script=script)
+    assert resumed["progress"]["paused"] is False
+    assert resumed["progress"]["phase"] == "draft_ready"
+    assert resumed["progress"]["sim_elapsed_ms"] == 10000
+    assert resumed["progress"]["used_rounds"] == 4
+    assert resumed["resources"]["sim_spent_cents"] == 140
+    assert resumed["resources"]["remaining_cents"] == 1000 - 140
+    assert resumed["input"]["version"] == 1
+    assert resumed["input"]["budget"] == "10.00"
+    assert resumed["input"]["deadline"] == "2026-10-30T04:00:00+00:00"
+    assert plan_before == [
+        {"step": "campaign_draft", "title": "完整活动方案草稿", "status": "current"},
+        {"step": "review", "title": "内容核验", "status": "pending"},
+        {"step": "save", "title": "核实保存与导出", "status": "pending"},
+    ]
+    assert resumed["todos"] == [
+        {"step": "review", "title": "内容核验", "status": "current"},
+        {"step": "save", "title": "核实保存与导出", "status": "pending"},
+    ]
+
+
+def test_resume_after_round_cap_does_not_grant_new_rounds_or_charge(cli_env, model_script):
+    task = _create()
+    script = model_script(
+        [{"type": "text", "content": f"第 {index} 轮没有动作"} for index in range(12)]
+        + [_tool("search_materials", {"query": "自动卡点", "mode": "basic"})]
+    )
+    data_dir = cli_env / "data"
+    first = _process_json("run", task["task_id"], data_dir=data_dir, script=script)
+    assert first["status"] == "incomplete"
+    assert first["progress"]["used_rounds"] == 12
+    assert first["progress"]["phase"] == "stopped"
+    assert first["progress"]["sim_elapsed_ms"] == 0
+    assert first["resources"]["sim_spent_cents"] == 0
+    assert "轮数上限" in first["reason"]
+    before = cli_json("inspect", task["task_id"])
+    assert len(before["llm_requests"]) == 12
+
+    resumed = _process_json("resume", task["task_id"], data_dir=data_dir, script=script)
+    assert resumed["status"] == "incomplete"
+    assert resumed["run"]["stop_reason"] == "max_rounds"
+    assert resumed["progress"]["used_rounds"] == 12
+    assert resumed["progress"]["sim_elapsed_ms"] == 0
+    assert resumed["resources"]["sim_spent_cents"] == 0
+    assert "新额度" in resumed["reason"]
+    after = cli_json("inspect", task["task_id"])
+    assert len(after["llm_requests"]) == 12
+    assert len(after["attempts"]) == 0
+    assert len(after["messages"]) == len(before["messages"]) + 2
+    assert after["recoveries"][-1]["summary"]["prior_status"] == "incomplete"
+    assert after["recoveries"][-1]["summary"]["used_rounds"] == 12
+
+
+def test_model_unavailable_preserves_progress_and_explicit_resume_retries(cli_env, model_script, monkeypatch):
+    monkeypatch.delenv("CTA_MODEL_SCRIPT", raising=False)
+    task = _create()
+    first = cli_json("run", task["task_id"])
+    assert first["status"] == "incomplete"
+    assert first["run"]["stop_reason"] == "model_unavailable"
+    assert "模型不可用" in first["reason"]
+    assert first["progress"]["used_rounds"] == 0
+    assert first["progress"]["sim_elapsed_ms"] == 0
+    assert first["resources"]["sim_spent_cents"] == 0
+    inspected = cli_json("inspect", task["task_id"])
+    assert [message["role"] for message in inspected["messages"]] == ["system", "system", "user", "user"]
+    assert inspected["messages"][-1]["content"].startswith("[状态快照]")
+    assert inspected["llm_requests"] == []
+    assert inspected["attempts"] == []
+
+    script = model_script(
+        [
+            _tool("search_materials", {"query": "自动卡点", "mode": "basic"}),
+            _brief_tool(),
+        ]
+    )
+    resumed = _process_json("resume", task["task_id"], data_dir=cli_env / "data", script=script)
+    assert resumed["progress"]["phase"] == "brief_ready"
+    assert resumed["progress"]["used_rounds"] == 2
+    assert resumed["resources"]["sim_spent_cents"] == 20
+    recovery = resumed["run"]["recovery"]
+    assert recovery["prior_status"] == "incomplete"
+    assert "模型不可用" in recovery["prior_reason"]
+    after = cli_json("inspect", task["task_id"])
+    assert len(after["llm_requests"]) == 2
+    assert any("[恢复事实]" in (message["content"] or "") for message in after["messages"])
+
+
+def test_resume_after_model_request_error_does_not_hide_retry(cli_env, model_script):
+    task = _create()
+    script = model_script(
+        [
+            {"type": "error", "message": "upstream 503"},
+            _tool("search_materials", {"query": "自动卡点", "mode": "basic"}),
+            _brief_tool(),
+        ]
+    )
+    data_dir = cli_env / "data"
+    first = _process_json("run", task["task_id"], data_dir=data_dir, script=script)
+    assert first["status"] == "incomplete"
+    assert first["progress"]["used_rounds"] == 1
+    assert first["run"]["stop_reason"] == "model_error"
+    before = cli_json("inspect", task["task_id"])
+    assert len(before["llm_requests"]) == 1
+    assert before["llm_requests"][0]["status"] == "error"
+    assert len(before["messages"]) > 0
+
+    resumed = _process_json("resume", task["task_id"], data_dir=data_dir, script=script)
+    assert resumed["status"] == "in_progress"
+    assert resumed["progress"]["phase"] == "brief_ready"
+    assert resumed["progress"]["used_rounds"] == 3
+    assert resumed["resources"]["sim_spent_cents"] == 20
+    assert "503" in resumed["run"]["recovery"]["prior_reason"]
+    after = cli_json("inspect", task["task_id"])
+    assert len(after["llm_requests"]) == 3
+    assert after["messages"][: len(before["messages"])] == before["messages"]
+
+
 def test_resume_recovers_campaign_effect_written_before_tool_receipt(cli_env, model_script):
     task = _create()
     script = model_script(_brief_then_draft_script())
