@@ -33,6 +33,7 @@ from cta.repository import (
     find_pending_tool_calls,
     finish_attempt,
     latest_brief,
+    latest_review,
     record_llm_request,
     snapshot_state,
     start_attempt,
@@ -232,6 +233,39 @@ def _ensure_context(conn, task, config: Config) -> None:
                     "再整合活动安排、素材用途、制作步骤与证据，调用 propose_campaign 提交完整方案草稿。",
                     meta={"kind": "phase_transition", "from": "brief", "to": "campaign_draft"},
                 )
+        if task["phase"] == "reviewed":
+            review = latest_review(conn, task["id"])
+            pattern = "%review_feedback%"
+            if review is not None:
+                pattern = f'%"review_id": "{review["review_id"]}"%'
+            feedback = conn.execute(
+                "SELECT COUNT(*) AS n FROM messages WHERE task_id = ? AND agent = 'main' AND meta_json LIKE ?",
+                (task["id"], pattern),
+            ).fetchone()
+            if int(feedback["n"]) == 0:
+                dispositions = []
+                if review is not None:
+                    dispositions = [
+                        {"finding_id": row["finding_id"], "decision": row["decision"], "reason": row["reason"]}
+                        for row in conn.execute(
+                            "SELECT * FROM dispositions WHERE review_id = ? ORDER BY id", (review["review_id"],)
+                        )
+                    ]
+                append_message(
+                    conn,
+                    task["id"],
+                    "user",
+                    "[核验结果] "
+                    + json.dumps(
+                        {
+                            "review": review,
+                            "dispositions": dispositions,
+                            "next": "逐条处置意见；accepted 必须返修并重新 propose_campaign，rejected 需引用原始要求或证据。",
+                        },
+                        ensure_ascii=False,
+                    ),
+                    meta={"kind": "review_feedback", "review_id": None if review is None else review["review_id"]},
+                )
 
 
 def _repair_interrupted_calls(conn, task) -> None:
@@ -374,6 +408,9 @@ def _handle_response(conn, task, response: ModelResponse, price: PriceTable, cat
         terminal = False
     elif call.name == "request_clarification":
         result, terminal = _request_clarification(conn, task, parsed)
+    elif call.name == "record_disposition":
+        result = _record_disposition(conn, task, parsed)
+        terminal = False
     elif call.name == "stop_incomplete":
         result, terminal = _stop_incomplete(conn, task, parsed)
     else:
@@ -1265,6 +1302,41 @@ def _request_clarification(conn, task, parsed: dict) -> tuple[dict, bool]:
             ),
         )
     return {"ok": True, "questions": normalized, "message": "问题已保存，任务等待用户补充。"}, True
+
+
+def _record_disposition(conn, task, parsed: dict) -> dict:
+    finding_id = parsed.get("finding_id")
+    decision = parsed.get("decision")
+    reason = parsed.get("reason")
+    if not isinstance(finding_id, str) or not finding_id:
+        return {"ok": False, "error": "invalid_arguments", "message": "finding_id 必须是非空字符串。"}
+    if decision not in ("accepted", "rejected", "needs_evidence"):
+        return {"ok": False, "error": "invalid_arguments", "message": "decision 必须是 accepted/rejected/needs_evidence。"}
+    if not isinstance(reason, str) or not reason.strip():
+        return {"ok": False, "error": "invalid_arguments", "message": "reason 不能为空。"}
+    review = latest_review(conn, task["id"])
+    if review is None or review["status"] != "complete":
+        return {"ok": False, "error": "review_required", "message": "没有可处置的已完成核验。"}
+    finding = next((item for item in review["findings"] if item["finding_id"] == finding_id), None)
+    if finding is None:
+        return {"ok": False, "error": "finding_not_found", "message": f"核验 {review['review_id']} 中没有意见 {finding_id}。"}
+    with transaction(conn):
+        conn.execute(
+            """
+            INSERT INTO dispositions (review_id, finding_id, decision, reason, created_at)
+            VALUES (?, ?, ?, ?, ?)
+            ON CONFLICT(review_id, finding_id) DO UPDATE SET decision = excluded.decision,
+                reason = excluded.reason, created_at = excluded.created_at
+            """,
+            (review["review_id"], finding_id, decision, reason.strip(), utc_now_iso()),
+        )
+    return {
+        "ok": True,
+        "review_id": review["review_id"],
+        "finding_id": finding_id,
+        "decision": decision,
+        "message": "处置已记录。accepted 必须返修后重新提交；rejected 需保留依据。",
+    }
 
 
 def _stop_incomplete(conn, task, parsed: dict) -> tuple[dict, bool]:

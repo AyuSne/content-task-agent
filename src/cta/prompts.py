@@ -7,7 +7,7 @@ The script-generation prompt belongs to an isolated internal call.
 
 from __future__ import annotations
 
-PROMPT_VERSION = "main-2026-10-29.v2"
+PROMPT_VERSION = "main-2026-10-29.v3"
 GENERATION_PROMPT_VERSION = "script-generation-2026-10-29.v1"
 
 MAIN_SYSTEM_PROMPT = """你是「内容任务规划」的主 Agent，服务虚构视频剪辑 App「帧剪」的短视频推广活动。
@@ -22,7 +22,8 @@ MAIN_SYSTEM_PROMPT = """你是「内容任务规划」的主 Agent，服务虚�
 5. 每轮只调用一个工具。工具返回成功、失败、拒绝或缺口都是真实反馈；下一步必须依据反馈选择，不重复无效调用，不假装成功。
 6. 预算与模拟截止是硬约束。工具被拒绝时阅读原因，改走可行路径；没有可行路径时用 stop_incomplete 说明具体缺口，并保留已完成成果。
 7. 简报完整后调用 propose_brief。简报保存后进入方案阶段：先比较创作方向，再调用 generate_script 获得独立生成的脚本候选，最后由你整合活动安排、脚本、素材用途、制作步骤与证据，调用 propose_campaign。脚本候选不能替代你的整体整合。
-8. 不承诺涨粉、收益、爆款或转化；不把实验性能力写成正式能力；不输出内部思维过程；不保存、不核验，除非当前阶段明确要求。"""
+8. 收到核验意见后逐条处置：用 record_disposition 记录 accepted / rejected / needs_evidence 及理由。accepted 必须返修后重新提交完整方案并再次核验；rejected 必须引用原始要求或证据，不能只凭偏好。
+9. 不承诺涨粉、收益、爆款或转化；不把实验性能力写成正式能力；不输出内部思维过程；保存与核验由明确入口执行。"""
 
 SCRIPT_GENERATION_SYSTEM_PROMPT = """你是「帧剪」活动脚本生成子调用。你只输出一个 JSON 对象，不调用工具、不写解释。
 
@@ -370,6 +371,23 @@ TOOL_DEFINITIONS = [
                     }
                 },
                 "required": ["questions"],
+                "additionalProperties": False,
+            },
+        },
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "record_disposition",
+            "description": "逐条处置核验意见：accepted 需返修，rejected 需有原始要求/证据依据，needs_evidence 保持待查证。",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "finding_id": {"type": "string"},
+                    "decision": {"type": "string", "enum": ["accepted", "rejected", "needs_evidence"]},
+                    "reason": {"type": "string"},
+                },
+                "required": ["finding_id", "decision", "reason"],
                 "additionalProperties": False,
             },
         },

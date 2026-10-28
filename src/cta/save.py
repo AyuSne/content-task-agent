@@ -51,11 +51,30 @@ def _preconditions(conn, task, output: dict) -> dict | None:
         return {"code": "review_incomplete", "message": "内容核验未完成，不能保存。"}
     if review["output_id"] != output["output_id"]:
         return {"code": "review_stale", "message": "最近一次核验不适用于当前产物版本。"}
+    dispositions = {
+        row["finding_id"]: row["decision"]
+        for row in conn.execute(
+            "SELECT finding_id, decision FROM dispositions WHERE review_id = ?", (review["review_id"],)
+        )
+    }
     must_fix = [item for item in review["findings"] if item["severity"] == "must_fix"]
-    if must_fix:
-        return {"code": "unresolved_must_fix", "message": f"仍有 {len(must_fix)} 条必须处理意见未处置。"}
-    if review["verdict"] != "pass" or review["completeness"] != "full":
-        return {"code": "review_not_passed", "message": "核验未通过或完整性不足，不能保存。"}
+    unresolved = [item for item in must_fix if dispositions.get(item["finding_id"]) != "rejected"]
+    if unresolved:
+        return {
+            "code": "unresolved_must_fix",
+            "message": f"仍有 {len(unresolved)} 条必须处理意见未处置（需要返修或有据驳回）。",
+        }
+    needs_evidence = [item for item in review["findings"] if item["severity"] == "needs_evidence"]
+    unresolved_evidence = [item for item in needs_evidence if dispositions.get(item["finding_id"]) != "rejected"]
+    if unresolved_evidence:
+        return {"code": "unresolved_needs_evidence", "message": "仍有待查证意见未处置。"}
+    if review["verdict"] != "pass":
+        if review["completeness"] != "full":
+            return {"code": "review_not_passed", "message": "核验完整性不足，不能保存。"}
+        if not must_fix and not needs_evidence:
+            return {"code": "review_not_passed", "message": "核验未通过且没有可依据驳回的具体意见。"}
+    if review["verdict"] == "pass" and review["completeness"] != "full":
+        return {"code": "review_not_passed", "message": "核验完整性不足，不能保存。"}
     if review["evidence_gaps"]:
         return {"code": "review_evidence_gaps", "message": "核验仍有材料缺口，不能保存。"}
     blocking = _blocking_open_questions(conn, task["id"], output)

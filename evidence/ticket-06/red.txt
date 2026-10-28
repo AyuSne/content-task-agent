@@ -1,0 +1,124 @@
+﻿FF.FF.                                                                   [100%]
+================================== FAILURES ===================================
+________ test_accepted_finding_drives_revision_and_re_review_then_save ________
+
+cli_env = WindowsPath('C:/Users/10167/AppData/Local/Temp/pytest-of-10167/pytest-58/test_accepted_finding_drives_r0')
+model_script = <function model_script.<locals>.write at 0x0000025C746284A0>
+
+    def test_accepted_finding_drives_revision_and_re_review_then_save(cli_env, model_script):
+        script = _brief_then_draft_script()
+        script += [
+            _review_item(REVIEW_FAIL),
+            _tool("record_disposition", {"finding_id": "F1", "decision": "accepted", "reason": "确实超出证据范围"}),
+            _tool("generate_script", {"strategy": "user_scenario", "generation_mode": "generate_direct"}),
+            _generation_item(),
+            _campaign_tool(),
+            _review_item(REVIEW_PASS_V2),
+        ]
+        model_script(script)
+        task = _create()
+        _run_until_draft(task["task_id"])
+        cli_json("review", task["task_id"])
+    
+        revised = cli_json("run", task["task_id"])
+        assert revised["progress"]["phase"] == "draft_ready"
+        assert revised["progress"]["current_output"]["version"] == 2
+        assert revised["resources"]["sim_spent_cents"] == 140 + 80 + 120
+        inspected = cli_json("inspect", task["task_id"])
+        assert [output["version"] for output in inspected["outputs"]] == [1, 2]
+>       assert inspected["dispositions"][0]["decision"] == "accepted"
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       IndexError: list index out of range
+
+..\.scratch\content-task-agent-build\run-state\red-06-snapshot\tests\test_revision_disposition.py:82: IndexError
+____________ test_rejected_false_positive_allows_save_with_reason _____________
+
+cli_env = WindowsPath('C:/Users/10167/AppData/Local/Temp/pytest-of-10167/pytest-58/test_rejected_false_positive_a0')
+model_script = <function model_script.<locals>.write at 0x0000025C76B562A0>
+
+    def test_rejected_false_positive_allows_save_with_reason(cli_env, model_script):
+        script = _brief_then_draft_script()
+        script += [
+            _review_item(REVIEW_FAIL),
+            _tool(
+                "record_disposition",
+                {"finding_id": "F1", "decision": "rejected", "reason": "M-001 原文明确支持，评审误报"},
+            ),
+        ]
+        model_script(script)
+        task = _create()
+        _run_until_draft(task["task_id"])
+        cli_json("review", task["task_id"])
+    
+        run_cli("run", task["task_id"])
+        inspected = cli_json("inspect", task["task_id"])
+>       assert inspected["dispositions"][0]["decision"] == "rejected"
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       IndexError: list index out of range
+
+..\.scratch\content-task-agent-build\run-state\red-06-snapshot\tests\test_revision_disposition.py:108: IndexError
+______________ test_disposition_for_unknown_finding_is_rejected _______________
+
+cli_env = WindowsPath('C:/Users/10167/AppData/Local/Temp/pytest-of-10167/pytest-58/test_disposition_for_unknown_f0')
+model_script = <function model_script.<locals>.write at 0x0000025C76B54CC0>
+
+    def test_disposition_for_unknown_finding_is_rejected(cli_env, model_script):
+        script = _brief_then_draft_script()
+        script += [
+            _review_item(REVIEW_FAIL),
+            _tool("record_disposition", {"finding_id": "F999", "decision": "rejected", "reason": "不存在"}),
+            _tool("stop_incomplete", {"reason": "结束"}),
+        ]
+        model_script(script)
+        task = _create()
+        _run_until_draft(task["task_id"])
+        cli_json("review", task["task_id"])
+        cli_json("run", task["task_id"])
+        inspected = cli_json("inspect", task["task_id"])
+        rejection = next(
+            json.loads(message["content"])
+            for message in inspected["messages"]
+            if message["role"] == "tool" and message["name"] == "record_disposition"
+        )
+>       assert rejection["error"] == "finding_not_found"
+E       AssertionError: assert 'unknown_tool' == 'finding_not_found'
+E         
+E         - finding_not_found
+E         + unknown_tool
+
+..\.scratch\content-task-agent-build\run-state\red-06-snapshot\tests\test_revision_disposition.py:151: AssertionError
+___________ test_review_readback_limit_stops_at_two_and_incomplete ____________
+
+cli_env = WindowsPath('C:/Users/10167/AppData/Local/Temp/pytest-of-10167/pytest-58/test_review_readback_limit_sto0')
+model_script = <function model_script.<locals>.write at 0x0000025C76B82520>
+
+    def test_review_readback_limit_stops_at_two_and_incomplete(cli_env, model_script):
+        script = _brief_then_draft_script()
+        script += [
+            {"channel": "review", "type": "tool", "name": "read_material", "arguments": {"material_id": "M-001"}},
+            {"channel": "review", "type": "tool", "name": "read_material", "arguments": {"material_id": "M-002"}},
+            {"channel": "review", "type": "tool", "name": "read_material", "arguments": {"material_id": "M-004"}},
+        ]
+        model_script(script)
+        task = _create()
+        _run_until_draft(task["task_id"])
+        reviewed = cli_json("review", task["task_id"])
+        assert reviewed["review"]["status"] == "incomplete"
+        assert reviewed["review"]["readbacks_used"] == 2
+        inspected = cli_json("inspect", task["task_id"])
+        rejected = [
+            json.loads(message["content"])
+>           for message in inspected["reviewer_messages"]
+                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            if message["role"] == "tool"
+            and message["name"] == "read_material"
+            and "readback_limit" in (message["content"] or "")
+        ]
+E       KeyError: 'reviewer_messages'
+
+..\.scratch\content-task-agent-build\run-state\red-06-snapshot\tests\test_revision_disposition.py:171: KeyError
+=========================== short test summary info ===========================
+FAILED ..\.scratch\content-task-agent-build\run-state\red-06-snapshot\tests\test_revision_disposition.py::test_accepted_finding_drives_revision_and_re_review_then_save
+FAILED ..\.scratch\content-task-agent-build\run-state\red-06-snapshot\tests\test_revision_disposition.py::test_rejected_false_positive_allows_save_with_reason
+FAILED ..\.scratch\content-task-agent-build\run-state\red-06-snapshot\tests\test_revision_disposition.py::test_disposition_for_unknown_finding_is_rejected
+FAILED ..\.scratch\content-task-agent-build\run-state\red-06-snapshot\tests\test_revision_disposition.py::test_review_readback_limit_stops_at_two_and_incomplete
