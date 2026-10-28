@@ -1,0 +1,49 @@
+{
+  "task_id": "t_b928246de900",
+  "output_version": 1,
+  "save_id": null,
+  "verified": true,
+  "files": [
+    {
+      "path": "D:\\AAA小影科技\\.scratch\\content-task-agent-build\\run-state\\real-trial-08\\real\\exports\\t_b928246de900\\campaign-v1.md",
+      "sha256": "8b029273286db2e444594d073d9d959ba62020d7a3262a7c08068715a6eeb14b",
+      "bytes": 10287,
+      "exists": true,
+      "current_sha256": "8b029273286db2e444594d073d9d959ba62020d7a3262a7c08068715a6eeb14b",
+      "ok": true
+    },
+    {
+      "path": "D:\\AAA小影科技\\.scratch\\content-task-agent-build\\run-state\\real-trial-08\\real\\exports\\t_b928246de900\\campaign-v1.json",
+      "sha256": "2720d6d1b87f0af4861a6d277be072f3d1200ccaf08ac7155af754cdbaa093db",
+      "bytes": 13012,
+      "exists": true,
+      "current_sha256": "2720d6d1b87f0af4861a6d277be072f3d1200ccaf08ac7155af754cdbaa093db",
+      "ok": true
+    },
+    {
+      "path": "D:\\AAA小影科技\\.scratch\\content-task-agent-build\\run-state\\real-trial-08\\real\\exports\\t_b928246de900\\execution-report.md",
+      "sha256": "f1ad9a8f5771355183231bd93bbda5455c5ab28e65d8e29417ac52a7785cb9d0",
+      "bytes": 15513,
+      "exists": true,
+      "current_sha256": "f1ad9a8f5771355183231bd93bbda5455c5ab28e65d8e29417ac52a7785cb9d0",
+      "ok": true
+    },
+    {
+      "path": "D:\\AAA小影科技\\.scratch\\content-task-agent-build\\run-state\\real-trial-08\\real\\exports\\t_b928246de900\\trace.jsonl",
+      "sha256": "d6e5def7a759b337520d02a06d9559206e6a854ae13e9cf4bff0268b43d4aa7b",
+      "bytes": 126106,
+      "exists": true,
+      "current_sha256": "d6e5def7a759b337520d02a06d9559206e6a854ae13e9cf4bff0268b43d4aa7b",
+      "ok": true
+    },
+    {
+      "path": "D:\\AAA小影科技\\.scratch\\content-task-agent-build\\run-state\\real-trial-08\\real\\exports\\t_b928246de900\\brief-v1.json",
+      "sha256": "277c31c16e528e1dd6048589281fa279d563006f1876018fbfcde48aef198b2d",
+      "bytes": 6415,
+      "exists": true,
+      "current_sha256": "277c31c16e528e1dd6048589281fa279d563006f1876018fbfcde48aef198b2d",
+      "ok": true
+    }
+  ],
+  "repaired": false
+}
