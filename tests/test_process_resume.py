@@ -7,7 +7,15 @@ Faults are injected only at system boundaries (model script, test-only env).
 import json
 
 from conftest import cli_json, run_cli_process
-from test_campaign_draft import _brief_tool, _create, _tool
+from test_campaign_draft import (
+    CAMPAIGN,
+    _brief_then_draft_script,
+    _campaign_tool,
+    _generation_item,
+    _tool,
+    _brief_tool,
+    _create,
+)
 
 
 def _run_process(*args, data_dir, script, crash=None):
@@ -136,3 +144,188 @@ def test_resume_reuses_completed_search_attempt_without_double_charge(cli_env, m
     assert recovered["attempt_id"] == attempt_before["id"]
     assert recovered["cost_cents"] == 20
     assert recovered["duration_ms"] == 2000
+
+
+def _generation_script():
+    return [
+        _tool("search_materials", {"query": "自动卡点", "mode": "basic"}),
+        _brief_tool(),
+        _tool("generate_script", {"strategy": "user_scenario", "generation_mode": "generate_direct"}),
+        _tool("generate_script", {"strategy": "user_scenario", "generation_mode": "generate_direct"}),
+        _campaign_tool(),
+        _generation_item(),
+    ]
+
+
+def test_interrupted_generation_retries_only_the_bounded_step_with_a_new_attempt(cli_env, model_script):
+    task = _create()
+    script = model_script(_generation_script())
+    data_dir = cli_env / "data"
+
+    first = _process_json("run", task["task_id"], data_dir=data_dir, script=script)
+    assert first["progress"]["phase"] == "brief_ready"
+
+    crashed = _run_process("run", task["task_id"], data_dir=data_dir, script=script, crash="generation_after_start")
+    assert crashed.returncode == 70, crashed.stderr
+
+    before = _process_json("inspect", task["task_id"], data_dir=data_dir, script=script)
+    assert [attempt["kind"] for attempt in before["attempts"]] == ["search_materials", "generate_script"]
+    assert before["attempts"][-1]["status"] == "running"
+    assert before["generator_messages_count"] == 0
+    assert before["resources"]["sim_spent_cents"] == 140
+    assert before["outputs"] == []
+
+    resumed = _process_json("resume", task["task_id"], data_dir=data_dir, script=script)
+    assert resumed["progress"]["phase"] == "draft_ready"
+    assert resumed["progress"]["used_rounds"] == 5
+    assert resumed["resources"]["sim_spent_cents"] == 260
+    recovery = resumed["run"]["recovery"]
+    assert [item["tool"] for item in recovery["interrupted_calls"]] == ["generate_script"]
+    assert recovery["reused"]["brief_version"] == 1
+    assert recovery["reused"]["search_results"] == 1
+
+    after = _process_json("inspect", task["task_id"], data_dir=data_dir, script=script)
+    assert [attempt["kind"] for attempt in after["attempts"]] == ["search_materials", "generate_script", "generate_script"]
+    assert [attempt["status"] for attempt in after["attempts"]] == ["success", "interrupted", "success"]
+    assert [row["amount_cents"] for row in after["ledger"]] == [20, 120, 120]
+    generation_requests = [row for row in after["llm_requests"] if row["purpose"] == "script_generation"]
+    assert len(generation_requests) == 1
+    assert after["generator_messages_count"] == 3
+    assert [output["version"] for output in after["outputs"]] == [1]
+    assert len([item for item in after["messages"] if item["name"] == "search_materials"]) == 1
+
+
+def test_complete_generation_candidate_is_recovered_without_regeneration(cli_env, model_script):
+    task = _create()
+    script = model_script(_generation_script())
+    data_dir = cli_env / "data"
+    first = _process_json("run", task["task_id"], data_dir=data_dir, script=script)
+    assert first["progress"]["phase"] == "brief_ready"
+
+    crashed = _run_process("run", task["task_id"], data_dir=data_dir, script=script, crash="generation_after_response")
+    assert crashed.returncode == 70, crashed.stderr
+
+    before = _process_json("inspect", task["task_id"], data_dir=data_dir, script=script)
+    assert before["attempts"][-1]["status"] == "running"
+    assert before["generator_messages_count"] == 3
+    generation_request = next(row for row in before["llm_requests"] if row["purpose"] == "script_generation")
+    attempt_before = before["attempts"][-1]
+
+    # The resume model script has no second generate_script action: recovery must
+    # supply the missing result and the loop must go straight to the campaign.
+    resume_script = model_script(
+        [
+            _tool("search_materials", {"query": "自动卡点", "mode": "basic"}),
+            _brief_tool(),
+            _tool("generate_script", {"strategy": "user_scenario", "generation_mode": "generate_direct"}),
+            _campaign_tool(),
+            _generation_item(),
+        ]
+    )
+    resumed = _process_json("resume", task["task_id"], data_dir=data_dir, script=resume_script)
+    assert resumed["progress"]["phase"] == "draft_ready"
+    assert resumed["progress"]["used_rounds"] == 4
+    assert resumed["resources"]["sim_spent_cents"] == 140
+    assert [item["tool"] for item in resumed["run"]["recovery"]["recovered_calls"]] == ["generate_script"]
+
+    after = _process_json("inspect", task["task_id"], data_dir=data_dir, script=resume_script)
+    assert len(after["attempts"]) == 2
+    recovered_attempt = after["attempts"][-1]
+    assert recovered_attempt["id"] == attempt_before["id"]
+    assert recovered_attempt["status"] == "success"
+    assert recovered_attempt["cost_cents"] == attempt_before["cost_cents"]
+    assert recovered_attempt["sim_start_ms"] == attempt_before["sim_start_ms"]
+    assert recovered_attempt["sim_end_ms"] == attempt_before["sim_end_ms"]
+    assert recovered_attempt["real_started_at"] == attempt_before["real_started_at"]
+    assert after["attempts"][-1]["status"] == "success"
+    generation_requests = [row for row in after["llm_requests"] if row["purpose"] == "script_generation"]
+    assert len(generation_requests) == 1
+    assert generation_requests[0]["id"] == generation_request["id"]
+    assert after["generator_messages_count"] == 3
+    assert [output["version"] for output in after["outputs"]] == [1]
+
+
+def test_incomplete_generation_output_stays_traceable_and_is_not_used_as_a_draft(cli_env, model_script):
+    import copy
+
+    from test_campaign_draft import SCRIPT_CANDIDATE
+
+    task = _create()
+    bad_candidate = copy.deepcopy(SCRIPT_CANDIDATE)
+    bad_candidate["claims"][0]["quote"] = "材料里没有这句话"
+    script = model_script(
+        [
+            _tool("search_materials", {"query": "自动卡点", "mode": "basic"}),
+            _brief_tool(),
+            _tool("generate_script", {"strategy": "user_scenario", "generation_mode": "generate_direct"}),
+            _generation_item(bad_candidate),
+        ]
+    )
+    data_dir = cli_env / "data"
+    first = _process_json("run", task["task_id"], data_dir=data_dir, script=script)
+    assert first["progress"]["phase"] == "brief_ready"
+
+    crashed = _run_process("run", task["task_id"], data_dir=data_dir, script=script, crash="generation_after_response")
+    assert crashed.returncode == 70, crashed.stderr
+
+    resume_script = model_script(
+        [
+            _tool("search_materials", {"query": "自动卡点", "mode": "basic"}),
+            _brief_tool(),
+            _tool("generate_script", {"strategy": "user_scenario", "generation_mode": "generate_direct"}),
+            _tool("generate_script", {"strategy": "user_scenario", "generation_mode": "generate_direct"}),
+            _campaign_tool(),
+            _generation_item(bad_candidate),
+            _generation_item(),
+        ]
+    )
+    resumed = _process_json("resume", task["task_id"], data_dir=data_dir, script=resume_script)
+    assert resumed["progress"]["phase"] == "draft_ready"
+    assert [item["tool"] for item in resumed["run"]["recovery"]["interrupted_calls"]] == ["generate_script"]
+
+    after = _process_json("inspect", task["task_id"], data_dir=data_dir, script=resume_script)
+    assert [attempt["status"] for attempt in after["attempts"]] == ["success", "interrupted", "success"]
+    assert after["generator_messages_count"] == 6
+    first_response = next(
+        message
+        for message in after["generator_messages"]
+        if message["role"] == "assistant" and message["candidate"] == 1
+    )
+    assert "材料里没有这句话" in first_response["content"]
+    assert [output["version"] for output in after["outputs"]] == [1]
+    requests = [row for row in after["llm_requests"] if row["purpose"] == "script_generation"]
+    assert len(requests) == 2
+
+
+def test_resume_recovers_campaign_effect_written_before_tool_receipt(cli_env, model_script):
+    task = _create()
+    script = model_script(_brief_then_draft_script())
+    data_dir = cli_env / "data"
+    first = _process_json("run", task["task_id"], data_dir=data_dir, script=script)
+    assert first["progress"]["phase"] == "brief_ready"
+
+    crashed = _run_process("run", task["task_id"], data_dir=data_dir, script=script, crash="after_campaign_effect")
+    assert crashed.returncode == 70, crashed.stderr
+
+    before = _process_json("inspect", task["task_id"], data_dir=data_dir, script=script)
+    assert before["progress"]["phase"] == "draft_ready"
+    assert [output["version"] for output in before["outputs"]] == [1]
+    pending = _pending_call(before)
+    assert pending is not None
+    assert pending["function"]["name"] == "propose_campaign"
+    assert len(before["attempts"]) == 2
+
+    resumed = _process_json("resume", task["task_id"], data_dir=data_dir, script=script)
+    assert resumed["run"]["stop_reason"] == "draft_ready"
+    assert resumed["progress"]["phase"] == "draft_ready"
+    assert resumed["resources"]["sim_spent_cents"] == 140
+    assert [item["tool"] for item in resumed["run"]["recovery"]["recovered_calls"]] == ["propose_campaign"]
+
+    after = _process_json("inspect", task["task_id"], data_dir=data_dir, script=script)
+    assert [output["version"] for output in after["outputs"]] == [1]
+    assert len(after["attempts"]) == 2
+    result = json.loads(_tool_result(after, pending["id"])["content"])
+    assert result["ok"] is True
+    assert result["recovered"] is True
+    assert result["output_version"] == 1
+    assert CAMPAIGN["activity"]["theme"] in after["outputs"][0]["content_md"]
