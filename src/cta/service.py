@@ -6,10 +6,14 @@ import json
 import secrets
 from datetime import datetime, timedelta
 
+from cta import __version__
 from cta.config import Config, to_utc_iso, utc_now_iso
 from cta.db import open_store, transaction
 from cta.identity import Intake, RawInput, dedupe_key, normalize
-from cta.repository import latest_brief, task_llm_usage
+from cta.materials import load_catalog
+from cta.pricing import load_price_table
+from cta.prompts import PROMPT_VERSION
+from cta.repository import latest_brief, latest_output, task_llm_usage, task_spent
 
 STATUS_NEEDS_INPUT = "needs_input"
 STATUS_IN_PROGRESS = "in_progress"
@@ -47,8 +51,9 @@ class TaskService:
                 """
                 INSERT INTO tasks (id, mode, fingerprint, dedupe_key, status, reason,
                                    input_version, current_output_id, created_at, updated_at,
-                                   sim_elapsed_ms, sim_start, used_rounds, paused)
-                VALUES (?, ?, ?, ?, ?, ?, 1, NULL, ?, ?, 0, ?, 0, 0)
+                                   sim_elapsed_ms, sim_start, used_rounds, paused,
+                                   materials_version, pricing_version)
+                VALUES (?, ?, ?, ?, ?, ?, 1, NULL, ?, ?, 0, ?, 0, 0, ?, ?)
                 """,
                 (
                     task_id,
@@ -60,6 +65,8 @@ class TaskService:
                     now,
                     now,
                     self.config.sim_start.isoformat(),
+                    load_catalog(self.config.project_root).version,
+                    load_price_table(self.config.project_root).version,
                 ),
             )
             self._insert_input(conn, task_id, intake, now)
@@ -126,7 +133,7 @@ class TaskService:
                 )
             ]
             view["attempts"] = [
-                dict(row) for row in conn.execute("SELECT * FROM attempts WHERE task_id = ? ORDER BY created_at, id", (task_id,))
+                dict(row) for row in conn.execute("SELECT * FROM attempts WHERE task_id = ? ORDER BY rowid", (task_id,))
             ]
             view["ledger"] = [dict(row) for row in conn.execute("SELECT * FROM ledger WHERE task_id = ? ORDER BY id", (task_id,))]
             view["llm_requests"] = [
@@ -136,6 +143,22 @@ class TaskService:
                 {"questions": json.loads(row["questions_json"]), "created_at": row["created_at"]}
                 for row in conn.execute("SELECT * FROM clarifications WHERE task_id = ? ORDER BY id", (task_id,))
             ]
+            view["outputs"] = [
+                {
+                    "output_id": row["id"],
+                    "version": row["version"],
+                    "kind": row["kind"],
+                    "status": row["status"],
+                    "content": json.loads(row["content_json"]),
+                    "content_md": row["content_md"],
+                    "created_at": row["created_at"],
+                }
+                for row in conn.execute("SELECT * FROM outputs WHERE task_id = ? ORDER BY version", (task_id,))
+            ]
+            generator_count = conn.execute(
+                "SELECT COUNT(*) AS n FROM messages WHERE task_id = ? AND agent = 'generator'", (task_id,)
+            ).fetchone()
+            view["generator_messages_count"] = int(generator_count["n"])
             return view
 
     def list_tasks(self) -> dict:
@@ -166,8 +189,9 @@ class TaskService:
             "SELECT * FROM task_inputs WHERE task_id = ? AND version = ?",
             (task["id"], task["input_version"]),
         ).fetchone()
-        spent = self._sim_spent(conn, task["id"])
+        spent = task_spent(conn, task["id"])
         brief = latest_brief(conn, task["id"])
+        output = latest_output(conn, task["id"])
         return {
             "task_id": task["id"],
             "mode": task["mode"],
@@ -182,30 +206,40 @@ class TaskService:
                 "interpretations": json.loads(input_row["interpretations_json"]),
             },
             "brief": brief,
-            "plan": self._plan_view(task),
+            "plan": self._plan_view(task, output),
             "gaps": self._gaps(conn, task, brief),
             "mode_notice": (
                 "Mock 仅验证流程、状态与确定性规则，不代表真实模型决策或语义质量。"
                 if task["mode"] == "mock"
                 else "真实模型运行；小样本观察不代表生产质量或统计显著结论。"
             ),
-            "progress": self._progress_view(task),
+            "progress": self._progress_view(task, output),
             "resources": self._resources_view(conn, task["id"], input_row, spent),
             "model_config": self.config.model_config_public(),
-            "artifacts": {},
+            "versions": {
+                "app": __version__,
+                "prompt": PROMPT_VERSION,
+                "materials": task["materials_version"],
+                "pricing": task["pricing_version"],
+            },
+            "artifacts": {"campaign_versions": 0 if output is None else output["version"]},
         }
 
     @staticmethod
-    def _plan_view(task) -> dict:
+    def _plan_view(task, output: dict | None) -> dict:
         brief_done = int(task["brief_version"]) > 0
         phase = task["phase"]
-        draft_current = phase == "brief_ready"
+        draft_done = output is not None
         return {
             "version": "plan-2026-10-29.v1",
             "steps": [
                 {"step": "brief", "title": "业务简报", "status": "done" if brief_done else "current"},
-                {"step": "campaign_draft", "title": "完整活动方案草稿", "status": "current" if draft_current else "pending"},
-                {"step": "review", "title": "内容核验", "status": "pending"},
+                {
+                    "step": "campaign_draft",
+                    "title": "完整活动方案草稿",
+                    "status": "done" if draft_done else ("current" if phase == "brief_ready" else "pending"),
+                },
+                {"step": "review", "title": "内容核验", "status": "current" if phase == "draft_ready" else "pending"},
                 {"step": "save", "title": "核实保存与导出", "status": "pending"},
             ],
         }
@@ -239,10 +273,17 @@ class TaskService:
         }
 
     @staticmethod
-    def _progress_view(task) -> dict:
+    def _progress_view(task, output: dict | None) -> dict:
         sim_start = datetime.fromisoformat(task["sim_start"])
         sim_now = sim_start + timedelta(milliseconds=task["sim_elapsed_ms"])
-        current_output = {"output_id": task["current_output_id"]} if task["current_output_id"] else None
+        current_output = None
+        if output is not None:
+            current_output = {
+                "output_id": output["output_id"],
+                "version": output["version"],
+                "status": output["status"],
+                "strategy": output["content"].get("strategy", {}).get("name"),
+            }
         return {
             "sim_start": task["sim_start"],
             "sim_now": sim_now.isoformat(),
@@ -271,14 +312,3 @@ class TaskService:
             "real_usage": usage,
             "real_cost": None,
         }
-
-    @staticmethod
-    def _sim_spent(conn, task_id: str) -> int:
-        table = conn.execute("SELECT name FROM sqlite_master WHERE type = 'table' AND name = 'ledger'").fetchone()
-        if table is None:
-            return 0
-        row = conn.execute(
-            "SELECT COALESCE(SUM(amount_cents), 0) AS total FROM ledger WHERE task_id = ? AND nature = 'incurred'",
-            (task_id,),
-        ).fetchone()
-        return int(row["total"])

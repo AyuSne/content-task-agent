@@ -80,6 +80,8 @@ def _render_text(document: dict) -> str:
     errors = document.get("validation", {}).get("errors", [])
     for error in errors:
         lines.append(f"待补充[{error['field']}]：{error['message']}")
+    for note in document.get("validation", {}).get("interpretations", []):
+        lines.append(f"解释：{note}")
     return "\n".join(lines)
 
 

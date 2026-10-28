@@ -13,7 +13,7 @@ from pathlib import Path
 
 from cta import __version__
 
-SCHEMA_VERSION = 2
+SCHEMA_VERSION = 3
 
 SCHEMA = """
 CREATE TABLE IF NOT EXISTS meta (
@@ -39,7 +39,9 @@ CREATE TABLE IF NOT EXISTS tasks (
     phase TEXT NOT NULL DEFAULT 'created',
     brief_version INTEGER NOT NULL DEFAULT 0,
     snapshot_hash TEXT,
-    last_run_at TEXT
+    last_run_at TEXT,
+    materials_version TEXT NOT NULL DEFAULT '',
+    pricing_version TEXT NOT NULL DEFAULT ''
 );
 
 CREATE INDEX IF NOT EXISTS idx_tasks_fingerprint ON tasks(mode, fingerprint);
@@ -163,6 +165,20 @@ CREATE TABLE IF NOT EXISTS snapshots (
     created_at TEXT NOT NULL,
     UNIQUE(task_id, hash)
 );
+
+CREATE TABLE IF NOT EXISTS outputs (
+    id TEXT PRIMARY KEY,
+    task_id TEXT NOT NULL REFERENCES tasks(id) ON DELETE CASCADE,
+    version INTEGER NOT NULL,
+    kind TEXT NOT NULL,
+    content_json TEXT NOT NULL,
+    content_md TEXT,
+    input_version INTEGER NOT NULL,
+    status TEXT NOT NULL,
+    attempt_id TEXT,
+    created_at TEXT NOT NULL,
+    UNIQUE(task_id, kind, version)
+);
 """
 
 
@@ -182,6 +198,8 @@ def _ensure_columns(conn: sqlite3.Connection) -> None:
         "brief_version": "INTEGER NOT NULL DEFAULT 0",
         "snapshot_hash": "TEXT",
         "last_run_at": "TEXT",
+        "materials_version": "TEXT NOT NULL DEFAULT ''",
+        "pricing_version": "TEXT NOT NULL DEFAULT ''",
     }
     for name, definition in additions.items():
         if name not in columns:

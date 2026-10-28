@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import re
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -51,8 +52,27 @@ class MaterialCatalog:
     def ids(self) -> list[str]:
         return list(self._materials)
 
+    @property
+    def materials(self) -> dict[str, Material]:
+        return self._materials
+
     def get(self, material_id: str) -> Material | None:
         return self._materials.get(material_id)
+
+    @staticmethod
+    def _terms(text: str) -> list[str]:
+        """Split on whitespace/punctuation and add CJK bigrams for partial matches."""
+        terms: list[str] = []
+        for part in re.split(r"[\s,，、;；:：/|]+", text.lower()):
+            if not part:
+                continue
+            terms.append(part)
+            if re.search(r"[\u4e00-\u9fff]", part):
+                terms.extend(part[index : index + 2] for index in range(len(part) - 1))
+                if len(part) == 1:
+                    terms.append(part)
+        # Stable de-duplication keeps scoring deterministic.
+        return list(dict.fromkeys(terms))
 
     def search(self, query: str, mode: str = "basic", limit: int | None = None) -> dict:
         text = (query or "").strip()
@@ -60,7 +80,7 @@ class MaterialCatalog:
             return {"ok": False, "error": "empty_query", "message": "检索词不能为空。"}
         if mode not in ("basic", "extended"):
             return {"ok": False, "error": "invalid_mode", "message": "mode 只能是 basic 或 extended。"}
-        terms = [term.lower() for term in text.replace("，", " ").replace("、", " ").split() if term]
+        terms = self._terms(text)
         if not terms:
             terms = [text.lower()]
         scored = []

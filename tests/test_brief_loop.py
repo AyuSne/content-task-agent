@@ -330,21 +330,25 @@ def test_round_cap_stops_incomplete(cli_env, model_script):
     assert "轮数上限" in doc["reason"]
 
 
-def test_brief_ready_is_idempotent_and_context_is_append_only(cli_env, model_script):
+def test_brief_is_not_reprocessed_or_recharged_on_resume(cli_env, model_script):
     task = _create()
     model_script([_tool("search_materials", {"query": "自动卡点"}), _brief_tool(), {"type": "text", "content": "不应被调用"}])
     first = cli_json("run", task["task_id"])
     inspected = cli_json("inspect", task["task_id"])
     message_count = len(inspected["messages"])
     knowledge_count = len(inspected["knowledge"])
+    assert first["progress"]["phase"] == "brief_ready"
+    assert first["brief"]["version"] == 1
+
     second = cli_json("run", task["task_id"])
     again = cli_json("inspect", task["task_id"])
 
-    assert second["run"]["stop_reason"] == "brief_ready"
-    assert second["progress"]["used_rounds"] == first["progress"]["used_rounds"] == 2
-    assert len(again["messages"]) == message_count
+    assert second["status"] == "incomplete"
+    assert again["brief"]["version"] == 1
     assert len(again["knowledge"]) == knowledge_count == 1
+    assert len(again["messages"]) > message_count
     assert again["resources"]["sim_spent_cents"] == 20
+    assert again["progress"]["used_rounds"] > first["progress"]["used_rounds"]
 
 
 def test_cross_process_resume_continues_from_persisted_round(cli_env, model_script):

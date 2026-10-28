@@ -70,8 +70,8 @@ class PriceTable:
         selected = {
             "search": search_mode,
             "generation": generation_mode,
-            "review": "review",
-            "save": "save",
+            "review": self.full_path.get("review", "review"),
+            "save": self.full_path.get("save", "save"),
         }
         if include_revision:
             names.insert(2, "revision")

@@ -1,0 +1,163 @@
+﻿FFFFFFF                                                                  [100%]
+================================== FAILURES ===================================
+_______ test_complete_draft_uses_isolated_generation_and_full_campaign ________
+
+cli_env = WindowsPath('C:/Users/10167/AppData/Local/Temp/pytest-of-10167/pytest-27/test_complete_draft_uses_isola0')
+model_script = <function model_script.<locals>.write at 0x0000014FBAD13B00>
+
+    def test_complete_draft_uses_isolated_generation_and_full_campaign(cli_env, model_script):
+        task = _create()
+        model_script(_brief_then_draft_script())
+        doc = _run_until_draft(task["task_id"])
+    
+        assert doc["status"] == "in_progress"
+>       assert doc["progress"]["phase"] == "draft_ready"
+E       AssertionError: assert 'brief_ready' == 'draft_ready'
+E         
+E         - draft_ready
+E         + brief_ready
+
+..\.scratch\content-task-agent-build\run-state\red-03-snapshot\tests\test_campaign_draft.py:200: AssertionError
+___________ test_generation_failure_leaves_no_draft_and_keeps_cost ____________
+
+cli_env = WindowsPath('C:/Users/10167/AppData/Local/Temp/pytest-of-10167/pytest-27/test_generation_failure_leaves0')
+model_script = <function model_script.<locals>.write at 0x0000014FBD2FDBC0>
+
+    def test_generation_failure_leaves_no_draft_and_keeps_cost(cli_env, model_script):
+        task = _create()
+        model_script(
+            [
+                _tool("search_materials", {"query": "自动卡点"}),
+                _brief_tool(),
+                _tool("generate_script", {"strategy": "user_scenario", "generation_mode": "generate_direct"}),
+                _generation_item(type="error", message="generation upstream 500"),
+                _tool("stop_incomplete", {"reason": "脚本生成连续失败，无法形成完整草稿。"}),
+            ]
+        )
+        doc = _run_until_draft(task["task_id"])
+>       assert doc["status"] == "incomplete"
+E       AssertionError: assert 'in_progress' == 'incomplete'
+E         
+E         - incomplete
+E         + in_progress
+
+..\.scratch\content-task-agent-build\run-state\red-03-snapshot\tests\test_campaign_draft.py:244: AssertionError
+_______ test_full_path_guard_rejects_generation_that_cannot_be_reviewed _______
+
+cli_env = WindowsPath('C:/Users/10167/AppData/Local/Temp/pytest-of-10167/pytest-27/test_full_path_guard_rejects_g0')
+model_script = <function model_script.<locals>.write at 0x0000014FBD33EF20>
+
+    def test_full_path_guard_rejects_generation_that_cannot_be_reviewed(cli_env, model_script):
+        task = _create(budget="1.00")
+        model_script(
+            [
+                _tool("search_materials", {"query": "自动卡点"}),
+                _brief_tool(),
+                _tool("generate_script", {"strategy": "user_scenario", "generation_mode": "generate_direct"}),
+                _tool("stop_incomplete", {"reason": "预算不足以完成生成后的核验与保存。"}),
+            ]
+        )
+        doc = _run_until_draft(task["task_id"])
+>       assert doc["status"] == "incomplete"
+E       AssertionError: assert 'in_progress' == 'incomplete'
+E         
+E         - incomplete
+E         + in_progress
+
+..\.scratch\content-task-agent-build\run-state\red-03-snapshot\tests\test_campaign_draft.py:264: AssertionError
+__________ test_invalid_campaign_is_rejected_then_valid_one_is_saved __________
+
+cli_env = WindowsPath('C:/Users/10167/AppData/Local/Temp/pytest-of-10167/pytest-27/test_invalid_campaign_is_rejec0')
+model_script = <function model_script.<locals>.write at 0x0000014FBD33CF40>
+
+    def test_invalid_campaign_is_rejected_then_valid_one_is_saved(cli_env, model_script):
+        task = _create()
+        bad = copy.deepcopy(CAMPAIGN)
+        bad["evidence"][0]["quote"] = "不存在的原文"
+        script = _brief_then_draft_script(campaign_item=_campaign_tool(bad))
+        script.append(_campaign_tool())
+        model_script(script)
+        doc = _run_until_draft(task["task_id"])
+>       assert doc["progress"]["phase"] == "draft_ready"
+E       AssertionError: assert 'brief_ready' == 'draft_ready'
+E         
+E         - draft_ready
+E         + brief_ready
+
+..\.scratch\content-task-agent-build\run-state\red-03-snapshot\tests\test_campaign_draft.py:283: AssertionError
+_________ test_script_claim_without_supported_quote_fails_generation __________
+
+cli_env = WindowsPath('C:/Users/10167/AppData/Local/Temp/pytest-of-10167/pytest-27/test_script_claim_without_supp0')
+model_script = <function model_script.<locals>.write at 0x0000014FBD33E5C0>
+
+    def test_script_claim_without_supported_quote_fails_generation(cli_env, model_script):
+        task = _create()
+        bad_candidate = copy.deepcopy(SCRIPT_CANDIDATE)
+        bad_candidate["claims"][0]["quote"] = "材料里没有这句话"
+        model_script(
+            [
+                _tool("search_materials", {"query": "自动卡点"}),
+                _brief_tool(),
+                _tool("generate_script", {"strategy": "user_scenario", "generation_mode": "generate_direct"}),
+                _generation_item(bad_candidate),
+                _tool("stop_incomplete", {"reason": "脚本事实无支持，无法继续。"}),
+            ]
+        )
+        doc = _run_until_draft(task["task_id"])
+>       assert doc["status"] == "incomplete"
+E       AssertionError: assert 'in_progress' == 'incomplete'
+E         
+E         - incomplete
+E         + in_progress
+
+..\.scratch\content-task-agent-build\run-state\red-03-snapshot\tests\test_campaign_draft.py:308: AssertionError
+____________ test_rerun_after_draft_does_not_duplicate_or_recharge ____________
+
+cli_env = WindowsPath('C:/Users/10167/AppData/Local/Temp/pytest-of-10167/pytest-27/test_rerun_after_draft_does_no0')
+model_script = <function model_script.<locals>.write at 0x0000014FBD33D9E0>
+
+    def test_rerun_after_draft_does_not_duplicate_or_recharge(cli_env, model_script):
+        task = _create()
+        model_script(_brief_then_draft_script())
+        first_draft = _run_until_draft(task["task_id"])
+        inspected = cli_json("inspect", task["task_id"])
+        messages = len(inspected["messages"])
+>       generator_messages = inspected["generator_messages_count"]
+                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       KeyError: 'generator_messages_count'
+
+..\.scratch\content-task-agent-build\run-state\red-03-snapshot\tests\test_campaign_draft.py:320: KeyError
+_______ test_multi_candidate_generation_uses_bounded_internal_requests ________
+
+cli_env = WindowsPath('C:/Users/10167/AppData/Local/Temp/pytest-of-10167/pytest-27/test_multi_candidate_generatio0')
+model_script = <function model_script.<locals>.write at 0x0000014FBD33DB20>
+
+    def test_multi_candidate_generation_uses_bounded_internal_requests(cli_env, model_script):
+        task = _create()
+        model_script(
+            [
+                _tool("search_materials", {"query": "自动卡点"}),
+                _brief_tool(),
+                _tool("generate_script", {"strategy": "user_scenario", "generation_mode": "generate_multi"}),
+                _generation_item(),
+                _generation_item(),
+                _generation_item(),
+                _campaign_tool(),
+            ]
+        )
+        doc = _run_until_draft(task["task_id"])
+>       assert doc["progress"]["phase"] == "draft_ready"
+E       AssertionError: assert 'brief_ready' == 'draft_ready'
+E         
+E         - draft_ready
+E         + brief_ready
+
+..\.scratch\content-task-agent-build\run-state\red-03-snapshot\tests\test_campaign_draft.py:346: AssertionError
+=========================== short test summary info ===========================
+FAILED ..\.scratch\content-task-agent-build\run-state\red-03-snapshot\tests\test_campaign_draft.py::test_complete_draft_uses_isolated_generation_and_full_campaign
+FAILED ..\.scratch\content-task-agent-build\run-state\red-03-snapshot\tests\test_campaign_draft.py::test_generation_failure_leaves_no_draft_and_keeps_cost
+FAILED ..\.scratch\content-task-agent-build\run-state\red-03-snapshot\tests\test_campaign_draft.py::test_full_path_guard_rejects_generation_that_cannot_be_reviewed
+FAILED ..\.scratch\content-task-agent-build\run-state\red-03-snapshot\tests\test_campaign_draft.py::test_invalid_campaign_is_rejected_then_valid_one_is_saved
+FAILED ..\.scratch\content-task-agent-build\run-state\red-03-snapshot\tests\test_campaign_draft.py::test_script_claim_without_supported_quote_fails_generation
+FAILED ..\.scratch\content-task-agent-build\run-state\red-03-snapshot\tests\test_campaign_draft.py::test_rerun_after_draft_does_not_duplicate_or_recharge
+FAILED ..\.scratch\content-task-agent-build\run-state\red-03-snapshot\tests\test_campaign_draft.py::test_multi_candidate_generation_uses_bounded_internal_requests

@@ -228,6 +228,70 @@ def latest_brief(conn: sqlite3.Connection, task_id: str) -> dict | None:
     return {"version": row["version"], "content": json.loads(row["content_json"]), "created_at": row["created_at"]}
 
 
+def latest_output(conn: sqlite3.Connection, task_id: str, kind: str = "campaign") -> dict | None:
+    row = conn.execute(
+        "SELECT * FROM outputs WHERE task_id = ? AND kind = ? ORDER BY version DESC LIMIT 1",
+        (task_id, kind),
+    ).fetchone()
+    if row is None:
+        return None
+    return {
+        "output_id": row["id"],
+        "version": row["version"],
+        "kind": row["kind"],
+        "status": row["status"],
+        "created_at": row["created_at"],
+        "content": json.loads(row["content_json"]),
+        "content_md": row["content_md"],
+    }
+
+
+def create_output(
+    conn: sqlite3.Connection,
+    *,
+    task_id: str,
+    kind: str,
+    content: dict,
+    content_md: str | None,
+    input_version: int,
+    attempt_id: str | None,
+) -> dict:
+    row = conn.execute(
+        "SELECT COALESCE(MAX(version), 0) AS version FROM outputs WHERE task_id = ? AND kind = ?",
+        (task_id, kind),
+    ).fetchone()
+    version = int(row["version"]) + 1
+    output_id = new_id("o_")
+    conn.execute(
+        """
+        INSERT INTO outputs (id, task_id, version, kind, content_json, content_md,
+                             input_version, status, attempt_id, created_at)
+        VALUES (?, ?, ?, ?, ?, ?, ?, 'draft', ?, ?)
+        """,
+        (
+            output_id,
+            task_id,
+            version,
+            kind,
+            json.dumps(content, ensure_ascii=False),
+            content_md,
+            input_version,
+            attempt_id,
+            utc_now_iso(),
+        ),
+    )
+    conn.execute("UPDATE tasks SET current_output_id = ? WHERE id = ?", (output_id, task_id))
+    return {"output_id": output_id, "version": version, "status": "draft"}
+
+
+def count_purpose_requests(conn: sqlite3.Connection, task_id: str, purpose: str) -> int:
+    row = conn.execute(
+        "SELECT COUNT(*) AS n FROM llm_requests WHERE task_id = ? AND purpose = ?",
+        (task_id, purpose),
+    ).fetchone()
+    return int(row["n"])
+
+
 def task_spent(conn: sqlite3.Connection, task_id: str) -> int:
     row = conn.execute(
         "SELECT COALESCE(SUM(amount_cents), 0) AS total FROM ledger WHERE task_id = ? AND nature = 'incurred'",
@@ -257,6 +321,7 @@ def task_llm_usage(conn: sqlite3.Connection, task_id: str) -> dict:
         "real_requests": int(row["real_requests"]),
         "mock_requests": int(row["mock_requests"]),
         "unknown_usage_requests": int(row["unknown_usage_requests"]),
+        "usage_complete": int(row["unknown_usage_requests"]) == 0,
         "prompt_tokens": int(row["prompt_tokens"]),
         "completion_tokens": int(row["completion_tokens"]),
         "cache_hit_tokens": int(row["cache_hit_tokens"]),
@@ -268,6 +333,7 @@ def task_llm_usage(conn: sqlite3.Connection, task_id: str) -> dict:
 def snapshot_state(conn: sqlite3.Connection, task_id: str) -> dict:
     task = conn.execute("SELECT * FROM tasks WHERE id = ?", (task_id,)).fetchone()
     brief = latest_brief(conn, task_id)
+    output = latest_output(conn, task_id)
     questions = conn.execute(
         "SELECT questions_json FROM clarifications WHERE task_id = ? ORDER BY id DESC LIMIT 1", (task_id,)
     ).fetchone()
@@ -276,6 +342,7 @@ def snapshot_state(conn: sqlite3.Connection, task_id: str) -> dict:
         "status": task["status"],
         "input_version": task["input_version"],
         "brief_version": task["brief_version"],
+        "output_version": None if output is None else output["version"],
         "sim_elapsed_ms": task["sim_elapsed_ms"],
         "used_rounds": task["used_rounds"],
         "spent_cents": task_spent(conn, task_id),

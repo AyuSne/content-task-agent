@@ -85,19 +85,28 @@ class Intake:
                 fields.append(label)
         return "输入不完整或无效，需要补充：" + "、".join(fields)
 
-    def _invalid_code(self, field_name: str) -> str:
+    def _invalid_key(self, field_name: str, raw: str | None) -> str:
         for error in self.errors:
             if error.field == field_name:
+                if error.code in ("not_a_number", "invalid_format"):
+                    return f"invalid:{error.code}:{collapse(raw or '')}"
                 return f"invalid:{error.code}"
         return "invalid:unknown"
 
     def canonical(self, mode: str) -> dict:
         return {
             "mode": mode,
-            "topic": self.topic if self.topic is not None else self._invalid_code("topic"),
-            "budget": self.budget_cents if self.budget_cents is not None else self._invalid_code("budget"),
-            "deadline": None if self.deadline_utc is None else to_utc_iso(self.deadline_utc),
-            "deadline_invalid": None if self.deadline_utc is not None else self._invalid_code("deadline"),
+            "topic": f"value:{self.topic}" if self.topic is not None else self._invalid_key("topic", self.raw.topic),
+            "budget": (
+                f"value:{self.budget_cents}"
+                if self.budget_cents is not None
+                else self._invalid_key("budget", self.raw.budget)
+            ),
+            "deadline": (
+                f"value:{to_utc_iso(self.deadline_utc)}"
+                if self.deadline_utc is not None
+                else self._invalid_key("deadline", self.raw.deadline)
+            ),
             "audience": self.audience,
             "requirements": self.requirements,
         }

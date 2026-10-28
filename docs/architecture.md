@@ -34,13 +34,15 @@ src/cta/
 - 模拟起点：`CTA_SIM_START` 或默认 `2026-10-29T00:00:00+08:00`；截止必须晚于它。
 - 输入：主题/预算（元，两位小数）/截止必填；受众、创作要求可选。缺失/无效仍持久化，状态 `needs_input`，逐字段错误与解释在 `validation`。
 - 身份：`(mode, 规范化字段)` 的 SHA-256 指纹；无效字段按稳定错误码参与。重复 `create` 返回原任务；`--new` 独立。
-- 状态：`needs_input | in_progress | incomplete | complete`；阶段 `created | brief_ready | awaiting_clarification | stopped`。完成只能由 04 的核验+保存产生。
+- 状态：`needs_input | in_progress | incomplete | complete`；阶段 `created | brief_ready | draft_ready | stopped`。完成只能由 04 的核验+保存产生。
 - 主循环：每轮 `used_rounds += 1` 再调用模型；只接受 0/1 个工具调用；多调用、未知工具、非法参数、截断、无动作都拒绝并反馈。模型错误或 12 轮触顶 → `incomplete`，保留消息、尝试、账本。
-- 模型：真实模式 `DeepSeekClient`（openai SDK，DeepSeek base URL，`deepseek-flash`，`thinking.disabled`，非流式，`max_retries=0`）；Mock 模式 `ScriptedClient`（`CTA_MODEL_SCRIPT`），仅测试/离线。
-- 上下文：系统规则 + 工具定义 + 知识正文 + 任务输入 + 状态快照 + 追加消息。首轮加载 `campaign-creation` 知识并把正文、版本、sha256 存入 `knowledge_loads`；无变化不重复快照。
-- 工具：`search_materials`（basic 20 分/2 s；extended 60 分/6 s）、`read_material`（0）、`estimate_cost`（0）、`propose_brief`、`request_clarification`、`stop_incomplete`。
-- 计量：业务工具启动时写 `attempts`（running + 固定费用/耗时）与 `ledger`（nature=incurred），并推进 `tasks.sim_elapsed_ms`；执行前检查预算与模拟截止，拒绝不计费。真实模型请求逐次写 `llm_requests`（用量、缓存命中/未命中、耗时、错误、mock 标记），未知用量为 NULL。
-- 简报：`briefs` 按版本保存；事实必须来自本任务材料且 quote 可在正文找到；失败校验为工具拒绝，不保存。
+- 模型：真实模式 `DeepSeekClient`（openai SDK，DeepSeek base URL，`deepseek-flash`，`thinking.disabled`，非流式，`max_retries=0`）；Mock 模式 `ScriptedClient`（`CTA_MODEL_SCRIPT`，按 `channel` 取脚本），仅测试/离线。
+- 上下文：系统规则 + 工具定义 + 知识正文 + 任务输入 + 状态快照 + 追加消息。首轮加载 `campaign-creation` 知识并把正文、版本、sha256 存入 `knowledge_loads`；无变化不重复快照。`brief_ready` 后追加一次阶段推进消息。
+- 工具：`search_materials`（basic 20 分/2 s；extended 60 分/6 s）、`read_material`（0）、`estimate_cost`（0，含预计完成时刻与预算/时间缺口）、`propose_brief`、`generate_script`（direct 120 分/8 s；multi 300 分/20 s，最多 3 个内部候选）、`propose_campaign`、`request_clarification`、`stop_incomplete`。
+- 脚本生成：独立上下文（创作知识 + 简报 + 策略 + 事实/素材），不继承主循环历史；请求写 `llm_requests`（purpose=`script_generation`，meta.context=`isolated_generation`），消息写 `messages.agent='generator'`；候选校验事实 quote 与证据引用。
+- 产物：`outputs` 按版本保存完整方案 JSON 与 Markdown；`current_output_id`/`phase=draft_ready`；未核验不标完成。
+- 计量：业务工具启动时写 `attempts`（running + 固定费用/耗时）与 `ledger`（nature=incurred），并推进 `tasks.sim_elapsed_ms`；执行前检查预算与模拟截止，生成前另查完整剩余路径；拒绝不计费。真实模型请求逐次写 `llm_requests`（用量、缓存命中/未命中、耗时、错误、mock 标记），未知用量为 NULL 并单列计数。
+- 简报：`briefs` 按版本保存；事实必须来自本任务材料且 quote 可在正文找到、scope 非空；失败校验为工具拒绝，不保存。
 - 测试 seam：CLI 公开输出；跨进程用 `python -m cta` + 真实 SQLite。测试不直接查库断言行为；Mock 只注入模型边界。
 
 ## 扩展约定

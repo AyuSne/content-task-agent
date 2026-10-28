@@ -182,6 +182,13 @@ def test_equivalent_invalid_budget_forms_share_one_task(cli_env):
     assert second["duplicate"] is True
 
 
+def test_distinct_invalid_texts_are_not_overmerged(cli_env):
+    first = cli_json("create", "--topic", "主题", "--budget", "abc", "--deadline", "2026-10-30T12:00:00+08:00")
+    second = cli_json("create", "--topic", "主题", "--budget", "xyz", "--deadline", "2026-10-30T12:00:00+08:00")
+    assert first["task_id"] != second["task_id"]
+    assert second["duplicate"] is False
+
+
 def test_date_only_deadline_records_interpretation(cli_env):
     body = cli_json("create", "--topic", "主题", "--budget", "10", "--deadline", "2026-10-30")
     assert body["status"] == "in_progress"

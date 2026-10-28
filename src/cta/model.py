@@ -65,17 +65,23 @@ class DeepSeekClient:
             max_retries=0,
         )
 
-    def complete(self, messages: list[dict], tools: list[dict], *, cursor: int) -> ModelResponse:
+    def complete(
+        self, messages: list[dict], tools: list[dict], *, cursor: int, channel: str = "main", json_mode: bool = False
+    ) -> ModelResponse:
         started = time.time()
+        request = {
+            "model": self.config.model,
+            "messages": messages,
+            "stream": False,
+            "extra_body": {"thinking": {"type": "disabled"}},
+        }
+        if tools:
+            request["tools"] = tools
+            request["tool_choice"] = "auto"
+        if json_mode:
+            request["response_format"] = {"type": "json_object"}
         try:
-            response = self.client.chat.completions.create(
-                model=self.config.model,
-                messages=messages,
-                tools=tools,
-                tool_choice="auto",
-                stream=False,
-                extra_body={"thinking": {"type": "disabled"}},
-            )
+            response = self.client.chat.completions.create(**request)
         except Exception as exc:  # noqa: BLE001 - boundary records the real error
             message = self.config.redact(f"{type(exc).__name__}: {exc}")[:800]
             return ModelResponse(
@@ -134,10 +140,16 @@ class ScriptedClient:
             raise ModelUnavailable("模型脚本必须是 JSON 数组。")
         return payload
 
-    def complete(self, messages: list[dict], tools: list[dict], *, cursor: int) -> ModelResponse:
-        items = self._items()
+    def complete(
+        self, messages: list[dict], tools: list[dict], *, cursor: int, channel: str = "main", json_mode: bool = False
+    ) -> ModelResponse:
+        items = [item for item in self._items() if item.get("channel", "main") == channel]
         if cursor >= len(items):
-            return ModelResponse(error="model_unavailable: scripted responses exhausted", model="scripted", mock=True)
+            return ModelResponse(
+                error=f"model_unavailable: scripted responses exhausted ({channel})",
+                model="scripted",
+                mock=True,
+            )
         item = items[cursor]
         kind = item.get("type", "tool")
         if kind == "error":
