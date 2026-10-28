@@ -1,0 +1,70 @@
+﻿FFF                                                                      [100%]
+================================== FAILURES ===================================
+__________ test_calibration_reports_hits_and_no_good_false_positives __________
+
+cli_env = WindowsPath('C:/Users/10167/AppData/Local/Temp/pytest-of-10167/pytest-94/test_calibration_reports_hits_0')
+model_script = <function model_script.<locals>.write at 0x000001E55A482E80>
+tmp_path = WindowsPath('C:/Users/10167/AppData/Local/Temp/pytest-of-10167/pytest-94/test_calibration_reports_hits_0')
+
+    def test_calibration_reports_hits_and_no_good_false_positives(cli_env, model_script, tmp_path):
+        model_script(_script_items())
+        output = tmp_path / "calibration.json"
+        code, out, err = run_cli("calibrate", "--output", str(output))
+>       assert code == 0, err
+E       AssertionError: usage: cta [-h] [--mode {mock,real}] [--data-dir DATA_DIR]
+E                    [--format {json,text}]
+E                    {create,status,run,inspect,review,save,export,list} ...
+E         cta: error: argument command: invalid choice: 'calibrate' (choose from create, status, run, inspect, review, save, export, list)
+E         
+E       assert 2 == 0
+
+..\.scratch\content-task-agent-build\run-state\red-11-snapshot\tests\test_calibration.py:57: AssertionError
+____________ test_calibration_marks_misses_but_not_false_positives ____________
+
+cli_env = WindowsPath('C:/Users/10167/AppData/Local/Temp/pytest-of-10167/pytest-94/test_calibration_marks_misses_0')
+model_script = <function model_script.<locals>.write at 0x000001E55A589E40>
+tmp_path = WindowsPath('C:/Users/10167/AppData/Local/Temp/pytest-of-10167/pytest-94/test_calibration_marks_misses_0')
+
+    def test_calibration_marks_misses_but_not_false_positives(cli_env, model_script, tmp_path):
+        model_script(_script_items(all_good=True))
+        code, out, err = run_cli("calibrate", "--output", str(tmp_path / "misses.json"))
+>       assert code == 0, err
+E       AssertionError: usage: cta [-h] [--mode {mock,real}] [--data-dir DATA_DIR]
+E                    [--format {json,text}]
+E                    {create,status,run,inspect,review,save,export,list} ...
+E         cta: error: argument command: invalid choice: 'calibrate' (choose from create, status, run, inspect, review, save, export, list)
+E         
+E       assert 2 == 0
+
+..\.scratch\content-task-agent-build\run-state\red-11-snapshot\tests\test_calibration.py:75: AssertionError
+________ test_calibration_does_not_leak_labels_into_evaluator_payload _________
+
+cli_env = WindowsPath('C:/Users/10167/AppData/Local/Temp/pytest-of-10167/pytest-94/test_calibration_does_not_leak0')
+model_script = <function model_script.<locals>.write at 0x000001E55A58AF20>
+tmp_path = WindowsPath('C:/Users/10167/AppData/Local/Temp/pytest-of-10167/pytest-94/test_calibration_does_not_leak0')
+
+    def test_calibration_does_not_leak_labels_into_evaluator_payload(cli_env, model_script, tmp_path):
+        model_script(_script_items())
+        captured = []
+    
+        class RecordingClient:
+            def complete(self, messages, tools, *, cursor, channel="main", json_mode=False):
+                captured.append(json.dumps(messages, ensure_ascii=False))
+                from cta.model import ModelResponse
+    
+                return ModelResponse(
+                    content=None,
+                    tool_calls=(),
+                    finish_reason="stop",
+                    model="record",
+                    mock=True,
+                )
+    
+>       from cta.calibration import run_calibration
+E       ModuleNotFoundError: No module named 'cta.calibration'
+
+..\.scratch\content-task-agent-build\run-state\red-11-snapshot\tests\test_calibration.py:99: ModuleNotFoundError
+=========================== short test summary info ===========================
+FAILED ..\.scratch\content-task-agent-build\run-state\red-11-snapshot\tests\test_calibration.py::test_calibration_reports_hits_and_no_good_false_positives
+FAILED ..\.scratch\content-task-agent-build\run-state\red-11-snapshot\tests\test_calibration.py::test_calibration_marks_misses_but_not_false_positives
+FAILED ..\.scratch\content-task-agent-build\run-state\red-11-snapshot\tests\test_calibration.py::test_calibration_does_not_leak_labels_into_evaluator_payload

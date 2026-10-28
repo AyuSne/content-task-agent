@@ -1,0 +1,762 @@
+{
+  "calibration_version": "2026-10-29.v1",
+  "knowledge_version": "content-review 2026-10-29.v1",
+  "prompt_version": "review-2026-10-29.v1",
+  "model_config": {
+    "provider": "deepseek",
+    "sdk": "openai",
+    "base_url": "https://api.deepseek.com",
+    "model": "deepseek-flash",
+    "api_key": "set",
+    "thinking": false,
+    "streaming": false,
+    "sdk_auto_retries": 0
+  },
+  "mode": "real",
+  "simulated_cost": "not_applicable: 校准不创建内容任务，不进入任务模拟预算",
+  "started_at": "2026-10-28T18:01:53.051210+00:00",
+  "finished_at": "2026-10-28T18:03:45.395244+00:00",
+  "wall_seconds": 112.344,
+  "pairs_count": 6,
+  "metrics": {
+    "problem_samples": 6,
+    "good_samples": 6,
+    "bad_detected": 6,
+    "missed": [],
+    "false_positives": [
+      "P6-optional-style-treated-as-hard"
+    ],
+    "optional_on_good": 9,
+    "incomplete_reviews": 1
+  },
+  "usage": {
+    "requests": 19,
+    "unknown_usage_requests": 0,
+    "prompt_tokens": 51487,
+    "completion_tokens": 15518,
+    "total_tokens": 67005,
+    "prompt_cache_hit_tokens": 46331,
+    "prompt_cache_miss_tokens": 5156,
+    "elapsed_ms": 112159
+  },
+  "results": [
+    {
+      "pair_id": "P1-unsupported-capability",
+      "issue": "无依据能力承诺",
+      "variant": "problem",
+      "report_status": "complete",
+      "verdict": "fail",
+      "completeness": "full",
+      "findings": [
+        {
+          "finding_id": "F1",
+          "severity": "must_fix",
+          "location": "campaign.script.segments[1].subtitle（10-30s 段字幕）",
+          "requirement": "不得承诺涨粉、收益或未正式支持的能力",
+          "evidence": "M-004：“不得承诺涨粉、收益或爆款”，适用范围“所有对外传播”",
+          "issue": "第 2 段字幕为“帮你轻松涨粉 10 万”，属对外传播中的明确涨粉承诺，直接违反禁止性要求，且无任何证据支持。",
+          "suggestion": "删除涨粉表述，改为与证据一致的能力描述（如自动卡点对齐节拍的效果描述）；若需保留效果表达，只能描述剪辑结果而非账号增长。",
+          "reviewed_version": "1"
+        },
+        {
+          "finding_id": "F2",
+          "severity": "must_fix",
+          "location": "campaign.script.segments[0/1] 及 campaign.evidence[0]",
+          "requirement": "主脚本必须突出自动卡点",
+          "evidence": "E1 引用 M-001：“把用户选中的视频片段对齐到节拍点”，scope “4.2+”，use 标注“第 2 段”；但第 2 段字幕为涨粉话术，未承载自动卡点信息，第 1 段字幕为字幕能力。",
+          "issue": "自动卡点这一明确要求是核心卖点，但在两段字幕/画面中均未以可感知的台词或字幕突出呈现；证据 E1 标注用于第 2 段，实际第 2 段内容与自动卡点无关，引用与分镜用途错位。",
+          "suggestion": "在第 1 或第 2 段明确写入自动卡点台词/字幕（如“选中片段自动对齐鼓点”），并同步修正 evidence 的 use 指向该段；确保卖点在 30 秒内被直观看懂。",
+          "reviewed_version": "1"
+        },
+        {
+          "finding_id": "F3",
+          "severity": "must_fix",
+          "location": "campaign.script.segments[0].subtitle（0-10s 段字幕）",
+          "requirement": "不得承诺未正式支持的能力；产品主张须有支持片段且不超出适用范围",
+          "evidence": "M-002：“普通话与英语为正式支持语言；粤语、日语等仍在小范围测试”，scope“仅普通话与英语为正式支持”；segment 1 引用证据为 E1（自动卡点，M-001），并不支持字幕语言数量。",
+          "issue": "字幕“AI 字幕支持 50 种语言”无任何证据支持，且与 M-002 的仅两种正式支持语言相矛盾，超出正式支持范围，属未正式支持能力的宣传。",
+          "suggestion": "改为“支持普通话与英语”，删除数量表述；同时将第 1 段的 evidence_ids 换为 M-002 对应的字幕能力证据，避免用自动卡点证据支撑语言能力。",
+          "reviewed_version": "1"
+        },
+        {
+          "finding_id": "F4",
+          "severity": "needs_evidence",
+          "location": "campaign.materials[0]（M-005 校园素材）",
+          "requirement": "事实主张须可追到真实支持片段；情境画面不证明产品能力",
+          "evidence": "材料清单中 M-005 状态 existing、用途“情境”、全片使用；但分镜两段均把 M-005 列为 material_ids，未说明该素材是否为产品界面/能力录制。",
+          "issue": "仅有两段文字字幕，未说明如何用情境素材呈现自动卡点效果；若 M-005 为情境素材，不足以证明产品能力，需补充可展示效果的产品录屏或界面素材及来源说明。",
+          "suggestion": "明确 M-005 的素材性质，并为自动卡点效果补充产品界面/录屏素材及来源与适用范围（4.2+、15/30/60 秒成片）。",
+          "reviewed_version": "1"
+        },
+        {
+          "finding_id": "F5",
+          "severity": "optional",
+          "location": "campaign.activity.audience 与 campaign.script、task_input.audience",
+          "requirement": "前后一致：主题、受众、卖点、分镜、行动引导相互配合",
+          "evidence": "task_input.audience 为“校准”，campaign.activity.audience 为“大学生”，两者不一致；方案无结尾行动引导。",
+          "issue": "受众字段与输入不一致，且 30 秒短视频缺少结尾行动引导，影响投放目标完整性。",
+          "suggestion": "确认受众口径统一为“大学生”，并在第 2 段结尾加入简短行动引导（不涉及涨粉/收益承诺）。",
+          "reviewed_version": "1"
+        },
+        {
+          "finding_id": "F6",
+          "severity": "optional",
+          "location": "campaign.production_steps",
+          "requirement": "制作可用：展示内容、材料与组织办法清楚；缺失项有状态",
+          "evidence": "仅一条“剪辑/制作/T-1”，note 为空；open_questions 为空",
+          "issue": "无素材准备、字幕校对、证据核对、审核节点等步骤，制作可用性不足。",
+          "suggestion": "补充素材准备与字幕/证据核对、审核环节及负责人与时间点；对未确认素材标注状态。",
+          "reviewed_version": "1"
+        }
+      ],
+      "must_fix": 3,
+      "optional": 2,
+      "detected": true,
+      "requests": 1,
+      "readbacks": 0,
+      "errors": [],
+      "usage": {
+        "requests": 1,
+        "unknown_usage_requests": 0,
+        "prompt_tokens": 2552,
+        "completion_tokens": 1442,
+        "total_tokens": 3994,
+        "prompt_cache_hit_tokens": 2304,
+        "prompt_cache_miss_tokens": 248,
+        "elapsed_ms": 30383
+      }
+    },
+    {
+      "pair_id": "P1-unsupported-capability",
+      "issue": "无依据能力承诺",
+      "variant": "good",
+      "report_status": "complete",
+      "verdict": "pass",
+      "completeness": "full",
+      "findings": [
+        {
+          "finding_id": "F1",
+          "severity": "optional",
+          "location": "campaign.materials 第 2 段「产品操作录屏」(A-001)",
+          "requirement": "事实支持：产品主张需在证据支持范围内，录制素材应与适用范围一致",
+          "evidence": "E1 scope「4.2+；15/30/60 秒」；M-001 scope「iOS/Android 4.2 及以上；15/30/60 秒成片」；A-001 note「待录制，使用 4.2 正式版」；成片 30 秒",
+          "issue": "A-001 未标注成片时长，录屏若采用 15/60 秒工程即超出与正片一致的演示情境；条件不全容易在录制环节偏离字幕主张的支持范围。",
+          "suggestion": "在 A-001 的 use/note 中固定「iOS/Android 4.2 正式版 + 30 秒成片」，并列入 production_steps 中「核对字幕与证据一致」的检查项。",
+          "reviewed_version": "1"
+        },
+        {
+          "finding_id": "F2",
+          "severity": "optional",
+          "location": "campaign.script.segments 第 1 段（0-10s）",
+          "requirement": "前后一致：主题「把招新现场剪成你的节奏」应与分镜、听觉线索配合",
+          "evidence": "第 1 段 audio「环境声」、subtitle「先把现场拍下来」；第 2 段 audio「节奏清晰的流行乐」；主题「把招新现场剪成你的节奏」",
+          "issue": "第 1 段仅铺垫现场，无与「节奏」对应的视听线索，主题落点只靠第 2 段字幕承担，两段衔接偏弱。",
+          "suggestion": "在第 1 段结尾让环境声自然过渡到第 2 段音乐节拍，或在第 1 段字幕加入指向「节奏」的过渡句。",
+          "reviewed_version": "1"
+        }
+      ],
+      "must_fix": 0,
+      "optional": 2,
+      "detected": false,
+      "requests": 2,
+      "readbacks": 0,
+      "errors": [],
+      "usage": {
+        "requests": 2,
+        "unknown_usage_requests": 0,
+        "prompt_tokens": 6240,
+        "completion_tokens": 1359,
+        "total_tokens": 7599,
+        "prompt_cache_hit_tokens": 5376,
+        "prompt_cache_miss_tokens": 864,
+        "elapsed_ms": 7351
+      }
+    },
+    {
+      "pair_id": "P2-required-content-omitted",
+      "issue": "明确要求遗漏",
+      "variant": "problem",
+      "report_status": "complete",
+      "verdict": "fail",
+      "completeness": "full",
+      "findings": [
+        {
+          "finding_id": "F1",
+          "severity": "must_fix",
+          "location": "campaign.script.segments 第 2 段（15-30s）",
+          "requirement": "原始要求：主脚本第 2 段必须展示自动卡点操作",
+          "evidence": "原始要求原文「主脚本第 2 段必须展示自动卡点操作」；方案第 2 段 visual=教室、audio=音乐、subtitle=欢迎加入、material_ids=[M-005]、evidence_ids=[]，全段无任何自动卡点相关描述或证据引用",
+          "issue": "明确要求被降为缺失项：第 2 段完全没有呈现「自动卡点」这一操作（画面、字幕、说明均未涉及），属于违反明确要求，而非可选改进。",
+          "suggestion": "在第 2 段加入自动卡点操作的展示内容（如分屏/录屏展示片段对齐节拍的过程与结果），并在该段 evidence_ids 中引用 M-001（scope 4.2+）作为能力支持；如时长紧张，可重新分配 30 秒内第 1/2 段时长以确保第 2 段完整呈现该操作。",
+          "reviewed_version": "1"
+        },
+        {
+          "finding_id": "F2",
+          "severity": "needs_evidence",
+          "location": "campaign.script.segments 第 2 段 / campaign.evidence",
+          "requirement": "事实支持：产品能力主张须由真实支持片段支撑且在适用范围内",
+          "evidence": "可用的能力证据 M-001 引文「把用户选中的视频片段对齐到节拍点」，scope=4.2+；方案 campaign.evidence 为空，两段 evidence_ids 均为空；M-005 的 scope 仅为「情境画面」，其引文描述的是素材场景内容，不能证明产品具备自动卡点能力",
+          "issue": "方案未把任何能力证据挂到脚本段落；若后续用 M-005 或情境画面来证明自动卡点功能，属于超出适用范围。当前第 2 段修改方向所需的能力支持尚无可确认的引用关系。",
+          "suggestion": "在补入自动卡点展示时明确引用 M-001 作为能力依据，并核对该方案交付环境版本不低于 4.2；情境素材（M-005）仅用于场景画面，不用于能力说明。",
+          "reviewed_version": "1"
+        },
+        {
+          "finding_id": "F3",
+          "severity": "optional",
+          "location": "campaign.materials（M-005）与两段 material_ids",
+          "requirement": "前后一致 / 制作可用：展示内容与材料使用相符",
+          "evidence": "M-005 引文「素材包含教室、操场、社团招新、宿舍剪辑四个场景」；第 1 段 visual=操场、第 2 段 visual=教室，均引用 M-005，属情境使用，与素材描述一致",
+          "issue": "材料复用无问题，但方案未说明具体选用哪些子场景及舍去「宿舍剪辑」的原因，制作时选用范围不够明确。",
+          "suggestion": "在 materials.use 或段落中注明具体使用的场景片段（操场、教室、招新），便于剪辑定位。",
+          "reviewed_version": "1"
+        },
+        {
+          "finding_id": "F4",
+          "severity": "optional",
+          "location": "campaign.production_steps",
+          "requirement": "制作可用：缺失项有明确处理办法与状态",
+          "evidence": "production_steps 仅一条「剪辑 / 制作 / T-1」，note 为空；open_questions 为空",
+          "issue": "自动卡点段落需素材准备与录屏/演示素材，现有制作步骤未覆盖，编辑环节无前置准备节点。",
+          "suggestion": "补充自动卡点演示素材的准备与录制步骤及负责人，确保 T-1 剪辑前可取得所需素材。",
+          "reviewed_version": "1"
+        }
+      ],
+      "must_fix": 1,
+      "optional": 2,
+      "detected": true,
+      "requests": 1,
+      "readbacks": 0,
+      "errors": [],
+      "usage": {
+        "requests": 1,
+        "unknown_usage_requests": 0,
+        "prompt_tokens": 2422,
+        "completion_tokens": 1081,
+        "total_tokens": 3503,
+        "prompt_cache_hit_tokens": 2176,
+        "prompt_cache_miss_tokens": 246,
+        "elapsed_ms": 6128
+      }
+    },
+    {
+      "pair_id": "P2-required-content-omitted",
+      "issue": "明确要求遗漏",
+      "variant": "good",
+      "report_status": "complete",
+      "verdict": "pass",
+      "completeness": "full",
+      "findings": [
+        {
+          "finding_id": "F1",
+          "severity": "optional",
+          "location": "script.segments[1]（第 2 段，10-25s）",
+          "requirement": "制作可用：展示内容与材料支持清楚",
+          "evidence": "E1 来自 M-001，“把用户选中的视频片段对齐到节拍点”，scope 4.2+；第 2 段 material_ids 仅列 M-005（情境素材）",
+          "issue": "第 2 段的操作录屏素材尚未指定来源：给出的材料只有 M-005 情境素材，证据 E1 属于 M-001 的能力说明而非可录屏素材；production_steps 仅有“录制操作”一步，未说明录屏由哪个版本环境/素材产生及其与 4.2+ 适用范围的对应关系",
+          "suggestion": "在 production_steps 或该段 material 中明确操作录屏素材的来源与制作条件（如在 4.2+ 版本环境下用选中片段演示对齐节拍），避免录屏内容与 E1 适用范围脱节",
+          "reviewed_version": "1"
+        },
+        {
+          "finding_id": "F2",
+          "severity": "optional",
+          "location": "campaign.evidence / script.segments[1].evidence_ids",
+          "requirement": "不确定性清楚：建议与事实分开，适用范围可见",
+          "evidence": "E1 scope 为 “4.2+”，方案正文未出现该版本限定",
+          "issue": "自动卡点主张有版本适用范围 4.2+，但方案未在呈现或制作说明中标注，观众与制作方可能把它理解为全版本通用能力",
+          "suggestion": "在第 2 段字幕/说明或制作步骤中标注适用版本（4.2+），或说明演示即基于该版本",
+          "reviewed_version": "1"
+        }
+      ],
+      "must_fix": 0,
+      "optional": 2,
+      "detected": false,
+      "requests": 2,
+      "readbacks": 0,
+      "errors": [],
+      "usage": {
+        "requests": 2,
+        "unknown_usage_requests": 0,
+        "prompt_tokens": 5786,
+        "completion_tokens": 1212,
+        "total_tokens": 6998,
+        "prompt_cache_hit_tokens": 5376,
+        "prompt_cache_miss_tokens": 410,
+        "elapsed_ms": 6967
+      }
+    },
+    {
+      "pair_id": "P3-internal-contradiction",
+      "issue": "前后矛盾",
+      "variant": "problem",
+      "report_status": "complete",
+      "verdict": "fail",
+      "completeness": "partial",
+      "findings": [
+        {
+          "finding_id": "F1",
+          "severity": "must_fix",
+          "location": "campaign.script.segments[2]（10-30s）subtitle 字段",
+          "requirement": "原始要求：主题与主脚本表达一致",
+          "evidence": "campaign.activity.theme=「30 秒快速出片」、format=「30 秒」、goal=「快速出片」；segments[1].subtitle=「30 秒快速出片」，而 segments[2].subtitle=「需要花 30 分钟慢慢调整」",
+          "issue": "第 2 段字幕主张需 30 分钟慢慢调整，与主题「30 秒快速出片」及第 1 段字幕形成正面对立，主脚本内部自相矛盾，观众无法得出「快速」结论，明确需求未满足。",
+          "suggestion": "将第 2 段字幕改为与「30 秒快速出片」同向的表达（如强调 30 秒内完成成片），或若确需保留调整环节，明确其为可选加步骤并说明不影响 30 秒自动出片主张；改后核对全片主题口径统一。",
+          "reviewed_version": "1"
+        },
+        {
+          "finding_id": "F2",
+          "severity": "must_fix",
+          "location": "campaign.script.segments[2] evidence_ids=[\"E1\"] 与 campaign.evidence[0]",
+          "requirement": "事实支持：产品主张须由支持片段支撑且不超出适用范围",
+          "evidence": "E1.claim=「自动卡点」，quote=「把用户选中的视频片段对齐到节拍点」，scope=「4.2+」；第 2 段字幕为「需要花 30 分钟慢慢调整」",
+          "issue": "E1 的原文仅说明把片段对齐到节拍点，不能支撑「需要花 30 分钟慢慢调整」这一耗时主张，属证据超范围引用；同时 E1 所指向的素材 ID 为 M-001，而该段 material_ids 引用的是 M-005，引用链不一致。",
+          "suggestion": "删除第 2 段对 E1 的引用，或改写字幕为 E1 能直接支撑的表述（如「自动把片段对齐节拍」）；若确需保留耗时说明，须补充能证明该耗时的真实支持片段并标注适用范围，否则不得作为产品主张出现。",
+          "reviewed_version": "1"
+        },
+        {
+          "finding_id": "F3",
+          "severity": "must_fix",
+          "location": "campaign.materials[0]（M-005 校园素材）与两段 material_ids",
+          "requirement": "事实支持：情境画面不得冒充能力证据；制作可用",
+          "evidence": "M-005 status=existing、use=「情境」、position=「全片」、rights_note=「已授权」；两段分镜均只引用 M-005，且每段 evidence_ids 为空或错配",
+          "issue": "全片唯一素材被标注为「情境」用途，却被用来承载「快速出片」的操作类主张，情境画面无法证明产品能力；且 absence of 任何能力演示素材，使「快速出片」这一核心卖点在制作层面无支撑镜头。",
+          "suggestion": "补充或标注用于演示产品能力（自动卡点/快速成片）的真实素材与对应证据 ID；若暂时缺失，须在方案中写明缺口状态与补齐责任，并将情境素材仅用于氛围镜头。",
+          "reviewed_version": "1"
+        },
+        {
+          "finding_id": "F4",
+          "severity": "needs_evidence",
+          "location": "campaign.production_steps（仅一项：剪辑 / 制作 / T-1）",
+          "requirement": "制作可用：材料与组织办法清楚，缺失项有明确处理办法与状态",
+          "evidence": "production_steps 只有一个步骤且 note 为空；open_questions 为空；素材仅一处且 status=existing",
+          "issue": "缺少素材准备、配音/音乐来源、字幕校对、审片与发布等环节，note 与 open_questions 均为空，无法判断该 30 秒成片能否按 T-1 节点交付，制作安排不足以支撑执行。",
+          "suggestion": "补齐关键环节（素材准备、音乐授权来源、字幕校对、审片发布）及各自负责人与时间点，并在 open_questions 中登记待确认项及其对交付的影响。",
+          "reviewed_version": "1"
+        },
+        {
+          "finding_id": "F5",
+          "severity": "optional",
+          "location": "campaign.activity.audience 与 topic/task_input.audience",
+          "requirement": "前后一致：受众口径统一",
+          "evidence": "campaign.activity.audience=「大学生」，而 task_input.audience=「校准」",
+          "issue": "任务输入与方案正文的受众表述不一致，可能影响字幕语气与表达方式的选择。",
+          "suggestion": "确认目标受众口径，若「校准」仅为样例标签，则在方案中写明实际受众为大学生，避免后续改稿误判。",
+          "reviewed_version": "1"
+        }
+      ],
+      "must_fix": 3,
+      "optional": 1,
+      "detected": true,
+      "requests": 1,
+      "readbacks": 0,
+      "errors": [],
+      "usage": {
+        "requests": 1,
+        "unknown_usage_requests": 0,
+        "prompt_tokens": 2433,
+        "completion_tokens": 1432,
+        "total_tokens": 3865,
+        "prompt_cache_hit_tokens": 2299,
+        "prompt_cache_miss_tokens": 134,
+        "elapsed_ms": 8119
+      }
+    },
+    {
+      "pair_id": "P3-internal-contradiction",
+      "issue": "前后矛盾",
+      "variant": "good",
+      "report_status": "incomplete",
+      "verdict": null,
+      "completeness": null,
+      "findings": [],
+      "must_fix": 0,
+      "optional": 0,
+      "detected": false,
+      "requests": 3,
+      "readbacks": 1,
+      "errors": [
+        "核验响应必须是一个完整工具调用"
+      ],
+      "usage": {
+        "requests": 3,
+        "unknown_usage_requests": 0,
+        "prompt_tokens": 7847,
+        "completion_tokens": 1453,
+        "total_tokens": 9300,
+        "prompt_cache_hit_tokens": 7296,
+        "prompt_cache_miss_tokens": 551,
+        "elapsed_ms": 9452
+      }
+    },
+    {
+      "pair_id": "P4-unusable-material",
+      "issue": "制作素材不可用",
+      "variant": "problem",
+      "report_status": "complete",
+      "verdict": "fail",
+      "completeness": "full",
+      "findings": [
+        {
+          "finding_id": "F1",
+          "severity": "must_fix",
+          "location": "campaign.materials[0]（背景音乐《Late Bus》，rights_note/use 字段）",
+          "requirement": "不得把待获取素材写成已可用",
+          "evidence": "证据 M-006 原文：「当前状态为待获取授权，预计 2 个工作日；未取得授权前不得作为已可用素材写入制作安排」，适用范围为音乐《Late Bus》",
+          "issue": "材料条目将 M-006 状态记为 existing、rights_note 写「已可用」、use 写「全片音乐」，与证据所述「待获取授权」直接冲突，把未取得授权的素材当作已可用资产计入制作。",
+          "suggestion": "将 M-006 状态改为待获取/待授权（如 pending_rights），rights_note 注明「预计 2 个工作日，未取得前不得作为已可用素材」，use 改为「待授权确认后可用」；并在 open_questions 中登记该依赖及对排期的影响。",
+          "reviewed_version": "1"
+        },
+        {
+          "finding_id": "F2",
+          "severity": "must_fix",
+          "location": "campaign.script.segments[0].audio 及 production_steps[0]（剪辑）",
+          "requirement": "音乐未授权需有替代方案",
+          "evidence": "证据 M-006：未取得授权前不得作为已可用素材写入制作安排；方案 segments[0].audio 为「《Late Bus》背景音乐」，production_steps 仅有 T-1 剪辑一步且 note 为空",
+          "issue": "分镜音频轨与剪辑步骤均直接绑定未授权的《Late Bus》，既未标注为待确认，也未提供未获授权时的替代音乐或替代剪法，制作安排不可执行。",
+          "suggestion": "在音频字段与剪辑步骤中补写替代方案（如备选可商用曲目或无声/环境声版本），说明触发条件（T-2 仍未获授权即切换）与责任人，并保留主选方案作为并行预案。",
+          "reviewed_version": "1"
+        },
+        {
+          "finding_id": "F3",
+          "severity": "optional",
+          "location": "campaign.script.segments[0].evidence_ids 与 campaign.evidence",
+          "requirement": "事实主张必须能追到真实支持片段与适用范围",
+          "evidence": "segments[0].evidence_ids 为空数组，campaign.evidence 为空；仅有输入侧 evidence 提供 M-005、M-006 片段",
+          "issue": "方案内未把素材与证据关联，画面「现场」及 M-005 四场景的使用缺乏片段级依据记录，后续核验与制作核对都缺少可追溯链路。",
+          "suggestion": "在 segments 的 evidence_ids 中回填 M-005、M-006 对应的证据条目，并在 campaign.evidence 中落库引用片段与适用范围。",
+          "reviewed_version": "1"
+        }
+      ],
+      "must_fix": 2,
+      "optional": 1,
+      "detected": true,
+      "requests": 1,
+      "readbacks": 0,
+      "errors": [],
+      "usage": {
+        "requests": 1,
+        "unknown_usage_requests": 0,
+        "prompt_tokens": 2389,
+        "completion_tokens": 871,
+        "total_tokens": 3260,
+        "prompt_cache_hit_tokens": 2176,
+        "prompt_cache_miss_tokens": 213,
+        "elapsed_ms": 4848
+      }
+    },
+    {
+      "pair_id": "P4-unusable-material",
+      "issue": "制作素材不可用",
+      "variant": "good",
+      "report_status": "complete",
+      "verdict": "pass",
+      "completeness": "full",
+      "findings": [
+        {
+          "finding_id": "F1",
+          "severity": "optional",
+          "location": "campaign.script.segments[0].audio 与 campaign.materials[M-006].use",
+          "requirement": "不确定性清楚：建议与事实分开，待确认项说明影响",
+          "evidence": "M-006 status=to_acquire、rights_note=商用授权待购买；证据片段要求未取得授权前不得作为已可用素材写入制作安排",
+          "issue": "兜底音频版本（环境声版）分别出现在 segments.audio、production_steps.note、open_questions.impact 三处，但全片没有单一的最终音频交付状态字段，读者需跨字段拼合才能确认默认交付版本已定下。",
+          "suggestion": "在 activity 或 script 层级增加一个显式的音频交付状态字段（如 delivery_audio=\"环境声版（兜底）\"），并注明取得授权后升级为音乐版，避免跨字段拼合。",
+          "reviewed_version": "1"
+        }
+      ],
+      "must_fix": 0,
+      "optional": 1,
+      "detected": false,
+      "requests": 2,
+      "readbacks": 0,
+      "errors": [],
+      "usage": {
+        "requests": 2,
+        "unknown_usage_requests": 0,
+        "prompt_tokens": 5465,
+        "completion_tokens": 866,
+        "total_tokens": 6331,
+        "prompt_cache_hit_tokens": 5120,
+        "prompt_cache_miss_tokens": 345,
+        "elapsed_ms": 5544
+      }
+    },
+    {
+      "pair_id": "P5-assumption-as-fact",
+      "issue": "假设冒充确认事实",
+      "variant": "problem",
+      "report_status": "complete",
+      "verdict": "fail",
+      "completeness": "partial",
+      "findings": [
+        {
+          "finding_id": "F1",
+          "severity": "must_fix",
+          "location": "campaign.script.segments[0].subtitle（0-30s 字幕）",
+          "requirement": "受众判断必须标注样本范围",
+          "evidence": "evidence E1 scope=「120 人合成样本」，quote 仅为「超过一半受访者表示会在 30 分钟内完成一条成片」；待审材料 M-003 原文明确「仅代表该合成样本，不可外推为全体大学生或高中生」",
+          "issue": "字幕写「全体大学生都认为一键出片最好」，既未标注样本范围（120 人合成样本），又把「超过一半」夸大为「全体一致」，并超出「30 分钟内完成成片」的原意，外推到「一键出片最好」的能力判断，直接违反样本范围标注要求与证据适用范围。",
+          "suggestion": "改为带样本范围的限定表述，例如「120 名 18-24 岁大学生受访者中，超过一半表示会在 30 分钟内完成一条成片」；若时长不允许，可保留「超半数受访大学生」并确保口播或字幕标注样本来源，删除「全体」「都认为」「最好」。",
+          "reviewed_version": "1"
+        },
+        {
+          "finding_id": "F2",
+          "severity": "must_fix",
+          "location": "campaign.activity.theme（主题「人人都在用」）与 activity.audience（「全体大学生」）",
+          "requirement": "未确认信息不能写成已确认事实；受众判断必须标注样本范围",
+          "evidence": "E1 为 120 人合成样本的偏好数据，scope 限定不可外推为全体大学生；材料仅为 M-005 情境素材（use=「情境」），无使用渗透率或用户规模证据",
+          "issue": "主题「人人都在用」和受众设定「全体大学生」都是把未确认的全量使用事实写成既定事实，且方案内无任何支持该主张的证据与样本范围标注。",
+          "suggestion": "将主题改为不含全量断言的方向（如「更省时间地出片」），或在主题旁明确标注依据样本与适用范围；受众由「全体大学生」收窄为「与样本相符的 18-24 岁大学生群体」并在方案中注明样本范围。",
+          "reviewed_version": "1"
+        },
+        {
+          "finding_id": "F3",
+          "severity": "must_fix",
+          "location": "campaign.script.segments[0].visual 与 material_ids（M-005，use=「情境」）",
+          "requirement": "情境画面不证明产品能力；事实主张须有真实支持片段",
+          "evidence": "M-005 在 materials 中标明 use=「情境」、position=「全片」，仅为校园环境画面；分段唯一 evidence_ids=E1 指向受众偏好数据，不含任何产品功能或效果证据",
+          "issue": "30 秒全片仅由情境画面配「一键出片最好」的能力主张，把情境画面当作产品效果证据使用，形成无支持的能力宣称。",
+          "suggestion": "补充真实的产品功能/效果证据片段并在 segment 中对应 evidence_ids；若无此类材料，删除「一键出片最好」的能力表述，只保留与受众行为数据一致的时间效率描述。",
+          "reviewed_version": "1"
+        },
+        {
+          "finding_id": "F4",
+          "severity": "optional",
+          "location": "campaign.production_steps[0]（剪辑，T-1）",
+          "requirement": "制作可用：展示内容、材料与组织办法清楚",
+          "evidence": "production_steps 仅有一步「剪辑/制作/T-1」，note 为空；materials 只列 M-005 且全片复用，无拍摄、素材替代、审核与事实校验环节",
+          "issue": "关键环节（素材准备是否足够 30 秒、字幕与口播的事实校验、终审）未在制作步骤中体现，执行时难以保证更正后的表述被落实。",
+          "suggestion": "在 production_steps 中增加「事实与样本范围校验（审核节点）」和「字幕/口播定稿」两步，并注明责任人与时间点。",
+          "reviewed_version": "1"
+        }
+      ],
+      "must_fix": 3,
+      "optional": 1,
+      "detected": true,
+      "requests": 1,
+      "readbacks": 0,
+      "errors": [],
+      "usage": {
+        "requests": 1,
+        "unknown_usage_requests": 0,
+        "prompt_tokens": 2394,
+        "completion_tokens": 1141,
+        "total_tokens": 3535,
+        "prompt_cache_hit_tokens": 2176,
+        "prompt_cache_miss_tokens": 218,
+        "elapsed_ms": 6979
+      }
+    },
+    {
+      "pair_id": "P5-assumption-as-fact",
+      "issue": "假设冒充确认事实",
+      "variant": "good",
+      "report_status": "complete",
+      "verdict": "incomplete",
+      "completeness": "partial",
+      "findings": [
+        {
+          "finding_id": "F1",
+          "severity": "optional",
+          "location": "campaign.evidence[0] / script.segments[0].subtitle",
+          "requirement": "受众判断必须标注样本范围",
+          "evidence": "E1 quote 与回读的 M-003 原文一致（“超过一半受访者表示会在 30 分钟内完成一条成片”）；M-003 scope 为“仅代表该合成样本，不可外推为全体大学生或高中生”，样本 120 名 18-24 岁大学生",
+          "issue": "字幕已写明“M-003 合成样本（120 名 18-24 岁大学生）”，满足标注要求；但“不可外推”的限制未在成片体现，观众仍可能理解为全体大学生普遍情况",
+          "suggestion": "可在字幕或片尾加限定语（如“仅代表本合成样本，不代表全体大学生”），使适用范围在成片中同样清楚；非强制。",
+          "reviewed_version": "1"
+        },
+        {
+          "finding_id": "F2",
+          "severity": "optional",
+          "location": "script.segments[0]",
+          "requirement": "事实支持：情境画面不能冒充能力证据；制作可用",
+          "evidence": "M-005 用途标注为“情境”，evidence_ids 指向 E1（受众样本数据）；M-003 原文未证实“30 分钟出片”可被产品能力支撑，仅提到模板/自动卡点减少重复操作、对“一键出片”信任度一般",
+          "issue": "单段 30 秒同时承载样本数据与校园情境画面，视觉/音频字段极简（“校园”“音乐”），未说明画面与数据主张的区分，存在情境画面被误读为能力佐证的风险",
+          "suggestion": "在分镜标注画面为情境演绎、不代表产品能力，或拆分数据字幕与情境画面两个段落；非强制。",
+          "reviewed_version": "1"
+        },
+        {
+          "finding_id": "F3",
+          "severity": "needs_evidence",
+          "location": "campaign.materials[0] / production_steps[0] / task_input.program_checks",
+          "requirement": "制作可用：材料与授权状态清楚，缺失项有明确处理办法",
+          "evidence": "材料仅列 M-005（status=existing，rights_note=已授权），生产步骤注“M-005 已授权”，但未附授权凭据或范围；program_checks 仅有 source/pair 字段，无资源与保存前置条件结果",
+          "issue": "授权结论为方案自述，缺少可核对的支持材料；程序检查未覆盖资源/保存前置条件，无法独立验证制作可用性",
+          "suggestion": "补充授权文件或授权范围（平台、期限、二次剪辑）引用，并要求程序检查含资源与保存前置条件结果后复审。",
+          "reviewed_version": "1"
+        }
+      ],
+      "must_fix": 0,
+      "optional": 2,
+      "detected": true,
+      "requests": 3,
+      "readbacks": 1,
+      "errors": [],
+      "usage": {
+        "requests": 3,
+        "unknown_usage_requests": 0,
+        "prompt_tokens": 8779,
+        "completion_tokens": 1738,
+        "total_tokens": 10517,
+        "prompt_cache_hit_tokens": 7808,
+        "prompt_cache_miss_tokens": 971,
+        "elapsed_ms": 9517
+      }
+    },
+    {
+      "pair_id": "P6-optional-style-treated-as-hard",
+      "issue": "风格建议被误当硬要求",
+      "variant": "problem",
+      "report_status": "complete",
+      "verdict": "fail",
+      "completeness": "full",
+      "findings": [
+        {
+          "finding_id": "F1",
+          "severity": "must_fix",
+          "location": "campaign.script.segments[0].subtitle（0-30s 字幕）",
+          "requirement": "需求 1：品牌语气轻快、真实、可操作；不得承诺收益。",
+          "evidence": "M-004（scope：所有对外传播）：“表达应轻快、真实、可操作。不得承诺涨粉、收益或爆款”。",
+          "issue": "字幕“全网最强剪辑，轻松涨粉”同时做了最高级夸大与涨粉承诺，直接违反 M-004 的禁止表述，也与“真实”的语气要求冲突；“轻松涨粉”属于收益类承诺。",
+          "suggestion": "删除“全网最强”“轻松涨粉”，改写为可操作、可验证的描述，例如围绕“选中片段自动对齐节拍，30 秒也能踩准节奏”，并确保字幕内容能被所用素材与证据支持。",
+          "reviewed_version": "1"
+        },
+        {
+          "finding_id": "F2",
+          "severity": "must_fix",
+          "location": "campaign.script.segments[0].evidence_ids 与 campaign.evidence[0]",
+          "requirement": "事实支持：产品主张必须能追到真实支持片段与适用范围，不得超出范围；引用须与素材一致。",
+          "evidence": "segment 引用 evidence_ids=[\"E1\"]，但 campaign.evidence 中 E1 标注 material_id=M-001、quote“把用户选中的视频片段对齐到节拍点”、scope“4.2+”；而 segment 的 material_ids 只有 M-005（校园素材，仅作情境）。",
+          "issue": "证据 E1 的归属素材为 M-001，与分镜所引素材 M-005 不一致；且分镜未说明 4.2+ 版本适用范围，制作与审校无法确认引用对象，存在把情境画面当作能力证据的风险。",
+          "suggestion": "修正 evidence_ids 与 material_ids 的对应关系：将 E1 指向实际承载该能力的素材并标注在字幕/画面上体现 4.2+ 适用范围，或注明该素材不可用于能力主张；同时确认 M-005 仅承担情境作用、不承载产品能力表述。",
+          "reviewed_version": "1"
+        },
+        {
+          "finding_id": "F3",
+          "severity": "needs_evidence",
+          "location": "campaign.evidence（M-001，scope 4.2+）",
+          "requirement": "事实支持与不确定性清楚：主张的支持片段须真实、范围明确。",
+          "evidence": "现有证据仅给出 M-001 的 quote“把用户选中的视频片段对齐到节拍点”，scope“4.2+”；未见该片段出处、版本核验记录或可用范围确认。",
+          "issue": "无法确认该引文是否为原文、是否覆盖方案所述“自动卡点”能力，以及 30 秒成片中呈现的具体功能点是否在 4.2+ 范围内。",
+          "suggestion": "补充 M-001 的原文片段与版本/适用渠道说明，并把字幕主张收敛到该片段可直接支持的功能描述；若无法取得，则改为不含具体能力承诺的通用表述。",
+          "reviewed_version": "1"
+        },
+        {
+          "finding_id": "F4",
+          "severity": "must_fix",
+          "location": "campaign.production_steps 与 campaign.script",
+          "requirement": "制作可用：展示内容、材料与组织办法清楚；缺失项有明确处理办法与状态。",
+          "evidence": "production_steps 仅一条“剪辑 / 制作 / T-1”，note 为空；无脚本定稿、字幕校对、授权确认、版本适配等环节；open_questions 为空但实际存在证据与范围待确认项。",
+          "issue": "制作安排不足以支撑 30 秒成片交付：缺少责任人分工、时间节点细化、字幕合规校对环节，也未记录当前待确认事项的影响。",
+          "suggestion": "补充关键制作节点（脚本定稿、素材授权核验、字幕合规校对、成片验收）及责任人与时间；把 E1 素材归属与 4.2+ 适用范围问题记入 open_questions 并写明对上线的影响。",
+          "reviewed_version": "1"
+        },
+        {
+          "finding_id": "F5",
+          "severity": "optional",
+          "location": "campaign.activity（theme、goal、audience）",
+          "requirement": "需求覆盖与前后一致：主题、受众、卖点、分镜、行动引导相互配合。",
+          "evidence": "brief 为 null；activity 中 goal=“推广”、audience=“大学生”、theme=“全网最强”，与原始要求中受众/主题信息（“校准样例”）不同，且分镜无明确行动引导。",
+          "issue": "主题“全网最强”与 M-004 的“真实”基调及禁止夸大表述不协调；分镜缺少与大学生受众匹配的行动引导，整体一致性偏弱。",
+          "suggestion": "将主题调整为体现轻快、真实的定位表述，并在分镜结尾补充一处与该定位一致的行动引导（如试用/体验指引），保证与字幕口径统一。",
+          "reviewed_version": "1"
+        }
+      ],
+      "must_fix": 3,
+      "optional": 1,
+      "detected": true,
+      "requests": 1,
+      "readbacks": 0,
+      "errors": [],
+      "usage": {
+        "requests": 1,
+        "unknown_usage_requests": 0,
+        "prompt_tokens": 2453,
+        "completion_tokens": 1376,
+        "total_tokens": 3829,
+        "prompt_cache_hit_tokens": 2304,
+        "prompt_cache_miss_tokens": 149,
+        "elapsed_ms": 8217
+      }
+    },
+    {
+      "pair_id": "P6-optional-style-treated-as-hard",
+      "issue": "风格建议被误当硬要求",
+      "variant": "good",
+      "report_status": "complete",
+      "verdict": "fail",
+      "completeness": "partial",
+      "findings": [
+        {
+          "finding_id": "F1",
+          "severity": "must_fix",
+          "location": "campaign.script.segments[1].subtitle（第 2 段 20-30s 字幕）",
+          "requirement": "事实支持：产品主张须在支持片段的适用范围内；不确定性清楚",
+          "evidence": "证据 E1 与外部证据 M-001 引用“自动卡点会分析所选音乐的节拍……用户可以逐段微调，也可以一键重新卡点”，scope 标注为“4.2+”；方案字幕改写为“自动卡点会分析所选音乐的节拍，把片段对齐到节拍点，并可逐段微调。”",
+          "issue": "字幕把 4.2+ 才具备的“逐段微调”作为无版本前提的通用能力呈现，未在画面、字幕或旁白中标明版本要求；若发布面向低于 4.2 的用户，构成超出适用范围的可用性暗示。同时字幕删去了“一键重新卡点”属正常取舍，不构成问题。",
+          "suggestion": "在第 2 段画面底部或字幕末尾加上版本标注（如“4.2 及以上版本支持”），或在产品操作录屏的画面上停留显示版本信息；若无法添加版本信息，则删除“并可逐段微调”，仅保留“对齐到节拍点”。",
+          "reviewed_version": "1"
+        },
+        {
+          "finding_id": "F2",
+          "severity": "must_fix",
+          "location": "campaign.activity.audience / campaign.activity.format（30 秒）与 task_input.audience、brief",
+          "requirement": "需求覆盖：回应明确目标与限制，不擅自替换关键取舍；前后一致",
+          "evidence": "原始要求（task_input）中受众为“校准”（占位性质），brief 为 null；方案 activities.audience 自行定为“大学生”，格式定为“30 秒”。外部证据 M-004 仅约束语气与不得承诺收益，未涉及受众。",
+          "issue": "方案中“大学生”受众与“30 秒”时长在给定要求和证据中都没有支持来源，属于在无依据情况下代替原始要求做出关键设定；后续脚本内容（校园招新）也据此展开，形成未被确认的前提。",
+          "suggestion": "将受众与时长列入 open_questions，注明“由方案起草时假设，需确认”，或改用需求中已给定的受众；在确认前于方案中明确标注为待确认项并说明影响（受众变更将影响脚本情境与素材选择）。",
+          "reviewed_version": "1"
+        },
+        {
+          "finding_id": "F3",
+          "severity": "needs_evidence",
+          "location": "campaign.materials[1]（A-001 产品操作录屏）与 production_steps[0]",
+          "requirement": "制作可用：缺失项有明确处理办法与状态；证据须可核查",
+          "evidence": "materials 中 A-001 status 为 to_create、rights_note 为“待录制”；production_steps 记录“录制产品操作 / 制作 / T-2 / 4.2 真机”；segments[1].material_ids 为 A-001 但 evidence_ids 为 E1。",
+          "issue": "第 2 段是全片唯一的能力证明镜头，却依赖于尚未创建、尚未授权核对的素材；方案未说明若 T-2 无法完成真机录制的备选处置，也未说明录制需在 4.2+ 真机上进行以与 E1 适用范围一致。当前状态说明不足，制作可用性存在未闭合风险。",
+          "suggestion": "在 production_steps 中补充 A-001 的完成判定（需录制 4.2+ 真机界面并包含“逐段微调”操作）与失败备选（如延期则退化为纯字幕说明并删除微调表述），并在 open_questions 中登记 A-001 授权核对状态。",
+          "reviewed_version": "1"
+        },
+        {
+          "finding_id": "F4",
+          "severity": "optional",
+          "location": "campaign.script.segments[0]（第 1 段 0-20s）",
+          "requirement": "需求覆盖：品牌语气轻快、真实、可操作（M-004 所有对外传播）",
+          "evidence": "第 1 段 subtitle 为“把招新现场拍下来”，visual 为“社团招新现场”，audio 为“环境声与鼓点”；M-004 要求表达轻快、真实、可操作。",
+          "issue": "第 1 段作为情境铺垫共 20 秒，是全片三分之二时长，但仅有环境声与鼓点，未体现“可操作”的引导（如拍摄时长、拍摄建议），语气偏静态。",
+          "suggestion": "可考虑在第 1 段加入一句简短可操作提示（如“一段一段拍，跟着节奏走”），或压缩情境时长给第 2 段产品演示更多空间；此为改进项，不违反现要求。",
+          "reviewed_version": "1"
+        },
+        {
+          "finding_id": "F5",
+          "severity": "optional",
+          "location": "campaign.script.segments[*].evidence_ids 与 materials[*]",
+          "requirement": "程序检查与事实引用可追溯；不确定性清楚",
+          "evidence": "segments[0].evidence_ids 为空且 material_ids 为 M-005（use=情境）；evidence 列表仅含 E1，未登记 M-005 的授权依据片段。",
+          "issue": "第 1 段为情境画面，不承载产品主张，空 evidence_ids 本身合理；但 M-005 的“已授权”仅有文字声明，无可核查的授权记录编号，复审时难以确认。",
+          "suggestion": "在 materials.rights_note 中补充授权凭据编号或核对日期，便于后续复审与发布审核追溯。",
+          "reviewed_version": "1"
+        }
+      ],
+      "must_fix": 2,
+      "optional": 2,
+      "detected": true,
+      "requests": 1,
+      "readbacks": 0,
+      "errors": [],
+      "usage": {
+        "requests": 1,
+        "unknown_usage_requests": 0,
+        "prompt_tokens": 2727,
+        "completion_tokens": 1547,
+        "total_tokens": 4274,
+        "prompt_cache_hit_tokens": 1920,
+        "prompt_cache_miss_tokens": 807,
+        "elapsed_ms": 8654
+      }
+    }
+  ],
+  "limitations": [
+    "校准只测评估器对已知问题/合格稿的判断，不证明生产质量或统计显著。",
+    "每一对样例的标签来自原材料与明确要求；主观表达评价者记录在 pairs 文件中。",
+    "校准集与工作知识样例、正式验收集分开；评估器看不到标签。"
+  ]
+}
