@@ -1,0 +1,49 @@
+{
+  "task_id": "t_31ba0a15b929",
+  "output_version": 1,
+  "save_id": "s_b266cbb47ba35bd6",
+  "verified": true,
+  "files": [
+    {
+      "path": "D:\\AAA小影科技\\content-task-agent\\evidence\\ticket-08\\data-scripted\\mock\\exports\\t_31ba0a15b929\\campaign-v1.md",
+      "sha256": "a8807ad9607a1f8fba82d7899ed9a74b76802fca8282ab8ca34a05178a0226d6",
+      "bytes": 2264,
+      "exists": true,
+      "current_sha256": "a8807ad9607a1f8fba82d7899ed9a74b76802fca8282ab8ca34a05178a0226d6",
+      "ok": true
+    },
+    {
+      "path": "D:\\AAA小影科技\\content-task-agent\\evidence\\ticket-08\\data-scripted\\mock\\exports\\t_31ba0a15b929\\campaign-v1.json",
+      "sha256": "61594076b170c7183ae22fa045c69be0140734bc3c63c761f34463d3ef3f2b6c",
+      "bytes": 3653,
+      "exists": true,
+      "current_sha256": "61594076b170c7183ae22fa045c69be0140734bc3c63c761f34463d3ef3f2b6c",
+      "ok": true
+    },
+    {
+      "path": "D:\\AAA小影科技\\content-task-agent\\evidence\\ticket-08\\data-scripted\\mock\\exports\\t_31ba0a15b929\\brief-v1.json",
+      "sha256": "82a5f0b1d92eb42f2c27e7cff1f3756221d8f427d854e3db48c6c96a064328f7",
+      "bytes": 1175,
+      "exists": true,
+      "current_sha256": "82a5f0b1d92eb42f2c27e7cff1f3756221d8f427d854e3db48c6c96a064328f7",
+      "ok": true
+    },
+    {
+      "path": "D:\\AAA小影科技\\content-task-agent\\evidence\\ticket-08\\data-scripted\\mock\\exports\\t_31ba0a15b929\\execution-report.md",
+      "sha256": "1fc5e49e52a0f4c17b13773a0121c6c0fa5cd473c3dcca3ecef1b9007c4dfc52",
+      "bytes": 4169,
+      "exists": true,
+      "current_sha256": "1fc5e49e52a0f4c17b13773a0121c6c0fa5cd473c3dcca3ecef1b9007c4dfc52",
+      "ok": true
+    },
+    {
+      "path": "D:\\AAA小影科技\\content-task-agent\\evidence\\ticket-08\\data-scripted\\mock\\exports\\t_31ba0a15b929\\trace.jsonl",
+      "sha256": "60d617870046bf0c680dcd94f97cf3cdcd15c21fc6c0e8f317a9652d4f94b128",
+      "bytes": 30195,
+      "exists": true,
+      "current_sha256": "60d617870046bf0c680dcd94f97cf3cdcd15c21fc6c0e8f317a9652d4f94b128",
+      "ok": true
+    }
+  ],
+  "repaired": false
+}

@@ -1,0 +1,304 @@
+{
+  "task_id": "t_31ba0a15b929",
+  "mode": "mock",
+  "status": "complete",
+  "reason": "已核实保存产物 v1 及交付文件。",
+  "duplicate": false,
+  "created_at": "2026-10-28T18:09:53+00:00",
+  "updated_at": "2026-10-28T18:10:02+00:00",
+  "input": {
+    "version": 1,
+    "topic": "校园剪辑挑战",
+    "budget": "10.00",
+    "budget_cents": 1000,
+    "deadline": "2026-10-30T04:00:00+00:00",
+    "audience": "大学生",
+    "requirements": [
+      "突出自动卡点"
+    ],
+    "raw": {
+      "topic": "校园剪辑挑战",
+      "budget": "10",
+      "deadline": "2026-10-30T12:00:00+08:00",
+      "audience": "大学生",
+      "requirements": [
+        "突出自动卡点"
+      ]
+    },
+    "fingerprint": "055b1c1f64b398a33fed1dd443a1dc784e428da7a62e2d8718bc5613f2775a99"
+  },
+  "validation": {
+    "errors": [],
+    "interpretations": []
+  },
+  "brief": {
+    "version": 1,
+    "content": {
+      "goal": "让大学生在社团招新季了解帧剪的自动卡点",
+      "audience": "18-24 岁大学生（合成调研样本）",
+      "product_facts": [
+        {
+          "claim": "自动卡点可把视频片段对齐到节拍点",
+          "material_id": "M-001",
+          "quote": "把用户选中的视频片段对齐到节拍点",
+          "scope": "iOS/Android 4.2 及以上；15/30/60 秒成片",
+          "use": "主脚本卡点段"
+        }
+      ],
+      "creative_requirements": [
+        {
+          "text": "突出自动卡点",
+          "source": "用户输入"
+        }
+      ],
+      "assumptions": [
+        {
+          "text": "活动平台为短视频信息流",
+          "basis": "题材常识，待确认"
+        }
+      ],
+      "suggestions": [
+        {
+          "text": "采用校园社团情境",
+          "basis": "M-003 调研"
+        }
+      ],
+      "unknowns": [
+        {
+          "question": "是否需要投放预算？",
+          "impact": "影响内容条数",
+          "blocking": false
+        }
+      ],
+      "sources": [
+        {
+          "material_id": "M-001",
+          "used_for": "能力依据"
+        },
+        {
+          "material_id": "M-003",
+          "used_for": "受众依据"
+        }
+      ],
+      "blocking_unknowns": 0
+    },
+    "created_at": "2026-10-28T18:09:56+00:00"
+  },
+  "review": {
+    "review_id": "v_b374cb101cd0f1a4",
+    "output_id": "o_9f8aacafc50aa51a",
+    "output_version": 1,
+    "status": "complete",
+    "verdict": "pass",
+    "completeness": "full",
+    "findings": [],
+    "summary": "五项质量要求均满足；材料、脚本、制作安排和待确认项一致。",
+    "evidence_gaps": [],
+    "requests_used": 1,
+    "readbacks_used": 0,
+    "attempt_id": "a_322c4260895eaf91",
+    "created_at": "2026-10-28T18:10:02+00:00"
+  },
+  "save": {
+    "save_id": "s_b266cbb47ba35bd6",
+    "output_id": "o_9f8aacafc50aa51a",
+    "output_version": 1,
+    "status": "verified",
+    "files": [
+      {
+        "path": "D:\\AAA小影科技\\content-task-agent\\evidence\\ticket-08\\data-scripted\\mock\\exports\\t_31ba0a15b929\\campaign-v1.md",
+        "sha256": "a8807ad9607a1f8fba82d7899ed9a74b76802fca8282ab8ca34a05178a0226d6",
+        "bytes": 2264,
+        "exists": true,
+        "current_sha256": "a8807ad9607a1f8fba82d7899ed9a74b76802fca8282ab8ca34a05178a0226d6",
+        "ok": true
+      },
+      {
+        "path": "D:\\AAA小影科技\\content-task-agent\\evidence\\ticket-08\\data-scripted\\mock\\exports\\t_31ba0a15b929\\campaign-v1.json",
+        "sha256": "61594076b170c7183ae22fa045c69be0140734bc3c63c761f34463d3ef3f2b6c",
+        "bytes": 3653,
+        "exists": true,
+        "current_sha256": "61594076b170c7183ae22fa045c69be0140734bc3c63c761f34463d3ef3f2b6c",
+        "ok": true
+      },
+      {
+        "path": "D:\\AAA小影科技\\content-task-agent\\evidence\\ticket-08\\data-scripted\\mock\\exports\\t_31ba0a15b929\\brief-v1.json",
+        "sha256": "82a5f0b1d92eb42f2c27e7cff1f3756221d8f427d854e3db48c6c96a064328f7",
+        "bytes": 1175,
+        "exists": true,
+        "current_sha256": "82a5f0b1d92eb42f2c27e7cff1f3756221d8f427d854e3db48c6c96a064328f7",
+        "ok": true
+      },
+      {
+        "path": "D:\\AAA小影科技\\content-task-agent\\evidence\\ticket-08\\data-scripted\\mock\\exports\\t_31ba0a15b929\\execution-report.md",
+        "sha256": "1fc5e49e52a0f4c17b13773a0121c6c0fa5cd473c3dcca3ecef1b9007c4dfc52",
+        "bytes": 4169,
+        "exists": true,
+        "current_sha256": "1fc5e49e52a0f4c17b13773a0121c6c0fa5cd473c3dcca3ecef1b9007c4dfc52",
+        "ok": true
+      },
+      {
+        "path": "D:\\AAA小影科技\\content-task-agent\\evidence\\ticket-08\\data-scripted\\mock\\exports\\t_31ba0a15b929\\trace.jsonl",
+        "sha256": "6c4b837c61dc5164f5bda414b49977889fb7772364e491b7c0c2be6aa8e31fca",
+        "bytes": 30217,
+        "exists": true,
+        "current_sha256": "6c4b837c61dc5164f5bda414b49977889fb7772364e491b7c0c2be6aa8e31fca",
+        "ok": true
+      }
+    ],
+    "verified": true,
+    "verified_at": "2026-10-28T18:10:03+00:00",
+    "error": null,
+    "attempt_id": "a_7cdd0a394d38b736",
+    "created_at": "2026-10-28T18:10:02+00:00"
+  },
+  "plan": {
+    "version": "plan-2026-10-29.v1",
+    "steps": [
+      {
+        "step": "brief",
+        "title": "业务简报",
+        "status": "done"
+      },
+      {
+        "step": "campaign_draft",
+        "title": "完整活动方案草稿",
+        "status": "done"
+      },
+      {
+        "step": "review",
+        "title": "内容核验",
+        "status": "done"
+      },
+      {
+        "step": "save",
+        "title": "核实保存与导出",
+        "status": "done"
+      }
+    ]
+  },
+  "gaps": [
+    {
+      "source": "brief",
+      "question": "是否需要投放预算？",
+      "impact": "影响内容条数",
+      "blocking": false
+    }
+  ],
+  "mode_notice": "Mock 仅验证流程、状态与确定性规则，不代表真实模型决策或语义质量。",
+  "progress": {
+    "sim_start": "2026-10-29T00:00:00+08:00",
+    "sim_now": "2026-10-29T00:00:17+08:00",
+    "sim_elapsed_ms": 17000,
+    "used_rounds": 4,
+    "max_rounds": 12,
+    "paused": false,
+    "current_output": {
+      "output_id": "o_9f8aacafc50aa51a",
+      "version": 1,
+      "status": "draft",
+      "strategy": "user_scenario"
+    },
+    "save": {
+      "save_id": "s_b266cbb47ba35bd6",
+      "output_version": 1,
+      "status": "verified",
+      "verified": true
+    },
+    "phase": "complete",
+    "brief_version": 1,
+    "last_run_at": "2026-10-28T18:09:59+00:00"
+  },
+  "resources": {
+    "budget_cents": 1000,
+    "sim_spent_cents": 230,
+    "remaining_cents": 770,
+    "real_requests": 0,
+    "mock_requests": 6,
+    "model_requests": 6,
+    "real_usage": {
+      "requests": 6,
+      "real_requests": 0,
+      "mock_requests": 6,
+      "unknown_usage_requests": 5,
+      "usage_complete": false,
+      "prompt_tokens": 800,
+      "completion_tokens": 400,
+      "cache_hit_tokens": 0,
+      "cache_miss_tokens": 0,
+      "elapsed_ms": 0
+    },
+    "real_cost": null
+  },
+  "model_config": {
+    "provider": "deepseek",
+    "sdk": "openai",
+    "base_url": "https://api.deepseek.com",
+    "model": "deepseek-flash",
+    "api_key": "set",
+    "thinking": false,
+    "streaming": false,
+    "sdk_auto_retries": 0
+  },
+  "versions": {
+    "app": "0.1.0",
+    "prompt": "main-2026-10-29.v3",
+    "materials": "2026-10-29.v1",
+    "pricing": "2026-10-29.v1"
+  },
+  "artifacts": {
+    "campaign_versions": 1
+  },
+  "reconcile": {
+    "save_id": "s_b266cbb47ba35bd6",
+    "output_id": "o_9f8aacafc50aa51a",
+    "output_version": 1,
+    "status": "verified",
+    "files": [
+      {
+        "path": "D:\\AAA小影科技\\content-task-agent\\evidence\\ticket-08\\data-scripted\\mock\\exports\\t_31ba0a15b929\\campaign-v1.md",
+        "sha256": "a8807ad9607a1f8fba82d7899ed9a74b76802fca8282ab8ca34a05178a0226d6",
+        "bytes": 2264,
+        "exists": true,
+        "current_sha256": "a8807ad9607a1f8fba82d7899ed9a74b76802fca8282ab8ca34a05178a0226d6",
+        "ok": true
+      },
+      {
+        "path": "D:\\AAA小影科技\\content-task-agent\\evidence\\ticket-08\\data-scripted\\mock\\exports\\t_31ba0a15b929\\campaign-v1.json",
+        "sha256": "61594076b170c7183ae22fa045c69be0140734bc3c63c761f34463d3ef3f2b6c",
+        "bytes": 3653,
+        "exists": true,
+        "current_sha256": "61594076b170c7183ae22fa045c69be0140734bc3c63c761f34463d3ef3f2b6c",
+        "ok": true
+      },
+      {
+        "path": "D:\\AAA小影科技\\content-task-agent\\evidence\\ticket-08\\data-scripted\\mock\\exports\\t_31ba0a15b929\\brief-v1.json",
+        "sha256": "82a5f0b1d92eb42f2c27e7cff1f3756221d8f427d854e3db48c6c96a064328f7",
+        "bytes": 1175,
+        "exists": true,
+        "current_sha256": "82a5f0b1d92eb42f2c27e7cff1f3756221d8f427d854e3db48c6c96a064328f7",
+        "ok": true
+      },
+      {
+        "path": "D:\\AAA小影科技\\content-task-agent\\evidence\\ticket-08\\data-scripted\\mock\\exports\\t_31ba0a15b929\\execution-report.md",
+        "sha256": "1fc5e49e52a0f4c17b13773a0121c6c0fa5cd473c3dcca3ecef1b9007c4dfc52",
+        "bytes": 4169,
+        "exists": true,
+        "current_sha256": "1fc5e49e52a0f4c17b13773a0121c6c0fa5cd473c3dcca3ecef1b9007c4dfc52",
+        "ok": true
+      },
+      {
+        "path": "D:\\AAA小影科技\\content-task-agent\\evidence\\ticket-08\\data-scripted\\mock\\exports\\t_31ba0a15b929\\trace.jsonl",
+        "sha256": "6c4b837c61dc5164f5bda414b49977889fb7772364e491b7c0c2be6aa8e31fca",
+        "bytes": 30217,
+        "exists": true,
+        "current_sha256": "6c4b837c61dc5164f5bda414b49977889fb7772364e491b7c0c2be6aa8e31fca",
+        "ok": true
+      }
+    ],
+    "verified": true,
+    "verified_at": "2026-10-28T18:10:03+00:00",
+    "error": null,
+    "completed": false
+  }
+}

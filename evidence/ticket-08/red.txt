@@ -1,0 +1,114 @@
+﻿FFFF                                                                     [100%]
+================================== FAILURES ===================================
+________ test_export_repair_restores_missing_file_without_new_attempt _________
+
+cli_env = WindowsPath('C:/Users/10167/AppData/Local/Temp/pytest-of-10167/pytest-107/test_export_repair_restores_mi0')
+model_script = <function model_script.<locals>.write at 0x0000010D2974C9A0>
+
+    def test_export_repair_restores_missing_file_without_new_attempt(cli_env, model_script):
+        task, saved = _complete_task(model_script, cli_env)
+        report = next(item for item in saved["save"]["files"] if item["path"].endswith("execution-report.md"))
+        Path(report["path"]).unlink()
+        before = cli_json("inspect", task["task_id"])
+        save_attempts = len([item for item in before["attempts"] if item["kind"] == "save_campaign"])
+        spent = before["resources"]["sim_spent_cents"]
+    
+>       repaired = cli_json("export", task["task_id"], "--repair")
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+..\.scratch\content-task-agent-build\run-state\red-08-snapshot\tests\test_save_reconcile.py:27: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+args = ('export', 't_35457b9fef13', '--repair')
+
+    def cli_json(*args):
+        code, out, err = run_cli(*args)
+>       assert code == 0, f"exit={code} stderr={err} stdout={out}"
+E       AssertionError: exit=2 stderr=usage: cta [-h] [--mode {mock,real}] [--data-dir DATA_DIR]
+E                    [--format {json,text}]
+E                    {create,status,run,inspect,review,save,export,list} ...
+E         cta: error: unrecognized arguments: --repair
+E          stdout=
+E       assert 2 == 0
+
+..\.scratch\content-task-agent-build\run-state\red-08-snapshot\tests\conftest.py:50: AssertionError
+______ test_reconcile_repairs_corrupted_export_from_authoritative_output ______
+
+cli_env = WindowsPath('C:/Users/10167/AppData/Local/Temp/pytest-of-10167/pytest-107/test_reconcile_repairs_corrupt0')
+model_script = <function model_script.<locals>.write at 0x0000010D2BB1FA60>
+
+    def test_reconcile_repairs_corrupted_export_from_authoritative_output(cli_env, model_script):
+        task, saved = _complete_task(model_script, cli_env)
+        campaign_file = next(item for item in saved["save"]["files"] if item["path"].endswith("campaign-v1.json"))
+        Path(campaign_file["path"]).write_text("{\"corrupted\": true}\n", encoding="utf-8")
+        before = cli_json("inspect", task["task_id"])
+        attempts_before = len(before["attempts"])
+    
+>       reconciled = cli_json("reconcile", task["task_id"])
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+..\.scratch\content-task-agent-build\run-state\red-08-snapshot\tests\test_save_reconcile.py:45: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+args = ('reconcile', 't_5daf1bc2bb6a')
+
+    def cli_json(*args):
+        code, out, err = run_cli(*args)
+>       assert code == 0, f"exit={code} stderr={err} stdout={out}"
+E       AssertionError: exit=2 stderr=usage: cta [-h] [--mode {mock,real}] [--data-dir DATA_DIR]
+E                    [--format {json,text}]
+E                    {create,status,run,inspect,review,save,export,list} ...
+E         cta: error: argument command: invalid choice: 'reconcile' (choose from create, status, run, inspect, review, save, export, list)
+E          stdout=
+E       assert 2 == 0
+
+..\.scratch\content-task-agent-build\run-state\red-08-snapshot\tests\conftest.py:50: AssertionError
+_ test_crash_after_save_record_reconciles_without_duplicate_business_attempt __
+
+cli_env = WindowsPath('C:/Users/10167/AppData/Local/Temp/pytest-of-10167/pytest-107/test_crash_after_save_record_r0')
+model_script = <function model_script.<locals>.write at 0x0000010D2BB539C0>
+
+    def test_crash_after_save_record_reconciles_without_duplicate_business_attempt(cli_env, model_script):
+        task = _draft_ready(model_script, _review_item(REVIEW_PASS))
+        cli_json("review", task["task_id"])
+        data_dir = cli_env / "data"
+        crashed = run_cli_process(
+            "save", task["task_id"], data_dir=data_dir, extra_env={"CTA_FAULT_SAVE_AFTER_RECORD": "1"}
+        )
+>       assert crashed.returncode == 70, crashed.stderr
+E       AssertionError: 
+E       assert 0 == 70
+E        +  where 0 = CompletedProcess(args=['D:\\AAA小影科技\\content-task-agent\\.venv\\Scripts\\python.exe', '-m', 'cta', 'save', 't_b91ca590...6-10-29.v1",\n    "pricing": "2026-10-29.v1"\n  },\n  "artifacts": {\n    "campaign_versions": 1\n  }\n}\n', stderr='').returncode
+
+..\.scratch\content-task-agent-build\run-state\red-08-snapshot\tests\test_save_reconcile.py:64: AssertionError
+____________ test_reconcile_without_save_record_is_not_applicable _____________
+
+cli_env = WindowsPath('C:/Users/10167/AppData/Local/Temp/pytest-of-10167/pytest-107/test_reconcile_without_save_re0')
+model_script = <function model_script.<locals>.write at 0x0000010D2BB52660>
+
+    def test_reconcile_without_save_record_is_not_applicable(cli_env, model_script):
+        task = _draft_ready(model_script, _review_item(REVIEW_PASS))
+>       reconciled = cli_json("reconcile", task["task_id"])
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+..\.scratch\content-task-agent-build\run-state\red-08-snapshot\tests\test_save_reconcile.py:83: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+args = ('reconcile', 't_ef5dec454c2d')
+
+    def cli_json(*args):
+        code, out, err = run_cli(*args)
+>       assert code == 0, f"exit={code} stderr={err} stdout={out}"
+E       AssertionError: exit=2 stderr=usage: cta [-h] [--mode {mock,real}] [--data-dir DATA_DIR]
+E                    [--format {json,text}]
+E                    {create,status,run,inspect,review,save,export,list} ...
+E         cta: error: argument command: invalid choice: 'reconcile' (choose from create, status, run, inspect, review, save, export, list)
+E          stdout=
+E       assert 2 == 0
+
+..\.scratch\content-task-agent-build\run-state\red-08-snapshot\tests\conftest.py:50: AssertionError
+=========================== short test summary info ===========================
+FAILED ..\.scratch\content-task-agent-build\run-state\red-08-snapshot\tests\test_save_reconcile.py::test_export_repair_restores_missing_file_without_new_attempt
+FAILED ..\.scratch\content-task-agent-build\run-state\red-08-snapshot\tests\test_save_reconcile.py::test_reconcile_repairs_corrupted_export_from_authoritative_output
+FAILED ..\.scratch\content-task-agent-build\run-state\red-08-snapshot\tests\test_save_reconcile.py::test_crash_after_save_record_reconciles_without_duplicate_business_attempt
+FAILED ..\.scratch\content-task-agent-build\run-state\red-08-snapshot\tests\test_save_reconcile.py::test_reconcile_without_save_record_is_not_applicable
