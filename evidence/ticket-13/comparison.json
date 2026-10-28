@@ -1,0 +1,78 @@
+{
+  "comparison_version": "comparison-2026-10-29.v1",
+  "date": "2026-10-29",
+  "scope": "描述性对比，不是受控基准；同一任务的完整候选只在 04/06 的确定性任务上运行，校准问题稿是独立样例。",
+  "baseline": {
+    "name": "单次生成、无独立核验/返修",
+    "samples": 6,
+    "sample_source": "evidence/ticket-11：六对问题稿",
+    "known_problem_samples_detected_by_reviewer": 6,
+    "review_pass": 0,
+    "rounds_per_sample": 1,
+    "simulated_generation_cost_cents": 120,
+    "review_requests": 0,
+    "rework_rounds": 0,
+    "evidence_repair": false,
+    "false_positive_observation": "若把六篇问题稿当基线，人工标签全部为问题；没有候选稿通过独立核验。"
+  },
+  "candidate_deterministic": {
+    "normal": {
+      "source": "evidence/ticket-04/07-inspect.json",
+      "rounds": 4,
+      "simulated_cost_cents": 230,
+      "reviews": 1,
+      "review_verdict": "pass",
+      "saves": 1,
+      "campaign_versions": 1,
+      "deliverables": 5,
+      "rework_rounds": 0
+    },
+    "revision": {
+      "source": "evidence/ticket-06/08-inspect.json",
+      "rounds": 7,
+      "simulated_cost_cents": 430,
+      "reviews": 2,
+      "review_verdict": "pass",
+      "saves": 1,
+      "campaign_versions": 2,
+      "rework_rounds": 1
+    }
+  },
+  "candidate_real": {
+    "source": "evidence/ticket-12/real-inspect-05.json",
+    "task_id": "t_b928246de900",
+    "rounds": 12,
+    "simulated_cost_cents": 240,
+    "real_requests": 14,
+    "input_tokens": 201549,
+    "output_tokens": 15067,
+    "review_verdict": "fail",
+    "must_fix": 4,
+    "optional": 2,
+    "saved": false,
+    "real_amount": "unknown"
+  },
+  "reviewer_calibration": {
+    "source": "evidence/ticket-11/real-calibration.json",
+    "problem_samples": 6,
+    "bad_detected": 6,
+    "false_positives": ["P6-optional-style-treated-as-hard"],
+    "incomplete_reviews": 2,
+    "requests": 19,
+    "prompt_tokens": 51487,
+    "completion_tokens": 15518,
+    "wall_seconds": 112.344
+  },
+  "dimensions": {
+    "hard_constraint_and_evidence": "问题稿 6/6 被评审识别；完整管线有独立评审、disposition 与证据缺口检查，但真实候选仍被评审认定 4 个 must_fix，说明不能把机制存在等同于质量。",
+    "review_and_rework": "单次基线无核验/返修；完整管线正常 1 次核验通过，返修样例 2 次核验、1 次返修；真实候选返修在 12 轮内未完成。",
+    "cost_time": "正常确定性路径 230 分/4 轮；返修 430 分/7 轮；真实候选 240 分模拟费用、14 次真实请求、140,010 ms API 采得耗时；真实金额未知。",
+    "safety": "单次基线没有保存前核验；完整管线有核验、证据缺口、预算/截止、输入版本、未知保存与导出核实。"
+  },
+  "limitations": [
+    "不是同一任务、同一时间、同一预算的受控 A/B；样本小且来源不同。",
+    "问题稿是校准样例，不是真实单次模型调用；真实单次基线未另跑。",
+    "完整管线确定性数据来自 Mock 注入；真实候选只有一次，未完成保存。",
+    "评审本身有误报/未完成（P6、P3/P5），不能把评审 fail 当作绝对真值。"
+  ]
+}
