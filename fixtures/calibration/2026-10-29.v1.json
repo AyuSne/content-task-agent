@@ -1,0 +1,208 @@
+{
+  "version": "2026-10-29.v1",
+  "description": "六对已知问题稿/合格稿，用于评估器校准；本文件不进入正式验收集，也不作为工作知识样例。",
+  "pairs": [
+    {
+      "id": "P1-unsupported-capability",
+      "issue": "无依据能力承诺",
+      "requirements": ["主脚本必须突出自动卡点", "不得承诺涨粉、收益或未正式支持的能力"],
+      "evidence": [
+        {"material_id": "M-001", "quote": "把用户选中的视频片段对齐到节拍点", "scope": "iOS/Android 4.2 及以上；15/30/60 秒成片"},
+        {"material_id": "M-002", "quote": "普通话与英语为正式支持语言；粤语、日语等仍在小范围测试", "scope": "仅普通话与英语为正式支持"},
+        {"material_id": "M-004", "quote": "不得承诺涨粉、收益或爆款", "scope": "所有对外传播"}
+      ],
+      "bad": {
+        "activity": {"goal": "推广帧剪", "audience": "大学生", "theme": "一键出片", "format": "30 秒短视频"},
+        "script": {"duration_s": 30, "segments": [
+          {"index": 1, "time_range": "0-10s", "visual": "校园场景", "audio": "音乐", "subtitle": "AI 字幕支持 50 种语言", "material_ids": ["M-005"], "evidence_ids": ["E1"]},
+          {"index": 2, "time_range": "10-30s", "visual": "成片", "audio": "音乐", "subtitle": "帮你轻松涨粉 10 万", "material_ids": ["M-005"], "evidence_ids": ["E1"]}
+        ]},
+        "materials": [{"name": "校园素材", "material_id": "M-005", "status": "existing", "use": "情境", "position": "全片", "rights_note": "已授权"}],
+        "evidence": [{"id": "E1", "claim": "自动卡点", "material_id": "M-001", "quote": "把用户选中的视频片段对齐到节拍点", "scope": "4.2+", "use": "第 2 段"}],
+        "production_steps": [{"step": "剪辑", "owner": "制作", "timing": "T-1", "note": ""}],
+        "open_questions": []
+      },
+      "good": {
+        "activity": {"goal": "让大学生了解自动卡点", "audience": "18-24 岁大学生", "theme": "把招新现场剪成你的节奏", "format": "30 秒短视频"},
+        "script": {"duration_s": 30, "segments": [
+          {"index": 1, "time_range": "0-10s", "visual": "社团招新现场", "audio": "环境声", "subtitle": "先把现场拍下来", "material_ids": ["M-005"], "evidence_ids": []},
+          {"index": 2, "time_range": "10-30s", "visual": "操作录屏", "audio": "节奏清晰的流行乐", "subtitle": "自动卡点会分析所选音乐的节拍，把选中的片段对齐到节拍点，并可逐段微调", "material_ids": ["A-001"], "evidence_ids": ["E1"]}
+        ]},
+        "materials": [
+          {"name": "校园素材", "material_id": "M-005", "status": "existing", "use": "情境", "position": "第 1 段", "rights_note": "已授权"},
+          {"name": "产品操作录屏", "material_id": "A-001", "status": "to_create", "use": "自动卡点与逐段微调演示", "position": "第 2 段", "rights_note": "待录制，使用 4.2 正式版"}
+        ],
+        "evidence": [{"id": "E1", "claim": "自动卡点对齐节拍并可逐段微调", "material_id": "M-001", "quote": "自动卡点会分析所选音乐的节拍，把用户选中的视频片段对齐到节拍点。用户可以逐段微调，也可以一键重新卡点。", "scope": "4.2+；15/30/60 秒", "use": "第 2 段字幕"}],
+        "production_steps": [
+          {"step": "录制产品操作", "owner": "制作", "timing": "T-2", "note": "4.2 真机"},
+          {"step": "剪辑与审核", "owner": "运营", "timing": "T-1", "note": "核对字幕与证据一致"}
+        ],
+        "open_questions": []
+      },
+      "label_source": "M-001/M-002/M-004 原文与明确要求；主观表达另记评价者"
+    },
+    {
+      "id": "P2-required-content-omitted",
+      "issue": "明确要求遗漏",
+      "requirements": ["主脚本第 2 段必须展示自动卡点操作", "主题为社团招新季"],
+      "evidence": [
+        {"material_id": "M-001", "quote": "把用户选中的视频片段对齐到节拍点", "scope": "4.2+"},
+        {"material_id": "M-005", "quote": "素材包含教室、操场、社团招新、宿舍剪辑四个场景", "scope": "情境画面"}
+      ],
+      "bad": {
+        "activity": {"goal": "招新宣传", "audience": "大学生", "theme": "社团招新季", "format": "30 秒"},
+        "script": {"duration_s": 30, "segments": [
+          {"index": 1, "time_range": "0-15s", "visual": "操场", "audio": "音乐", "subtitle": "社团招新啦", "material_ids": ["M-005"], "evidence_ids": []},
+          {"index": 2, "time_range": "15-30s", "visual": "教室", "audio": "音乐", "subtitle": "欢迎加入", "material_ids": ["M-005"], "evidence_ids": []}
+        ]},
+        "materials": [{"name": "校园素材", "material_id": "M-005", "status": "existing", "use": "情境", "position": "全片", "rights_note": "已授权"}],
+        "evidence": [],
+        "production_steps": [{"step": "剪辑", "owner": "制作", "timing": "T-1", "note": ""}],
+        "open_questions": []
+      },
+      "good": {
+        "activity": {"goal": "招新宣传并展示自动卡点", "audience": "大学生", "theme": "社团招新季", "format": "30 秒"},
+        "script": {"duration_s": 30, "segments": [
+          {"index": 1, "time_range": "0-10s", "visual": "招新现场", "audio": "环境声", "subtitle": "社团招新啦", "material_ids": ["M-005"], "evidence_ids": []},
+          {"index": 2, "time_range": "10-25s", "visual": "自动卡点操作录屏", "audio": "鼓点", "subtitle": "选中片段，自动对齐节拍", "material_ids": ["M-005"], "evidence_ids": ["E1"]},
+          {"index": 3, "time_range": "25-30s", "visual": "成片", "audio": "音乐", "subtitle": "欢迎加入", "material_ids": ["M-005"], "evidence_ids": []}
+        ]},
+        "materials": [{"name": "校园素材", "material_id": "M-005", "status": "existing", "use": "情境", "position": "全片", "rights_note": "已授权"}],
+        "evidence": [{"id": "E1", "claim": "自动卡点", "material_id": "M-001", "quote": "把用户选中的视频片段对齐到节拍点", "scope": "4.2+", "use": "第 2 段"}],
+        "production_steps": [{"step": "录制操作", "owner": "制作", "timing": "T-2", "note": ""}],
+        "open_questions": []
+      },
+      "label_source": "用户明确要求 + M-001/M-005"
+    },
+    {
+      "id": "P3-internal-contradiction",
+      "issue": "前后矛盾",
+      "requirements": ["主题与主脚本表达一致", "不得承诺涨粉"],
+      "evidence": [{"material_id": "M-001", "quote": "把用户选中的视频片段对齐到节拍点", "scope": "4.2+"}],
+      "bad": {
+        "activity": {"goal": "快速出片", "audience": "大学生", "theme": "30 秒快速出片", "format": "30 秒"},
+        "script": {"duration_s": 30, "segments": [
+          {"index": 1, "time_range": "0-10s", "visual": "现场", "audio": "音乐", "subtitle": "30 秒快速出片", "material_ids": ["M-005"], "evidence_ids": []},
+          {"index": 2, "time_range": "10-30s", "visual": "操作", "audio": "音乐", "subtitle": "需要花 30 分钟慢慢调整", "material_ids": ["M-005"], "evidence_ids": ["E1"]}
+        ]},
+        "materials": [{"name": "校园素材", "material_id": "M-005", "status": "existing", "use": "情境", "position": "全片", "rights_note": "已授权"}],
+        "evidence": [{"id": "E1", "claim": "自动卡点", "material_id": "M-001", "quote": "把用户选中的视频片段对齐到节拍点", "scope": "4.2+", "use": "第 2 段"}],
+        "production_steps": [{"step": "剪辑", "owner": "制作", "timing": "T-1", "note": ""}],
+        "open_questions": []
+      },
+      "good": {
+        "activity": {"goal": "展示自动卡点效率", "audience": "大学生", "theme": "自动对齐节拍，逐段微调", "format": "30 秒"},
+        "script": {"duration_s": 30, "segments": [
+          {"index": 1, "time_range": "0-10s", "visual": "现场", "audio": "音乐", "subtitle": "先把现场拍下来", "material_ids": ["M-005"], "evidence_ids": []},
+          {"index": 2, "time_range": "10-30s", "visual": "操作", "audio": "音乐", "subtitle": "自动卡点对齐节拍，想改的地方逐段微调", "material_ids": ["M-005"], "evidence_ids": ["E1"]}
+        ]},
+        "materials": [{"name": "校园素材", "material_id": "M-005", "status": "existing", "use": "情境", "position": "第 1 段", "rights_note": "已授权"}],
+        "evidence": [{"id": "E1", "claim": "自动卡点", "material_id": "M-001", "quote": "把用户选中的视频片段对齐到节拍点", "scope": "4.2+", "use": "第 2 段"}],
+        "production_steps": [{"step": "剪辑", "owner": "制作", "timing": "T-1", "note": ""}],
+        "open_questions": []
+      },
+      "label_source": "主题字段与主脚本字幕对照；M-001 支持范围"
+    },
+    {
+      "id": "P4-unusable-material",
+      "issue": "制作素材不可用",
+      "requirements": ["不得把待获取素材写成已可用", "音乐未授权需有替代方案"],
+      "evidence": [
+        {"material_id": "M-006", "quote": "当前状态为待获取授权，预计 2 个工作日；未取得授权前不得作为已可用素材写入制作安排", "scope": "音乐《Late Bus》"},
+        {"material_id": "M-005", "quote": "素材包含教室、操场、社团招新、宿舍剪辑四个场景", "scope": "已有"}
+      ],
+      "bad": {
+        "activity": {"goal": "招新宣传", "audience": "大学生", "theme": "招新节奏", "format": "30 秒"},
+        "script": {"duration_s": 30, "segments": [
+          {"index": 1, "time_range": "0-30s", "visual": "现场", "audio": "《Late Bus》背景音乐", "subtitle": "跟着节拍剪", "material_ids": ["M-005", "M-006"], "evidence_ids": []}
+        ]},
+        "materials": [{"name": "背景音乐《Late Bus》", "material_id": "M-006", "status": "existing", "use": "全片音乐", "position": "全片", "rights_note": "已可用"}],
+        "evidence": [],
+        "production_steps": [{"step": "剪辑", "owner": "制作", "timing": "T-1", "note": ""}],
+        "open_questions": []
+      },
+      "good": {
+        "activity": {"goal": "招新宣传", "audience": "大学生", "theme": "招新节奏", "format": "30 秒"},
+        "script": {"duration_s": 30, "segments": [
+          {"index": 1, "time_range": "0-30s", "visual": "现场", "audio": "暂用现场环境声；音乐授权取得后替换", "subtitle": "跟着节拍剪", "material_ids": ["M-005"], "evidence_ids": []}
+        ]},
+        "materials": [
+          {"name": "校园素材", "material_id": "M-005", "status": "existing", "use": "情境", "position": "全片", "rights_note": "已授权"},
+          {"name": "背景音乐《Late Bus》", "material_id": "M-006", "status": "to_acquire", "use": "取得授权后替换", "position": "第 1 段", "rights_note": "商用授权待购买"}
+        ],
+        "evidence": [],
+        "production_steps": [{"step": "取得音乐授权", "owner": "运营", "timing": "T-2", "note": "未取得则使用环境声版本"}],
+        "open_questions": [{"question": "音乐授权能否在截止前取得？", "impact": "决定是否使用环境声版本", "blocking": false}]
+      },
+      "label_source": "M-006 原文状态；素材可用性不是产品能力证明"
+    },
+    {
+      "id": "P5-assumption-as-fact",
+      "issue": "假设冒充确认事实",
+      "requirements": ["受众判断必须标注样本范围", "未确认信息不能写成已确认事实"],
+      "evidence": [{"material_id": "M-003", "quote": "仅代表该合成样本，不可外推为全体大学生或高中生", "scope": "120 名 18-24 岁大学生"}],
+      "bad": {
+        "activity": {"goal": "推广", "audience": "全体大学生", "theme": "人人都在用", "format": "30 秒"},
+        "script": {"duration_s": 30, "segments": [
+          {"index": 1, "time_range": "0-30s", "visual": "校园", "audio": "音乐", "subtitle": "全体大学生都认为一键出片最好", "material_ids": ["M-005"], "evidence_ids": ["E1"]}
+        ]},
+        "materials": [{"name": "校园素材", "material_id": "M-005", "status": "existing", "use": "情境", "position": "全片", "rights_note": "已授权"}],
+        "evidence": [{"id": "E1", "claim": "受众偏好", "material_id": "M-003", "quote": "超过一半受访者表示会在 30 分钟内完成一条成片", "scope": "120 人合成样本", "use": "受众"}],
+        "production_steps": [{"step": "剪辑", "owner": "制作", "timing": "T-1", "note": ""}],
+        "open_questions": []
+      },
+      "good": {
+        "activity": {"goal": "推广", "audience": "18-24 岁大学生（合成样本）", "theme": "把招新现场剪成你的节奏", "format": "30 秒"},
+        "script": {"duration_s": 30, "segments": [
+          {"index": 1, "time_range": "0-30s", "visual": "校园", "audio": "音乐", "subtitle": "M-003 合成样本（120 名 18-24 岁大学生）中，超过一半受访者表示会在 30 分钟内完成一条成片", "material_ids": ["M-005"], "evidence_ids": ["E1"]}
+        ]},
+        "materials": [{"name": "校园素材", "material_id": "M-005", "status": "existing", "use": "情境", "position": "全片", "rights_note": "已授权"}],
+        "evidence": [{"id": "E1", "claim": "样本观察", "material_id": "M-003", "quote": "超过一半受访者表示会在 30 分钟内完成一条成片", "scope": "120 人合成样本，不可外推", "use": "受众判断"}],
+        "production_steps": [
+          {"step": "素材与授权核对", "owner": "运营", "timing": "T-2", "note": "M-005 已授权"},
+          {"step": "剪辑与审核", "owner": "制作", "timing": "T-1", "note": "字幕注明样本范围"}
+        ],
+        "open_questions": []
+      },
+      "label_source": "M-003 适用范围原文"
+    },
+    {
+      "id": "P6-optional-style-treated-as-hard",
+      "issue": "风格建议被误当硬要求",
+      "requirements": ["品牌语气轻快、真实、可操作；不得承诺收益", "可尝试夸张搞笑（可选建议，不是硬要求）"],
+      "evidence": [
+        {"material_id": "M-004", "quote": "表达应轻快、真实、可操作。不得承诺涨粉、收益或爆款", "scope": "所有对外传播"},
+        {"material_id": "M-001", "quote": "把用户选中的视频片段对齐到节拍点", "scope": "4.2+"}
+      ],
+      "bad": {
+        "activity": {"goal": "推广", "audience": "大学生", "theme": "全网最强", "format": "30 秒"},
+        "script": {"duration_s": 30, "segments": [
+          {"index": 1, "time_range": "0-30s", "visual": "校园", "audio": "音乐", "subtitle": "全网最强剪辑，轻松涨粉", "material_ids": ["M-005"], "evidence_ids": ["E1"]}
+        ]},
+        "materials": [{"name": "校园素材", "material_id": "M-005", "status": "existing", "use": "情境", "position": "全片", "rights_note": "已授权"}],
+        "evidence": [{"id": "E1", "claim": "自动卡点", "material_id": "M-001", "quote": "把用户选中的视频片段对齐到节拍点", "scope": "4.2+", "use": "字幕"}],
+        "production_steps": [{"step": "剪辑", "owner": "制作", "timing": "T-1", "note": ""}],
+        "open_questions": []
+      },
+      "good": {
+        "activity": {"goal": "推广", "audience": "大学生", "theme": "把招新现场剪成你的节奏", "format": "30 秒"},
+        "script": {"duration_s": 30, "segments": [
+          {"index": 1, "time_range": "0-20s", "visual": "社团招新现场", "audio": "环境声与鼓点", "subtitle": "把招新现场拍下来", "material_ids": ["M-005"], "evidence_ids": []},
+          {"index": 2, "time_range": "20-30s", "visual": "产品操作录屏与成片", "audio": "节奏清晰的流行乐", "subtitle": "自动卡点会分析所选音乐的节拍，把片段对齐到节拍点，并可逐段微调。把招新现场剪成你的节奏。", "material_ids": ["A-001"], "evidence_ids": ["E1"]}
+        ]},
+        "materials": [
+          {"name": "校园素材", "material_id": "M-005", "status": "existing", "use": "情境", "position": "第 1 段", "rights_note": "已授权"},
+          {"name": "产品操作录屏", "material_id": "A-001", "status": "to_create", "use": "自动卡点演示", "position": "第 2 段", "rights_note": "待录制"}
+        ],
+        "evidence": [{"id": "E1", "claim": "自动卡点对齐节拍并可逐段微调", "material_id": "M-001", "quote": "自动卡点会分析所选音乐的节拍，把用户选中的视频片段对齐到节拍点。用户可以逐段微调，也可以一键重新卡点。", "scope": "4.2+", "use": "第 2 段字幕"}],
+        "production_steps": [
+          {"step": "录制产品操作", "owner": "制作", "timing": "T-2", "note": "4.2 真机"},
+          {"step": "素材授权核对", "owner": "运营", "timing": "T-2", "note": "M-005 已授权"},
+          {"step": "剪辑与发布审核", "owner": "运营", "timing": "T-1", "note": "核对品牌语气与无收益承诺"}
+        ],
+        "open_questions": []
+      },
+      "label_source": "M-004 硬规则 vs 明确标注的可选建议；不把偏好升级为要求"
+    }
+  ]
+}

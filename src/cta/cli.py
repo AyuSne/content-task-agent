@@ -9,6 +9,7 @@ from __future__ import annotations
 import argparse
 import json
 import sys
+from datetime import UTC, datetime
 
 from cta.config import MODES, load_config
 from cta.identity import RawInput
@@ -53,6 +54,10 @@ def build_parser() -> argparse.ArgumentParser:
     export = sub.add_parser("export", parents=[common], help="从权威状态导出方案、报告与 Trace")
     export.add_argument("task_id")
 
+    calibrate = sub.add_parser("calibrate", parents=[common], help="运行六对正反样例的评估器校准")
+    calibrate.add_argument("--pairs", default=None, help="校准样例 JSON 路径")
+    calibrate.add_argument("--output", default=None, help="结果 JSON 输出路径")
+
     sub.add_parser("list", parents=[common], help="列出当前模式下的任务")
     return parser
 
@@ -72,6 +77,21 @@ def _render_text(document: dict) -> str:
         for task in document["tasks"]:
             lines.append(f"- {task['task_id']}  {task['status']}  {task['reason']}")
         return "\n".join(lines)
+    if "calibration_version" in document:
+        metrics = document["metrics"]
+        return "\n".join(
+            [
+                f"校准 {document['calibration_version']}（{document['mode']}）",
+                (
+                    f"问题稿命中 {metrics['bad_detected']}/{metrics['problem_samples']}；漏检 {len(metrics['missed'])}；"
+                    f"合格稿误报 {len(metrics['false_positives'])}；未完成 {metrics['incomplete_reviews']}"
+                ),
+                (
+                    f"请求 {document['usage']['requests']} 次；未知用量 {document['usage']['unknown_usage_requests']}；"
+                    f"结果 {document.get('output_path', '未写入文件')}"
+                ),
+            ]
+        )
     input_view = document.get("input", {})
     progress = document.get("progress", {})
     resources = document.get("resources", {})
@@ -141,6 +161,14 @@ def main(argv: list[str] | None = None) -> int:
             from cta.export import export_task
 
             document = export_task(config, args.task_id)
+        elif args.command == "calibrate":
+            from cta.calibration import run_calibration
+
+            output = args.output
+            if output is None:
+                stamp = datetime.now(UTC).strftime("%Y%m%dT%H%M%SZ")
+                output = config.exports_dir / "calibration" / f"calibration-{stamp}.json"
+            document = run_calibration(config, pairs_path=args.pairs, output_path=output)
         elif args.command == "list":
             document = service.list_tasks()
         else:  # pragma: no cover - argparse guards this
