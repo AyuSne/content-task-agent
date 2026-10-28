@@ -240,6 +240,18 @@ class TaskService:
             view["strategy_selections"] = list_strategy_selections(conn, task_id)
             view["stops"] = list_stops(conn, task_id)
             view["strategy"] = self._strategy_view(conn, task)
+            view["reviewer_messages"] = [
+                {
+                    "sequence": row["seq"],
+                    "role": row["role"],
+                    "content": row["content"],
+                    "tool_calls": json.loads(row["tool_calls_json"]) if row["tool_calls_json"] else [],
+                    "name": row["name"],
+                }
+                for row in conn.execute(
+                    "SELECT * FROM messages WHERE task_id = ? AND agent = 'reviewer' ORDER BY seq", (task_id,)
+                )
+            ]
             return view
 
     def list_tasks(self) -> dict:

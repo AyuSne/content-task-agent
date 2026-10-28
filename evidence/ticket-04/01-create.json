@@ -1,11 +1,11 @@
 {
-  "task_id": "t_5e909d668021",
+  "task_id": "t_d41de8a77c74",
   "mode": "mock",
   "status": "in_progress",
   "reason": "已创建，尚未开始执行；当前没有已生成产物。",
   "duplicate": false,
-  "created_at": "2026-10-28T17:44:23+00:00",
-  "updated_at": "2026-10-28T17:44:23+00:00",
+  "created_at": "2026-10-28T17:55:33+00:00",
+  "updated_at": "2026-10-28T17:55:33+00:00",
   "input": {
     "version": 1,
     "topic": "校园剪辑挑战",
@@ -107,7 +107,7 @@
   },
   "versions": {
     "app": "0.1.0",
-    "prompt": "main-2026-10-29.v2",
+    "prompt": "main-2026-10-29.v3",
     "materials": "2026-10-29.v1",
     "pricing": "2026-10-29.v1"
   },

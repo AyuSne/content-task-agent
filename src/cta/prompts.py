@@ -22,8 +22,9 @@ MAIN_SYSTEM_PROMPT = """你是「内容任务规划」的主 Agent，服务虚�
 5. 每轮只调用一个工具。工具返回成功、失败、拒绝、部分成功或缺口都是真实反馈；下一步必须依据反馈选择，不重复无效调用，不假装成功，也不预设“先昂贵后便宜”或固定动作顺序。
 6. 预算与模拟截止是硬约束。工具被拒绝时阅读原因与完整剩余路径，改走当前可行的方向或模式；没有可行路径时用 stop_incomplete 说明具体缺口，并保留已完成成果。预估、预留不是实际支出；失败和额外消耗发生后重新估算。
 7. 简报完整后调用 propose_brief。简报保存后进入方案阶段：先用 compare_strategies 按实际反馈比较创作方向的表达目标、资料需求与完整剩余路径，再用 choose_strategy 记录方向、检索/生成模式与理由；不可行时改用返回的可行替代。随后调用 generate_script 获得独立生成的脚本候选，最后由你整合活动安排、脚本、素材用途、制作步骤与证据，调用 propose_campaign。脚本候选不能替代你的整体整合。
-8. 达到可交付要求后仍可比较有明确预期收益的改进：说明改善目标、预期收益和完整路径理由；不以最低价、花尽预算或固定改进次数代替判断。
-9. 不承诺涨粉、收益、爆款或转化；不把实验性能力写成正式能力；不输出内部思维过程；不保存、不核验，除非当前阶段明确要求。"""
+8. 收到核验意见后逐条处置：用 record_disposition 记录 accepted / rejected / needs_evidence 及理由。accepted 必须返修后重新提交完整方案并再次核验；rejected 必须引用原始要求或证据，不能只凭偏好。
+9. 达到可交付要求后仍可比较有明确预期收益的改进：说明改善目标、预期收益和完整路径理由；不以最低价、花尽预算或固定改进次数代替判断。
+10. 不承诺涨粉、收益、爆款或转化；不把实验性能力写成正式能力；不输出内部思维过程；保存与核验由明确入口执行。"""
 
 SCRIPT_GENERATION_SYSTEM_PROMPT = """你是「帧剪」活动脚本生成子调用。你只输出一个 JSON 对象，不调用工具、不写解释。
 
@@ -439,6 +440,23 @@ TOOL_DEFINITIONS = [
                     }
                 },
                 "required": ["questions"],
+                "additionalProperties": False,
+            },
+        },
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "record_disposition",
+            "description": "逐条处置核验意见：accepted 需返修，rejected 需有原始要求/证据依据，needs_evidence 保持待查证。",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "finding_id": {"type": "string"},
+                    "decision": {"type": "string", "enum": ["accepted", "rejected", "needs_evidence"]},
+                    "reason": {"type": "string"},
+                },
+                "required": ["finding_id", "decision", "reason"],
                 "additionalProperties": False,
             },
         },

@@ -171,7 +171,7 @@ def review_task(config: Config, task_id: str) -> dict:
             raise ReviewError("当前任务还没有可核验的完整方案草稿。")
         existing = latest_review(conn, task["id"])
         if existing is not None and existing["output_id"] == output["output_id"] and existing["status"] == "complete":
-            return {"duplicate": True, **TaskService(config).status(task_id), "review": existing}
+            return {**TaskService(config).status(task_id), "duplicate": True, "review": existing}
 
         spec = price.mode("review")
         max_requests = int(spec.max_requests or MAX_REQUESTS)
@@ -274,6 +274,10 @@ def review_task(config: Config, task_id: str) -> dict:
             calls = list(response.tool_calls)
             if response.finish_reason == "length" or len(calls) > 1 or not calls:
                 errors.append("核验响应必须是一个完整工具调用")
+                assistant_message = {"role": "assistant", "content": response.content or ""}
+                if calls:
+                    assistant_message["tool_calls"] = [call.as_openai() for call in calls]
+                messages.append(assistant_message)
                 with transaction(conn):
                     append_message(
                         conn, task["id"], "assistant", response.content,
@@ -282,17 +286,27 @@ def review_task(config: Config, task_id: str) -> dict:
                         attempt_id=attempt_id, meta={"kind": "review_request"},
                     )
                     for call in calls:
+                        rejection = {"ok": False, "error": "review_protocol", "message": "只允许一个核验动作。"}
+                        messages.append(
+                            {
+                                "role": "tool",
+                                "tool_call_id": call.id,
+                                "name": call.name,
+                                "content": json.dumps(rejection, ensure_ascii=False),
+                            }
+                        )
                         append_message(
                             conn, task["id"], "tool",
-                            json.dumps({"ok": False, "error": "review_protocol", "message": "只允许一个核验动作。"}, ensure_ascii=False),
+                            json.dumps(rejection, ensure_ascii=False),
                             agent="reviewer", tool_call_id=call.id, name=call.name, attempt_id=attempt_id,
                             meta={"kind": "rejection"},
                         )
                 if not calls:
+                    feedback_text = "[核验反馈] 本轮没有调用工具；请只调用一个 read_material 或 report_review。"
+                    messages.append({"role": "user", "content": feedback_text})
                     with transaction(conn):
                         append_message(
-                            conn, task["id"], "user",
-                            "[核验反馈] 本轮没有调用工具；请只调用一个 read_material 或 report_review。",
+                            conn, task["id"], "user", feedback_text,
                             agent="reviewer", attempt_id=attempt_id, meta={"kind": "runtime_feedback"},
                         )
                 continue
@@ -301,13 +315,16 @@ def review_task(config: Config, task_id: str) -> dict:
                 arguments = json.loads(call.arguments or "{}")
             except json.JSONDecodeError:
                 arguments = None
+            if not isinstance(arguments, dict):
+                arguments = None
             with transaction(conn):
                 append_message(
                     conn, task["id"], "assistant", response.content, agent="reviewer",
                     tool_calls=[call.as_openai()], attempt_id=attempt_id, meta={"kind": "review_request"},
                 )
+            messages.append({"role": "assistant", "content": response.content or "", "tool_calls": [call.as_openai()]})
             if arguments is None:
-                tool_result = {"ok": False, "error": "invalid_arguments", "message": "参数不是合法 JSON。"}
+                tool_result = {"ok": False, "error": "invalid_arguments", "message": "参数必须是 JSON 对象。"}
             elif call.name == "read_material":
                 if readbacks_used >= max_readbacks:
                     tool_result = {"ok": False, "error": "readback_limit", "message": "回读次数已用完。"}
@@ -323,6 +340,14 @@ def review_task(config: Config, task_id: str) -> dict:
                     tool_result = {"ok": True, "message": "核验结果已接收。"}
             else:
                 tool_result = {"ok": False, "error": "unknown_tool", "message": f"未知核验工具：{call.name}"}
+            messages.append(
+                {
+                    "role": "tool",
+                    "tool_call_id": call.id,
+                    "name": call.name,
+                    "content": json.dumps(tool_result, ensure_ascii=False),
+                }
+            )
             with transaction(conn):
                 append_message(
                     conn, task["id"], "tool", json.dumps(tool_result, ensure_ascii=False),
@@ -358,13 +383,14 @@ def review_task(config: Config, task_id: str) -> dict:
             document["review"] = latest_review(conn, task_id)
             return document
 
+        review_status = "complete" if report["verdict"] in ("pass", "fail") else "incomplete"
         create_review(
             conn,
             task_id=task["id"],
             output_id=output["output_id"],
             output_version=output["version"],
             attempt_id=attempt_id,
-            status="complete",
+            status=review_status,
             verdict=report["verdict"],
             completeness=report["completeness"],
             findings=report["findings"],
@@ -374,14 +400,18 @@ def review_task(config: Config, task_id: str) -> dict:
             readbacks_used=readbacks_used,
         )
         finish_attempt(conn, attempt_id, status="success")
-        reason = (
-            "内容核验完成：通过。"
-            if report["verdict"] == "pass"
-            else "内容核验完成：未通过，仍有必须处理的意见。"
-        )
+        if report["verdict"] == "pass":
+            reason = "内容核验完成：通过。"
+            phase = "reviewed"
+        elif report["verdict"] == "fail":
+            reason = "内容核验完成：未通过，仍有必须处理的意见。"
+            phase = "reviewed"
+        else:
+            reason = "内容核验未完成，未形成通过结论。"
+            phase = "review_incomplete"
         conn.execute(
-            "UPDATE tasks SET phase = 'reviewed', reason = ?, updated_at = ? WHERE id = ?",
-            (reason, utc_now_iso(), task["id"]),
+            "UPDATE tasks SET phase = ?, reason = ?, updated_at = ? WHERE id = ?",
+            (phase, reason, utc_now_iso(), task["id"]),
         )
         conn.commit()
         document = TaskService(config).status(task_id)

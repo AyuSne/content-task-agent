@@ -11,7 +11,7 @@ import os
 
 from cta.config import Config, utc_now_iso
 from cta.db import open_store
-from cta.export import build_files, build_trace_file, verify_records
+from cta.export import build_files, build_report_file, build_trace_file, verify_records
 from cta.pricing import load_price_table
 from cta.repository import (
     create_save,
@@ -51,11 +51,30 @@ def _preconditions(conn, task, output: dict) -> dict | None:
         return {"code": "review_incomplete", "message": "内容核验未完成，不能保存。"}
     if review["output_id"] != output["output_id"]:
         return {"code": "review_stale", "message": "最近一次核验不适用于当前产物版本。"}
+    dispositions = {
+        row["finding_id"]: row["decision"]
+        for row in conn.execute(
+            "SELECT finding_id, decision FROM dispositions WHERE review_id = ?", (review["review_id"],)
+        )
+    }
     must_fix = [item for item in review["findings"] if item["severity"] == "must_fix"]
-    if must_fix:
-        return {"code": "unresolved_must_fix", "message": f"仍有 {len(must_fix)} 条必须处理意见未处置。"}
-    if review["verdict"] != "pass" or review["completeness"] != "full":
-        return {"code": "review_not_passed", "message": "核验未通过或完整性不足，不能保存。"}
+    unresolved = [item for item in must_fix if dispositions.get(item["finding_id"]) != "rejected"]
+    if unresolved:
+        return {
+            "code": "unresolved_must_fix",
+            "message": f"仍有 {len(unresolved)} 条必须处理意见未处置（需要返修或有据驳回）。",
+        }
+    needs_evidence = [item for item in review["findings"] if item["severity"] == "needs_evidence"]
+    unresolved_evidence = [item for item in needs_evidence if dispositions.get(item["finding_id"]) != "rejected"]
+    if unresolved_evidence:
+        return {"code": "unresolved_needs_evidence", "message": "仍有待查证意见未处置。"}
+    if review["verdict"] != "pass":
+        if review["completeness"] != "full":
+            return {"code": "review_not_passed", "message": "核验完整性不足，不能保存。"}
+        if not must_fix and not needs_evidence:
+            return {"code": "review_not_passed", "message": "核验未通过且没有可依据驳回的具体意见。"}
+    if review["verdict"] == "pass" and review["completeness"] != "full":
+        return {"code": "review_not_passed", "message": "核验完整性不足，不能保存。"}
     if review["evidence_gaps"]:
         return {"code": "review_evidence_gaps", "message": "核验仍有材料缺口，不能保存。"}
     blocking = _blocking_open_questions(conn, task["id"], output)
@@ -155,30 +174,24 @@ def save_task(config: Config, task_id: str) -> dict:
         try:
             if os.environ.get("CTA_FAIL_SAVE"):
                 raise OSError("injected save failure")
-            files = build_files(
+            base_files = build_files(
                 conn,
                 config,
                 task,
                 output,
                 review,
                 {**save, "verified": True, "status": "verified", "verified_at": verified_at},
+                include_report=False,
                 include_trace=False,
                 report_task=report_task,
                 attempt_status_overrides={attempt_id: "success"},
             )
-            ok, checked = verify_records(files)
+            ok, checked = verify_records(base_files)
             if not ok:
                 raise OSError("导出文件校验失败")
             conn.execute(
                 "UPDATE saves SET files_json = ?, verified = 1, verified_at = ? WHERE id = ?",
                 (json.dumps(checked, ensure_ascii=False), verified_at, save["save_id"]),
-            )
-            conn.commit()
-            trace_file = build_trace_file(conn, config, task)
-            checked = checked + [trace_file]
-            conn.execute(
-                "UPDATE saves SET files_json = ? WHERE id = ?",
-                (json.dumps(checked, ensure_ascii=False), save["save_id"]),
             )
             conn.execute(
                 "UPDATE tasks SET status = 'complete', phase = 'complete', reason = ?, updated_at = ?, paused = 0 WHERE id = ?",
@@ -189,6 +202,24 @@ def save_task(config: Config, task_id: str) -> dict:
                 attempt_id,
                 status="success",
                 meta={"output_id": output["output_id"], "save_id": save["save_id"], "files": len(checked)},
+            )
+            conn.commit()
+            final_task = conn.execute("SELECT * FROM tasks WHERE id = ?", (task_id,)).fetchone()
+            final_save = latest_save(conn, task_id)
+            report_file = build_report_file(conn, config, final_task, output, review, final_save)
+            trace_file = build_trace_file(conn, config, final_task)
+            checked = checked + [report_file, trace_file]
+            conn.execute(
+                "UPDATE saves SET files_json = ? WHERE id = ?",
+                (json.dumps(checked, ensure_ascii=False), save["save_id"]),
+            )
+            conn.commit()
+            ok, verified = verify_records(checked)
+            if not ok:
+                raise OSError("交付文件复核失败")
+            conn.execute(
+                "UPDATE saves SET files_json = ? WHERE id = ?",
+                (json.dumps(verified, ensure_ascii=False), save["save_id"]),
             )
             conn.commit()
             document = TaskService(config).status(task_id)

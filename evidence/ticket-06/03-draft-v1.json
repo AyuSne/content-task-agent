@@ -1,0 +1,186 @@
+{
+  "task_id": "t_14f25d2d74b9",
+  "mode": "mock",
+  "status": "in_progress",
+  "reason": "完整方案草稿 v1 已保存，等待内容核验。",
+  "duplicate": false,
+  "created_at": "2026-10-28T17:51:40+00:00",
+  "updated_at": "2026-10-28T17:51:46+00:00",
+  "input": {
+    "version": 1,
+    "topic": "校园剪辑挑战",
+    "budget": "10.00",
+    "budget_cents": 1000,
+    "deadline": "2026-10-30T04:00:00+00:00",
+    "audience": "大学生",
+    "requirements": [
+      "突出自动卡点"
+    ],
+    "raw": {
+      "topic": "校园剪辑挑战",
+      "budget": "10",
+      "deadline": "2026-10-30T12:00:00+08:00",
+      "audience": "大学生",
+      "requirements": [
+        "突出自动卡点"
+      ]
+    },
+    "fingerprint": "055b1c1f64b398a33fed1dd443a1dc784e428da7a62e2d8718bc5613f2775a99"
+  },
+  "validation": {
+    "errors": [],
+    "interpretations": []
+  },
+  "brief": {
+    "version": 1,
+    "content": {
+      "goal": "让大学生在社团招新季了解帧剪的自动卡点",
+      "audience": "18-24 岁大学生（合成调研样本）",
+      "product_facts": [
+        {
+          "claim": "自动卡点可把视频片段对齐到节拍点",
+          "material_id": "M-001",
+          "quote": "把用户选中的视频片段对齐到节拍点",
+          "scope": "iOS/Android 4.2 及以上；15/30/60 秒成片",
+          "use": "主脚本卡点段"
+        }
+      ],
+      "creative_requirements": [
+        {
+          "text": "突出自动卡点",
+          "source": "用户输入"
+        }
+      ],
+      "assumptions": [
+        {
+          "text": "活动平台为短视频信息流",
+          "basis": "题材常识，待确认"
+        }
+      ],
+      "suggestions": [
+        {
+          "text": "采用校园社团情境",
+          "basis": "M-003 调研"
+        }
+      ],
+      "unknowns": [
+        {
+          "question": "是否需要投放预算？",
+          "impact": "影响内容条数",
+          "blocking": false
+        }
+      ],
+      "sources": [
+        {
+          "material_id": "M-001",
+          "used_for": "能力依据"
+        },
+        {
+          "material_id": "M-003",
+          "used_for": "受众依据"
+        }
+      ],
+      "blocking_unknowns": 0
+    },
+    "created_at": "2026-10-28T17:51:43+00:00"
+  },
+  "review": null,
+  "save": null,
+  "plan": {
+    "version": "plan-2026-10-29.v1",
+    "steps": [
+      {
+        "step": "brief",
+        "title": "业务简报",
+        "status": "done"
+      },
+      {
+        "step": "campaign_draft",
+        "title": "完整活动方案草稿",
+        "status": "done"
+      },
+      {
+        "step": "review",
+        "title": "内容核验",
+        "status": "current"
+      },
+      {
+        "step": "save",
+        "title": "核实保存与导出",
+        "status": "pending"
+      }
+    ]
+  },
+  "gaps": [
+    {
+      "source": "brief",
+      "question": "是否需要投放预算？",
+      "impact": "影响内容条数",
+      "blocking": false
+    }
+  ],
+  "mode_notice": "Mock 仅验证流程、状态与确定性规则，不代表真实模型决策或语义质量。",
+  "progress": {
+    "sim_start": "2026-10-29T00:00:00+08:00",
+    "sim_now": "2026-10-29T00:00:10+08:00",
+    "sim_elapsed_ms": 10000,
+    "used_rounds": 4,
+    "max_rounds": 12,
+    "paused": false,
+    "current_output": {
+      "output_id": "o_bd24dea2c761b197",
+      "version": 1,
+      "status": "draft",
+      "strategy": "user_scenario"
+    },
+    "save": null,
+    "phase": "draft_ready",
+    "brief_version": 1,
+    "last_run_at": "2026-10-28T17:51:46+00:00"
+  },
+  "resources": {
+    "budget_cents": 1000,
+    "sim_spent_cents": 140,
+    "remaining_cents": 860,
+    "real_requests": 0,
+    "mock_requests": 5,
+    "model_requests": 5,
+    "real_usage": {
+      "requests": 5,
+      "real_requests": 0,
+      "mock_requests": 5,
+      "unknown_usage_requests": 4,
+      "usage_complete": false,
+      "prompt_tokens": 800,
+      "completion_tokens": 400,
+      "cache_hit_tokens": 0,
+      "cache_miss_tokens": 0,
+      "elapsed_ms": 0
+    },
+    "real_cost": null
+  },
+  "model_config": {
+    "provider": "deepseek",
+    "sdk": "openai",
+    "base_url": "https://api.deepseek.com",
+    "model": "deepseek-flash",
+    "api_key": "set",
+    "thinking": false,
+    "streaming": false,
+    "sdk_auto_retries": 0
+  },
+  "versions": {
+    "app": "0.1.0",
+    "prompt": "main-2026-10-29.v3",
+    "materials": "2026-10-29.v1",
+    "pricing": "2026-10-29.v1"
+  },
+  "artifacts": {
+    "campaign_versions": 1
+  },
+  "run": {
+    "rounds_used": 2,
+    "stop_reason": "draft_ready",
+    "requests": 2
+  }
+}

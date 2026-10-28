@@ -16,7 +16,7 @@ FFFFFF                                                                   [100%]
 
 ```text
 $ uv run pytest -q
-54 passed
+63 passed
 $ uv run ruff check src tests
 All checks passed!
 ```
@@ -32,13 +32,13 @@ All checks passed!
 - `delivery/`：`campaign-v1.md`、`campaign-v1.json`、`execution-report.md`、`brief-v1.json`、`trace.jsonl`。
 - `07-inspect.json`：同一权威事实的消息、产物、核验、保存、账本与请求记录。
 
-执行报告含：状态/版本、模拟时钟与完成时刻、真实墙钟与 API 耗时、预算与账本、计划步骤、工具结果、简要决策依据、核验意见、保存文件与缺口；不含密钥或内部思维。
+执行报告含：状态/版本、模拟时钟与完成时刻、真实墙钟与 API 耗时、预算与账本、计划步骤、工具结果、简要决策依据（工具调用名称或助手说明）、核验意见、保存文件与缺口；不含密钥或内部思维。保存后 `export` 只校验既有文件、不重写，哈希与保存记录一致。
 
 ## 真实模型核验（已执行，未通过）
 
 任务 `t_708f84239aa0`（03 的完整草稿，真实 DeepSeek）：
 
-- 第一次 `review`：评估响应一次返回两个 `read_material` 调用，被协议校验拒绝；第二次请求仍无有效单动作，核验记为 `incomplete`，保留 80 分消耗与请求记录（`08-real-review-incomplete.json`）。
+- 第一次 `review`：评估响应一次返回两个 `read_material` 调用，被协议校验拒绝；当时实现只把拒绝写入数据库、未回送下一请求，核验记为 `incomplete`（`08-real-review-incomplete.json`，`requests_used=1`）。该问题已修复：拒绝/回读结果现在追加到评估对话并进入下一请求，由 `test_non_object_review_arguments_*`、多调用与回读上限测试覆盖。
 - 第二次 `review`：模型改用单动作核验，返回 `fail/full` 与 3 条 `must_fix`（阻塞事实与制作步骤矛盾、音乐授权晚于截止、切片与主片安排不一致），并给出具体位置、要求、依据与建议（`09-real-review-fail.json`）。累计费用 600 分。
 - `save`：被 `unresolved_must_fix` 拒绝，任务保持 `in_progress/reviewed`，不写成功保存记录、不谎报完成（`10-real-save-blocked.json`，退出码 4）。
 
@@ -55,7 +55,7 @@ All checks passed!
 | 保存针对明确版本；完成需记录与文件一致 | `05-save.json`、`delivery/` 哈希；`complete` |
 | SQLite 同一权威导出方案/报告/JSON/Trace | `06-export.json`、`delivery/`；`export` 重建哈希一致 |
 | 报告含计划、步骤、工具结果、决策依据、分类成本、真实耗时、模拟完成时间 | `delivery/execution-report.md` |
-| 正常完成、未解决质量、明确保存失败、已完成重复查询 | 6 个测试 + 确定性/真实证据 |
+| 正常完成、未解决质量、明确保存失败、已完成重复查询 | 9 个测试 + 确定性/真实证据 |
 | 密钥与内部思维不泄露 | 报告、Trace、evidence 检查；密钥仅 `set/missing` |
 
 ## 已知限制
