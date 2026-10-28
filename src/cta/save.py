@@ -12,6 +12,7 @@ import os
 from cta.config import Config, utc_now_iso
 from cta.db import open_store
 from cta.export import build_files, build_trace_file, verify_records
+from cta.faults import crash
 from cta.pricing import load_price_table
 from cta.repository import (
     create_save,
@@ -99,6 +100,20 @@ def save_task(config: Config, task_id: str) -> dict:
             document["duplicate"] = True
             document["save"] = existing
             return document
+        if (
+            existing is not None
+            and existing["output_id"] == output["output_id"]
+            and not existing["verified"]
+            and existing["status"] not in ("failed",)
+        ):
+            document = TaskService(config).status(task_id)
+            document["duplicate"] = False
+            document["save"] = existing
+            document["save_error"] = {
+                "code": "save_unknown",
+                "message": "保存结果无法核实；保持未知并安全停止，不盲目重放。由后续核实或导出修复处理。",
+            }
+            return document
 
         blocked = _preconditions(conn, task, output)
         if blocked is not None:
@@ -140,6 +155,7 @@ def save_task(config: Config, task_id: str) -> dict:
             verified=False,
         )
         conn.commit()
+        crash("save_after_record")
         try:
             if os.environ.get("CTA_FAIL_SAVE"):
                 raise OSError("injected save failure")

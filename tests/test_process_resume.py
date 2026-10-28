@@ -5,16 +5,18 @@ Faults are injected only at system boundaries (model script, test-only env).
 """
 
 import json
+import shutil
 
-from conftest import cli_json, run_cli_process
+from conftest import REPO_ROOT, cli_json, run_cli, run_cli_process
 from test_campaign_draft import (
     CAMPAIGN,
     _brief_then_draft_script,
-    _campaign_tool,
-    _generation_item,
-    _tool,
     _brief_tool,
+    _campaign_tool,
     _create,
+    _generation_item,
+    _run_until_draft,
+    _tool,
 )
 
 
@@ -486,3 +488,171 @@ def test_resume_recovers_campaign_effect_written_before_tool_receipt(cli_env, mo
     assert result["recovered"] is True
     assert result["output_version"] == 1
     assert CAMPAIGN["activity"]["theme"] in after["outputs"][0]["content_md"]
+
+
+REVIEW_PASS = {
+    "verdict": "pass",
+    "completeness": "full",
+    "summary": "五项质量要求均满足；意见仅为可选改进。",
+    "findings": [],
+    "evidence_gaps": [],
+}
+
+
+def _review_item():
+    return {"channel": "review", "type": "tool", "name": "report_review", "arguments": REVIEW_PASS}
+
+
+def _reviewed_task(cli_env, model_script):
+    task = _create()
+    script = model_script(_brief_then_draft_script() + [_review_item()])
+    _run_until_draft(task["task_id"])
+    reviewed = cli_json("review", task["task_id"])
+    assert reviewed["progress"]["phase"] == "reviewed"
+    assert reviewed["review"]["verdict"] == "pass"
+    assert reviewed["resources"]["sim_spent_cents"] == 220
+    return task, script
+
+
+def test_resume_keeps_unknown_save_and_never_replays_it(cli_env, model_script):
+    task, script = _reviewed_task(cli_env, model_script)
+    data_dir = cli_env / "data"
+
+    crashed = _run_process("save", task["task_id"], data_dir=data_dir, script=script, crash="save_after_record")
+    assert crashed.returncode == 70, crashed.stderr
+
+    before = cli_json("inspect", task["task_id"])
+    assert before["save"]["status"] == "verified"
+    assert before["save"]["verified"] is False
+    assert before["attempts"][-1]["kind"] == "save_campaign"
+    assert before["attempts"][-1]["status"] == "running"
+    assert before["resources"]["sim_spent_cents"] == 230
+    assert before["progress"]["sim_elapsed_ms"] == 17000
+    save_attempts = len([item for item in before["attempts"] if item["kind"] == "save_campaign"])
+    requests_before = len(before["llm_requests"])
+
+    resumed = _process_json("resume", task["task_id"], data_dir=data_dir, script=script)
+    assert resumed["status"] == "incomplete"
+    assert resumed["progress"]["phase"] == "save_unknown"
+    assert "保存结果未知" in resumed["reason"]
+    assert resumed["save"]["status"] == "unknown"
+    assert resumed["save"]["verified"] is False
+    assert resumed["resources"]["sim_spent_cents"] == 230
+    assert resumed["progress"]["sim_elapsed_ms"] == 17000
+    assert resumed["run"]["recovery"]["save_unknown"]["status"] == "unknown"
+
+    after = cli_json("inspect", task["task_id"])
+    assert len([item for item in after["attempts"] if item["kind"] == "save_campaign"]) == save_attempts
+    assert after["attempts"][-1]["status"] == "interrupted"
+    assert len(after["llm_requests"]) == requests_before
+
+    code, out, _err = run_cli("save", task["task_id"])
+    assert code == 4
+    blocked = json.loads(out)
+    assert blocked["save_error"]["code"] == "save_unknown"
+    assert blocked["status"] == "incomplete"
+    again = cli_json("inspect", task["task_id"])
+    assert len([item for item in again["attempts"] if item["kind"] == "save_campaign"]) == save_attempts
+    assert again["resources"]["sim_spent_cents"] == 230
+
+    resumed_again = _process_json("resume", task["task_id"], data_dir=data_dir, script=script)
+    assert resumed_again["progress"]["phase"] == "save_unknown"
+    assert resumed_again["run"]["recovery"]["save_unknown"]["status"] == "unknown"
+    final = cli_json("inspect", task["task_id"])
+    assert len([item for item in final["attempts"] if item["kind"] == "save_campaign"]) == save_attempts
+
+
+def test_resume_reuses_completed_review_and_does_not_repeat_model_requests(cli_env, model_script):
+    task, script = _reviewed_task(cli_env, model_script)
+    data_dir = cli_env / "data"
+    before = cli_json("inspect", task["task_id"])
+    review_id = before["reviews"][0]["review_id"]
+    messages_before = len(before["messages"])
+    requests_before = len(before["llm_requests"])
+    attempts_before = len(before["attempts"])
+
+    resumed = _process_json("resume", task["task_id"], data_dir=data_dir, script=script)
+    assert resumed["run"]["stop_reason"] == "reviewed"
+    assert resumed["progress"]["phase"] == "reviewed"
+    assert resumed["status"] == "in_progress"
+    assert resumed["review"]["review_id"] == review_id
+    assert resumed["resources"]["sim_spent_cents"] == 220
+    assert resumed["run"]["recovery"]["reused"]["review"]["review_id"] == review_id
+    after = cli_json("inspect", task["task_id"])
+    assert len(after["llm_requests"]) == requests_before
+    assert len(after["attempts"]) == attempts_before
+    assert len(after["messages"]) > messages_before
+    assert after["messages"][:messages_before] == before["messages"]
+
+    saved = _process_json("save", task["task_id"], data_dir=data_dir, script=script)
+    assert saved["status"] == "complete"
+    assert saved["save"]["verified"] is True
+    assert saved["review"]["review_id"] == review_id
+    assert saved["resources"]["sim_spent_cents"] == 230
+
+
+def _copy_runtime_inputs(tmp_path):
+    material_path = tmp_path / "catalog.json"
+    shutil.copy(REPO_ROOT / "fixtures" / "materials" / "catalog.json", material_path)
+    knowledge_dir = tmp_path / "knowledge"
+    shutil.copytree(REPO_ROOT / "knowledge", knowledge_dir)
+    payload = json.loads(material_path.read_text(encoding="utf-8"))
+    for material in payload["materials"]:
+        if material["id"] == "M-001":
+            material["text"] += " 旧资料标记AAA"
+    material_path.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
+    manifest = json.loads((knowledge_dir / "manifest.json").read_text(encoding="utf-8"))
+    creation = next(item for item in manifest["docs"] if item["id"] == "campaign-creation")
+    doc_path = knowledge_dir / creation["path"]
+    doc_path.write_text(doc_path.read_text(encoding="utf-8") + "\n旧知识标记OLDK\n", encoding="utf-8")
+    return material_path, knowledge_dir
+
+
+def test_resume_uses_saved_material_and_knowledge_bodies_after_external_change(cli_env, model_script, monkeypatch):
+    material_path, knowledge_dir = _copy_runtime_inputs(cli_env)
+    monkeypatch.setenv("CTA_MATERIALS_PATH", str(material_path))
+    monkeypatch.setenv("CTA_KNOWLEDGE_DIR", str(knowledge_dir))
+
+    task = _create()
+    script = model_script(_generation_script())
+    data_dir = cli_env / "data"
+    first = _process_json("run", task["task_id"], data_dir=data_dir, script=script)
+    assert first["progress"]["phase"] == "brief_ready"
+
+    crashed = _run_process("run", task["task_id"], data_dir=data_dir, script=script, crash="generation_after_start")
+    assert crashed.returncode == 70, crashed.stderr
+    before = cli_json("inspect", task["task_id"])
+    knowledge_before = before["knowledge"][0]
+    materials_before = {item["material_id"]: item for item in before["material_snapshots"]}
+    assert materials_before["M-001"]["version"] == "2026-10-29.v1"
+    messages_before = before["messages"]
+
+    payload = json.loads(material_path.read_text(encoding="utf-8"))
+    for material in payload["materials"]:
+        if material["id"] == "M-001":
+            material["text"] = material["text"].replace("旧资料标记AAA", "新资料标记BBB")
+    material_path.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
+    manifest = json.loads((knowledge_dir / "manifest.json").read_text(encoding="utf-8"))
+    creation = next(item for item in manifest["docs"] if item["id"] == "campaign-creation")
+    doc_path = knowledge_dir / creation["path"]
+    doc_path.write_text(
+        doc_path.read_text(encoding="utf-8").replace("旧知识标记OLDK", "新知识标记NEWK"),
+        encoding="utf-8",
+    )
+
+    resumed = _process_json("resume", task["task_id"], data_dir=data_dir, script=script)
+    assert resumed["progress"]["phase"] == "draft_ready"
+    assert [item["tool"] for item in resumed["run"]["recovery"]["interrupted_calls"]] == ["generate_script"]
+
+    after = cli_json("inspect", task["task_id"])
+    assert after["messages"][: len(messages_before)] == messages_before
+    assert after["knowledge"][0] == knowledge_before
+    assert {item["material_id"]: item for item in after["material_snapshots"]}["M-001"] == materials_before["M-001"]
+    generation_text = " ".join(
+        message["content"] or "" for message in after["generator_messages"] if message["role"] != "assistant"
+    )
+    assert "旧知识标记OLDK" in generation_text
+    assert "旧资料标记AAA" in generation_text
+    assert "新知识标记NEWK" not in generation_text
+    assert "新资料标记BBB" not in generation_text
+    assert after["knowledge"][0]["chars"] == knowledge_before["chars"]

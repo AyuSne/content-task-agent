@@ -479,7 +479,6 @@ def _detect_unknown_save(conn, task) -> dict | None:
 
 
 def _reused_state(conn, task) -> dict:
-    brief = latest_brief(conn, task["id"])
     output = latest_output(conn, task["id"])
     review = latest_review(conn, task["id"])
     save = latest_save(conn, task["id"])
@@ -516,7 +515,6 @@ def _reused_state(conn, task) -> dict:
 
 
 def _todos(conn, task) -> list[dict]:
-    brief = latest_brief(conn, task["id"])
     output = latest_output(conn, task["id"])
     review = latest_review(conn, task["id"])
     save = latest_save(conn, task["id"])

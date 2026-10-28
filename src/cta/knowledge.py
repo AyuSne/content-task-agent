@@ -4,10 +4,17 @@ from __future__ import annotations
 
 import hashlib
 import json
+import os
 from dataclasses import dataclass
 from pathlib import Path
 
 from cta.config import find_project_root
+
+
+def _knowledge_root(project_root: Path) -> Path:
+    """Test-only override; normal runs use the project's versioned knowledge."""
+    override = os.environ.get("CTA_KNOWLEDGE_DIR")
+    return Path(override) if override else project_root / "knowledge"
 
 
 @dataclass(frozen=True)
@@ -28,21 +35,21 @@ class KnowledgeDoc:
             "title": self.title,
             "version": self.version,
             "sha256": self.sha256,
-            "path": str(self.path.relative_to(self.path.parents[2])),
+            "path": str(self.path),
         }
 
 
 def _manifest(project_root: Path) -> dict:
-    return json.loads((project_root / "knowledge" / "manifest.json").read_text(encoding="utf-8"))
+    return json.loads((_knowledge_root(project_root) / "manifest.json").read_text(encoding="utf-8"))
 
 
 def load_doc(knowledge_id: str, project_root: Path | None = None) -> KnowledgeDoc:
-    root = project_root or find_project_root()
-    docs = {item["id"]: item for item in _manifest(root)["docs"]}
+    root = _knowledge_root(project_root or find_project_root())
+    docs = {item["id"]: item for item in _manifest(project_root or find_project_root())["docs"]}
     if knowledge_id not in docs:
         raise ValueError(f"unknown knowledge: {knowledge_id}")
     entry = docs[knowledge_id]
-    path = root / "knowledge" / entry["path"]
+    path = root / entry["path"]
     content = path.read_text(encoding="utf-8")
     return KnowledgeDoc(
         knowledge_id=knowledge_id,
