@@ -491,10 +491,17 @@ def _reused_state(conn, task) -> dict:
     material_count = conn.execute(
         "SELECT COUNT(*) AS n FROM material_snapshots WHERE task_id = ?", (task["id"],)
     ).fetchone()["n"]
-    searches = conn.execute(
-        "SELECT COUNT(*) AS n FROM messages WHERE task_id = ? AND role = 'tool' AND name = 'search_materials'",
+    search_rows = conn.execute(
+        "SELECT content FROM messages WHERE task_id = ? AND role = 'tool' AND name = 'search_materials'",
         (task["id"],),
-    ).fetchone()["n"]
+    ).fetchall()
+    searches = 0
+    for row in search_rows:
+        try:
+            if json.loads(row["content"] or "{}").get("ok") is True:
+                searches += 1
+        except json.JSONDecodeError:
+            continue
     attempts = conn.execute(
         "SELECT COUNT(*) AS n FROM attempts WHERE task_id = ?", (task["id"],)
     ).fetchone()["n"]

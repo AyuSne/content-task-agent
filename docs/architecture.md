@@ -20,6 +20,8 @@ src/cta/
   knowledge.py   版本化工作知识加载（正文 + sha256）
   review.py      独立上下文有界评估（最多 3 请求/2 回读）
   save.py        核验前置检查、保存尝试与文件核实
+  recovery.py    跨进程恢复：核实未完成动作、追加恢复结果/中断事实、构造恢复快照
+  faults.py      仅测试用的系统边界故障注入（环境变量）
   export.py      Markdown/JSON/JSONL Trace 导出与报告
 ```
 
@@ -28,7 +30,7 @@ src/cta/
 - 不引入 Web、插件平台、通用多 Agent 框架；模型调用是系统边界，用 `ModelClient` 协议注入。
 - 资料正文是数据不是指令；系统提示明确此边界。业务工具不能扩大用户授权。
 
-## 已落地事实（01-04）
+## 已落地事实（01-05）
 
 - CLI：`cta [--mode mock|real] [--data-dir DIR] [--format json|text] create|status|run|review|save|export|inspect|list`。
 - 数据目录：`<repo>/.cta-runs/<mode>/tasks.db` 与 `<mode>/exports/`；`CTA_DATA_DIR` 覆盖根目录；真实/Mock 完全分离。
@@ -47,7 +49,12 @@ src/cta/
 - 导出：方案 Markdown/JSON、执行报告、JSONL Trace、简报 JSON 均从 SQLite 同一权威生成；报告含计划、步骤、工具结果、决策依据、账本、真实/模拟时间、核验与保存。
 - 计量：业务工具启动时写 `attempts`（running + 固定费用/耗时）与 `ledger`（nature=incurred），并推进 `tasks.sim_elapsed_ms`；执行前检查预算与模拟截止，生成前另查完整剩余路径；拒绝不计费。真实模型请求逐次写 `llm_requests`（用量、缓存命中/未命中、耗时、错误、mock 标记），未知用量为 NULL 并单列计数。
 - 简报：`briefs` 按版本保存；事实必须来自本任务材料且 quote 可在正文找到、scope 非空；失败校验为工具拒绝，不保存。
-- 测试 seam：CLI 公开输出；跨进程用 `python -m cta` + 真实 SQLite。测试不直接查库断言行为；Mock 只注入模型边界。
+- 续跑（05）：`run` 执行、`resume` 显式续跑、`pause` 暂停；真实新进程先核实 pending 工具调用、running 尝试与未核实 save，再追加有依据结果或 `interrupted`/`unknown`，保持 assistant/tool 合法配对。
+- 恢复事实：`messages` 中追加 `meta.kind=recovery_fact` 的 `[恢复事实]` 用户消息与当前快照；`inspect` 暴露 `recoveries`/`snapshots`/`material_snapshots`/`todos`。有效检索/草稿/评审直接复用，生成只有完整有效候选才可恢复复用；不完整输出仅留追溯。
+- 计量与额度：恢复不新建尝试、不重复收费；只有模型/用户实际重试才新增尝试。暂停不推进模拟时钟；触顶/过期后续跑不获得新额度。
+- 资料与知识：`material_snapshots` 在首次使用时冻结全部任务材料正文；生成与回读使用任务快照而非当前外部文件；知识正文继续从 `knowledge_loads` 恢复，不重读外部文件。
+- 保存未知（05 边界）：恢复发现同版本未核实 save 时标记 `unknown`、`phase=save_unknown`、状态 `incomplete` 并安全停止；`save` 对未知记录拒绝重放。完整回执核实与导出修复留 08。
+- 测试 seam：CLI 公开输出；跨进程用 `python -m cta` + 真实 SQLite；测试专用 `CTA_FAULT_CRASH` 在系统边界让子进程中断，`CTA_MATERIALS_PATH`/`CTA_KNOWLEDGE_DIR` 只用于验证外部文件变化不被静默替换。
 
 ## 扩展约定
 

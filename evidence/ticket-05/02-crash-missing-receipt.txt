@@ -1,0 +1,5 @@
+command: python -m cta run t_eefbe1ad83f4
+CTA_FAULT_CRASH=after_tool_request
+returncode: 70
+stdout: 
+stderr: 
