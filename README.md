@@ -116,6 +116,7 @@ uv run pytest -q
 - [运行、复现与运维](docs/delivery/05-operations.md)
 - [证据索引](docs/delivery/06-evidence-index.md)
 - [最终双轴评审](docs/delivery/07-final-review.md)
+- [AI 使用说明](docs/delivery/09-ai-usage.md)
 - [复盘](docs/delivery/08-retro.md)
 
 ## 当前范围与限制
