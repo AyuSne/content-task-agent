@@ -20,8 +20,7 @@ def _create(*extra, **overrides):
 
 
 def test_missing_required_inputs_create_needs_input_task_with_reasons(cli_env):
-    doc = run_cli("create")
-    code, out, err = doc
+    code, out, err = run_cli("create")
     assert code == 0, err
     body = json.loads(out)
 
@@ -174,4 +173,27 @@ def test_list_is_scoped_to_mode(cli_env):
     assert listing["count"] == 1
     assert listing["tasks"][0]["task_id"] == mock_task["task_id"]
     assert listing["tasks"][0]["task_id"] != real_task["task_id"]
+
+
+def test_equivalent_invalid_budget_forms_share_one_task(cli_env):
+    first = cli_json("create", "--topic", "主题", "--budget", "0", "--deadline", "2026-10-30T12:00:00+08:00")
+    second = cli_json("create", "--topic", "主题", "--budget", "0.0", "--deadline", "2026-10-30T12:00:00+08:00")
+    assert first["task_id"] == second["task_id"]
+    assert second["duplicate"] is True
+
+
+def test_date_only_deadline_records_interpretation(cli_env):
+    body = cli_json("create", "--topic", "主题", "--budget", "10", "--deadline", "2026-10-30")
+    assert body["status"] == "in_progress"
+    assert body["input"]["deadline"] == "2026-10-30T15:59:59+00:00"
+    assert any("只给到日期" in note for note in body["validation"]["interpretations"])
+
+
+def test_bad_config_respects_text_format(cli_env, monkeypatch):
+    monkeypatch.setenv("CTA_SIM_START", "not-a-date")
+    code, out, _err = run_cli("--format", "text", "create")
+    assert code == 2
+    assert out.startswith("错误：")
+    assert "bad_config" not in out
+
 

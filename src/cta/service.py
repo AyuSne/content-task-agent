@@ -12,8 +12,6 @@ from cta.identity import Intake, RawInput, dedupe_key, normalize
 
 STATUS_NEEDS_INPUT = "needs_input"
 STATUS_IN_PROGRESS = "in_progress"
-STATUS_INCOMPLETE = "incomplete"
-STATUS_COMPLETE = "complete"
 MAX_ROUNDS = 12
 
 
@@ -40,11 +38,7 @@ class TaskService:
 
             task_id = "t_" + secrets.token_hex(6)
             status = STATUS_IN_PROGRESS if intake.valid else STATUS_NEEDS_INPUT
-            reason = (
-                "已创建，尚未开始执行；当前没有已生成产物。"
-                if intake.valid
-                else intake.failure_summary()
-            )
+            reason = "已创建，尚未开始执行；当前没有已生成产物。" if intake.valid else intake.failure_summary()
             conn.execute(
                 """
                 INSERT INTO tasks (id, mode, fingerprint, dedupe_key, status, reason,
@@ -92,9 +86,7 @@ class TaskService:
 
     def status(self, task_id: str) -> dict:
         with open_store(self.config.db_path) as conn:
-            task = conn.execute("SELECT * FROM tasks WHERE id = ?", (task_id,)).fetchone()
-            if task is None:
-                raise TaskNotFound(task_id)
+            task = self._require_task(conn, task_id)
             return self._view(conn, task, duplicate=False)
 
     def list_tasks(self) -> dict:
@@ -102,6 +94,13 @@ class TaskService:
             rows = conn.execute("SELECT * FROM tasks ORDER BY created_at DESC, id DESC").fetchall()
             tasks = [self._summary(row) for row in rows]
         return {"mode": self.config.mode, "count": len(tasks), "tasks": tasks}
+
+    @staticmethod
+    def _require_task(conn, task_id: str):
+        task = conn.execute("SELECT * FROM tasks WHERE id = ?", (task_id,)).fetchone()
+        if task is None:
+            raise TaskNotFound(task_id)
+        return task
 
     def _summary(self, task) -> dict:
         return {
@@ -118,17 +117,7 @@ class TaskService:
             "SELECT * FROM task_inputs WHERE task_id = ? AND version = ?",
             (task["id"], task["input_version"]),
         ).fetchone()
-        errors = json.loads(input_row["validation_json"])
-        interpretations = json.loads(input_row["interpretations_json"])
-        raw = json.loads(input_row["raw_json"])
-        requirements = json.loads(input_row["requirements_json"])
         spent = self._sim_spent(conn, task["id"])
-        budget_cents = input_row["budget_cents"]
-        sim_start = datetime.fromisoformat(task["sim_start"])
-        sim_now = sim_start + timedelta(milliseconds=task["sim_elapsed_ms"])
-        current_output = None
-        if task["current_output_id"]:
-            current_output = {"output_id": task["current_output_id"]}
         return {
             "task_id": task["id"],
             "mode": task["mode"],
@@ -137,45 +126,63 @@ class TaskService:
             "duplicate": duplicate,
             "created_at": task["created_at"],
             "updated_at": task["updated_at"],
-            "input": {
-                "version": input_row["version"],
-                "topic": input_row["topic"],
-                "budget": None if budget_cents is None else f"{budget_cents / 100:.2f}",
-                "budget_cents": budget_cents,
-                "deadline": input_row["deadline"],
-                "audience": input_row["audience"],
-                "requirements": requirements,
-                "raw": raw,
-                "fingerprint": task["fingerprint"],
+            "input": self._input_view(task, input_row),
+            "validation": {
+                "errors": json.loads(input_row["validation_json"]),
+                "interpretations": json.loads(input_row["interpretations_json"]),
             },
-            "validation": {"errors": errors, "interpretations": interpretations},
-            "progress": {
-                "sim_start": task["sim_start"],
-                "sim_now": sim_now.isoformat(),
-                "sim_elapsed_ms": task["sim_elapsed_ms"],
-                "used_rounds": task["used_rounds"],
-                "max_rounds": MAX_ROUNDS,
-                "paused": bool(task["paused"]),
-                "current_output": current_output,
-                "save": None,
-                "phase": "created" if task["used_rounds"] == 0 and not task["current_output_id"] else "working",
-            },
-            "resources": {
-                "budget_cents": budget_cents,
-                "sim_spent_cents": spent,
-                "remaining_cents": None if budget_cents is None else budget_cents - spent,
-                "real_requests": 0,
-                "real_cost": None,
-            },
+            "progress": self._progress_view(task),
+            "resources": self._resources_view(input_row, spent),
             "model_config": self.config.model_config_public(),
             "artifacts": {},
         }
 
     @staticmethod
+    def _input_view(task, input_row) -> dict:
+        budget_cents = input_row["budget_cents"]
+        return {
+            "version": input_row["version"],
+            "topic": input_row["topic"],
+            "budget": None if budget_cents is None else f"{budget_cents / 100:.2f}",
+            "budget_cents": budget_cents,
+            "deadline": input_row["deadline"],
+            "audience": input_row["audience"],
+            "requirements": json.loads(input_row["requirements_json"]),
+            "raw": json.loads(input_row["raw_json"]),
+            "fingerprint": task["fingerprint"],
+        }
+
+    @staticmethod
+    def _progress_view(task) -> dict:
+        sim_start = datetime.fromisoformat(task["sim_start"])
+        sim_now = sim_start + timedelta(milliseconds=task["sim_elapsed_ms"])
+        current_output = {"output_id": task["current_output_id"]} if task["current_output_id"] else None
+        return {
+            "sim_start": task["sim_start"],
+            "sim_now": sim_now.isoformat(),
+            "sim_elapsed_ms": task["sim_elapsed_ms"],
+            "used_rounds": task["used_rounds"],
+            "max_rounds": MAX_ROUNDS,
+            "paused": bool(task["paused"]),
+            "current_output": current_output,
+            "save": None,
+            "phase": "created" if task["used_rounds"] == 0 and not task["current_output_id"] else "working",
+        }
+
+    @staticmethod
+    def _resources_view(input_row, spent: int) -> dict:
+        budget_cents = input_row["budget_cents"]
+        return {
+            "budget_cents": budget_cents,
+            "sim_spent_cents": spent,
+            "remaining_cents": None if budget_cents is None else budget_cents - spent,
+            "real_requests": 0,
+            "real_cost": None,
+        }
+
+    @staticmethod
     def _sim_spent(conn, task_id: str) -> int:
-        table = conn.execute(
-            "SELECT name FROM sqlite_master WHERE type = 'table' AND name = 'ledger'"
-        ).fetchone()
+        table = conn.execute("SELECT name FROM sqlite_master WHERE type = 'table' AND name = 'ledger'").fetchone()
         if table is None:
             return 0
         row = conn.execute(
@@ -183,7 +190,3 @@ class TaskService:
             (task_id,),
         ).fetchone()
         return int(row["total"])
-
-
-def require_task(view_error: TaskNotFound) -> dict:
-    return {"error": "task_not_found", "task_id": view_error.task_id, "message": str(view_error)}

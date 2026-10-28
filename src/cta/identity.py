@@ -1,7 +1,9 @@
 """Input normalization, validation and request identity.
 
 Only explicit, normalized field equality identifies a duplicate request. No
-semantic similarity is used.
+semantic similarity is used. Invalid fields participate by their stable error
+code, so equivalent invalid forms (for example ``0`` and ``0.0``) still map to
+one task.
 """
 
 from __future__ import annotations
@@ -9,11 +11,11 @@ from __future__ import annotations
 import hashlib
 import json
 from collections.abc import Iterable
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from datetime import datetime
 from decimal import Decimal, InvalidOperation, localcontext
 
-from cta.config import parse_instant, to_utc_iso
+from cta.config import parse_instant_with_notes, to_utc_iso
 
 
 def collapse(value: str) -> str:
@@ -63,7 +65,6 @@ class Intake:
     raw: RawInput
     topic: str | None
     budget_cents: int | None
-    budget_display: str | None
     deadline_utc: datetime | None
     audience: str | None
     requirements: list[str]
@@ -84,17 +85,19 @@ class Intake:
                 fields.append(label)
         return "输入不完整或无效，需要补充：" + "、".join(fields)
 
+    def _invalid_code(self, field_name: str) -> str:
+        for error in self.errors:
+            if error.field == field_name:
+                return f"invalid:{error.code}"
+        return "invalid:unknown"
+
     def canonical(self, mode: str) -> dict:
-        # Valid fields are identified by normalized value only; invalid or
-        # missing fields keep the normalized raw text so distinct incomplete
-        # requests are not silently merged.
         return {
             "mode": mode,
-            "topic": self.topic,
-            "budget_cents": self.budget_cents,
-            "budget_raw": None if self.budget_cents is not None else collapse(self.raw.budget or ""),
-            "deadline_utc": None if self.deadline_utc is None else to_utc_iso(self.deadline_utc),
-            "deadline_raw": None if self.deadline_utc is not None else collapse(self.raw.deadline or ""),
+            "topic": self.topic if self.topic is not None else self._invalid_code("topic"),
+            "budget": self.budget_cents if self.budget_cents is not None else self._invalid_code("budget"),
+            "deadline": None if self.deadline_utc is None else to_utc_iso(self.deadline_utc),
+            "deadline_invalid": None if self.deadline_utc is not None else self._invalid_code("deadline"),
             "audience": self.audience,
             "requirements": self.requirements,
         }
@@ -108,46 +111,44 @@ def _parse_topic(raw: str | None, errors: list[ValidationError]) -> str | None:
     return text
 
 
-def _parse_budget(raw: str | None, errors: list[ValidationError]) -> tuple[int | None, str | None]:
+def _parse_budget(raw: str | None, errors: list[ValidationError]) -> int | None:
     text = (raw or "").strip()
     if not text:
         errors.append(ValidationError("budget", "required", "任务预算（budget）为必填项，单位为元。"))
-        return None, None
+        return None
     try:
         with localcontext() as ctx:
             ctx.prec = 28
             amount = Decimal(text)
     except (InvalidOperation, ValueError):
         errors.append(ValidationError("budget", "not_a_number", f"任务预算必须是数字，收到：{text}"))
-        return None, None
+        return None
     if not amount.is_finite():
         errors.append(ValidationError("budget", "not_a_number", f"任务预算必须是有限数字，收到：{text}"))
-        return None, None
+        return None
     if amount <= 0:
         errors.append(ValidationError("budget", "not_positive", "任务预算必须大于 0。"))
-        return None, None
+        return None
     quantized = amount.quantize(Decimal("0.01"))
     if quantized != amount:
         errors.append(ValidationError("budget", "too_precise", "任务预算最多保留两位小数。"))
-        return None, None
-    cents = int(quantized * 100)
-    return cents, f"{cents / 100:.2f}"
+        return None
+    return int(quantized * 100)
 
 
-def _parse_deadline(raw: str | None, sim_start: datetime, errors: list[ValidationError], notes: list[str]) -> datetime | None:
+def _parse_deadline(
+    raw: str | None, sim_start: datetime, errors: list[ValidationError], notes: list[str]
+) -> datetime | None:
     text = (raw or "").strip()
     if not text:
         errors.append(ValidationError("deadline", "required", "方案截止时间（deadline）为必填项，使用 ISO-8601 时间。"))
         return None
     try:
-        parsed = parse_instant(text)
+        parsed, parsed_notes = parse_instant_with_notes(text)
     except (ValueError, TypeError):
         errors.append(ValidationError("deadline", "invalid_format", f"方案截止时间格式无效：{text}"))
         return None
-    if len(text) == 10:
-        notes.append("截止时间只给到日期，按北京时间当日 23:59:59 解释。")
-    elif "T" in text and not (text.endswith(("Z", "z")) or "+" in text[10:] or "-" in text[10:]):
-        notes.append("截止时间未带时区，按北京时间解释。")
+    notes.extend(parsed_notes)
     if parsed <= sim_start:
         errors.append(
             ValidationError(
@@ -164,38 +165,24 @@ def normalize(raw: RawInput, sim_start: datetime, mode: str) -> Intake:
     errors: list[ValidationError] = []
     notes: list[str] = []
     topic = _parse_topic(raw.topic, errors)
-    budget_cents, budget_display = _parse_budget(raw.budget, errors)
+    budget_cents = _parse_budget(raw.budget, errors)
     deadline = _parse_deadline(raw.deadline, sim_start, errors, notes)
-    audience_text = collapse(raw.audience or "")
-    audience = audience_text or None
+    audience = collapse(raw.audience or "") or None
     requirements = [collapse(item) for item in raw.requirements if collapse(item)]
 
     partial = Intake(
         raw=raw,
         topic=topic,
         budget_cents=budget_cents,
-        budget_display=budget_display,
         deadline_utc=deadline,
         audience=audience,
         requirements=requirements,
         errors=errors,
         interpretations=notes,
     )
-    canonical = partial.canonical(mode)
-    payload = json.dumps(canonical, sort_keys=True, ensure_ascii=False, separators=(",", ":"))
+    payload = json.dumps(partial.canonical(mode), sort_keys=True, ensure_ascii=False, separators=(",", ":"))
     fingerprint = hashlib.sha256(payload.encode("utf-8")).hexdigest()
-    return Intake(
-        raw=raw,
-        topic=topic,
-        budget_cents=budget_cents,
-        budget_display=budget_display,
-        deadline_utc=deadline,
-        audience=audience,
-        requirements=requirements,
-        errors=errors,
-        interpretations=notes,
-        fingerprint=fingerprint,
-    )
+    return replace(partial, fingerprint=fingerprint)
 
 
 def dedupe_key(mode: str, fingerprint: str) -> str:

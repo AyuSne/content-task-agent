@@ -10,18 +10,18 @@ import argparse
 import json
 import sys
 
-from cta.config import load_config
+from cta.config import MODES, load_config
 from cta.identity import RawInput
 from cta.service import TaskNotFound, TaskService
 
 
 def build_parser() -> argparse.ArgumentParser:
     common = argparse.ArgumentParser(add_help=False)
-    common.add_argument("--mode", choices=("mock", "real"), default=argparse.SUPPRESS)
+    common.add_argument("--mode", choices=MODES, default=argparse.SUPPRESS)
     common.add_argument("--data-dir", default=argparse.SUPPRESS)
 
     parser = argparse.ArgumentParser(prog="cta", description="内容任务规划 Agent")
-    parser.add_argument("--mode", choices=("mock", "real"), default=None)
+    parser.add_argument("--mode", choices=MODES, default=None)
     parser.add_argument("--data-dir", default=None)
     parser.add_argument("--format", choices=("json", "text"), default="json")
     sub = parser.add_subparsers(dest="command", required=True)
@@ -81,7 +81,7 @@ def main(argv: list[str] | None = None) -> int:
     try:
         config = load_config(mode=args.mode, data_dir=args.data_dir)
     except ValueError as exc:
-        print(json.dumps({"error": "bad_config", "message": str(exc)}, ensure_ascii=False))
+        _emit({"error": "bad_config", "message": str(exc)}, args.format)
         return 2
 
     service = TaskService(config)
