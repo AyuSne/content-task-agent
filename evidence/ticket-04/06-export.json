@@ -1,11 +1,11 @@
 {
-  "task_id": "t_5e909d668021",
+  "task_id": "t_d41de8a77c74",
   "output_version": 1,
-  "save_id": "s_76af0f974a915569",
+  "save_id": "s_a0ef46b3013562ef",
   "verified": true,
   "files": [
     {
-      "path": "D:\\AAA小影科技\\content-task-agent\\evidence\\ticket-04\\data-scripted\\mock\\exports\\t_5e909d668021\\campaign-v1.md",
+      "path": "D:\\AAA小影科技\\content-task-agent\\evidence\\ticket-04\\data-scripted\\mock\\exports\\t_d41de8a77c74\\campaign-v1.md",
       "sha256": "a8807ad9607a1f8fba82d7899ed9a74b76802fca8282ab8ca34a05178a0226d6",
       "bytes": 2264,
       "exists": true,
@@ -13,7 +13,7 @@
       "ok": true
     },
     {
-      "path": "D:\\AAA小影科技\\content-task-agent\\evidence\\ticket-04\\data-scripted\\mock\\exports\\t_5e909d668021\\campaign-v1.json",
+      "path": "D:\\AAA小影科技\\content-task-agent\\evidence\\ticket-04\\data-scripted\\mock\\exports\\t_d41de8a77c74\\campaign-v1.json",
       "sha256": "61594076b170c7183ae22fa045c69be0140734bc3c63c761f34463d3ef3f2b6c",
       "bytes": 3653,
       "exists": true,
@@ -21,28 +21,29 @@
       "ok": true
     },
     {
-      "path": "D:\\AAA小影科技\\content-task-agent\\evidence\\ticket-04\\data-scripted\\mock\\exports\\t_5e909d668021\\execution-report.md",
-      "sha256": "4210a48a7662d59e4f8ef7149ef68811f70342b03383e6608eb4607c0f107299",
-      "bytes": 3921,
-      "exists": true,
-      "current_sha256": "4210a48a7662d59e4f8ef7149ef68811f70342b03383e6608eb4607c0f107299",
-      "ok": true
-    },
-    {
-      "path": "D:\\AAA小影科技\\content-task-agent\\evidence\\ticket-04\\data-scripted\\mock\\exports\\t_5e909d668021\\trace.jsonl",
-      "sha256": "9fc0c20ac6153963d1d94a1c306b4830c72c95de4ecd657aae6c46e595d75db0",
-      "bytes": 30195,
-      "exists": true,
-      "current_sha256": "9fc0c20ac6153963d1d94a1c306b4830c72c95de4ecd657aae6c46e595d75db0",
-      "ok": true
-    },
-    {
-      "path": "D:\\AAA小影科技\\content-task-agent\\evidence\\ticket-04\\data-scripted\\mock\\exports\\t_5e909d668021\\brief-v1.json",
+      "path": "D:\\AAA小影科技\\content-task-agent\\evidence\\ticket-04\\data-scripted\\mock\\exports\\t_d41de8a77c74\\brief-v1.json",
       "sha256": "82a5f0b1d92eb42f2c27e7cff1f3756221d8f427d854e3db48c6c96a064328f7",
       "bytes": 1175,
       "exists": true,
       "current_sha256": "82a5f0b1d92eb42f2c27e7cff1f3756221d8f427d854e3db48c6c96a064328f7",
       "ok": true
+    },
+    {
+      "path": "D:\\AAA小影科技\\content-task-agent\\evidence\\ticket-04\\data-scripted\\mock\\exports\\t_d41de8a77c74\\execution-report.md",
+      "sha256": "880256eefe87a0216360ff784d6b9c2aad2e6011a7dfab85221ea7d2fdbfcdb6",
+      "bytes": 4170,
+      "exists": true,
+      "current_sha256": "880256eefe87a0216360ff784d6b9c2aad2e6011a7dfab85221ea7d2fdbfcdb6",
+      "ok": true
+    },
+    {
+      "path": "D:\\AAA小影科技\\content-task-agent\\evidence\\ticket-04\\data-scripted\\mock\\exports\\t_d41de8a77c74\\trace.jsonl",
+      "sha256": "2303ea3d67b866821ae964ef9339639069061460819edf2b2ebb0f281191b4ef",
+      "bytes": 30195,
+      "exists": true,
+      "current_sha256": "2303ea3d67b866821ae964ef9339639069061460819edf2b2ebb0f281191b4ef",
+      "ok": true
     }
-  ]
+  ],
+  "repaired": false
 }

@@ -1,11 +1,11 @@
 {
-  "task_id": "t_5e909d668021",
+  "task_id": "t_d41de8a77c74",
   "mode": "mock",
   "status": "in_progress",
   "reason": "业务简报已形成，等待进入方案生成。",
   "duplicate": false,
-  "created_at": "2026-10-28T17:44:23+00:00",
-  "updated_at": "2026-10-28T17:44:26+00:00",
+  "created_at": "2026-10-28T17:55:33+00:00",
+  "updated_at": "2026-10-28T17:55:37+00:00",
   "input": {
     "version": 1,
     "topic": "校园剪辑挑战",
@@ -82,7 +82,7 @@
       ],
       "blocking_unknowns": 0
     },
-    "created_at": "2026-10-28T17:44:26+00:00"
+    "created_at": "2026-10-28T17:55:37+00:00"
   },
   "review": null,
   "save": null,
@@ -131,7 +131,7 @@
     "save": null,
     "phase": "brief_ready",
     "brief_version": 1,
-    "last_run_at": "2026-10-28T17:44:26+00:00"
+    "last_run_at": "2026-10-28T17:55:37+00:00"
   },
   "resources": {
     "budget_cents": 1000,
@@ -166,7 +166,7 @@
   },
   "versions": {
     "app": "0.1.0",
-    "prompt": "main-2026-10-29.v2",
+    "prompt": "main-2026-10-29.v3",
     "materials": "2026-10-29.v1",
     "pricing": "2026-10-29.v1"
   },

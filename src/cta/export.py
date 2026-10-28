@@ -94,13 +94,16 @@ def execution_report_markdown(conn, task, output: dict, review: dict | None, sav
         lines.append(f"- {row['created_at']}｜{row['name']}｜{(row['content'] or '')[:300]}")
     lines += ["", "## 简要决策依据", ""]
     decision_rows = conn.execute(
-        "SELECT content, created_at FROM messages WHERE task_id = ? AND agent = 'main' AND role = 'assistant' ORDER BY seq",
+        "SELECT content, tool_calls_json, created_at FROM messages WHERE task_id = ? AND agent = 'main' AND role = 'assistant' ORDER BY seq",
         (task["id"],),
     ).fetchall()
     for row in decision_rows:
         text = (row["content"] or "").strip()
         if text:
             lines.append(f"- {row['created_at']}｜{text[:240]}")
+        elif row["tool_calls_json"]:
+            calls = [item.get("function", {}).get("name", "?") for item in json.loads(row["tool_calls_json"])]
+            lines.append(f"- {row['created_at']}｜调用工具：{', '.join(calls)}")
     lines += ["", "## 内容核验", ""]
     if review is None:
         lines.append("- 尚未核验。")
@@ -187,7 +190,15 @@ def trace_events(conn, task) -> list[dict]:
 
 
 def build_files(
-    conn, config: Config, task, output: dict, review: dict | None, save: dict | None, *, include_trace: bool = True
+    conn,
+    config: Config,
+    task,
+    output: dict,
+    review: dict | None,
+    save: dict | None,
+    *,
+    include_report: bool = True,
+    include_trace: bool = True,
 ) -> list[dict]:
     task_dir = config.exports_dir / task["id"]
     task_dir.mkdir(parents=True, exist_ok=True)
@@ -196,8 +207,9 @@ def build_files(
     files = [
         (task_dir / f"campaign-v{version}.md", output["content_md"] or campaign_markdown(campaign)),
         (task_dir / f"campaign-v{version}.json", json.dumps(campaign, ensure_ascii=False, indent=2) + "\n"),
-        (task_dir / "execution-report.md", execution_report_markdown(conn, task, output, review, save)),
     ]
+    if include_report:
+        files.append((task_dir / "execution-report.md", execution_report_markdown(conn, task, output, review, save)))
     if include_trace:
         files.append((task_dir / "trace.jsonl", trace_text(conn, task)))
     brief = latest_brief(conn, task["id"])
@@ -210,6 +222,12 @@ def build_files(
         _write_atomic(path, content)
         records.append({"path": str(path), "sha256": sha256_file(path), "bytes": path.stat().st_size})
     return records
+
+
+def build_report_file(conn, config: Config, task, output: dict, review: dict | None, save: dict | None) -> dict:
+    path = config.exports_dir / task["id"] / "execution-report.md"
+    _write_atomic(path, execution_report_markdown(conn, task, output, review, save))
+    return record_file(path)
 
 
 def trace_text(conn, task) -> str:
@@ -252,6 +270,16 @@ def export_task(config: Config, task_id: str) -> dict:
             raise ValueError("任务还没有可导出的完整方案草稿。")
         review = latest_review(conn, task_id)
         save = latest_save(conn, task_id)
+        if save is not None and save["verified"]:
+            ok, checked = verify_records(save["files"])
+            return {
+                "task_id": task_id,
+                "output_version": output["version"],
+                "save_id": save["save_id"],
+                "verified": ok,
+                "files": checked,
+                "repaired": False,
+            }
         records = build_files(conn, config, task, output, review, save)
         ok, checked = verify_records(records)
         return {
@@ -260,4 +288,5 @@ def export_task(config: Config, task_id: str) -> dict:
             "save_id": None if save is None else save["save_id"],
             "verified": ok,
             "files": checked,
+            "repaired": False,
         }

@@ -11,7 +11,7 @@ import os
 
 from cta.config import Config, utc_now_iso
 from cta.db import open_store
-from cta.export import build_files, build_trace_file, verify_records
+from cta.export import build_files, build_report_file, build_trace_file, verify_records
 from cta.pricing import load_price_table
 from cta.repository import (
     create_save,
@@ -164,28 +164,22 @@ def save_task(config: Config, task_id: str) -> dict:
         try:
             if os.environ.get("CTA_FAIL_SAVE"):
                 raise OSError("injected save failure")
-            files = build_files(
+            base_files = build_files(
                 conn,
                 config,
                 task,
                 output,
                 review,
                 {**save, "verified": True, "status": "verified", "verified_at": verified_at},
+                include_report=False,
                 include_trace=False,
             )
-            ok, checked = verify_records(files)
+            ok, checked = verify_records(base_files)
             if not ok:
                 raise OSError("导出文件校验失败")
             conn.execute(
                 "UPDATE saves SET files_json = ?, verified = 1, verified_at = ? WHERE id = ?",
                 (json.dumps(checked, ensure_ascii=False), verified_at, save["save_id"]),
-            )
-            conn.commit()
-            trace_file = build_trace_file(conn, config, task)
-            checked = checked + [trace_file]
-            conn.execute(
-                "UPDATE saves SET files_json = ? WHERE id = ?",
-                (json.dumps(checked, ensure_ascii=False), save["save_id"]),
             )
             conn.execute(
                 "UPDATE tasks SET status = 'complete', phase = 'complete', reason = ?, updated_at = ?, paused = 0 WHERE id = ?",
@@ -196,6 +190,24 @@ def save_task(config: Config, task_id: str) -> dict:
                 attempt_id,
                 status="success",
                 meta={"output_id": output["output_id"], "save_id": save["save_id"], "files": len(checked)},
+            )
+            conn.commit()
+            final_task = conn.execute("SELECT * FROM tasks WHERE id = ?", (task_id,)).fetchone()
+            final_save = latest_save(conn, task_id)
+            report_file = build_report_file(conn, config, final_task, output, review, final_save)
+            trace_file = build_trace_file(conn, config, final_task)
+            checked = checked + [report_file, trace_file]
+            conn.execute(
+                "UPDATE saves SET files_json = ? WHERE id = ?",
+                (json.dumps(checked, ensure_ascii=False), save["save_id"]),
+            )
+            conn.commit()
+            ok, verified = verify_records(checked)
+            if not ok:
+                raise OSError("交付文件复核失败")
+            conn.execute(
+                "UPDATE saves SET files_json = ? WHERE id = ?",
+                (json.dumps(verified, ensure_ascii=False), save["save_id"]),
             )
             conn.commit()
             document = TaskService(config).status(task_id)

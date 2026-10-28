@@ -116,7 +116,9 @@ def test_review_pass_then_verified_save_and_exports(cli_env, model_script):
 
     exported = cli_json("export", task["task_id"])
     assert exported["verified"] is True
-    assert len(exported["files"]) == len(saved["save"]["files"])
+    assert [item["sha256"] for item in exported["files"]] == [
+        item["sha256"] for item in saved["save"]["files"]
+    ]
 
     duplicate = cli_json("save", task["task_id"])
     assert duplicate["duplicate"] is True
@@ -199,3 +201,52 @@ def test_review_error_is_incomplete_and_blocks_save(cli_env, model_script):
     code, document = _save(task["task_id"])
     assert code == 4
     assert document["save_error"]["code"] == "review_incomplete"
+
+
+def test_incomplete_verdict_is_not_recorded_as_complete_and_can_retry(cli_env, model_script):
+    task = _draft_ready(
+        model_script,
+        _review_item({
+            "verdict": "incomplete",
+            "completeness": "partial",
+            "summary": "材料不足，无法完成核验。",
+            "findings": [],
+            "evidence_gaps": ["缺少 M-010 正文"],
+        }),
+    )
+    first = cli_json("review", task["task_id"])
+    assert first["progress"]["phase"] == "review_incomplete"
+    assert first["review"]["status"] == "incomplete"
+    code, document = _save(task["task_id"])
+    assert code == 4
+    assert document["save_error"]["code"] == "review_incomplete"
+
+
+def test_non_object_review_arguments_are_rejected_then_continue(cli_env, model_script):
+    script = _brief_then_draft_script()
+    script += [
+        {"channel": "review", "type": "tool", "name": "read_material", "arguments": "[]"},
+        _review_item(REVIEW_PASS),
+    ]
+    model_script(script)
+    task = _create()
+    _run_until_draft(task["task_id"])
+    reviewed = cli_json("review", task["task_id"])
+    assert reviewed["review"]["status"] == "complete"
+    assert reviewed["review"]["verdict"] == "pass"
+    assert reviewed["review"]["requests_used"] == 2
+    inspected = cli_json("inspect", task["task_id"])
+    rejection = next(
+        message for message in inspected["reviewer_messages"]
+        if message["role"] == "tool" and "invalid_arguments" in (message["content"] or "")
+    )
+    assert "参数必须是 JSON 对象" in rejection["content"]
+
+
+def test_duplicate_review_reuses_existing_record(cli_env, model_script):
+    task = _draft_ready(model_script, _review_item(REVIEW_PASS))
+    first = cli_json("review", task["task_id"])
+    second = cli_json("review", task["task_id"])
+    assert second["duplicate"] is True
+    assert second["review"]["review_id"] == first["review"]["review_id"]
+    assert second["resources"]["sim_spent_cents"] == first["resources"]["sim_spent_cents"] == 220

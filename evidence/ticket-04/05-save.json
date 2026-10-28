@@ -1,11 +1,11 @@
 {
-  "task_id": "t_5e909d668021",
+  "task_id": "t_d41de8a77c74",
   "mode": "mock",
   "status": "complete",
   "reason": "已核实保存产物 v1 及交付文件。",
   "duplicate": false,
-  "created_at": "2026-10-28T17:44:23+00:00",
-  "updated_at": "2026-10-28T17:44:32+00:00",
+  "created_at": "2026-10-28T17:55:33+00:00",
+  "updated_at": "2026-10-28T17:55:44+00:00",
   "input": {
     "version": 1,
     "topic": "校园剪辑挑战",
@@ -82,11 +82,11 @@
       ],
       "blocking_unknowns": 0
     },
-    "created_at": "2026-10-28T17:44:26+00:00"
+    "created_at": "2026-10-28T17:55:37+00:00"
   },
   "review": {
-    "review_id": "v_4e53aa139a938f9e",
-    "output_id": "o_1896ef281eda2c17",
+    "review_id": "v_a09cbfc82cbf354d",
+    "output_id": "o_8845687bdcca52d1",
     "output_version": 1,
     "status": "complete",
     "verdict": "pass",
@@ -96,17 +96,17 @@
     "evidence_gaps": [],
     "requests_used": 1,
     "readbacks_used": 0,
-    "attempt_id": "a_1e914d5cf1db3e08",
-    "created_at": "2026-10-28T17:44:32+00:00"
+    "attempt_id": "a_f9f1a18f1dad7ddf",
+    "created_at": "2026-10-28T17:55:43+00:00"
   },
   "save": {
-    "save_id": "s_76af0f974a915569",
-    "output_id": "o_1896ef281eda2c17",
+    "save_id": "s_a0ef46b3013562ef",
+    "output_id": "o_8845687bdcca52d1",
     "output_version": 1,
     "status": "verified",
     "files": [
       {
-        "path": "D:\\AAA小影科技\\content-task-agent\\evidence\\ticket-04\\data-scripted\\mock\\exports\\t_5e909d668021\\campaign-v1.md",
+        "path": "D:\\AAA小影科技\\content-task-agent\\evidence\\ticket-04\\data-scripted\\mock\\exports\\t_d41de8a77c74\\campaign-v1.md",
         "sha256": "a8807ad9607a1f8fba82d7899ed9a74b76802fca8282ab8ca34a05178a0226d6",
         "bytes": 2264,
         "exists": true,
@@ -114,7 +114,7 @@
         "ok": true
       },
       {
-        "path": "D:\\AAA小影科技\\content-task-agent\\evidence\\ticket-04\\data-scripted\\mock\\exports\\t_5e909d668021\\campaign-v1.json",
+        "path": "D:\\AAA小影科技\\content-task-agent\\evidence\\ticket-04\\data-scripted\\mock\\exports\\t_d41de8a77c74\\campaign-v1.json",
         "sha256": "61594076b170c7183ae22fa045c69be0140734bc3c63c761f34463d3ef3f2b6c",
         "bytes": 3653,
         "exists": true,
@@ -122,15 +122,7 @@
         "ok": true
       },
       {
-        "path": "D:\\AAA小影科技\\content-task-agent\\evidence\\ticket-04\\data-scripted\\mock\\exports\\t_5e909d668021\\execution-report.md",
-        "sha256": "c3b50635a7f0ed1a0e2dd8decef99ba9f8cb0ead6e055ec3107da4e6bfa954f3",
-        "bytes": 3911,
-        "exists": true,
-        "current_sha256": "c3b50635a7f0ed1a0e2dd8decef99ba9f8cb0ead6e055ec3107da4e6bfa954f3",
-        "ok": true
-      },
-      {
-        "path": "D:\\AAA小影科技\\content-task-agent\\evidence\\ticket-04\\data-scripted\\mock\\exports\\t_5e909d668021\\brief-v1.json",
+        "path": "D:\\AAA小影科技\\content-task-agent\\evidence\\ticket-04\\data-scripted\\mock\\exports\\t_d41de8a77c74\\brief-v1.json",
         "sha256": "82a5f0b1d92eb42f2c27e7cff1f3756221d8f427d854e3db48c6c96a064328f7",
         "bytes": 1175,
         "exists": true,
@@ -138,16 +130,27 @@
         "ok": true
       },
       {
-        "path": "D:\\AAA小影科技\\content-task-agent\\evidence\\ticket-04\\data-scripted\\mock\\exports\\t_5e909d668021\\trace.jsonl",
-        "sha256": "2ec4953fb704bc95955cdcc778667eaaff783b3c3fbb768a490049ecdf9b8d71",
-        "bytes": 30124
+        "path": "D:\\AAA小影科技\\content-task-agent\\evidence\\ticket-04\\data-scripted\\mock\\exports\\t_d41de8a77c74\\execution-report.md",
+        "sha256": "880256eefe87a0216360ff784d6b9c2aad2e6011a7dfab85221ea7d2fdbfcdb6",
+        "bytes": 4170,
+        "exists": true,
+        "current_sha256": "880256eefe87a0216360ff784d6b9c2aad2e6011a7dfab85221ea7d2fdbfcdb6",
+        "ok": true
+      },
+      {
+        "path": "D:\\AAA小影科技\\content-task-agent\\evidence\\ticket-04\\data-scripted\\mock\\exports\\t_d41de8a77c74\\trace.jsonl",
+        "sha256": "2303ea3d67b866821ae964ef9339639069061460819edf2b2ebb0f281191b4ef",
+        "bytes": 30195,
+        "exists": true,
+        "current_sha256": "2303ea3d67b866821ae964ef9339639069061460819edf2b2ebb0f281191b4ef",
+        "ok": true
       }
     ],
     "verified": true,
-    "verified_at": "2026-10-28T17:44:32+00:00",
+    "verified_at": "2026-10-28T17:55:44+00:00",
     "error": null,
-    "attempt_id": "a_1af5e1b396bde446",
-    "created_at": "2026-10-28T17:44:32+00:00"
+    "attempt_id": "a_6dacf614740fca28",
+    "created_at": "2026-10-28T17:55:44+00:00"
   },
   "plan": {
     "version": "plan-2026-10-29.v1",
@@ -191,20 +194,20 @@
     "max_rounds": 12,
     "paused": false,
     "current_output": {
-      "output_id": "o_1896ef281eda2c17",
+      "output_id": "o_8845687bdcca52d1",
       "version": 1,
       "status": "draft",
       "strategy": "user_scenario"
     },
     "save": {
-      "save_id": "s_76af0f974a915569",
+      "save_id": "s_a0ef46b3013562ef",
       "output_version": 1,
       "status": "verified",
       "verified": true
     },
     "phase": "complete",
     "brief_version": 1,
-    "last_run_at": "2026-10-28T17:44:29+00:00"
+    "last_run_at": "2026-10-28T17:55:40+00:00"
   },
   "resources": {
     "budget_cents": 1000,
@@ -239,7 +242,7 @@
   },
   "versions": {
     "app": "0.1.0",
-    "prompt": "main-2026-10-29.v2",
+    "prompt": "main-2026-10-29.v3",
     "materials": "2026-10-29.v1",
     "pricing": "2026-10-29.v1"
   },
