@@ -93,6 +93,10 @@ def build_parser() -> argparse.ArgumentParser:
     adopt_material.add_argument("task_id")
     adopt_material.add_argument("--version", required=True)
 
+    import_draft = sub.add_parser("import-draft", parents=[common], help="显式导入运营编辑的 Markdown 方案")
+    import_draft.add_argument("task_id")
+    import_draft.add_argument("--file", required=True)
+
     sub.add_parser("list", parents=[common], help="列出当前模式下的任务")
     return parser
 
@@ -219,6 +223,20 @@ def main(argv: list[str] | None = None) -> int:
             document = service.adopt_knowledge(args.task_id, args.knowledge_id, args.version)
         elif args.command == "adopt-material":
             document = service.adopt_material_version(args.task_id, args.version)
+        elif args.command == "import-draft":
+            from cta.importer import ImportDraftError, import_draft
+
+            try:
+                document = import_draft(config, args.task_id, args.file)
+            except ImportDraftError as exc:
+                document = {
+                    "error": exc.code,
+                    "task_id": args.task_id,
+                    "message": exc.message,
+                    "details": exc.details,
+                }
+                _emit(document, args.format)
+                return 4
         elif args.command == "run":
             from cta.loop import run_task
 

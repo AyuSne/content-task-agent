@@ -13,7 +13,7 @@ from pathlib import Path
 
 from cta import __version__
 
-SCHEMA_VERSION = 5
+SCHEMA_VERSION = 6
 
 SCHEMA = """
 CREATE TABLE IF NOT EXISTS meta (
@@ -221,6 +221,16 @@ CREATE TABLE IF NOT EXISTS saves (
     verified INTEGER NOT NULL DEFAULT 0,
     verified_at TEXT,
     error TEXT,
+    created_at TEXT NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS imports (
+    id TEXT PRIMARY KEY,
+    task_id TEXT NOT NULL REFERENCES tasks(id) ON DELETE CASCADE,
+    output_id TEXT NOT NULL,
+    base_output_id TEXT NOT NULL,
+    file_path TEXT NOT NULL,
+    sha256 TEXT NOT NULL,
     created_at TEXT NOT NULL
 );
 

@@ -1,0 +1,49 @@
+{
+  "task_id": "t_8fd4597fee5f",
+  "output_version": 1,
+  "save_id": null,
+  "verified": true,
+  "files": [
+    {
+      "path": "D:\\AAA小影科技\\content-task-agent\\evidence\\ticket-10\\data-scripted\\mock\\exports\\t_8fd4597fee5f\\campaign-v1.md",
+      "sha256": "c041dbe4278d04a35ddc508dc14f880334d67afd4f1dbd439bde73fc5f9e9dc3",
+      "bytes": 2386,
+      "exists": true,
+      "current_sha256": "c041dbe4278d04a35ddc508dc14f880334d67afd4f1dbd439bde73fc5f9e9dc3",
+      "ok": true
+    },
+    {
+      "path": "D:\\AAA小影科技\\content-task-agent\\evidence\\ticket-10\\data-scripted\\mock\\exports\\t_8fd4597fee5f\\campaign-v1.json",
+      "sha256": "61594076b170c7183ae22fa045c69be0140734bc3c63c761f34463d3ef3f2b6c",
+      "bytes": 3653,
+      "exists": true,
+      "current_sha256": "61594076b170c7183ae22fa045c69be0140734bc3c63c761f34463d3ef3f2b6c",
+      "ok": true
+    },
+    {
+      "path": "D:\\AAA小影科技\\content-task-agent\\evidence\\ticket-10\\data-scripted\\mock\\exports\\t_8fd4597fee5f\\execution-report.md",
+      "sha256": "8bb6559e17c054dcab4a4fbe63cbc050f74ed142dd7505508e12c46ee83d54c8",
+      "bytes": 4042,
+      "exists": true,
+      "current_sha256": "8bb6559e17c054dcab4a4fbe63cbc050f74ed142dd7505508e12c46ee83d54c8",
+      "ok": true
+    },
+    {
+      "path": "D:\\AAA小影科技\\content-task-agent\\evidence\\ticket-10\\data-scripted\\mock\\exports\\t_8fd4597fee5f\\trace.jsonl",
+      "sha256": "fcb9cfaeb3884129d161da9d7439dd1fd7b915e167f144e8ab9a517d6c6baee8",
+      "bytes": 26812,
+      "exists": true,
+      "current_sha256": "fcb9cfaeb3884129d161da9d7439dd1fd7b915e167f144e8ab9a517d6c6baee8",
+      "ok": true
+    },
+    {
+      "path": "D:\\AAA小影科技\\content-task-agent\\evidence\\ticket-10\\data-scripted\\mock\\exports\\t_8fd4597fee5f\\brief-v1.json",
+      "sha256": "82a5f0b1d92eb42f2c27e7cff1f3756221d8f427d854e3db48c6c96a064328f7",
+      "bytes": 1175,
+      "exists": true,
+      "current_sha256": "82a5f0b1d92eb42f2c27e7cff1f3756221d8f427d854e3db48c6c96a064328f7",
+      "ok": true
+    }
+  ],
+  "repaired": false
+}

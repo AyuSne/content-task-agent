@@ -322,6 +322,16 @@ class TaskService:
                     (task_id,),
                 )
             ]
+            view["imports"] = [
+                {
+                    "output_id": row["output_id"],
+                    "base_output_id": row["base_output_id"],
+                    "file_path": row["file_path"],
+                    "sha256": row["sha256"],
+                    "created_at": row["created_at"],
+                }
+                for row in conn.execute("SELECT * FROM imports WHERE task_id = ? ORDER BY rowid", (task_id,))
+            ]
             view["reviewer_knowledge"] = [
                 {
                     "knowledge_id": row["knowledge_id"],

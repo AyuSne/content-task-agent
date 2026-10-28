@@ -1,0 +1,231 @@
+﻿FFF.FF                                                                   [100%]
+================================== FAILURES ===================================
+_____ test_edited_markdown_forms_pending_review_version_and_can_complete ______
+
+cli_env = WindowsPath('C:/Users/10167/AppData/Local/Temp/pytest-of-10167/pytest-129/test_edited_markdown_forms_pen0')
+model_script = <function model_script.<locals>.write at 0x00000226E45ED080>
+
+    def test_edited_markdown_forms_pending_review_version_and_can_complete(cli_env, model_script):
+        task = _draft_with_review_script(model_script)
+        path, text = _exported_markdown(task["task_id"])
+        edited = text.replace("把招新现场剪成你的节奏", "把社团招新剪成你的节奏")
+        path.write_text(edited, encoding="utf-8")
+    
+>       code, imported = _import(task["task_id"], path)
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+..\.scratch\content-task-agent-build\run-state\red-10-snapshot\tests\test_human_import.py:37: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+..\.scratch\content-task-agent-build\run-state\red-10-snapshot\tests\test_human_import.py:28: in _import
+    return code, json.loads(out)
+                 ^^^^^^^^^^^^^^^
+C:\Users\10167\AppData\Roaming\uv\python\cpython-3.13.11-windows-x86_64-none\Lib\json\__init__.py:352: in loads
+    return _default_decoder.decode(s)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\10167\AppData\Roaming\uv\python\cpython-3.13.11-windows-x86_64-none\Lib\json\decoder.py:345: in decode
+    obj, end = self.raw_decode(s, idx=_w(s, 0).end())
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <json.decoder.JSONDecoder object at 0x00000226E1D14C20>, s = '', idx = 0
+
+    def raw_decode(self, s, idx=0):
+        """Decode a JSON document from ``s`` (a ``str`` beginning with
+        a JSON document) and return a 2-tuple of the Python
+        representation and the index in ``s`` where the document ended.
+    
+        This can be used to decode a JSON document from a string that may
+        have extraneous data at the end.
+    
+        """
+        try:
+            obj, end = self.scan_once(s, idx)
+        except StopIteration as err:
+>           raise JSONDecodeError("Expecting value", s, err.value) from None
+E           json.decoder.JSONDecodeError: Expecting value: line 1 column 1 (char 0)
+
+C:\Users\10167\AppData\Roaming\uv\python\cpython-3.13.11-windows-x86_64-none\Lib\json\decoder.py:363: JSONDecodeError
+__________ test_missing_required_section_is_rejected_and_keeps_base ___________
+
+cli_env = WindowsPath('C:/Users/10167/AppData/Local/Temp/pytest-of-10167/pytest-129/test_missing_required_section_0')
+model_script = <function model_script.<locals>.write at 0x00000226E6BC6AC0>
+
+    def test_missing_required_section_is_rejected_and_keeps_base(cli_env, model_script):
+        task = _draft_with_review_script(model_script)
+        path, text = _exported_markdown(task["task_id"])
+        lines = text.splitlines()
+        start = lines.index("## 素材用途")
+        end = next(index for index in range(start + 1, len(lines)) if lines[index].startswith("## "))
+        path.write_text("\n".join(lines[:start] + lines[end:]) + "\n", encoding="utf-8")
+        before = cli_json("inspect", task["task_id"])
+    
+>       code, document = _import(task["task_id"], path)
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+..\.scratch\content-task-agent-build\run-state\red-10-snapshot\tests\test_human_import.py:65: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+..\.scratch\content-task-agent-build\run-state\red-10-snapshot\tests\test_human_import.py:28: in _import
+    return code, json.loads(out)
+                 ^^^^^^^^^^^^^^^
+C:\Users\10167\AppData\Roaming\uv\python\cpython-3.13.11-windows-x86_64-none\Lib\json\__init__.py:352: in loads
+    return _default_decoder.decode(s)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\10167\AppData\Roaming\uv\python\cpython-3.13.11-windows-x86_64-none\Lib\json\decoder.py:345: in decode
+    obj, end = self.raw_decode(s, idx=_w(s, 0).end())
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <json.decoder.JSONDecoder object at 0x00000226E1D14C20>, s = '', idx = 0
+
+    def raw_decode(self, s, idx=0):
+        """Decode a JSON document from ``s`` (a ``str`` beginning with
+        a JSON document) and return a 2-tuple of the Python
+        representation and the index in ``s`` where the document ended.
+    
+        This can be used to decode a JSON document from a string that may
+        have extraneous data at the end.
+    
+        """
+        try:
+            obj, end = self.scan_once(s, idx)
+        except StopIteration as err:
+>           raise JSONDecodeError("Expecting value", s, err.value) from None
+E           json.decoder.JSONDecodeError: Expecting value: line 1 column 1 (char 0)
+
+C:\Users\10167\AppData\Roaming\uv\python\cpython-3.13.11-windows-x86_64-none\Lib\json\decoder.py:363: JSONDecodeError
+_________ test_stale_base_import_is_rejected_without_silent_overwrite _________
+
+cli_env = WindowsPath('C:/Users/10167/AppData/Local/Temp/pytest-of-10167/pytest-129/test_stale_base_import_is_reje0')
+model_script = <function model_script.<locals>.write at 0x00000226E6BC6660>
+
+    def test_stale_base_import_is_rejected_without_silent_overwrite(cli_env, model_script):
+        task = _draft_with_review_script(model_script)
+        path, text = _exported_markdown(task["task_id"])
+        path.write_text(text.replace("把招新现场剪成你的节奏", "第一次人工修改"), encoding="utf-8")
+>       code, first = _import(task["task_id"], path)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+..\.scratch\content-task-agent-build\run-state\red-10-snapshot\tests\test_human_import.py:77: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+..\.scratch\content-task-agent-build\run-state\red-10-snapshot\tests\test_human_import.py:28: in _import
+    return code, json.loads(out)
+                 ^^^^^^^^^^^^^^^
+C:\Users\10167\AppData\Roaming\uv\python\cpython-3.13.11-windows-x86_64-none\Lib\json\__init__.py:352: in loads
+    return _default_decoder.decode(s)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\10167\AppData\Roaming\uv\python\cpython-3.13.11-windows-x86_64-none\Lib\json\decoder.py:345: in decode
+    obj, end = self.raw_decode(s, idx=_w(s, 0).end())
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <json.decoder.JSONDecoder object at 0x00000226E1D14C20>, s = '', idx = 0
+
+    def raw_decode(self, s, idx=0):
+        """Decode a JSON document from ``s`` (a ``str`` beginning with
+        a JSON document) and return a 2-tuple of the Python
+        representation and the index in ``s`` where the document ended.
+    
+        This can be used to decode a JSON document from a string that may
+        have extraneous data at the end.
+    
+        """
+        try:
+            obj, end = self.scan_once(s, idx)
+        except StopIteration as err:
+>           raise JSONDecodeError("Expecting value", s, err.value) from None
+E           json.decoder.JSONDecodeError: Expecting value: line 1 column 1 (char 0)
+
+C:\Users\10167\AppData\Roaming\uv\python\cpython-3.13.11-windows-x86_64-none\Lib\json\decoder.py:363: JSONDecodeError
+________ test_changing_confirmed_audience_in_body_requires_task_update ________
+
+cli_env = WindowsPath('C:/Users/10167/AppData/Local/Temp/pytest-of-10167/pytest-129/test_changing_confirmed_audien0')
+model_script = <function model_script.<locals>.write at 0x00000226E6B93BA0>
+
+    def test_changing_confirmed_audience_in_body_requires_task_update(cli_env, model_script):
+        task = _draft_with_review_script(model_script)
+        path, text = _exported_markdown(task["task_id"])
+        edited = text.replace("- 受众：18-24 岁大学生，重点是社团招新负责人", "- 受众：高中生")
+        path.write_text(edited, encoding="utf-8")
+>       code, document = _import(task["task_id"], path)
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+..\.scratch\content-task-agent-build\run-state\red-10-snapshot\tests\test_human_import.py:103: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+..\.scratch\content-task-agent-build\run-state\red-10-snapshot\tests\test_human_import.py:28: in _import
+    return code, json.loads(out)
+                 ^^^^^^^^^^^^^^^
+C:\Users\10167\AppData\Roaming\uv\python\cpython-3.13.11-windows-x86_64-none\Lib\json\__init__.py:352: in loads
+    return _default_decoder.decode(s)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\10167\AppData\Roaming\uv\python\cpython-3.13.11-windows-x86_64-none\Lib\json\decoder.py:345: in decode
+    obj, end = self.raw_decode(s, idx=_w(s, 0).end())
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <json.decoder.JSONDecoder object at 0x00000226E1D14C20>, s = '', idx = 0
+
+    def raw_decode(self, s, idx=0):
+        """Decode a JSON document from ``s`` (a ``str`` beginning with
+        a JSON document) and return a 2-tuple of the Python
+        representation and the index in ``s`` where the document ended.
+    
+        This can be used to decode a JSON document from a string that may
+        have extraneous data at the end.
+    
+        """
+        try:
+            obj, end = self.scan_once(s, idx)
+        except StopIteration as err:
+>           raise JSONDecodeError("Expecting value", s, err.value) from None
+E           json.decoder.JSONDecodeError: Expecting value: line 1 column 1 (char 0)
+
+C:\Users\10167\AppData\Roaming\uv\python\cpython-3.13.11-windows-x86_64-none\Lib\json\decoder.py:363: JSONDecodeError
+______________________ test_missing_metadata_is_rejected ______________________
+
+cli_env = WindowsPath('C:/Users/10167/AppData/Local/Temp/pytest-of-10167/pytest-129/test_missing_metadata_is_rejec0')
+model_script = <function model_script.<locals>.write at 0x00000226E6BEFB00>
+
+    def test_missing_metadata_is_rejected(cli_env, model_script):
+        task = _draft_with_review_script(model_script)
+        path, text = _exported_markdown(task["task_id"])
+        path.write_text(text.split("<!-- cta:")[0], encoding="utf-8")
+>       code, document = _import(task["task_id"], path)
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+..\.scratch\content-task-agent-build\run-state\red-10-snapshot\tests\test_human_import.py:113: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+..\.scratch\content-task-agent-build\run-state\red-10-snapshot\tests\test_human_import.py:28: in _import
+    return code, json.loads(out)
+                 ^^^^^^^^^^^^^^^
+C:\Users\10167\AppData\Roaming\uv\python\cpython-3.13.11-windows-x86_64-none\Lib\json\__init__.py:352: in loads
+    return _default_decoder.decode(s)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\10167\AppData\Roaming\uv\python\cpython-3.13.11-windows-x86_64-none\Lib\json\decoder.py:345: in decode
+    obj, end = self.raw_decode(s, idx=_w(s, 0).end())
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <json.decoder.JSONDecoder object at 0x00000226E1D14C20>, s = '', idx = 0
+
+    def raw_decode(self, s, idx=0):
+        """Decode a JSON document from ``s`` (a ``str`` beginning with
+        a JSON document) and return a 2-tuple of the Python
+        representation and the index in ``s`` where the document ended.
+    
+        This can be used to decode a JSON document from a string that may
+        have extraneous data at the end.
+    
+        """
+        try:
+            obj, end = self.scan_once(s, idx)
+        except StopIteration as err:
+>           raise JSONDecodeError("Expecting value", s, err.value) from None
+E           json.decoder.JSONDecodeError: Expecting value: line 1 column 1 (char 0)
+
+C:\Users\10167\AppData\Roaming\uv\python\cpython-3.13.11-windows-x86_64-none\Lib\json\decoder.py:363: JSONDecodeError
+=========================== short test summary info ===========================
+FAILED ..\.scratch\content-task-agent-build\run-state\red-10-snapshot\tests\test_human_import.py::test_edited_markdown_forms_pending_review_version_and_can_complete
+FAILED ..\.scratch\content-task-agent-build\run-state\red-10-snapshot\tests\test_human_import.py::test_missing_required_section_is_rejected_and_keeps_base
+FAILED ..\.scratch\content-task-agent-build\run-state\red-10-snapshot\tests\test_human_import.py::test_stale_base_import_is_rejected_without_silent_overwrite
+FAILED ..\.scratch\content-task-agent-build\run-state\red-10-snapshot\tests\test_human_import.py::test_changing_confirmed_audience_in_body_requires_task_update
+FAILED ..\.scratch\content-task-agent-build\run-state\red-10-snapshot\tests\test_human_import.py::test_missing_metadata_is_rejected

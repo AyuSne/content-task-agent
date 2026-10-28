@@ -335,6 +335,17 @@ def trace_events(conn, task) -> list[dict]:
     return events
 
 
+def campaign_export_markdown(output: dict, task) -> str:
+    body = output["content_md"] or campaign_markdown(output["content"])
+    metadata = {
+        "task_id": task["id"],
+        "output_id": output["output_id"],
+        "output_version": output["version"],
+        "input_version": output["input_version"],
+    }
+    return body.rstrip() + "\n\n<!-- cta:" + json.dumps(metadata, ensure_ascii=False) + " -->\n"
+
+
 def build_files(
     conn,
     config: Config,
@@ -353,7 +364,7 @@ def build_files(
     campaign = output["content"]
     version = output["version"]
     files = [
-        (task_dir / f"campaign-v{version}.md", output["content_md"] or campaign_markdown(campaign)),
+        (task_dir / f"campaign-v{version}.md", campaign_export_markdown(output, task)),
         (task_dir / f"campaign-v{version}.json", json.dumps(campaign, ensure_ascii=False, indent=2) + "\n"),
     ]
     if include_report:
