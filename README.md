@@ -103,10 +103,21 @@ uv run pytest -q
 
 测试通过 CLI 公开接口断言，跨进程用例使用真实落盘 SQLite；模型、工具与时钟在系统边界注入。
 
+## 文档
+
+- [需求分析](docs/delivery/01-requirements-analysis.md)
+- [架构](docs/delivery/02-architecture.md) / [设计](docs/delivery/03-design.md)
+- [测试与验收](docs/delivery/04-testing.md)
+- [运行、复现与运维](docs/delivery/05-operations.md)
+- [证据索引](docs/delivery/06-evidence-index.md)
+- [最终双轴评审](docs/delivery/07-final-review.md)
+- [复盘](docs/delivery/08-retro.md)
+
 ## 当前范围与限制
 
 - 当前可完成正常核验与保存，并支持主循环/生成中断后的真实新进程续跑；暂停不推进模拟时钟，续跑继续原进度与额度。
 - 意见处置、返修复审与评估中断恢复由 06 加入；保存未知的完整核实、回执恢复与导出修复由 08 加入。
 - 真实模式已接入 DeepSeek 并执行过简报、草稿、核验与评审校准的真实运行；05/07/08/09/10 的确定性样例均为 Mock 注入，未新增真实 API 运行。真实/Mock 的数据库、导出目录与请求身份独立。
+- **真实限制**：12 轮内真实任务最远到“草稿 v1 + 评审 fail”，没有完成“评审通过→保存”；真实返修也未跑通。详见 `evidence/ticket-12/README.md`。
 - 预算只约束模拟工具费用；真实 Token 用量另记。模拟按时不代表真实墙钟按时。
 - 交付文档、证据索引与完整复现步骤由 14 票汇总。
