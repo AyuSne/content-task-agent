@@ -1,0 +1,48 @@
+{
+  "task_id": "t_5e909d668021",
+  "output_version": 1,
+  "save_id": "s_76af0f974a915569",
+  "verified": true,
+  "files": [
+    {
+      "path": "D:\\AAA小影科技\\content-task-agent\\evidence\\ticket-04\\data-scripted\\mock\\exports\\t_5e909d668021\\campaign-v1.md",
+      "sha256": "a8807ad9607a1f8fba82d7899ed9a74b76802fca8282ab8ca34a05178a0226d6",
+      "bytes": 2264,
+      "exists": true,
+      "current_sha256": "a8807ad9607a1f8fba82d7899ed9a74b76802fca8282ab8ca34a05178a0226d6",
+      "ok": true
+    },
+    {
+      "path": "D:\\AAA小影科技\\content-task-agent\\evidence\\ticket-04\\data-scripted\\mock\\exports\\t_5e909d668021\\campaign-v1.json",
+      "sha256": "61594076b170c7183ae22fa045c69be0140734bc3c63c761f34463d3ef3f2b6c",
+      "bytes": 3653,
+      "exists": true,
+      "current_sha256": "61594076b170c7183ae22fa045c69be0140734bc3c63c761f34463d3ef3f2b6c",
+      "ok": true
+    },
+    {
+      "path": "D:\\AAA小影科技\\content-task-agent\\evidence\\ticket-04\\data-scripted\\mock\\exports\\t_5e909d668021\\execution-report.md",
+      "sha256": "4210a48a7662d59e4f8ef7149ef68811f70342b03383e6608eb4607c0f107299",
+      "bytes": 3921,
+      "exists": true,
+      "current_sha256": "4210a48a7662d59e4f8ef7149ef68811f70342b03383e6608eb4607c0f107299",
+      "ok": true
+    },
+    {
+      "path": "D:\\AAA小影科技\\content-task-agent\\evidence\\ticket-04\\data-scripted\\mock\\exports\\t_5e909d668021\\trace.jsonl",
+      "sha256": "9fc0c20ac6153963d1d94a1c306b4830c72c95de4ecd657aae6c46e595d75db0",
+      "bytes": 30195,
+      "exists": true,
+      "current_sha256": "9fc0c20ac6153963d1d94a1c306b4830c72c95de4ecd657aae6c46e595d75db0",
+      "ok": true
+    },
+    {
+      "path": "D:\\AAA小影科技\\content-task-agent\\evidence\\ticket-04\\data-scripted\\mock\\exports\\t_5e909d668021\\brief-v1.json",
+      "sha256": "82a5f0b1d92eb42f2c27e7cff1f3756221d8f427d854e3db48c6c96a064328f7",
+      "bytes": 1175,
+      "exists": true,
+      "current_sha256": "82a5f0b1d92eb42f2c27e7cff1f3756221d8f427d854e3db48c6c96a064328f7",
+      "ok": true
+    }
+  ]
+}

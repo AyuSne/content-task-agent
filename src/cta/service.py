@@ -13,7 +13,7 @@ from cta.identity import Intake, RawInput, dedupe_key, normalize
 from cta.materials import load_catalog
 from cta.pricing import load_price_table
 from cta.prompts import PROMPT_VERSION
-from cta.repository import latest_brief, latest_output, task_llm_usage, task_spent
+from cta.repository import latest_brief, latest_output, latest_review, latest_save, task_llm_usage, task_spent
 
 STATUS_NEEDS_INPUT = "needs_input"
 STATUS_IN_PROGRESS = "in_progress"
@@ -159,6 +159,69 @@ class TaskService:
                 "SELECT COUNT(*) AS n FROM messages WHERE task_id = ? AND agent = 'generator'", (task_id,)
             ).fetchone()
             view["generator_messages_count"] = int(generator_count["n"])
+            view["generator_messages"] = [
+                {
+                    "sequence": row["seq"],
+                    "role": row["role"],
+                    "content": row["content"],
+                    "candidate": json.loads(row["meta_json"]).get("candidate"),
+                }
+                for row in conn.execute(
+                    "SELECT * FROM messages WHERE task_id = ? AND agent = 'generator' ORDER BY seq", (task_id,)
+                )
+            ]
+            view["reviews"] = [
+                {
+                    "review_id": row["id"],
+                    "output_version": row["output_version"],
+                    "status": row["status"],
+                    "verdict": row["verdict"],
+                    "completeness": row["completeness"],
+                    "findings": json.loads(row["findings_json"]),
+                    "summary": row["summary"],
+                    "evidence_gaps": json.loads(row["evidence_gaps_json"]),
+                    "requests_used": row["requests_used"],
+                    "readbacks_used": row["readbacks_used"],
+                    "created_at": row["created_at"],
+                }
+                for row in conn.execute("SELECT * FROM reviews WHERE task_id = ? ORDER BY rowid", (task_id,))
+            ]
+            view["saves"] = [
+                {
+                    "save_id": row["id"],
+                    "output_version": row["output_version"],
+                    "status": row["status"],
+                    "files": json.loads(row["files_json"]),
+                    "verified": bool(row["verified"]),
+                    "verified_at": row["verified_at"],
+                    "error": row["error"],
+                    "created_at": row["created_at"],
+                }
+                for row in conn.execute("SELECT * FROM saves WHERE task_id = ? ORDER BY rowid", (task_id,))
+            ]
+            view["dispositions"] = [
+                {
+                    "finding_id": row["finding_id"],
+                    "decision": row["decision"],
+                    "reason": row["reason"],
+                    "created_at": row["created_at"],
+                }
+                for row in conn.execute(
+                    "SELECT * FROM dispositions WHERE review_id IN (SELECT id FROM reviews WHERE task_id = ?) ORDER BY id",
+                    (task_id,),
+                )
+            ]
+            view["reviewer_knowledge"] = [
+                {
+                    "knowledge_id": row["knowledge_id"],
+                    "version": row["version"],
+                    "sha256": row["sha256"],
+                    "chars": len(row["content"]),
+                }
+                for row in conn.execute(
+                    "SELECT * FROM knowledge_loads WHERE task_id = ? AND agent = 'reviewer' ORDER BY id", (task_id,)
+                )
+            ]
             return view
 
     def list_tasks(self) -> dict:
@@ -192,6 +255,8 @@ class TaskService:
         spent = task_spent(conn, task["id"])
         brief = latest_brief(conn, task["id"])
         output = latest_output(conn, task["id"])
+        review = latest_review(conn, task["id"])
+        save = latest_save(conn, task["id"])
         return {
             "task_id": task["id"],
             "mode": task["mode"],
@@ -206,14 +271,16 @@ class TaskService:
                 "interpretations": json.loads(input_row["interpretations_json"]),
             },
             "brief": brief,
-            "plan": self._plan_view(task, output),
+            "review": review,
+            "save": save,
+            "plan": self._plan_view(task, output, review, save),
             "gaps": self._gaps(conn, task, brief),
             "mode_notice": (
                 "Mock 仅验证流程、状态与确定性规则，不代表真实模型决策或语义质量。"
                 if task["mode"] == "mock"
                 else "真实模型运行；小样本观察不代表生产质量或统计显著结论。"
             ),
-            "progress": self._progress_view(task, output),
+            "progress": self._progress_view(task, output, save),
             "resources": self._resources_view(conn, task["id"], input_row, spent),
             "model_config": self.config.model_config_public(),
             "versions": {
@@ -226,10 +293,12 @@ class TaskService:
         }
 
     @staticmethod
-    def _plan_view(task, output: dict | None) -> dict:
+    def _plan_view(task, output: dict | None, review: dict | None, save: dict | None) -> dict:
         brief_done = int(task["brief_version"]) > 0
         phase = task["phase"]
         draft_done = output is not None
+        review_done = review is not None and review["status"] == "complete"
+        save_done = save is not None and save["verified"]
         return {
             "version": "plan-2026-10-29.v1",
             "steps": [
@@ -239,8 +308,16 @@ class TaskService:
                     "title": "完整活动方案草稿",
                     "status": "done" if draft_done else ("current" if phase == "brief_ready" else "pending"),
                 },
-                {"step": "review", "title": "内容核验", "status": "current" if phase == "draft_ready" else "pending"},
-                {"step": "save", "title": "核实保存与导出", "status": "pending"},
+                {
+                    "step": "review",
+                    "title": "内容核验",
+                    "status": "done" if review_done else ("current" if phase in ("draft_ready", "review_incomplete") else "pending"),
+                },
+                {
+                    "step": "save",
+                    "title": "核实保存与导出",
+                    "status": "done" if save_done else ("current" if phase in ("reviewed", "save_failed") else "pending"),
+                },
             ],
         }
 
@@ -273,7 +350,7 @@ class TaskService:
         }
 
     @staticmethod
-    def _progress_view(task, output: dict | None) -> dict:
+    def _progress_view(task, output: dict | None, save: dict | None) -> dict:
         sim_start = datetime.fromisoformat(task["sim_start"])
         sim_now = sim_start + timedelta(milliseconds=task["sim_elapsed_ms"])
         current_output = None
@@ -292,7 +369,14 @@ class TaskService:
             "max_rounds": MAX_ROUNDS,
             "paused": bool(task["paused"]),
             "current_output": current_output,
-            "save": None,
+            "save": None
+            if save is None
+            else {
+                "save_id": save["save_id"],
+                "output_version": save["output_version"],
+                "status": save["status"],
+                "verified": save["verified"],
+            },
             "phase": task["phase"],
             "brief_version": task["brief_version"],
             "last_run_at": task["last_run_at"],

@@ -44,6 +44,15 @@ def build_parser() -> argparse.ArgumentParser:
     inspect = sub.add_parser("inspect", parents=[common], help="查看消息、知识、工具结果与消耗")
     inspect.add_argument("task_id")
 
+    review = sub.add_parser("review", parents=[common], help="在独立上下文中核验当前完整方案")
+    review.add_argument("task_id")
+
+    save = sub.add_parser("save", parents=[common], help="核对核验与资源后核实保存")
+    save.add_argument("task_id")
+
+    export = sub.add_parser("export", parents=[common], help="从权威状态导出方案、报告与 Trace")
+    export.add_argument("task_id")
+
     sub.add_parser("list", parents=[common], help="列出当前模式下的任务")
     return parser
 
@@ -112,6 +121,26 @@ def main(argv: list[str] | None = None) -> int:
             document = run_task(config, args.task_id, max_rounds=args.max_rounds)
         elif args.command == "inspect":
             document = service.inspect(args.task_id)
+        elif args.command == "review":
+            from cta.review import ReviewError, review_task
+
+            try:
+                document = review_task(config, args.task_id)
+            except ReviewError as exc:
+                document = {"error": "review_blocked", "task_id": args.task_id, "message": str(exc)}
+                _emit(document, args.format)
+                return 4
+        elif args.command == "save":
+            from cta.save import save_task
+
+            document = save_task(config, args.task_id)
+            if "save_error" in document:
+                _emit(document, args.format)
+                return 4
+        elif args.command == "export":
+            from cta.export import export_task
+
+            document = export_task(config, args.task_id)
         elif args.command == "list":
             document = service.list_tasks()
         else:  # pragma: no cover - argparse guards this
@@ -120,6 +149,10 @@ def main(argv: list[str] | None = None) -> int:
         document = {"error": "task_not_found", "task_id": exc.task_id, "message": str(exc)}
         _emit(document, args.format)
         return 3
+    except ValueError as exc:
+        document = {"error": "operation_blocked", "task_id": getattr(args, "task_id", None), "message": str(exc)}
+        _emit(document, args.format)
+        return 4
 
     _emit(document, args.format)
     return 0

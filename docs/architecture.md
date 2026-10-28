@@ -18,8 +18,9 @@ src/cta/
   pricing.py     版本化费用/耗时表与完整路径估算
   materials.py   合成资料检索与有界原文回读
   knowledge.py   版本化工作知识加载（正文 + sha256）
-  review.py      (04+) 独立上下文有界评估
-  export.py      (04+) Markdown/JSON/Trace 导出
+  review.py      独立上下文有界评估（最多 3 请求/2 回读）
+  save.py        核验前置检查、保存尝试与文件核实
+  export.py      Markdown/JSON/JSONL Trace 导出与报告
 ```
 
 - 一票一个 worktree/分支；只改本票范围与自己的报告。共享运行状态、票面、进度索引由主控维护。
@@ -27,20 +28,23 @@ src/cta/
 - 不引入 Web、插件平台、通用多 Agent 框架；模型调用是系统边界，用 `ModelClient` 协议注入。
 - 资料正文是数据不是指令；系统提示明确此边界。业务工具不能扩大用户授权。
 
-## 已落地事实（01-02）
+## 已落地事实（01-04）
 
-- CLI：`cta [--mode mock|real] [--data-dir DIR] [--format json|text] create|status|run|inspect|list`。
+- CLI：`cta [--mode mock|real] [--data-dir DIR] [--format json|text] create|status|run|review|save|export|inspect|list`。
 - 数据目录：`<repo>/.cta-runs/<mode>/tasks.db` 与 `<mode>/exports/`；`CTA_DATA_DIR` 覆盖根目录；真实/Mock 完全分离。
 - 模拟起点：`CTA_SIM_START` 或默认 `2026-10-29T00:00:00+08:00`；截止必须晚于它。
 - 输入：主题/预算（元，两位小数）/截止必填；受众、创作要求可选。缺失/无效仍持久化，状态 `needs_input`，逐字段错误与解释在 `validation`。
 - 身份：`(mode, 规范化字段)` 的 SHA-256 指纹；无效字段按稳定错误码参与。重复 `create` 返回原任务；`--new` 独立。
-- 状态：`needs_input | in_progress | incomplete | complete`；阶段 `created | brief_ready | draft_ready | stopped`。完成只能由 04 的核验+保存产生。
+- 状态：`needs_input | in_progress | incomplete | complete`；阶段 `created | brief_ready | draft_ready | reviewed | complete | review_incomplete | save_failed | stopped`。只有“核验通过 + 文件核实”才可 `complete`。
 - 主循环：每轮 `used_rounds += 1` 再调用模型；只接受 0/1 个工具调用；多调用、未知工具、非法参数、截断、无动作都拒绝并反馈。模型错误或 12 轮触顶 → `incomplete`，保留消息、尝试、账本。
 - 模型：真实模式 `DeepSeekClient`（openai SDK，DeepSeek base URL，`deepseek-flash`，`thinking.disabled`，非流式，`max_retries=0`）；Mock 模式 `ScriptedClient`（`CTA_MODEL_SCRIPT`，按 `channel` 取脚本），仅测试/离线。
 - 上下文：系统规则 + 工具定义 + 知识正文 + 任务输入 + 状态快照 + 追加消息。首轮加载 `campaign-creation` 知识并把正文、版本、sha256 存入 `knowledge_loads`；无变化不重复快照。`brief_ready` 后追加一次阶段推进消息。
 - 工具：`search_materials`（basic 20 分/2 s；extended 60 分/6 s）、`read_material`（0）、`estimate_cost`（0，含预计完成时刻与预算/时间缺口）、`propose_brief`、`generate_script`（direct 120 分/8 s；multi 300 分/20 s，最多 3 个内部候选）、`propose_campaign`、`request_clarification`、`stop_incomplete`。
 - 脚本生成：独立上下文（创作知识 + 简报 + 策略 + 事实/素材），不继承主循环历史；请求写 `llm_requests`（purpose=`script_generation`，meta.context=`isolated_generation`），消息写 `messages.agent='generator'`；候选校验事实 quote 与证据引用。
 - 产物：`outputs` 按版本保存完整方案 JSON 与 Markdown；`current_output_id`/`phase=draft_ready`；未核验不标完成。
+- 核验：`cta review` 在独立上下文调用评估模型（3 请求/2 回读上限），意见含版本、位置、要求/证据、severity（must_fix/optional/needs_evidence）；多调用拒绝后反馈继续；结果写 `reviews`，阶段 `reviewed`。
+- 保存：`cta save` 检查目标产物版本、核验适用且 pass/full、无 must_fix、无关键阻塞、预算与模拟截止；启动 saving 尝试后写 `exports/<task>/`，逐文件 sha256 核实并写 `saves`，任务 `complete`。重复保存复用记录；失败写 `save_failed` 与失败尝试。
+- 导出：方案 Markdown/JSON、执行报告、JSONL Trace、简报 JSON 均从 SQLite 同一权威生成；报告含计划、步骤、工具结果、决策依据、账本、真实/模拟时间、核验与保存。
 - 计量：业务工具启动时写 `attempts`（running + 固定费用/耗时）与 `ledger`（nature=incurred），并推进 `tasks.sim_elapsed_ms`；执行前检查预算与模拟截止，生成前另查完整剩余路径；拒绝不计费。真实模型请求逐次写 `llm_requests`（用量、缓存命中/未命中、耗时、错误、mock 标记），未知用量为 NULL 并单列计数。
 - 简报：`briefs` 按版本保存；事实必须来自本任务材料且 quote 可在正文找到、scope 非空；失败校验为工具拒绝，不保存。
 - 测试 seam：CLI 公开输出；跨进程用 `python -m cta` + 真实 SQLite。测试不直接查库断言行为；Mock 只注入模型边界。

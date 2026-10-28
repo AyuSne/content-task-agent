@@ -1,0 +1,187 @@
+﻿FFFFFF                                                                   [100%]
+================================== FAILURES ===================================
+_______________ test_review_pass_then_verified_save_and_exports _______________
+
+cli_env = WindowsPath('C:/Users/10167/AppData/Local/Temp/pytest-of-10167/pytest-43/test_review_pass_then_verified0')
+model_script = <function model_script.<locals>.write at 0x000002EDE225C4A0>
+
+    def test_review_pass_then_verified_save_and_exports(cli_env, model_script):
+        task = _draft_ready(model_script, _review_item(REVIEW_PASS))
+>       reviewed = cli_json("review", task["task_id"])
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+..\.scratch\content-task-agent-build\run-state\red-04-snapshot\tests\test_review_save.py:65: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+args = ('review', 't_caf2bb53947d')
+
+    def cli_json(*args):
+        code, out, err = run_cli(*args)
+>       assert code == 0, f"exit={code} stderr={err} stdout={out}"
+E       AssertionError: exit=2 stderr=usage: cta [-h] [--mode {mock,real}] [--data-dir DATA_DIR]
+E                    [--format {json,text}]
+E                    {create,status,run,inspect,list} ...
+E         cta: error: argument command: invalid choice: 'review' (choose from create, status, run, inspect, list)
+E          stdout=
+E       assert 2 == 0
+
+..\.scratch\content-task-agent-build\run-state\red-04-snapshot\tests\conftest.py:50: AssertionError
+_____________________ test_save_without_review_is_blocked _____________________
+
+cli_env = WindowsPath('C:/Users/10167/AppData/Local/Temp/pytest-of-10167/pytest-43/test_save_without_review_is_bl0')
+model_script = <function model_script.<locals>.write at 0x000002EDE47BFE20>
+
+    def test_save_without_review_is_blocked(cli_env, model_script):
+        task = _draft_ready(model_script, _review_item(REVIEW_PASS))
+>       code, document = _save(task["task_id"])
+                         ^^^^^^^^^^^^^^^^^^^^^^
+
+..\.scratch\content-task-agent-build\run-state\red-04-snapshot\tests\test_review_save.py:137: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+..\.scratch\content-task-agent-build\run-state\red-04-snapshot\tests\test_review_save.py:60: in _save
+    return code, json.loads(out)
+                 ^^^^^^^^^^^^^^^
+C:\Users\10167\AppData\Roaming\uv\python\cpython-3.13.11-windows-x86_64-none\Lib\json\__init__.py:352: in loads
+    return _default_decoder.decode(s)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\10167\AppData\Roaming\uv\python\cpython-3.13.11-windows-x86_64-none\Lib\json\decoder.py:345: in decode
+    obj, end = self.raw_decode(s, idx=_w(s, 0).end())
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <json.decoder.JSONDecoder object at 0x000002EDDF954C20>, s = '', idx = 0
+
+    def raw_decode(self, s, idx=0):
+        """Decode a JSON document from ``s`` (a ``str`` beginning with
+        a JSON document) and return a 2-tuple of the Python
+        representation and the index in ``s`` where the document ended.
+    
+        This can be used to decode a JSON document from a string that may
+        have extraneous data at the end.
+    
+        """
+        try:
+            obj, end = self.scan_once(s, idx)
+        except StopIteration as err:
+>           raise JSONDecodeError("Expecting value", s, err.value) from None
+E           json.decoder.JSONDecodeError: Expecting value: line 1 column 1 (char 0)
+
+C:\Users\10167\AppData\Roaming\uv\python\cpython-3.13.11-windows-x86_64-none\Lib\json\decoder.py:363: JSONDecodeError
+____________________ test_save_blocked_by_must_fix_finding ____________________
+
+cli_env = WindowsPath('C:/Users/10167/AppData/Local/Temp/pytest-of-10167/pytest-43/test_save_blocked_by_must_fix_0')
+model_script = <function model_script.<locals>.write at 0x000002EDE47BF6A0>
+
+    def test_save_blocked_by_must_fix_finding(cli_env, model_script):
+        task = _draft_ready(model_script, _review_item(REVIEW_FAIL))
+>       reviewed = cli_json("review", task["task_id"])
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+..\.scratch\content-task-agent-build\run-state\red-04-snapshot\tests\test_review_save.py:147: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+args = ('review', 't_51816c3104cc')
+
+    def cli_json(*args):
+        code, out, err = run_cli(*args)
+>       assert code == 0, f"exit={code} stderr={err} stdout={out}"
+E       AssertionError: exit=2 stderr=usage: cta [-h] [--mode {mock,real}] [--data-dir DATA_DIR]
+E                    [--format {json,text}]
+E                    {create,status,run,inspect,list} ...
+E         cta: error: argument command: invalid choice: 'review' (choose from create, status, run, inspect, list)
+E          stdout=
+E       assert 2 == 0
+
+..\.scratch\content-task-agent-build\run-state\red-04-snapshot\tests\conftest.py:50: AssertionError
+_________ test_explicit_save_failure_keeps_cost_and_incomplete_state __________
+
+cli_env = WindowsPath('C:/Users/10167/AppData/Local/Temp/pytest-of-10167/pytest-43/test_explicit_save_failure_kee0')
+model_script = <function model_script.<locals>.write at 0x000002EDE47EA520>
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000002EDE4873460>
+
+    def test_explicit_save_failure_keeps_cost_and_incomplete_state(cli_env, model_script, monkeypatch):
+        task = _draft_ready(model_script, _review_item(REVIEW_PASS))
+>       cli_json("review", task["task_id"])
+
+..\.scratch\content-task-agent-build\run-state\red-04-snapshot\tests\test_review_save.py:160: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+args = ('review', 't_36a6164517e8')
+
+    def cli_json(*args):
+        code, out, err = run_cli(*args)
+>       assert code == 0, f"exit={code} stderr={err} stdout={out}"
+E       AssertionError: exit=2 stderr=usage: cta [-h] [--mode {mock,real}] [--data-dir DATA_DIR]
+E                    [--format {json,text}]
+E                    {create,status,run,inspect,list} ...
+E         cta: error: argument command: invalid choice: 'review' (choose from create, status, run, inspect, list)
+E          stdout=
+E       assert 2 == 0
+
+..\.scratch\content-task-agent-build\run-state\red-04-snapshot\tests\conftest.py:50: AssertionError
+_______________ test_save_blocked_by_blocking_campaign_question _______________
+
+cli_env = WindowsPath('C:/Users/10167/AppData/Local/Temp/pytest-of-10167/pytest-43/test_save_blocked_by_blocking_0')
+model_script = <function model_script.<locals>.write at 0x000002EDE47EA8E0>
+
+    def test_save_blocked_by_blocking_campaign_question(cli_env, model_script):
+        campaign = copy.deepcopy(CAMPAIGN)
+        campaign["open_questions"] = [
+            {"question": "产品录屏由谁提供？", "impact": "核心演示无法制作", "blocking": True}
+        ]
+        script = _brief_then_draft_script(campaign_item=_campaign_tool(campaign))
+        script.append(_review_item(REVIEW_PASS))
+        model_script(script)
+        task = _create()
+        _run_until_draft(task["task_id"])
+>       cli_json("review", task["task_id"])
+
+..\.scratch\content-task-agent-build\run-state\red-04-snapshot\tests\test_review_save.py:185: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+args = ('review', 't_7192af969296')
+
+    def cli_json(*args):
+        code, out, err = run_cli(*args)
+>       assert code == 0, f"exit={code} stderr={err} stdout={out}"
+E       AssertionError: exit=2 stderr=usage: cta [-h] [--mode {mock,real}] [--data-dir DATA_DIR]
+E                    [--format {json,text}]
+E                    {create,status,run,inspect,list} ...
+E         cta: error: argument command: invalid choice: 'review' (choose from create, status, run, inspect, list)
+E          stdout=
+E       assert 2 == 0
+
+..\.scratch\content-task-agent-build\run-state\red-04-snapshot\tests\conftest.py:50: AssertionError
+_______________ test_review_error_is_incomplete_and_blocks_save _______________
+
+cli_env = WindowsPath('C:/Users/10167/AppData/Local/Temp/pytest-of-10167/pytest-43/test_review_error_is_incomplet0')
+model_script = <function model_script.<locals>.write at 0x000002EDE47EAB60>
+
+    def test_review_error_is_incomplete_and_blocks_save(cli_env, model_script):
+        task = _draft_ready(model_script, {"channel": "review", "type": "error", "message": "review upstream 503"})
+>       reviewed = cli_json("review", task["task_id"])
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+..\.scratch\content-task-agent-build\run-state\red-04-snapshot\tests\test_review_save.py:194: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+args = ('review', 't_657341bd7388')
+
+    def cli_json(*args):
+        code, out, err = run_cli(*args)
+>       assert code == 0, f"exit={code} stderr={err} stdout={out}"
+E       AssertionError: exit=2 stderr=usage: cta [-h] [--mode {mock,real}] [--data-dir DATA_DIR]
+E                    [--format {json,text}]
+E                    {create,status,run,inspect,list} ...
+E         cta: error: argument command: invalid choice: 'review' (choose from create, status, run, inspect, list)
+E          stdout=
+E       assert 2 == 0
+
+..\.scratch\content-task-agent-build\run-state\red-04-snapshot\tests\conftest.py:50: AssertionError
+=========================== short test summary info ===========================
+FAILED ..\.scratch\content-task-agent-build\run-state\red-04-snapshot\tests\test_review_save.py::test_review_pass_then_verified_save_and_exports
+FAILED ..\.scratch\content-task-agent-build\run-state\red-04-snapshot\tests\test_review_save.py::test_save_without_review_is_blocked
+FAILED ..\.scratch\content-task-agent-build\run-state\red-04-snapshot\tests\test_review_save.py::test_save_blocked_by_must_fix_finding
+FAILED ..\.scratch\content-task-agent-build\run-state\red-04-snapshot\tests\test_review_save.py::test_explicit_save_failure_keeps_cost_and_incomplete_state
+FAILED ..\.scratch\content-task-agent-build\run-state\red-04-snapshot\tests\test_review_save.py::test_save_blocked_by_blocking_campaign_question
+FAILED ..\.scratch\content-task-agent-build\run-state\red-04-snapshot\tests\test_review_save.py::test_review_error_is_incomplete_and_blocks_save

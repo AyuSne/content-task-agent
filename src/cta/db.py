@@ -13,7 +13,7 @@ from pathlib import Path
 
 from cta import __version__
 
-SCHEMA_VERSION = 3
+SCHEMA_VERSION = 4
 
 SCHEMA = """
 CREATE TABLE IF NOT EXISTS meta (
@@ -41,7 +41,9 @@ CREATE TABLE IF NOT EXISTS tasks (
     snapshot_hash TEXT,
     last_run_at TEXT,
     materials_version TEXT NOT NULL DEFAULT '',
-    pricing_version TEXT NOT NULL DEFAULT ''
+    pricing_version TEXT NOT NULL DEFAULT '',
+    current_review_id TEXT,
+    current_save_id TEXT
 );
 
 CREATE INDEX IF NOT EXISTS idx_tasks_fingerprint ON tasks(mode, fingerprint);
@@ -179,6 +181,47 @@ CREATE TABLE IF NOT EXISTS outputs (
     created_at TEXT NOT NULL,
     UNIQUE(task_id, kind, version)
 );
+
+CREATE TABLE IF NOT EXISTS reviews (
+    id TEXT PRIMARY KEY,
+    task_id TEXT NOT NULL REFERENCES tasks(id) ON DELETE CASCADE,
+    output_id TEXT NOT NULL,
+    output_version INTEGER NOT NULL,
+    attempt_id TEXT,
+    status TEXT NOT NULL,
+    verdict TEXT,
+    completeness TEXT,
+    findings_json TEXT NOT NULL DEFAULT '[]',
+    summary TEXT,
+    evidence_gaps_json TEXT NOT NULL DEFAULT '[]',
+    requests_used INTEGER NOT NULL DEFAULT 0,
+    readbacks_used INTEGER NOT NULL DEFAULT 0,
+    created_at TEXT NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS dispositions (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    review_id TEXT NOT NULL REFERENCES reviews(id) ON DELETE CASCADE,
+    finding_id TEXT NOT NULL,
+    decision TEXT NOT NULL,
+    reason TEXT NOT NULL,
+    created_at TEXT NOT NULL,
+    UNIQUE(review_id, finding_id)
+);
+
+CREATE TABLE IF NOT EXISTS saves (
+    id TEXT PRIMARY KEY,
+    task_id TEXT NOT NULL REFERENCES tasks(id) ON DELETE CASCADE,
+    output_id TEXT NOT NULL,
+    output_version INTEGER NOT NULL,
+    attempt_id TEXT,
+    status TEXT NOT NULL,
+    files_json TEXT NOT NULL DEFAULT '[]',
+    verified INTEGER NOT NULL DEFAULT 0,
+    verified_at TEXT,
+    error TEXT,
+    created_at TEXT NOT NULL
+);
 """
 
 
@@ -200,6 +243,8 @@ def _ensure_columns(conn: sqlite3.Connection) -> None:
         "last_run_at": "TEXT",
         "materials_version": "TEXT NOT NULL DEFAULT ''",
         "pricing_version": "TEXT NOT NULL DEFAULT ''",
+        "current_review_id": "TEXT",
+        "current_save_id": "TEXT",
     }
     for name, definition in additions.items():
         if name not in columns:

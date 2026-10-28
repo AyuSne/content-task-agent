@@ -25,6 +25,8 @@ def campaign_markdown(campaign: dict) -> str:
         f"- 理由：{strategy.get('rationale', '')}",
     ]
     for alternative in strategy.get("alternatives", []):
+        if not isinstance(alternative, dict):
+            continue
         lines.append(f"- 未选 {alternative.get('name', '')}：{alternative.get('why_not', '')}")
     lines += ["", "## 内容安排", ""]
     for index, item in enumerate(activity.get("content_items", []), start=1):
@@ -45,10 +47,11 @@ def campaign_markdown(campaign: dict) -> str:
             "",
         ]
     lines += ["## 素材用途", ""]
+    status_labels = {"existing": "已有", "to_acquire": "待获取", "to_create": "待制作"}
     for material in campaign.get("materials", []):
         lines.append(
-            f"- {material.get('name', '')}（{material.get('status', '')}）：{material.get('use', '')}；"
-            f"位置：{material.get('position', '')}；权利/状态：{material.get('rights_note', '')}"
+            f"- {material.get('name', '')}（{status_labels.get(material.get('status'), material.get('status'))}）："
+            f"{material.get('use', '')}；位置：{material.get('position', '')}；权利/状态：{material.get('rights_note', '')}"
         )
     lines += ["", "## 制作步骤", ""]
     for index, step in enumerate(campaign.get("production_steps", []), start=1):

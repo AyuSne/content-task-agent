@@ -239,6 +239,10 @@ def _repair_interrupted_calls(conn, task) -> None:
     if not pending:
         return
     with transaction(conn):
+        conn.execute(
+            "UPDATE attempts SET status = 'interrupted', error = ?, real_finished_at = ? WHERE task_id = ? AND status = 'running'",
+            ("进程在动作返回结果前中断", utc_now_iso(), task["id"]),
+        )
         for call in pending:
             append_message(
                 conn,
@@ -486,18 +490,14 @@ def _estimate(conn, task, parsed: dict, price: PriceTable) -> dict:
 
 
 def _guard_generation_path(conn, task, generation_mode: str, price: PriceTable) -> dict | None:
-    spec = price.mode(generation_mode)
-    review = price.mode("review")
-    save = price.mode("save")
-    cost = spec.cost_cents + review.cost_cents + save.cost_cents
-    duration = spec.duration_ms + review.duration_ms + save.duration_ms
+    path = price.remaining_after_generation(generation_mode)
+    cost = path["total_cost_cents"]
+    duration = path["total_duration_ms"]
     input_row = _input_row(conn, task)
     spent = task_spent(conn, task["id"])
     remaining = None if input_row["budget_cents"] is None else input_row["budget_cents"] - spent
     estimate = {
-        "generation": spec.as_dict(),
-        "review": review.as_dict(),
-        "save": save.as_dict(),
+        "lines": path["lines"],
         "total_cost_cents": cost,
         "total_duration_ms": duration,
         "remaining_budget_cents": remaining,
@@ -729,7 +729,7 @@ def _validate_script(candidate: dict, strategy: str, catalog: MaterialCatalog) -
     if candidate.get("strategy") != strategy:
         errors.append("脚本 strategy 必须与请求一致")
     duration = candidate.get("duration_s")
-    if not isinstance(duration, int) or duration <= 0:
+    if not isinstance(duration, int) or isinstance(duration, bool) or duration <= 0:
         errors.append("duration_s 必须是正整数")
     segments = candidate.get("segments")
     if not isinstance(segments, list) or len(segments) < 2:
@@ -788,13 +788,17 @@ def _validate_script(candidate: dict, strategy: str, catalog: MaterialCatalog) -
         if not isinstance(quote, str) or " ".join(quote.split()) not in " ".join(material.text.split()):
             errors.append(f"claims[{index}].quote 无法在材料正文中找到")
             continue
+        scope = claim.get("scope")
+        if not isinstance(scope, str) or not scope.strip():
+            errors.append(f"claims[{index}].scope 不能为空")
+            continue
         normalized_claims.append(
             {
                 "id": claim_id,
                 "claim": str(claim.get("claim", "")).strip(),
                 "material_id": material.id,
                 "quote": quote.strip(),
-                "scope": str(claim.get("scope") or material.scope).strip(),
+                "scope": scope.strip(),
             }
         )
     for segment in normalized_segments:
@@ -863,9 +867,18 @@ def _validate_campaign(campaign: dict, catalog: MaterialCatalog) -> tuple[dict, 
         errors.append("strategy.name 必须是三种方向之一")
     required_text(strategy, "rationale", "strategy.rationale")
     alternatives = strategy.get("alternatives")
-    if not isinstance(alternatives, list):
-        errors.append("strategy.alternatives 必须是数组")
+    if not isinstance(alternatives, list) or not alternatives:
+        errors.append("strategy.alternatives 至少需要 1 条已比较但未选择的方案")
         alternatives = []
+    normalized_alternatives = []
+    for index, alternative in enumerate(alternatives):
+        if not isinstance(alternative, dict):
+            errors.append(f"strategy.alternatives[{index}] 必须是对象")
+            continue
+        name = required_text(alternative, "name", f"strategy.alternatives[{index}].name")
+        why_not = required_text(alternative, "why_not", f"strategy.alternatives[{index}].why_not")
+        if name and why_not:
+            normalized_alternatives.append({"name": name, "why_not": why_not})
 
     activity = campaign.get("activity") if isinstance(campaign.get("activity"), dict) else {}
     for field in ("goal", "audience", "theme", "format"):
@@ -887,6 +900,8 @@ def _validate_campaign(campaign: dict, catalog: MaterialCatalog) -> tuple[dict, 
                 "platform": required_text(item, "platform", f"activity.content_items[{index}].platform"),
             }
         )
+        if not isinstance(item.get("duration_s"), int) or isinstance(item.get("duration_s"), bool) or item["duration_s"] <= 0:
+            errors.append(f"activity.content_items[{index}].duration_s 必须是正整数")
 
     evidence = campaign.get("evidence")
     if not isinstance(evidence, list) or not evidence:
@@ -910,12 +925,16 @@ def _validate_campaign(campaign: dict, catalog: MaterialCatalog) -> tuple[dict, 
         if not isinstance(quote, str) or " ".join(quote.split()) not in " ".join(material.text.split()):
             errors.append(f"evidence[{index}].quote 无法在材料正文中找到")
             continue
+        scope = item.get("scope")
+        if not isinstance(scope, str) or not scope.strip():
+            errors.append(f"evidence[{index}].scope 不能为空")
+            continue
         normalized = {
             "id": item_id,
             "claim": required_text(item, "claim", f"evidence[{index}].claim"),
             "material_id": material.id,
             "quote": quote.strip(),
-            "scope": str(item.get("scope") or material.scope).strip(),
+            "scope": scope.strip(),
             "use": required_text(item, "use", f"evidence[{index}].use"),
         }
         evidence_map[item_id] = normalized
@@ -923,7 +942,7 @@ def _validate_campaign(campaign: dict, catalog: MaterialCatalog) -> tuple[dict, 
 
     script = campaign.get("script") if isinstance(campaign.get("script"), dict) else {}
     duration = script.get("duration_s")
-    if not isinstance(duration, int) or duration <= 0:
+    if not isinstance(duration, int) or isinstance(duration, bool) or duration <= 0:
         errors.append("script.duration_s 必须是正整数")
     segments = script.get("segments")
     if not isinstance(segments, list) or len(segments) < 2:
@@ -1033,7 +1052,7 @@ def _validate_campaign(campaign: dict, catalog: MaterialCatalog) -> tuple[dict, 
         "strategy": {
             "name": strategy.get("name"),
             "rationale": strategy.get("rationale", ""),
-            "alternatives": alternatives,
+            "alternatives": normalized_alternatives,
         },
         "activity": {
             "goal": activity.get("goal", ""),

@@ -65,6 +65,19 @@ class PriceTable:
         except KeyError as exc:
             raise ValueError(f"unknown pricing mode: {key}") from exc
 
+    def remaining_after_generation(self, generation_mode: str) -> dict:
+        """Cost/time of the still-required generation, review and save steps."""
+        specs = [
+            ("generation", self.mode(generation_mode)),
+            ("review", self.mode(self.full_path.get("review", "review"))),
+            ("save", self.mode(self.full_path.get("save", "save"))),
+        ]
+        return {
+            "lines": [{"step": step, **spec.as_dict()} for step, spec in specs],
+            "total_cost_cents": sum(spec.cost_cents for _, spec in specs),
+            "total_duration_ms": sum(spec.duration_ms for _, spec in specs),
+        }
+
     def estimate(self, search_mode: str, generation_mode: str, *, include_revision: bool = False) -> dict:
         names = ["search", "generation", "review", "save"]
         selected = {

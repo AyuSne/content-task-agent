@@ -388,3 +388,80 @@ TOOL_DEFINITIONS = [
         },
     },
 ]
+
+REVIEW_PROMPT_VERSION = "review-2026-10-29.v1"
+
+REVIEW_SYSTEM_PROMPT = """你是「内容核验」评估 Agent，在独立上下文中检查一份完整的活动方案草稿。你只做核验，不改稿、不保存、不扩大任务资源。
+
+输入包含：内容核验工作知识、原始要求、业务简报、完整方案、适用证据、程序检查、被审版本。已有片段足够时直接判断；只有只有 ID、支持范围不清、冲突或需要核对引用时，才可调用 read_material 回读本任务已有材料。
+
+五项质量要求：需求覆盖、事实支持、前后一致、制作可用、不确定性清楚。
+- 事实主张必须能追到真实支持片段与适用范围；情境画面不证明产品能力。
+- 明确要求（包括风格要求）不能被降为可选建议。
+- 每条意见必须给出被审版本、位置、要求或证据、具体问题、可执行建议，并区分 must_fix / optional / needs_evidence。
+- 工具成功、单一总分、意见数量都不能代替质量判断。
+- 每个子任务最多 3 次模型请求、2 次原文回读；越界回读被拒绝。次数耗尽、证据不足或中断时返回 incomplete，不编造通过。
+- 不输出内部思维过程；只给判断与依据。
+
+完成时调用 report_review，提交 verdict、completeness、findings、summary、evidence_gaps。verdict=pass 时不得包含 must_fix；有 must_fix 或关键材料缺口时为 fail，无法完成核验时为 incomplete。"""
+
+REVIEW_TOOL_DEFINITIONS = [
+    {
+        "type": "function",
+        "function": {
+            "name": "read_material",
+            "description": "只读回本任务已纳入材料的完整正文；只有 ID、范围不清、冲突或需要核对引用时使用。",
+            "parameters": {
+                "type": "object",
+                "properties": {"material_id": {"type": "string"}},
+                "required": ["material_id"],
+                "additionalProperties": False,
+            },
+        },
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "report_review",
+            "description": "提交核验结果。verdict=pass 时不得包含 must_fix；不完整或证据不足时用 incomplete。",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "verdict": {"type": "string", "enum": ["pass", "fail", "incomplete"]},
+                    "completeness": {"type": "string", "enum": ["full", "partial"]},
+                    "summary": {"type": "string"},
+                    "findings": {
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "properties": {
+                                "finding_id": {"type": "string"},
+                                "severity": {"type": "string", "enum": ["must_fix", "optional", "needs_evidence"]},
+                                "location": {"type": "string"},
+                                "requirement": {"type": "string"},
+                                "evidence": {"type": "string"},
+                                "issue": {"type": "string"},
+                                "suggestion": {"type": "string"},
+                                "reviewed_version": {"type": "string"},
+                            },
+                            "required": [
+                                "finding_id",
+                                "severity",
+                                "location",
+                                "requirement",
+                                "evidence",
+                                "issue",
+                                "suggestion",
+                                "reviewed_version",
+                            ],
+                            "additionalProperties": False,
+                        },
+                    },
+                    "evidence_gaps": {"type": "array", "items": {"type": "string"}},
+                },
+                "required": ["verdict", "completeness", "summary", "findings", "evidence_gaps"],
+                "additionalProperties": False,
+            },
+        },
+    },
+]

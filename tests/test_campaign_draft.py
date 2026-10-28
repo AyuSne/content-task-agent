@@ -350,3 +350,21 @@ def test_multi_candidate_generation_uses_bounded_internal_requests(cli_env, mode
     assert len(generation_requests) == 3
     assert inspected["attempts"][-1]["meta_json"].count("internal_requests") == 1
     assert '"internal_requests": 3' in inspected["attempts"][-1]["meta_json"]
+
+
+def test_malformed_alternatives_are_rejected_without_crashing(cli_env, model_script):
+    task = _create()
+    campaign = copy.deepcopy(CAMPAIGN)
+    campaign["strategy"]["alternatives"] = ["tutorial"]
+    script = _brief_then_draft_script(campaign_item=_campaign_tool(campaign))
+    script.append(_campaign_tool())
+    model_script(script)
+    doc = _run_until_draft(task["task_id"])
+    assert doc["progress"]["phase"] == "draft_ready"
+    inspected = cli_json("inspect", task["task_id"])
+    rejection = next(
+        message for message in inspected["messages"]
+        if message["role"] == "tool" and message["name"] == "propose_campaign"
+    )
+    assert "invalid_campaign" in rejection["content"]
+    assert "alternatives[0]" in rejection["content"]

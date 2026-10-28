@@ -1,0 +1,357 @@
+{
+  "task_id": "t_708f84239aa0",
+  "mode": "real",
+  "status": "in_progress",
+  "reason": "内容核验完成：未通过，仍有必须处理的意见。",
+  "duplicate": false,
+  "created_at": "2026-10-28T17:29:09+00:00",
+  "updated_at": "2026-10-28T17:43:27+00:00",
+  "input": {
+    "version": 1,
+    "topic": "校园社团招新季推广",
+    "budget": "10.00",
+    "budget_cents": 1000,
+    "deadline": "2026-10-30T04:00:00+00:00",
+    "audience": "18-24 岁大学生",
+    "requirements": [
+      "突出自动卡点"
+    ],
+    "raw": {
+      "topic": "校园社团招新季推广",
+      "budget": "10",
+      "deadline": "2026-10-30T12:00:00+08:00",
+      "audience": "18-24 岁大学生",
+      "requirements": [
+        "突出自动卡点"
+      ]
+    },
+    "fingerprint": "cf687c0dfe924ecdcd09aed2091d1464535d6fc21bac801097bfb84750d97ba9"
+  },
+  "validation": {
+    "errors": [],
+    "interpretations": []
+  },
+  "brief": {
+    "version": 1,
+    "content": {
+      "goal": "用一条突出「自动卡点」的校园社团招新季短视频，让 18-24 岁大学生看懂自动卡点怎么用、怎么微调，并愿意在帧剪里自己试一次。",
+      "audience": "18-24 岁在校大学生（用户已确认）；建议聚焦社团招新现场拍素材、想在半小时内出成片的社团宣传负责同学。依据 M-003：该合成样本中受访者最常做社团活动记录，超过一半会在 30 分钟内完成一条成片，模板与自动卡点能减少重复操作，同时对「一键出片」信任度一般、更愿意保留手动调整。",
+      "product_facts": [
+        {
+          "claim": "自动卡点会分析所选音乐的节拍，把用户选中的视频片段对齐到节拍点，用户可逐段微调，也可一键重新卡点。",
+          "material_id": "M-001",
+          "quote": "自动卡点会分析所选音乐的节拍，把用户选中的视频片段对齐到节拍点。用户可以逐段微调，也可以一键重新卡点。",
+          "scope": "iOS/Android 帧剪 4.2 及以上版本；支持 15/30/60 秒成片",
+          "use": "主脚本第 2-3 段演示自动卡点与微调，并作为字幕中能力表述的唯一依据"
+        },
+        {
+          "claim": "自动卡点对节奏清晰的流行乐与鼓点识别更稳，不承诺对所有曲风都准确，复杂变速或弱节拍音乐需要人工调整。",
+          "material_id": "M-001",
+          "quote": "该功能不承诺对所有曲风都准确，复杂变速或弱节拍音乐需要人工调整。",
+          "scope": "自动卡点功能的准确度边界，适用于所有对外表述",
+          "use": "脚本结尾以『节奏清晰的曲子更稳，变速或弱拍子留点时间手动调』的方式说明边界，避免绝对化承诺"
+        },
+        {
+          "claim": "AI 字幕当前正式支持普通话与英语，可批量改样式并一键翻译为英语；其他语言仍在测试。",
+          "material_id": "M-002",
+          "quote": "普通话与英语为正式支持语言；粤语、日语等仍在小范围测试，识别质量不稳定。",
+          "scope": "AI 字幕功能；仅此两种语言可对外承诺",
+          "use": "如脚本需要字幕样式演示，只使用普通话口播字幕，不提及测试语言"
+        },
+        {
+          "claim": "校园场景素材包含教室、操场、社团招新、宿舍剪辑四个场景，共 12 条 1080p 片段，已取得演员授权，限本题活动使用。",
+          "material_id": "M-005",
+          "quote": "素材包含教室、操场、社团招新、宿舍剪辑四个场景，共 12 条 10-20 秒片段，分辨率 1080p。",
+          "scope": "本题活动范围内可用；不含品牌 Logo 特写；仅作情境画面",
+          "use": "作为脚本各段情境画面的素材来源，只表达使用场景，不单独证明产品功能"
+        },
+        {
+          "claim": "对外表达不得承诺涨粉、收益或爆款，不得把实验性功能写成正式能力，不得使用绝对化表述。",
+          "material_id": "M-004",
+          "quote": "不得承诺涨粉、收益或爆款；不得把实验性功能写成正式能力；不得使用‘最强’‘唯一’等绝对化表述",
+          "scope": "适用于本次所有对外传播物料",
+          "use": "作为脚本与文案的合规红线，核验阶段逐条对照"
+        }
+      ],
+      "creative_requirements": [
+        {
+          "text": "突出自动卡点，作为视频主卖点",
+          "source": "用户输入 requirements"
+        },
+        {
+          "text": "主题为校园社团招新季推广",
+          "source": "用户输入 topic"
+        },
+        {
+          "text": "面向 18-24 岁大学生",
+          "source": "用户输入 audience"
+        },
+        {
+          "text": "表达应轻快、真实、可操作；不承诺涨粉、收益或爆款；不把实验性功能写成正式能力；不使用「最强」「唯一」等绝对化表述",
+          "source": "M-004 品牌表达规则"
+        },
+        {
+          "text": "情境画面只能说明使用场景，不能单独证明产品功能",
+          "source": "M-005 适用范围"
+        }
+      ],
+      "assumptions": [
+        {
+          "text": "发布平台以抖音/视频号竖屏为主，主视频按 30 秒竖屏成片设计",
+          "basis": "M-001 支持 30 秒成片；用户未指定平台，属可调整的制作假设"
+        },
+        {
+          "text": "主视频只做一条，配套 2-3 条短切片用于同一活动分发",
+          "basis": "预算 1000 分、截止 2026-10-30 04:00 UTC 的紧约束下的自制内容规模假设"
+        },
+        {
+          "text": "使用普通话口播与普通话字幕，不做多语字幕版本",
+          "basis": "M-002 正式仅支持普通话与英语，取更稳妥的普通话"
+        }
+      ],
+      "suggestions": [
+        {
+          "text": "采用「功能演示为主 + 用户情境作外壳」的混合方向：先用社团招新现场画面建立场景，再把自动卡点与逐段微调做成可看清的屏幕操作演示",
+          "basis": "M-003 显示受访者对一键出片信任度一般、更愿意保留手动调整，演示可控性比夸张效果更契合；M-001 支持逐段微调，有真实演示点"
+        },
+        {
+          "text": "脚本明确写出边界句，把「复杂变速或弱节拍需要人工调整」转为可信卖点",
+          "basis": "M-001 的准确度边界 + M-004 真实可操作要求"
+        },
+        {
+          "text": "背景音乐若选《Late Bus》需先完成授权，未授权前改用已授权曲目或静音预演",
+          "basis": "M-006 商用授权未购买，仅可试听，不得写成已可用"
+        }
+      ],
+      "unknowns": [
+        {
+          "question": "背景音乐《Late Bus》的商用授权能否在 2026-10-30 04:00 UTC 前拿到（预计 2 个工作日）？",
+          "impact": "拿不到则第 2-4 段的卡点演示音乐需换成已授权曲目，节奏清晰度可能下降，演示效果与脚本配乐需同步调整",
+          "blocking": false
+        },
+        {
+          "question": "本次成片是否包含成本内的付费投放（1000 分预算是否只覆盖内容制作）？",
+          "impact": "若需投放，预算需重新分配并可能压缩制作条目数；当前按纯自制内容编排",
+          "blocking": false
+        },
+        {
+          "question": "主视频是否有指定发布账号与平台规格（竖屏比例、时长上限、字幕安全区）？",
+          "impact": "影响出片规格与切片数量，不影响脚本结构与事实表述",
+          "blocking": false
+        }
+      ],
+      "sources": [
+        {
+          "material_id": "M-001",
+          "used_for": "自动卡点能力、微调方式与准确度边界（核心卖点依据）"
+        },
+        {
+          "material_id": "M-002",
+          "used_for": "字幕语言能力边界，避免把测试语言写成正式能力"
+        },
+        {
+          "material_id": "M-003",
+          "used_for": "受众判断与创作方向选择依据"
+        },
+        {
+          "material_id": "M-004",
+          "used_for": "品牌与合规红线"
+        },
+        {
+          "material_id": "M-005",
+          "used_for": "情境画面素材来源、授权范围与使用限制"
+        },
+        {
+          "material_id": "M-006",
+          "used_for": "背景音乐授权状态与待获取风险"
+        },
+        {
+          "material_id": "M-007",
+          "used_for": "仅作竞品背景参考，未用于任何帧剪能力表述"
+        }
+      ],
+      "blocking_unknowns": 0
+    },
+    "created_at": "2026-10-28T17:30:00+00:00"
+  },
+  "review": {
+    "review_id": "v_4c70d41b1b68a623",
+    "output_id": "o_bf2b8d328b62601c",
+    "output_version": 1,
+    "status": "complete",
+    "verdict": "fail",
+    "completeness": "full",
+    "findings": [
+      {
+        "finding_id": "F1",
+        "severity": "must_fix",
+        "location": "open_questions 第 1 条 / production_steps 第 3 步 / materials「帧剪 4.2 真机屏幕录制」",
+        "requirement": "制作可用：关键阻塞须有明确处理办法与状态；不确定性清楚",
+        "evidence": "open_questions 首条 blocking=true：「屏幕录制素材…由谁负责、何时用真机 4.2 及以上版本录制？…这是全片唯一能证明产品功能的画面」；program_checks 记录 blocking_open_questions=2；但 production_steps 第 3 步已写「用帧剪 4.2 真机录制三段操作，owner=产品/剪辑，timing=2026-10-29」",
+        "issue": "被登记为 blocking 的核心阻塞（唯一功能证据的来源）在同一方案里已被写成已排期的制作步骤，两处状态互相矛盾；若视作未决，则第 2-5 段与切片 A/B 的唯一画面来源没有确定归属，主卖点无法成立。blocking 项未闭环而方案仍标 draft 交付。",
+        "suggestion": "二选一并统一：若已确定由产品/剪辑在 2026-10-29 真机录制，则在 open_questions 中关闭该条（改为已确认事项并保留设备版本 4.2+、隐藏通知/个人信息的约束），同时补充录制失败/延期时的降级预案（如延至 10-29 晚、缩减为自动卡点+重新卡点两段）；若尚未确定，则把 production_steps 第 3 步标注为 blocked 并写明拒绝上线的条件。blocking 计数需随之一致更新。",
+        "reviewed_version": "1"
+      },
+      {
+        "finding_id": "F2",
+        "severity": "must_fix",
+        "location": "open_questions 第 2 条 / production_steps 第 2 步 / materials「背景音乐《Late Bus》」/ 第 1 段 audio",
+        "requirement": "关键阻塞已处理；制作安排可执行（截止 2026-10-30T04:00:00+00:00）",
+        "evidence": "M-006：商用授权未购买，仅可试听，不得写成已可用（方案自述）；open_questions 第 2 条 blocking=true；production_steps 第 2 步写「2026-10-29 起，预计 2 个工作日，设 2026-10-30 前检查点」",
+        "issue": "从 10-29 起算 2 个工作日最早到 10-31，晚于 2026-10-30 04:00 UTC 的交付截止，检查点也在截止之后，授权路径在时限内不可行；同时「2026-10-30 前」未标时区，与截止时间相差可达 1 天。整片与两条切片的音乐全部依赖该曲，换曲会改变节拍点并需重剪，而方案未把「改用已授权备选曲」定为默认路径或设截止前的决策时点。",
+        "suggestion": "把默认方案改为使用已授权备选曲（在 production_steps 中明确备选曲名称、授权状态与节拍清晰度是否满足演示），将《Late Bus》作为「取得授权才可升级」的可选路径并给出取得授权的最后决策时点（早于 10-30 04:00 UTC，标注 UTC）；明确字幕/标题字体授权的核对完成时间同样落在截止之前；open_questions 相应改为非 blocking 或写明已确定的替代方案。",
+        "reviewed_version": "1"
+      },
+      {
+        "finding_id": "F3",
+        "severity": "must_fix",
+        "location": "activity.content_items「切片 A / 切片 B」/ open_questions 第 4 条 / production_steps 第 6 步",
+        "requirement": "前后一致：主片与切片的能力表述、字幕与音乐安排需一致；不确定性清楚",
+        "evidence": "主片 format 写明「无真人口播，以字幕与音效推进」；production_steps 第 6 步「切片只保留屏幕操作，不加新说法；复用主片已授权音乐」；open_questions 第 4 条 blocking=false（切片是否产出待定），且切片音乐仍指向《Late Bus》（materials position「全片背景音乐（第 1-5 段）与两条切片」）",
+        "issue": "三处不一致：(1) 主片全靠字幕表达，而两条 15 秒切片若「只保留屏幕操作、不加新说法」，则无字幕/无解说，观众看不懂操作在做什么，切片无法承接「看懂自动卡点怎么用」的活动目标；(2) 切片音乐沿用授权未定的《Late Bus》，与第 6 步「复用主片已授权音乐」冲突；(3) 第 4 条把切片是否产出标为非 blocker，但 content_items 与 materials 已把它们计为固定交付物，交付范围与工作量口径不一致。",
+        "suggestion": "为每条切片补写具体字幕文案（须来自 E1/E2 原文表述，不新增能力说法，如切片 A「点自动卡点→一键重新卡点」、切片 B「逐段微调」），并写明切片必须带字幕；切片音乐统一改为「已授权曲目」；将切片产出与否从 open_questions 移出或明确为已确认交付物，同步 production_steps 的规模与时间安排。",
+        "reviewed_version": "1"
+      },
+      {
+        "finding_id": "F4",
+        "severity": "optional",
+        "location": "script.segments 第 4 段",
+        "requirement": "前后一致：字幕与画面对应；事实支持不超出适用范围",
+        "evidence": "E2 quote 为「该功能不承诺对所有曲风都准确，复杂变速或弱节拍音乐需要人工调整。」；第 4 段 subtitle「节奏清晰的流行乐、鼓点，识别更稳」，而画面为成片预览播放+宿舍过场，未呈现任何节奏清晰/鼓点类型的对比",
+        "issue": "第 4 段字幕给出「识别更稳」的准确度优势表述，但该段画面没有对应证据（没有曲风或节奏条件的展示），且 E2 的原句只提供边界，正面表述「更稳」来自概括性 claim，不是 quote 原文；单看该段字幕有轻微「情境画面承担能力证明」的观感，与 M-005「情境画面不单独证明功能」的约束接近。",
+        "suggestion": "将完整边界句合并到同一段呈现（如第 4 段字幕改为「节奏清晰的曲子更稳；复杂变速或弱节拍，留点时间手动调」并保留第 5 段），或在第 4 段画面上补一小段节拍标记/鼓点的可视证据；若保留正面表述，注明其为基于 M-001 的概括而非原文，并确认不构成绝对化。",
+        "reviewed_version": "1"
+      },
+      {
+        "finding_id": "F5",
+        "severity": "optional",
+        "location": "script.segments 第 1 段 subtitle / activity.goal 行动引导",
+        "requirement": "需求覆盖：让目标受众「愿意在帧剪里自己试一次」",
+        "evidence": "活动 goal 包含「愿意在帧剪里自己试一次」；第 5 段定版为「自动卡点，试试你的招新素材」，但全片未出现任何引导路径（在哪找、版本要求如何自查、有没有模板入口）",
+        "issue": "行动引导偏弱：目标受众对「一键出片」信任一般（M-003），定版只有一句口号，没有可操作的下一步，会影响「愿意试一次」的目标达成，属改进项而非硬性违反。",
+        "suggestion": "在第 5 段定版补一行极简操作指引（如「帧剪 4.2 及以上 → 导入素材 → 自动卡点」，不使用未验证的入口名词），或在字幕末尾加「更新到 4.2 即可用」，确保不超出 E1 scope。",
+        "reviewed_version": "1"
+      }
+    ],
+    "summary": "方案覆盖了「突出自动卡点」的要求，事实引用基本可追溯且合规红线控制到位；但存在 2 个自登记为 blocking 却未在制作安排中闭环的未决问题（真机录屏责任人/时间、背景音乐授权时限与 10-30 04:00 UTC 截止冲突），以及切片无字幕/音乐授权悬置导致的制作不可执行问题，需修复后方可通过。",
+    "evidence_gaps": [
+      "M-006《Late Bus》的具体授权状态与替代曲目清单未给出可用依据，方案仅以自述方式记录「可试听、未购买」，无法核对是否存在已授权备选曲；若能补充已授权曲目及其节拍清晰度说明，可判断换曲是否影响演示",
+      "M-003 为合成样本受众依据，方案将其用于细分人群判断，属合理但需注意不将其表述为对外可公开的市场结论；本核验未回读 M-003 原文，其受访者比例与「对手动调整偏好」的具体表述以方案引用为准",
+      "发布平台与规格（竖屏比例、时长上限、字幕安全区）为制作假设，尚无确认依据，影响切片裁切与字幕布局的最终可执行性",
+      "1000 分预算是否覆盖付费投放尚未确认，若含投放则制作规模（1 主片 + 2 切片）需重新评估；本核验无法判定该块预算的可行性"
+    ],
+    "requests_used": 2,
+    "readbacks_used": 0,
+    "attempt_id": "a_f281f774e0c74271",
+    "created_at": "2026-10-28T17:43:27+00:00"
+  },
+  "save": null,
+  "plan": {
+    "version": "plan-2026-10-29.v1",
+    "steps": [
+      {
+        "step": "brief",
+        "title": "业务简报",
+        "status": "done"
+      },
+      {
+        "step": "campaign_draft",
+        "title": "完整活动方案草稿",
+        "status": "done"
+      },
+      {
+        "step": "review",
+        "title": "内容核验",
+        "status": "done"
+      },
+      {
+        "step": "save",
+        "title": "核实保存与导出",
+        "status": "current"
+      }
+    ]
+  },
+  "gaps": [
+    {
+      "source": "brief",
+      "question": "背景音乐《Late Bus》的商用授权能否在 2026-10-30 04:00 UTC 前拿到（预计 2 个工作日）？",
+      "impact": "拿不到则第 2-4 段的卡点演示音乐需换成已授权曲目，节奏清晰度可能下降，演示效果与脚本配乐需同步调整",
+      "blocking": false
+    },
+    {
+      "source": "brief",
+      "question": "本次成片是否包含成本内的付费投放（1000 分预算是否只覆盖内容制作）？",
+      "impact": "若需投放，预算需重新分配并可能压缩制作条目数；当前按纯自制内容编排",
+      "blocking": false
+    },
+    {
+      "source": "brief",
+      "question": "主视频是否有指定发布账号与平台规格（竖屏比例、时长上限、字幕安全区）？",
+      "impact": "影响出片规格与切片数量，不影响脚本结构与事实表述",
+      "blocking": false
+    }
+  ],
+  "mode_notice": "真实模型运行；小样本观察不代表生产质量或统计显著结论。",
+  "progress": {
+    "sim_start": "2026-10-29T00:00:00+08:00",
+    "sim_now": "2026-10-29T00:00:46+08:00",
+    "sim_elapsed_ms": 46000,
+    "used_rounds": 12,
+    "max_rounds": 12,
+    "paused": false,
+    "current_output": {
+      "output_id": "o_bf2b8d328b62601c",
+      "version": 1,
+      "status": "draft",
+      "strategy": "functional_demo"
+    },
+    "save": null,
+    "phase": "reviewed",
+    "brief_version": 1,
+    "last_run_at": "2026-10-28T17:31:03+00:00"
+  },
+  "resources": {
+    "budget_cents": 1000,
+    "sim_spent_cents": 600,
+    "remaining_cents": 400,
+    "real_requests": 18,
+    "mock_requests": 0,
+    "model_requests": 18,
+    "real_usage": {
+      "requests": 18,
+      "real_requests": 18,
+      "mock_requests": 0,
+      "unknown_usage_requests": 0,
+      "usage_complete": true,
+      "prompt_tokens": 154067,
+      "completion_tokens": 20396,
+      "cache_hit_tokens": 130176,
+      "cache_miss_tokens": 23891,
+      "elapsed_ms": 169740
+    },
+    "real_cost": null
+  },
+  "model_config": {
+    "provider": "deepseek",
+    "sdk": "openai",
+    "base_url": "https://api.deepseek.com",
+    "model": "deepseek-flash",
+    "api_key": "set",
+    "thinking": false,
+    "streaming": false,
+    "sdk_auto_retries": 0
+  },
+  "versions": {
+    "app": "0.1.0",
+    "prompt": "main-2026-10-29.v2",
+    "materials": "2026-10-29.v1",
+    "pricing": "2026-10-29.v1"
+  },
+  "artifacts": {
+    "campaign_versions": 1
+  },
+  "save_error": {
+    "code": "unresolved_must_fix",
+    "message": "仍有 3 条必须处理意见未处置。"
+  }
+}

@@ -1,9 +1,9 @@
 """Input normalization, validation and request identity.
 
 Only explicit, normalized field equality identifies a duplicate request. No
-semantic similarity is used. Invalid fields participate by their stable error
-code, so equivalent invalid forms (for example ``0`` and ``0.0``) still map to
-one task.
+semantic similarity is used. Valid fields use normalized values; invalid fields
+use a stable validation code (plus normalized raw text where the text itself is
+the parse failure), so equivalent invalid forms still map to one task.
 """
 
 from __future__ import annotations

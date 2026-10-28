@@ -50,7 +50,9 @@ class ModelUnavailable(Exception):
 
 
 class ModelClient(Protocol):
-    def complete(self, messages: list[dict], tools: list[dict], *, cursor: int) -> ModelResponse: ...
+    def complete(
+        self, messages: list[dict], tools: list[dict], *, cursor: int, channel: str = "main", json_mode: bool = False
+    ) -> ModelResponse: ...
 
 
 class DeepSeekClient:

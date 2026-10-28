@@ -160,16 +160,14 @@ def finish_attempt(
     meta: dict | None = None,
 ) -> None:
     now = utc_now_iso()
-    if meta is None:
-        conn.execute(
-            "UPDATE attempts SET status = ?, error = ?, real_finished_at = ? WHERE id = ?",
-            (status, error, now, attempt_id),
-        )
-    else:
-        conn.execute(
-            "UPDATE attempts SET status = ?, error = ?, real_finished_at = ?, meta_json = ? WHERE id = ?",
-            (status, error, now, json.dumps(meta, ensure_ascii=False), attempt_id),
-        )
+    row = conn.execute("SELECT meta_json FROM attempts WHERE id = ?", (attempt_id,)).fetchone()
+    merged = json.loads(row["meta_json"]) if row is not None else {}
+    if meta:
+        merged.update(meta)
+    conn.execute(
+        "UPDATE attempts SET status = ?, error = ?, real_finished_at = ?, meta_json = ? WHERE id = ?",
+        (status, error, now, json.dumps(merged, ensure_ascii=False), attempt_id),
+    )
 
 
 def record_llm_request(
@@ -290,6 +288,139 @@ def count_purpose_requests(conn: sqlite3.Connection, task_id: str, purpose: str)
         (task_id, purpose),
     ).fetchone()
     return int(row["n"])
+
+
+def latest_review(conn: sqlite3.Connection, task_id: str) -> dict | None:
+    row = conn.execute(
+        "SELECT * FROM reviews WHERE task_id = ? ORDER BY rowid DESC LIMIT 1", (task_id,)
+    ).fetchone()
+    if row is None:
+        return None
+    return {
+        "review_id": row["id"],
+        "output_id": row["output_id"],
+        "output_version": row["output_version"],
+        "status": row["status"],
+        "verdict": row["verdict"],
+        "completeness": row["completeness"],
+        "findings": json.loads(row["findings_json"]),
+        "summary": row["summary"],
+        "evidence_gaps": json.loads(row["evidence_gaps_json"]),
+        "requests_used": row["requests_used"],
+        "readbacks_used": row["readbacks_used"],
+        "attempt_id": row["attempt_id"],
+        "created_at": row["created_at"],
+    }
+
+
+def create_review(
+    conn: sqlite3.Connection,
+    *,
+    task_id: str,
+    output_id: str,
+    output_version: int,
+    attempt_id: str | None,
+    status: str,
+    verdict: str | None,
+    completeness: str | None,
+    findings: list[dict],
+    summary: str,
+    evidence_gaps: list[str],
+    requests_used: int,
+    readbacks_used: int,
+) -> dict:
+    review_id = new_id("v_")
+    conn.execute(
+        """
+        INSERT INTO reviews (id, task_id, output_id, output_version, attempt_id, status,
+                             verdict, completeness, findings_json, summary, evidence_gaps_json,
+                             requests_used, readbacks_used, created_at)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        """,
+        (
+            review_id,
+            task_id,
+            output_id,
+            output_version,
+            attempt_id,
+            status,
+            verdict,
+            completeness,
+            json.dumps(findings, ensure_ascii=False),
+            summary,
+            json.dumps(evidence_gaps, ensure_ascii=False),
+            requests_used,
+            readbacks_used,
+            utc_now_iso(),
+        ),
+    )
+    conn.execute("UPDATE tasks SET current_review_id = ? WHERE id = ?", (review_id, task_id))
+    return {"review_id": review_id, "status": status, "verdict": verdict, "findings": findings}
+
+
+def latest_save(conn: sqlite3.Connection, task_id: str) -> dict | None:
+    row = conn.execute("SELECT * FROM saves WHERE task_id = ? ORDER BY rowid DESC LIMIT 1", (task_id,)).fetchone()
+    if row is None:
+        return None
+    return {
+        "save_id": row["id"],
+        "output_id": row["output_id"],
+        "output_version": row["output_version"],
+        "status": row["status"],
+        "files": json.loads(row["files_json"]),
+        "verified": bool(row["verified"]),
+        "verified_at": row["verified_at"],
+        "error": row["error"],
+        "attempt_id": row["attempt_id"],
+        "created_at": row["created_at"],
+    }
+
+
+def create_save(
+    conn: sqlite3.Connection,
+    *,
+    task_id: str,
+    output_id: str,
+    output_version: int,
+    attempt_id: str | None,
+    status: str,
+    files: list[dict],
+    verified: bool,
+    error: str | None = None,
+) -> dict:
+    save_id = new_id("s_")
+    now = utc_now_iso()
+    conn.execute(
+        """
+        INSERT INTO saves (id, task_id, output_id, output_version, attempt_id, status,
+                           files_json, verified, verified_at, error, created_at)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        """,
+        (
+            save_id,
+            task_id,
+            output_id,
+            output_version,
+            attempt_id,
+            status,
+            json.dumps(files, ensure_ascii=False),
+            1 if verified else 0,
+            now if verified else None,
+            error,
+            now,
+        ),
+    )
+    conn.execute("UPDATE tasks SET current_save_id = ? WHERE id = ?", (save_id, task_id))
+    return {
+        "save_id": save_id,
+        "output_id": output_id,
+        "output_version": output_version,
+        "status": status,
+        "files": files,
+        "verified": verified,
+        "verified_at": now if verified else None,
+        "error": error,
+    }
 
 
 def task_spent(conn: sqlite3.Connection, task_id: str) -> int:
