@@ -25,7 +25,7 @@ from cta.repository import (
 )
 
 
-class SaveBlocked(Exception):
+class SaveBlocked(ValueError):
     def __init__(self, code: str, message: str):
         super().__init__(message)
         self.code = code
@@ -104,6 +104,120 @@ def _guard(conn, task, cost_cents: int, duration_ms: int) -> dict | None:
     return None
 
 
+def _repair_files(conn, config: Config, task, output: dict, review: dict | None, save: dict) -> dict:
+    """Rebuild files from authoritative content and update the same save record."""
+    should_complete = task["status"] != "complete" and _preconditions(conn, task, output) is None
+    if should_complete:
+        conn.execute(
+            "UPDATE tasks SET status = 'complete', phase = 'complete', reason = ?, updated_at = ?, paused = 0 WHERE id = ?",
+            ("核实导出修复后确认产物与交付文件一致。", utc_now_iso(), task["id"]),
+        )
+        conn.commit()
+        task = conn.execute("SELECT * FROM tasks WHERE id = ?", (task["id"],)).fetchone()
+    verified_at = utc_now_iso()
+    conn.execute(
+        "UPDATE saves SET status = 'verified', verified = 1, verified_at = ?, error = NULL WHERE id = ?",
+        (verified_at, save["save_id"]),
+    )
+    conn.commit()
+    virtual = {**save, "verified": True, "status": "verified", "verified_at": verified_at}
+    base = build_files(
+        conn, config, task, output, review, virtual, include_report=False, include_trace=False
+    )
+    report = build_report_file(conn, config, task, output, review, virtual)
+    trace = build_trace_file(conn, config, task)
+    records = base + [report, trace]
+    ok, checked = verify_records(records)
+    conn.execute(
+        "UPDATE saves SET files_json = ?, verified = ?, error = ? WHERE id = ?",
+        (
+            json.dumps(checked, ensure_ascii=False),
+            1 if ok else 0,
+            None if ok else "导出修复后仍无法核实文件",
+            save["save_id"],
+        ),
+    )
+    if ok and save.get("attempt_id"):
+        finish_attempt(
+            conn,
+            save["attempt_id"],
+            status="success",
+            meta={"reconciled": True, "save_id": save["save_id"], "files": len(checked)},
+        )
+    conn.commit()
+    return {
+        "save_id": save["save_id"],
+        "output_id": output["output_id"],
+        "output_version": output["version"],
+        "status": "verified" if ok else "unknown",
+        "files": checked,
+        "verified": ok,
+        "verified_at": verified_at if ok else None,
+        "error": None if ok else "导出修复后仍无法核实文件",
+        "completed": should_complete and ok,
+    }
+
+
+def _find_existing_save(conn, task_id: str, output: dict) -> dict | None:
+    exists = conn.execute("SELECT * FROM saves WHERE task_id = ? ORDER BY rowid", (task_id,)).fetchall()
+    for row in reversed(exists):
+        if row["output_id"] == output["output_id"]:
+            return {
+                "save_id": row["id"],
+                "output_id": row["output_id"],
+                "output_version": row["output_version"],
+                "status": row["status"],
+                "files": json.loads(row["files_json"]),
+                "verified": bool(row["verified"]),
+                "verified_at": row["verified_at"],
+                "error": row["error"],
+                "attempt_id": row["attempt_id"],
+                "created_at": row["created_at"],
+            }
+    return None
+
+
+def _reconcile_existing(conn, config: Config, task, output: dict, review: dict | None, save: dict) -> dict | None:
+    if save["verified"] and save["files"]:
+        ok, checked = verify_records(save["files"])
+        if ok:
+            return {**save, "files": checked, "reconciled": False}
+    repaired = _repair_files(conn, config, task, output, review, save)
+    return repaired
+
+
+def reconcile_task(config: Config, task_id: str) -> dict:
+    from cta.service import TaskNotFound, TaskService
+
+    with open_store(config.db_path) as conn:
+        task = conn.execute("SELECT * FROM tasks WHERE id = ?", (task_id,)).fetchone()
+        if task is None:
+            raise TaskNotFound(task_id)
+        output = latest_output(conn, task_id)
+        if output is None:
+            raise SaveBlocked("no_output", "任务还没有可核实的完整方案草稿。")
+        save = latest_save(conn, task_id)
+        if save is None:
+            return {
+                "task_id": task_id,
+                "status": "not_applicable",
+                "message": "当前产物没有保存记录；无需核实，也不能据此声称完成。",
+            }
+        if save["output_id"] != output["output_id"] or save["output_version"] != output["version"]:
+            return {
+                "task_id": task_id,
+                "status": "version_mismatch",
+                "message": "保存记录与当前产物版本不一致；保持未知，不静默覆盖。",
+                "save": save,
+            }
+        review = latest_review(conn, task_id)
+        repaired = _reconcile_existing(conn, config, task, output, review, save)
+        document = TaskService(config).status(task_id)
+        document["reconcile"] = repaired
+        document["save"] = latest_save(conn, task_id)
+        return document
+
+
 def save_task(config: Config, task_id: str) -> dict:
     from cta.service import TaskNotFound, TaskService
 
@@ -116,12 +230,21 @@ def save_task(config: Config, task_id: str) -> dict:
         output = latest_output(conn, task_id)
         if output is None:
             raise SaveBlocked("no_output", "任务还没有可保存的完整方案草稿。")
-        existing = latest_save(conn, task_id)
-        if existing is not None and existing["output_id"] == output["output_id"] and existing["verified"]:
-            document = TaskService(config).status(task_id)
-            document["duplicate"] = True
-            document["save"] = existing
-            return document
+        existing = _find_existing_save(conn, task_id, output)
+        if existing is not None and existing["status"] != "failed":
+            review = latest_review(conn, task_id)
+            repaired = _reconcile_existing(conn, config, task, output, review, existing)
+            if repaired is not None:
+                document = TaskService(config).status(task_id)
+                document["duplicate"] = bool(repaired.get("verified"))
+                document["reconciled"] = True
+                document["save"] = latest_save(conn, task_id)
+                if not repaired.get("verified"):
+                    document["save_error"] = {
+                        "code": "save_unknown",
+                        "message": "保存记录仍在，但文件无法核实；保持未知，不盲目重放。",
+                    }
+                return document
 
         blocked = _preconditions(conn, task, output)
         if blocked is not None:
@@ -168,11 +291,13 @@ def save_task(config: Config, task_id: str) -> dict:
             output_id=output["output_id"],
             output_version=output["version"],
             attempt_id=attempt_id,
-            status="verified",
+            status="unknown",
             files=[],
             verified=False,
         )
         conn.commit()
+        if os.environ.get("CTA_FAULT_SAVE_AFTER_RECORD"):
+            raise SystemExit(70)
         try:
             if os.environ.get("CTA_FAIL_SAVE"):
                 raise OSError("injected save failure")
@@ -192,7 +317,7 @@ def save_task(config: Config, task_id: str) -> dict:
             if not ok:
                 raise OSError("导出文件校验失败")
             conn.execute(
-                "UPDATE saves SET files_json = ?, verified = 1, verified_at = ? WHERE id = ?",
+                "UPDATE saves SET files_json = ?, verified = 1, verified_at = ?, status = 'verified', error = NULL WHERE id = ?",
                 (json.dumps(checked, ensure_ascii=False), verified_at, save["save_id"]),
             )
             conn.execute(

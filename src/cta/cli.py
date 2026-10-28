@@ -53,6 +53,10 @@ def build_parser() -> argparse.ArgumentParser:
 
     export = sub.add_parser("export", parents=[common], help="从权威状态导出方案、报告与 Trace")
     export.add_argument("task_id")
+    export.add_argument("--repair", action="store_true", help="从权威产物修复缺失或不一致的导出文件")
+
+    reconcile = sub.add_parser("reconcile", parents=[common], help="核实保存记录与文件；必要时从权威产物修复")
+    reconcile.add_argument("task_id")
 
     strategies = sub.add_parser(
         "strategies", parents=[common], help="只读查看版本化创作方向与完整剩余路径比较（不计费）"
@@ -262,6 +266,10 @@ def main(argv: list[str] | None = None) -> int:
         elif args.command == "export":
             from cta.export import export_task
 
+            if args.repair:
+                from cta.save import reconcile_task
+
+                reconcile_task(config, args.task_id)
             document = export_task(config, args.task_id)
         elif args.command == "strategies":
             document = service.strategy_comparison(
@@ -280,6 +288,13 @@ def main(argv: list[str] | None = None) -> int:
                 stamp = datetime.now(UTC).strftime("%Y%m%dT%H%M%SZ")
                 output = config.exports_dir / "calibration" / f"calibration-{stamp}.json"
             document = run_calibration(config, pairs_path=args.pairs, output_path=output)
+        elif args.command == "reconcile":
+            from cta.save import reconcile_task
+
+            document = reconcile_task(config, args.task_id)
+            if document.get("save_error") or document.get("status") == "version_mismatch":
+                _emit(document, args.format)
+                return 4
         elif args.command == "list":
             document = service.list_tasks()
         else:  # pragma: no cover - argparse guards this
