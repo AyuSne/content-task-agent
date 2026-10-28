@@ -140,6 +140,10 @@ def _validate_report(report: dict, output_version: int) -> tuple[dict, list[str]
         gaps = []
     if verdict == "pass" and any(item["severity"] == "must_fix" for item in normalized_findings):
         errors.append("verdict=pass 时不能包含 must_fix")
+    if verdict == "pass" and any(item["severity"] == "needs_evidence" for item in normalized_findings):
+        errors.append("verdict=pass 时不能包含 needs_evidence")
+    if verdict == "pass" and gaps:
+        errors.append("verdict=pass 时 evidence_gaps 必须为空")
     if verdict == "pass" and completeness != "full":
         errors.append("verdict=pass 需要 completeness=full")
     return {

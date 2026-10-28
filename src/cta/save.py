@@ -56,6 +56,8 @@ def _preconditions(conn, task, output: dict) -> dict | None:
         return {"code": "unresolved_must_fix", "message": f"仍有 {len(must_fix)} 条必须处理意见未处置。"}
     if review["verdict"] != "pass" or review["completeness"] != "full":
         return {"code": "review_not_passed", "message": "核验未通过或完整性不足，不能保存。"}
+    if review["evidence_gaps"]:
+        return {"code": "review_evidence_gaps", "message": "核验仍有材料缺口，不能保存。"}
     blocking = _blocking_open_questions(conn, task["id"], output)
     if blocking:
         return {"code": "blocking_open_questions", "message": f"仍有 {blocking} 个关键待确认项未处理。"}
