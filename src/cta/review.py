@@ -35,7 +35,9 @@ MAX_READBACKS = 2
 
 
 class ReviewError(Exception):
-    pass
+    def __init__(self, message: str, code: str = "review_blocked"):
+        super().__init__(message)
+        self.code = code
 
 
 def _task(conn, task_id: str):
@@ -167,7 +169,7 @@ def review_task(config: Config, task_id: str) -> dict:
         task = _task(conn, task_id)
         output = latest_output(conn, task["id"])
         if output is None:
-            raise ReviewError("当前任务还没有可核验的完整方案草稿。")
+            raise ReviewError("当前任务还没有可核验的完整方案草稿。", "no_output")
         catalog = load_task_catalog(conn, task, config.project_root)
         existing = latest_review(conn, task["id"])
         if existing is not None and existing["output_id"] == output["output_id"] and existing["status"] == "complete":
@@ -178,7 +180,7 @@ def review_task(config: Config, task_id: str) -> dict:
         max_readbacks = int(spec.max_readbacks or MAX_READBACKS)
         guard = _guard(conn, task, spec.cost_cents, spec.duration_ms)
         if guard is not None:
-            raise ReviewError(guard["message"])
+            raise ReviewError(guard["message"], guard.get("code", "review_blocked"))
         attempt_id = start_attempt(
             conn,
             task=task,
@@ -237,7 +239,7 @@ def review_task(config: Config, task_id: str) -> dict:
         except Exception as exc:
             finish_attempt(conn, attempt_id, status="failed", error=str(exc)[:500])
             conn.commit()
-            raise ReviewError(f"模型不可用：{config.redact(str(exc))}") from exc
+            raise ReviewError(f"模型不可用：{config.redact(str(exc))}", "model_unavailable") from exc
 
         requests_used = 0
         readbacks_used = 0

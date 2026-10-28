@@ -177,7 +177,8 @@ def run_calibration(
     started = datetime.now(UTC)
     pairs = load_pairs(pairs_path, config.project_root)
     catalog = load_catalog(config.project_root)
-    knowledge = load_doc("content-review", config.project_root).content
+    knowledge_doc = load_doc("content-review", config.project_root)
+    knowledge = knowledge_doc.content
     client = client or create_client(config)
     state = {"requests": 0}
     results = []
@@ -213,7 +214,7 @@ def run_calibration(
     finished = datetime.now(UTC)
     result = {
         "calibration_version": pairs["version"],
-        "knowledge_version": "content-review 2026-10-29.v1",
+        "knowledge_version": f"{knowledge_doc.knowledge_id} {knowledge_doc.version}",
         "prompt_version": REVIEW_PROMPT_VERSION,
         "model_config": config.model_config_public(),
         "mode": config.mode,

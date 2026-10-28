@@ -5,7 +5,7 @@
 ## 交付内容
 
 - 代码：`src/cta/`（CLI、主循环、评审、保存、导出、续跑、策略、导入、校准）。
-- 测试：`tests/`，全量 **110 passed**；`ruff check src tests` 通过。
+- 测试：`tests/`，全量 **112 passed**；`ruff check src tests` 通过。
 - 文档：`README.md`、`docs/architecture.md`、`docs/delivery/01–08`。
 - 证据：`evidence/ticket-01` … `ticket-13`，每票 README/red/green/JSON/交付样本。
 - 进度：`docs/progress/PROGRESS.md`、`01/02/03-2026-10-29.md`。

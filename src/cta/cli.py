@@ -266,7 +266,7 @@ def main(argv: list[str] | None = None) -> int:
             try:
                 document = review_task(config, args.task_id)
             except ReviewError as exc:
-                document = {"error": "review_blocked", "task_id": args.task_id, "message": str(exc)}
+                document = {"error": exc.code, "task_id": args.task_id, "message": str(exc)}
                 _emit(document, args.format)
                 return 4
         elif args.command == "save":
@@ -282,7 +282,10 @@ def main(argv: list[str] | None = None) -> int:
             if args.repair:
                 from cta.save import reconcile_task
 
-                reconcile_task(config, args.task_id)
+                reconciled = reconcile_task(config, args.task_id)
+                if reconciled.get("status") == "version_mismatch" or reconciled.get("save_error"):
+                    _emit(reconciled, args.format)
+                    return 4
             document = export_task(config, args.task_id)
         elif args.command == "strategies":
             document = service.strategy_comparison(

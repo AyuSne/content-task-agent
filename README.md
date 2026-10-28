@@ -57,10 +57,15 @@ uv run cta resume <task_id>       # 显式续跑：先核实进行中/缺回执/
 uv run cta pause <task_id>        # 暂停；模拟时钟与已用轮数不推进
 uv run cta review <task_id>       # 独立上下文核验当前完整方案（最多 3 次请求/2 次回读）
 uv run cta save <task_id>         # 核对核验、阻塞项、预算与截止后保存并核实文件
+uv run cta reconcile <task_id>    # 核实保存记录；必要时从权威内容修复文件
 uv run cta export <task_id>       # 从 SQLite 重新导出方案、报告与 Trace
+uv run cta export <task_id> --repair  # 修复缺失/不一致的导出文件
 uv run cta strategies <task_id>   # 只读比较创作方向与完整剩余路径（不计费、不执行）
-uv run cta resume <task_id>       # 显式续跑：先核实未完成/未知动作
-uv run cta pause <task_id>        # 暂停任务，模拟时钟不推进
+uv run cta update <task_id> --budget 20 --audience "研究生"  # 新输入版本
+uv run cta adopt-knowledge <task_id> --knowledge-id campaign-creation --version 2026-10-30.v1
+uv run cta adopt-material <task_id> --version 2026-10-30.v1
+uv run cta import-draft <task_id> --file <edited-campaign-v1.md>
+uv run cta calibrate --pairs fixtures/calibration/2026-10-29.v1.json --output <result.json>
 uv run cta inspect <task_id>      # 简报、计划、消息、恢复事实、快照、资料/知识版本、尝试、账本、逐请求用量
 ```
 

@@ -50,6 +50,8 @@ def _preconditions(conn, task, output: dict) -> dict | None:
     review = latest_review(conn, task["id"])
     if review is None:
         return {"code": "not_reviewed", "message": "当前产物尚未经过独立内容核验。"}
+    if review["status"] == "stale":
+        return {"code": "review_stale", "message": "知识/资料或输入已变化，原核验不再适用；请重新核验。"}
     if review["status"] != "complete":
         return {"code": "review_incomplete", "message": "内容核验未完成，不能保存。"}
     if review["output_id"] != output["output_id"]:
@@ -106,44 +108,51 @@ def _guard(conn, task, cost_cents: int, duration_ms: int) -> dict | None:
 
 
 def _repair_files(conn, config: Config, task, output: dict, review: dict | None, save: dict) -> dict:
-    """Rebuild files from authoritative content and update the same save record."""
+    """Rebuild files from authoritative content and update the same save record.
+
+    Completion is written only after every rebuilt file verifies; a failed
+    repair leaves the task uncompleted and the save unknown.
+    """
     should_complete = task["status"] != "complete" and _preconditions(conn, task, output) is None
-    if should_complete:
-        conn.execute(
-            "UPDATE tasks SET status = 'complete', phase = 'complete', reason = ?, updated_at = ?, paused = 0 WHERE id = ?",
-            ("核实导出修复后确认产物与交付文件一致。", utc_now_iso(), task["id"]),
-        )
-        conn.commit()
-        task = conn.execute("SELECT * FROM tasks WHERE id = ?", (task["id"],)).fetchone()
     verified_at = utc_now_iso()
-    conn.execute(
-        "UPDATE saves SET status = 'verified', verified = 1, verified_at = ?, error = NULL WHERE id = ?",
-        (verified_at, save["save_id"]),
-    )
-    conn.commit()
     virtual = {**save, "verified": True, "status": "verified", "verified_at": verified_at}
+    final_task = dict(task)
+    if should_complete:
+        final_task.update(
+            status="complete",
+            phase="complete",
+            reason="核实导出修复后确认产物与交付文件一致。",
+            updated_at=verified_at,
+            paused=0,
+        )
     base = build_files(
-        conn, config, task, output, review, virtual, include_report=False, include_trace=False
+        conn, config, final_task, output, review, virtual, include_report=False, include_trace=False
     )
-    report = build_report_file(conn, config, task, output, review, virtual)
-    trace = build_trace_file(conn, config, task)
+    report = build_report_file(conn, config, final_task, output, review, virtual)
+    trace = build_trace_file(conn, config, final_task)
     records = base + [report, trace]
     ok, checked = verify_records(records)
-    conn.execute(
-        "UPDATE saves SET files_json = ?, verified = ?, error = ? WHERE id = ?",
-        (
-            json.dumps(checked, ensure_ascii=False),
-            1 if ok else 0,
-            None if ok else "导出修复后仍无法核实文件",
-            save["save_id"],
-        ),
-    )
-    if ok and save.get("attempt_id"):
-        finish_attempt(
-            conn,
-            save["attempt_id"],
-            status="success",
-            meta={"reconciled": True, "save_id": save["save_id"], "files": len(checked)},
+    if ok:
+        conn.execute(
+            "UPDATE saves SET status = 'verified', verified = 1, verified_at = ?, files_json = ?, error = NULL WHERE id = ?",
+            (verified_at, json.dumps(checked, ensure_ascii=False), save["save_id"]),
+        )
+        if should_complete:
+            conn.execute(
+                "UPDATE tasks SET status = 'complete', phase = 'complete', reason = ?, updated_at = ?, paused = 0 WHERE id = ?",
+                (final_task["reason"], verified_at, task["id"]),
+            )
+        if save.get("attempt_id"):
+            finish_attempt(
+                conn,
+                save["attempt_id"],
+                status="success",
+                meta={"reconciled": True, "save_id": save["save_id"], "files": len(checked)},
+            )
+    else:
+        conn.execute(
+            "UPDATE saves SET files_json = ?, verified = 0, error = ? WHERE id = ?",
+            (json.dumps(checked, ensure_ascii=False), "导出修复后仍无法核实文件", save["save_id"]),
         )
     conn.commit()
     return {

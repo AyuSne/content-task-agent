@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import os
 import secrets
 from datetime import datetime, timedelta
 
@@ -27,6 +28,7 @@ from cta.repository import (
     list_stops,
     list_strategy_selections,
     pending_todos,
+    plan_view,
     snapshot_state,
     task_llm_usage,
     task_spent,
@@ -37,7 +39,7 @@ STATUS_NEEDS_INPUT = "needs_input"
 STATUS_IN_PROGRESS = "in_progress"
 STATUS_INCOMPLETE = "incomplete"
 STATUS_COMPLETE = "complete"
-MAX_ROUNDS = 12
+MAX_ROUNDS = int(os.environ.get("CTA_MAX_ROUNDS", "12"))
 
 
 class TaskNotFound(Exception):
@@ -147,11 +149,26 @@ class TaskService:
             phase = task["phase"]
             if not resource_only:
                 phase = "input_updated"
+                self._invalidate_reviews(conn, task_id)
             reason = (
                 "资源条件已更新并重新评估；既有事实、内容与评审保留适用依据。"
                 if resource_only
                 else "任务输入已更新为新版本；既有简报、产物与评审需按变化范围复核。"
             )
+            if resource_only:
+                spent = task_spent(conn, task_id)
+                deadline_exceeded = False
+                if intake.deadline_utc is not None:
+                    deadline_allowed = (intake.deadline_utc - self.config.sim_start).total_seconds() * 1000
+                    deadline_exceeded = task["sim_elapsed_ms"] > deadline_allowed
+                if intake.budget_cents < spent or deadline_exceeded:
+                    status = STATUS_INCOMPLETE
+                    phase = "stopped"
+                    reason = (
+                        f"资源更新后不可行：预算 {intake.budget_cents} 分低于已花费 {spent} 分"
+                        if intake.budget_cents < spent
+                        else "资源更新后不可行：新截止早于已用模拟时间。"
+                    )
             conn.execute(
                 "UPDATE tasks SET input_version = ?, status = ?, phase = ?, reason = ?, updated_at = ? WHERE id = ?",
                 (version, status, phase, reason, now, task_id),
@@ -185,6 +202,7 @@ class TaskService:
                 meta={"kind": "knowledge_adoption", "knowledge_id": doc.knowledge_id, "version": doc.version},
             )
             status = STATUS_IN_PROGRESS if task["status"] == STATUS_COMPLETE else task["status"]
+            self._invalidate_reviews(conn, task_id)
             conn.execute(
                 "UPDATE tasks SET status = ?, phase = 'input_updated', reason = ?, updated_at = ? WHERE id = ?",
                 (status, f"已显式采用知识 {doc.knowledge_id} {doc.version}；需复核受影响结论。", utc_now_iso(), task_id),
@@ -201,6 +219,7 @@ class TaskService:
         with open_store(self.config.db_path) as conn, transaction(conn):
             task = self._require_task(conn, task_id)
             status = STATUS_IN_PROGRESS if task["status"] == STATUS_COMPLETE else task["status"]
+            self._invalidate_reviews(conn, task_id)
             conn.execute(
                 "UPDATE tasks SET materials_version = ?, status = ?, phase = 'input_updated', reason = ?, updated_at = ? WHERE id = ?",
                 (catalog.version, status, f"已显式采用资料版本 {catalog.version}；受影响主张与评审需复核。", utc_now_iso(), task_id),
@@ -209,6 +228,13 @@ class TaskService:
             document = self._view(conn, updated, duplicate=False)
             document["materials_version"] = catalog.version
             return document
+
+    @staticmethod
+    def _invalidate_reviews(conn, task_id: str) -> None:
+        conn.execute(
+            "UPDATE reviews SET status = 'stale' WHERE task_id = ? AND status = 'complete'",
+            (task_id,),
+        )
 
     def status(self, task_id: str) -> dict:
         with open_store(self.config.db_path) as conn:
@@ -488,7 +514,7 @@ class TaskService:
             "review": review,
             "save": save,
             "strategy": strategy,
-            "plan": self._plan_view(task, output, review, save),
+            "plan": plan_view(task, output, review, save),
             "todos": pending_todos(task, output, review, save),
             "recovery": None if recovery_row is None else json.loads(recovery_row["meta_json"]).get("summary"),
             "gaps": self._gaps(conn, task, brief),
@@ -558,35 +584,6 @@ class TaskService:
                 search_queries=search_queries,
                 include_revision=include_revision,
             )
-
-    @staticmethod
-    def _plan_view(task, output: dict | None, review: dict | None, save: dict | None) -> dict:
-        brief_done = int(task["brief_version"]) > 0
-        phase = task["phase"]
-        draft_done = output is not None
-        review_done = review is not None and review["status"] == "complete"
-        save_done = save is not None and save["verified"]
-        return {
-            "version": "plan-2026-10-29.v1",
-            "steps": [
-                {"step": "brief", "title": "业务简报", "status": "done" if brief_done else "current"},
-                {
-                    "step": "campaign_draft",
-                    "title": "完整活动方案草稿",
-                    "status": "done" if draft_done else ("current" if phase == "brief_ready" else "pending"),
-                },
-                {
-                    "step": "review",
-                    "title": "内容核验",
-                    "status": "done" if review_done else ("current" if phase in ("draft_ready", "review_incomplete") else "pending"),
-                },
-                {
-                    "step": "save",
-                    "title": "核实保存与导出",
-                    "status": "done" if save_done else ("current" if phase in ("reviewed", "save_failed") else "pending"),
-                },
-            ],
-        }
 
     @staticmethod
     def _gaps(conn, task, brief: dict | None) -> list[dict]:

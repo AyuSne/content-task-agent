@@ -97,3 +97,31 @@ def test_resource_update_after_completion_does_not_reset_consumption(cli_env, mo
     assert updated["input"]["version"] == 2
     assert updated["resources"]["sim_spent_cents"] == spent
     assert updated["progress"]["used_rounds"] == saved["progress"]["used_rounds"]
+
+
+def test_lowering_budget_below_spend_marks_resource_update_infeasible(cli_env, model_script):
+    task = _draft_ready(model_script, _review_item(REVIEW_PASS))
+    cli_json("review", task["task_id"])
+    saved = cli_json("save", task["task_id"])
+    spent = saved["resources"]["sim_spent_cents"]
+    code, updated = _update(task["task_id"], "--budget", "1.00")
+    assert code == 0
+    assert updated["status"] == "incomplete"
+    assert updated["progress"]["phase"] == "stopped"
+    assert "低于已花费" in updated["reason"]
+    assert updated["resources"]["sim_spent_cents"] == spent
+
+
+def test_knowledge_adoption_invalidates_existing_pass_review(cli_env, model_script):
+    task = _draft_ready(model_script, _review_item(REVIEW_PASS))
+    reviewed = cli_json("review", task["task_id"])
+    assert reviewed["review"]["verdict"] == "pass"
+    code, _document, _err = run_cli(
+        "adopt-knowledge", task["task_id"], "--knowledge-id", "campaign-creation", "--version", "2026-10-30.v1"
+    )
+    assert code == 0
+    code, document, _err = run_cli("save", task["task_id"])
+    assert code == 4
+    assert json.loads(document)["save_error"]["code"] == "review_stale"
+    reviews = cli_json("inspect", task["task_id"])["reviews"]
+    assert reviews[-1]["status"] == "stale"

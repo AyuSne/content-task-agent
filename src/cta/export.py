@@ -42,6 +42,8 @@ def execution_report_markdown(
 ) -> str:
     from datetime import datetime, timedelta
 
+    from cta.service import MAX_ROUNDS
+
     input_row = conn.execute(
         "SELECT * FROM task_inputs WHERE task_id = ? AND version = ?", (task["id"], task["input_version"])
     ).fetchone()
@@ -66,12 +68,9 @@ def execution_report_markdown(
         wall_text = f"{wall_seconds:.0f} s"
     except ValueError:
         wall_text = "未知"
-    plan = [
-        ("业务简报", "done" if int(task["brief_version"]) > 0 else "pending"),
-        ("完整方案草稿", "done" if output is not None else "pending"),
-        ("内容核验", "done" if review is not None and review["status"] == "complete" else "pending"),
-        ("核实保存", "done" if save is not None and save["verified"] else "pending"),
-    ]
+    from cta.repository import plan_view
+
+    plan = [(step["title"], step["status"]) for step in plan_view(task, output, review, save)["steps"]]
     lines = [
         f"# 执行报告：{input_row['topic']}",
         "",
@@ -79,7 +78,7 @@ def execution_report_markdown(
         f"- 状态：`{task['status']}`；阶段：`{task['phase']}`",
         f"- 原因：{task['reason']}",
         f"- 任务版本：{task['input_version']}；产物版本：{None if output is None else output['version']}",
-        f"- 模拟时钟：起点 {task['sim_start']}；已用 {task['sim_elapsed_ms']} ms；模拟完成时刻 {sim_complete.isoformat()}；已用轮数 {task['used_rounds']}/12",
+        f"- 模拟时钟：起点 {task['sim_start']}；已用 {task['sim_elapsed_ms']} ms；模拟完成时刻 {sim_complete.isoformat()}；已用轮数 {task['used_rounds']}/{MAX_ROUNDS}",
         f"- 真实墙钟：从创建到最近更新 {wall_text}；API 采得累计耗时 {usage['elapsed_ms']} ms",
         (
             f"- 模拟费用：预算 {input_row['budget_cents']} 分；已发生 {spent} 分；剩余 "
@@ -103,8 +102,9 @@ def execution_report_markdown(
         "## 任务计划与步骤",
         "",
     ]
+    status_labels = {"done": "已完成", "current": "进行中", "pending": "待开始"}
     for title, status in plan:
-        lines.append(f"- {title}：{status}")
+        lines.append(f"- {title}：{status_labels.get(status, status)}")
     for step in (output or {}).get("content", {}).get("activity", {}).get("content_items", []):
         lines.append(f"- 内容安排：{step.get('title')}（{step.get('duration_s')} 秒，{step.get('platform')}）")
     for attempt in attempts:

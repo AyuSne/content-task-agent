@@ -8,15 +8,15 @@
 
 ```text
 $ py -m pytest tests/test_update_validity.py
-FFFFFFF                                                                  [100%]
-7 failed
+FFFFFFFFF                                                                [100%]
+9 failed
 ```
 
 实现后：
 
 ```text
 $ uv run pytest -q
-87 passed
+112 passed
 $ uv run ruff check src tests
 All checks passed!
 ```
@@ -45,10 +45,16 @@ All checks passed!
 | 任务外知识显式采用，不静默替换；记录来源/变化/复核 | `04`；`knowledge_loads` 正文/版本/哈希；`knowledge_adoption` 消息 |
 | 主 Agent 通过既有续跑/取舍/返修处理变化，无路径未完成 | 复用 `run`/策略/评审；`stop_incomplete` 路径（07） |
 | 少量明确规则，不建设文件监视/复杂依赖图 | 显式 CLI 操作；无 watcher/自动合并 |
-| CLI 演示资源/语义/事实/知识更新并核对版本、复用与资源 | `01`–`09`；7 个测试 |
+| CLI 演示资源/语义/事实/知识更新并核对版本、复用与资源 | `01`–`09`；9 个测试 |
 
 ## 限制
 
 - 语义更新后的完整重做（新简报→新草稿→新评审→保存）只在机制上由 `run` 与现有能力承接；本票证据没有跑完整真实重做，避免与 12 的真实核心重复。
 - 素材/知识采用是显式操作；外部文件变化不会被监视或自动纳入。
 - 旧产物/旧评审保留为历史，不自动删除；保存前 `input_changed` 拒绝旧版本冒充新交付。
+
+## 评审后加固（2026-10-29）
+
+- 采用知识/资料或语义输入更新时，旧 `complete` 评审判为 `stale`；`save` 返回 `review_stale`，不能拿旧通过结论认证新知识。
+- 仅资源更新时重估可行性：预算低于已花费或截止早于已用模拟时间 → `incomplete/stopped`，不保留虚假 `complete`。
+- 新增 `test_knowledge_adoption_invalidates_existing_pass_review`、`test_lowering_budget_below_spend_marks_resource_update_infeasible`。

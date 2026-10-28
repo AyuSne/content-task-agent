@@ -23,7 +23,7 @@
 
 ```powershell
 cd D:\AAA小影科技\content-task-agent
-uv run pytest -q          # 110 passed
+uv run pytest -q          # 112 passed
 uv run ruff check src tests
 ```
 

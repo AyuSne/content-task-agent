@@ -31,15 +31,15 @@ src/cta/
 - 不引入 Web、插件平台、通用多 Agent 框架；模型调用是系统边界，用 `ModelClient` 协议注入。
 - 资料正文是数据不是指令；系统提示明确此边界。业务工具不能扩大用户授权。
 
-## 已落地事实（01-11）
+## 已落地事实（01-14）
 
-- CLI：`cta [--mode mock|real] [--data-dir DIR] [--format json|text] create|status|run|review|save|export|strategies|inspect|list`。
+- CLI：`cta [--mode mock|real] create|status|run|resume|pause|review|save|reconcile|export|update|adopt-knowledge|adopt-material|import-draft|strategies|calibrate|inspect|list`；共享 `--data-dir`/`--format`。
 - 数据目录：`<repo>/.cta-runs/<mode>/tasks.db` 与 `<mode>/exports/`；`CTA_DATA_DIR` 覆盖根目录；真实/Mock 完全分离。
 - 模拟起点：`CTA_SIM_START` 或默认 `2026-10-29T00:00:00+08:00`；截止必须晚于它。
 - 输入：主题/预算（元，两位小数）/截止必填；受众、创作要求可选。缺失/无效仍持久化，状态 `needs_input`，逐字段错误与解释在 `validation`。
 - 身份：`(mode, 规范化字段)` 的 SHA-256 指纹；无效字段按稳定错误码参与。重复 `create` 返回原任务；`--new` 独立。
-- 状态：`needs_input | in_progress | incomplete | complete`；阶段 `created | brief_ready | draft_ready | reviewed | complete | review_incomplete | save_failed | stopped`。只有“核验通过 + 文件核实”才可 `complete`。
-- 主循环：每轮 `used_rounds += 1` 再调用模型；只接受 0/1 个工具调用；多调用、未知工具、非法参数、截断、无动作都拒绝并反馈。模型错误或 12 轮触顶 → `incomplete`，保留消息、尝试、账本。
+- 状态：`needs_input | in_progress | incomplete | complete`；阶段 `created | brief_ready | draft_ready | reviewed | complete | review_incomplete | save_failed | save_unknown | stopped | input_updated`。只有“核验通过 + 文件核实”才可 `complete`。
+- 主循环：每轮 `used_rounds += 1` 再调用模型；只接受 0/1 个工具调用；多调用、未知工具、非法参数、截断、无动作都拒绝并反馈。模型错误或轮数上限（默认 12，`CTA_MAX_ROUNDS` 可改初始值并进入视图版本）→ `incomplete`，保留消息、尝试、账本。
 - 模型：真实模式 `DeepSeekClient`（openai SDK，DeepSeek base URL，`deepseek-flash`，`thinking.disabled`，非流式，`max_retries=0`）；Mock 模式 `ScriptedClient`（`CTA_MODEL_SCRIPT`，按 `channel` 取脚本），仅测试/离线。
 - 上下文：系统规则 + 工具定义 + 知识正文 + 任务输入 + 状态快照 + 追加消息。首轮加载 `campaign-creation` 知识并把正文、版本、sha256 存入 `knowledge_loads`；无变化不重复快照。`brief_ready` 后追加一次阶段推进消息。
 - 工具：`search_materials`（basic 20 分/2 s；extended 60 分/6 s）、`read_material`（0）、`estimate_cost`（0，可声明已知剩余检索次数，含预计完成时刻、预算/时间缺口与返修复核）、`compare_strategies`（0，按同一费用表比较三个创作方向的全路径与可行替代）、`choose_strategy`（0，记录方向/模式/理由/改进预期收益与预留，不可行则拒绝并返回替代）、`propose_brief`、`generate_script`（direct 120 分/8 s；multi 300 分/20 s，最多 3 个内部候选）、`propose_campaign`、`request_clarification`、`stop_incomplete`（可带具体 gaps）。

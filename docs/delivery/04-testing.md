@@ -13,7 +13,7 @@
 
 ## 当前基线
 
-- 全量：**110 passed**（`uv run pytest -q`）。
+- 全量：**112 passed**（`uv run pytest -q`）。
 - 静态检查：`uv run ruff check src tests` → All checks passed。
 - 每票 red 快照在 `evidence/ticket-*/red*.txt`；实现后测试/验收记录在对应 README。
 - 04 双轴评审、05–13 的已知缺口/限制在对应 README 明确记录；14 汇总。
