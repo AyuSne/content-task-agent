@@ -29,7 +29,8 @@ def test_full_actual_request_after_updates_starts_with_stable_prefix_and_retains
     result = next(message for message in second['messages'] if message['role'] == 'tool')
     assert call['tool_calls'][0]['id'] == result['tool_call_id']
     assert 'references/evidence-examples.md' in result['content']
-    assert first['mock'] is True and first['model'] == 'scripted'
+    assert first['mock'] is True and first['adapter'] == 'ScriptedClient' and first['cursor'] == 0
+    assert 'stream' not in first and 'thinking' not in first and 'extra_body' not in first
     assert 'sk-test-super-secret-key' not in json.dumps(requests)
 
 
@@ -246,3 +247,94 @@ def test_captured_request_redacts_special_characters_in_credentials(cli_env, mod
     contents = [message.get('content') or '' for message in meta['request']['messages']]
     assert all(secret not in content and json.dumps(secret, ensure_ascii=False)[1:-1] not in content for content in contents)
     assert any('***redacted***' in content for content in contents)
+
+
+def test_new_pricing_overview_has_no_obsolete_internal_revision_requests_and_old_version_is_retained(cli_env, model_script, monkeypatch):
+    task = cli_json('create', '--new', '--topic', '新价目', '--budget', '10', '--deadline', '2026-10-30')
+    model_script([{'name': 'stop_incomplete', 'arguments': {'reason': '核对费用'}}])
+    cli_json('run', task['task_id'], '--max-rounds', '1')
+    request = json.loads(cli_json('inspect', task['task_id'])['llm_requests'][0]['meta_json'])['request']
+    overview = next(m['content'] for m in request['messages'] if (m.get('content') or '').startswith('[适用费用能力概览] '))
+    prices = json.loads(overview.split('] ', 1)[1])
+    assert prices['version'] == '2026-10-30.v2'
+    assert prices['modes']['revision']['max_internal_requests'] is None
+    assert prices['modes']['revision']['cost_cents'] == 120
+    monkeypatch.setenv('CTA_PRICING_VERSION', '2026-10-30.v1')
+    old = cli_json('create', '--new', '--topic', '原价目', '--budget', '10', '--deadline', '2026-10-30')
+    assert old['pricing_overview']['version'] == '2026-10-30.v1'
+    assert old['pricing_overview']['modes']['revision']['max_internal_requests'] == 2
+
+
+def test_semantic_change_keeps_history_but_rejects_old_campaign_and_marks_conclusions_inapplicable(cli_env, model_script):
+    from test_campaign_delivery_new import _new_draft_ready
+    from test_campaign_draft import _tool
+    from test_review_save import REVIEW_PASS, _review_item
+
+    task = _new_draft_ready(model_script, _review_item(REVIEW_PASS))
+    task_id = task['task_id']
+    cli_json('review', task_id)
+    cli_json('save', task_id)
+    before = cli_json('inspect', task_id)
+    old = next(o for o in before['outputs'] if o['kind'] == 'campaign')
+    old_ref = {'id': old['output_id'], 'version': old['version']}
+    cli_json('update', task_id, '--audience', '研究生', '--requirement', '不要使用旧要求')
+    prefix = [_tool('stop_incomplete', {'reason': 'unused'})] * before['progress']['used_rounds']
+    model_script(prefix + [_tool('review_campaign', {'campaign_ref': old_ref}),
+                           _tool('stop_incomplete', {'reason': '需要重新创作'})])
+    cli_json('resume', task_id, '--max-rounds', '2')
+    after = cli_json('inspect', task_id)
+    request = json.loads(after['llm_requests'][-1]['meta_json'])['request']
+    snapshot = next(m['content'] for m in reversed(request['messages']) if (m.get('content') or '').startswith('[状态快照] '))
+    state = json.loads(snapshot.split('] ', 1)[1])
+    assert state['input_version'] == 2 and not state['campaign']['input_applicable']
+    assert not state['review']['applies_to_current'] and not state['save']['applies_to_current']
+    assert '不是产物、核验或保存成功的证据' in state['plan']['interpretation']
+    receipts = [json.loads(m['content']) for m in after['messages'] if m['name'] == 'review_campaign' and m['role'] == 'tool']
+    assert receipts[-1]['ok'] is False and after['status'] == 'incomplete'
+    assert after['resources']['sim_spent_cents'] == before['resources']['sim_spent_cents']
+    assert after['outputs'] == before['outputs'] and after['messages'][:len(before['messages'])] == before['messages']
+
+
+def test_real_sdk_cli_request_record_matches_local_wire_payload(cli_env, monkeypatch):
+    import threading
+    from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+
+    from conftest import run_cli
+
+    received = []
+    class Endpoint(BaseHTTPRequestHandler):
+        def do_POST(self):
+            received.append(json.loads(self.rfile.read(int(self.headers['Content-Length']))))
+            payload = json.dumps({
+                'id': 'local-response', 'object': 'chat.completion', 'created': 0, 'model': 'deepseek-flash',
+                'choices': [{'index': 0, 'finish_reason': 'tool_calls', 'message': {'role': 'assistant', 'content': None,
+                    'tool_calls': [{'id': 'local-1', 'type': 'function', 'function': {
+                        'name': 'stop_incomplete', 'arguments': '{"reason":"本地验证"}'}}]}}],
+                'usage': {'prompt_tokens': 5, 'completion_tokens': 3, 'total_tokens': 8},
+            }).encode('utf-8')
+            self.send_response(200); self.send_header('Content-Type', 'application/json')
+            self.send_header('Content-Length', str(len(payload))); self.end_headers(); self.wfile.write(payload)
+        def log_message(self, *_args):
+            pass
+
+    server = ThreadingHTTPServer(('127.0.0.1', 0), Endpoint)
+    thread = threading.Thread(target=server.serve_forever, daemon=True); thread.start()
+    try:
+        monkeypatch.setenv('DEEPSEEK_BASE_URL', f'http://127.0.0.1:{server.server_port}')
+        monkeypatch.setenv('DEEPSEEK_API_KEY', 'local-only-secret')
+        code, out, err = run_cli('--mode', 'real', 'create', '--topic', '本地请求验证', '--budget', '10', '--deadline', '2026-10-30')
+        assert code == 0, err
+        task_id = json.loads(out)['task_id']
+        code, out, err = run_cli('--mode', 'real', 'run', task_id, '--max-rounds', '1')
+        assert code == 0, err
+        code, out, err = run_cli('--mode', 'real', 'inspect', task_id)
+        assert code == 0, err
+        request = json.loads(json.loads(out)['llm_requests'][0]['meta_json'])['request']
+        assert request['adapter'] == 'DeepSeekClient' and request['mock'] is False
+        assert len(received) == 1
+        for field in ('model', 'messages', 'tools', 'tool_choice', 'stream'):
+            assert request[field] == received[0][field]
+        assert request['extra_body']['thinking'] == received[0]['thinking'] == {'type': 'disabled'}
+        assert 'local-only-secret' not in json.dumps(request, ensure_ascii=False)
+    finally:
+        server.shutdown(); server.server_close(); thread.join(timeout=2)

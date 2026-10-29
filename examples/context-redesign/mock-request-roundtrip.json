@@ -3,11 +3,12 @@
     "kind": "mock",
     "source": "CLI create → run → inspect",
     "note": "模型响应由脚本注入；不是现实模型或质量证据。",
-    "task_id": "t_58c597695a49"
+    "task_id": "t_182ad0947b4d"
   },
   "requests": [
     {
-      "model": "scripted",
+      "adapter": "ScriptedClient",
+      "mock": true,
       "messages": [
         {
           "role": "system",
@@ -23,11 +24,11 @@
         },
         {
           "role": "user",
-          "content": "[适用费用能力概览] {\"version\": \"2026-10-30.v1\", \"currency\": \"CNY_cent\", \"source\": \"2026-10-30.v1.json\", \"modes\": {\"search_basic\": {\"mode\": \"search_basic\", \"label\": \"基础资料检索\", \"cost_cents\": 20, \"duration_ms\": 2000, \"max_internal_requests\": 1, \"max_requests\": null, \"max_readbacks\": null, \"candidates\": null, \"failure_rule\": \"启动即计量；失败或中断不退还，实际重试新增尝试\"}, \"search_extended\": {\"mode\": \"search_extended\", \"label\": \"扩展资料检索\", \"cost_cents\": 60, \"duration_ms\": 6000, \"max_internal_requests\": 3, \"max_requests\": null, \"max_readbacks\": null, \"candidates\": null, \"failure_rule\": \"启动即计量；内部最多 3 次，失败不退还\"}, \"review\": {\"mode\": \"review\", \"label\": \"内容核验\", \"cost_cents\": 80, \"duration_ms\": 6000, \"max_internal_requests\": null, \"max_requests\": 3, \"max_readbacks\": 2, \"candidates\": null, \"failure_rule\": \"最多 3 次模型请求、2 次回读；触顶/中断不退还\"}, \"revision\": {\"mode\": \"revision\", \"label\": \"返修\", \"cost_cents\": 120, \"duration_ms\": 8000, \"max_internal_requests\": 2, \"max_requests\": null, \"max_readbacks\": null, \"candidates\": null, \"failure_rule\": \"启动即计量；失败不退还\"}, \"save\": {\"mode\": \"save\", \"label\": \"方案保存\", \"cost_cents\": 10, \"duration_ms\": 1000, \"max_internal_requests\": 1, \"max_requests\": null, \"max_readbacks\": null, \"candidates\": null, \"failure_rule\": \"启动即计量；保存失败另行核实\"}, \"submit_script\": {\"mode\": \"submit_script\", \"label\": \"正式提交脚本\", \"cost_cents\": 120, \"duration_ms\": 8000, \"max_internal_requests\": null, \"max_requests\": null, \"max_readbacks\": null, \"candidates\": null, \"failure_rule\": \"启动即计量；失败或中断保留计量，同次恢复不重复收费\"}}}"
+          "content": "[适用费用能力概览] {\"version\": \"2026-10-30.v2\", \"currency\": \"CNY_cent\", \"source\": \"2026-10-30.v2.json\", \"modes\": {\"search_basic\": {\"mode\": \"search_basic\", \"label\": \"基础资料检索\", \"cost_cents\": 20, \"duration_ms\": 2000, \"max_internal_requests\": 1, \"max_requests\": null, \"max_readbacks\": null, \"candidates\": null, \"failure_rule\": \"启动即计量；失败或中断不退还，实际重试新增尝试\"}, \"search_extended\": {\"mode\": \"search_extended\", \"label\": \"扩展资料检索\", \"cost_cents\": 60, \"duration_ms\": 6000, \"max_internal_requests\": 3, \"max_requests\": null, \"max_readbacks\": null, \"candidates\": null, \"failure_rule\": \"启动即计量；内部最多 3 次，失败不退还\"}, \"review\": {\"mode\": \"review\", \"label\": \"内容核验\", \"cost_cents\": 80, \"duration_ms\": 6000, \"max_internal_requests\": null, \"max_requests\": 3, \"max_readbacks\": 2, \"candidates\": null, \"failure_rule\": \"最多 3 次模型请求、2 次回读；触顶/中断不退还\"}, \"revision\": {\"mode\": \"revision\", \"label\": \"返修\", \"cost_cents\": 120, \"duration_ms\": 8000, \"max_internal_requests\": null, \"max_requests\": null, \"max_readbacks\": null, \"candidates\": null, \"failure_rule\": \"启动即计量；失败不退还\"}, \"save\": {\"mode\": \"save\", \"label\": \"方案保存\", \"cost_cents\": 10, \"duration_ms\": 1000, \"max_internal_requests\": 1, \"max_requests\": null, \"max_readbacks\": null, \"candidates\": null, \"failure_rule\": \"启动即计量；保存失败另行核实\"}, \"submit_script\": {\"mode\": \"submit_script\", \"label\": \"正式提交脚本\", \"cost_cents\": 120, \"duration_ms\": 8000, \"max_internal_requests\": null, \"max_requests\": null, \"max_readbacks\": null, \"candidates\": null, \"failure_rule\": \"启动即计量；失败或中断保留计量，同次恢复不重复收费\"}}}"
         },
         {
           "role": "user",
-          "content": "[任务输入] {\"task_id\": \"t_58c597695a49\", \"mode\": \"mock\", \"input_version\": 1, \"topic\": \"校园社团招新\", \"budget_cents\": 1000, \"deadline\": \"2026-10-30T15:59:59+00:00\", \"audience\": null, \"requirements\": [\"展示自动卡点的可证实能力\"], \"raw_input\": {\"topic\": \"校园社团招新\", \"budget\": \"10\", \"deadline\": \"2026-10-30\", \"audience\": null, \"requirements\": [\"展示自动卡点的可证实能力\"]}, \"sim_start\": \"2026-10-29T00:00:00+08:00\", \"max_rounds\": 24}"
+          "content": "[任务输入] {\"task_id\": \"t_182ad0947b4d\", \"mode\": \"mock\", \"input_version\": 1, \"topic\": \"校园社团招新\", \"budget_cents\": 1000, \"deadline\": \"2026-10-30T15:59:59+00:00\", \"audience\": null, \"requirements\": [\"展示自动卡点的可证实能力\"], \"raw_input\": {\"topic\": \"校园社团招新\", \"budget\": \"10\", \"deadline\": \"2026-10-30\", \"audience\": null, \"requirements\": [\"展示自动卡点的可证实能力\"]}, \"sim_start\": \"2026-10-29T00:00:00+08:00\", \"max_rounds\": 24}"
         },
         {
           "role": "user",
@@ -1210,15 +1211,11 @@
           }
         }
       ],
-      "tool_choice": "auto",
-      "stream": false,
-      "thinking": {
-        "type": "disabled"
-      },
-      "mock": true
+      "cursor": 0
     },
     {
-      "model": "scripted",
+      "adapter": "ScriptedClient",
+      "mock": true,
       "messages": [
         {
           "role": "system",
@@ -1234,11 +1231,11 @@
         },
         {
           "role": "user",
-          "content": "[适用费用能力概览] {\"version\": \"2026-10-30.v1\", \"currency\": \"CNY_cent\", \"source\": \"2026-10-30.v1.json\", \"modes\": {\"search_basic\": {\"mode\": \"search_basic\", \"label\": \"基础资料检索\", \"cost_cents\": 20, \"duration_ms\": 2000, \"max_internal_requests\": 1, \"max_requests\": null, \"max_readbacks\": null, \"candidates\": null, \"failure_rule\": \"启动即计量；失败或中断不退还，实际重试新增尝试\"}, \"search_extended\": {\"mode\": \"search_extended\", \"label\": \"扩展资料检索\", \"cost_cents\": 60, \"duration_ms\": 6000, \"max_internal_requests\": 3, \"max_requests\": null, \"max_readbacks\": null, \"candidates\": null, \"failure_rule\": \"启动即计量；内部最多 3 次，失败不退还\"}, \"review\": {\"mode\": \"review\", \"label\": \"内容核验\", \"cost_cents\": 80, \"duration_ms\": 6000, \"max_internal_requests\": null, \"max_requests\": 3, \"max_readbacks\": 2, \"candidates\": null, \"failure_rule\": \"最多 3 次模型请求、2 次回读；触顶/中断不退还\"}, \"revision\": {\"mode\": \"revision\", \"label\": \"返修\", \"cost_cents\": 120, \"duration_ms\": 8000, \"max_internal_requests\": 2, \"max_requests\": null, \"max_readbacks\": null, \"candidates\": null, \"failure_rule\": \"启动即计量；失败不退还\"}, \"save\": {\"mode\": \"save\", \"label\": \"方案保存\", \"cost_cents\": 10, \"duration_ms\": 1000, \"max_internal_requests\": 1, \"max_requests\": null, \"max_readbacks\": null, \"candidates\": null, \"failure_rule\": \"启动即计量；保存失败另行核实\"}, \"submit_script\": {\"mode\": \"submit_script\", \"label\": \"正式提交脚本\", \"cost_cents\": 120, \"duration_ms\": 8000, \"max_internal_requests\": null, \"max_requests\": null, \"max_readbacks\": null, \"candidates\": null, \"failure_rule\": \"启动即计量；失败或中断保留计量，同次恢复不重复收费\"}}}"
+          "content": "[适用费用能力概览] {\"version\": \"2026-10-30.v2\", \"currency\": \"CNY_cent\", \"source\": \"2026-10-30.v2.json\", \"modes\": {\"search_basic\": {\"mode\": \"search_basic\", \"label\": \"基础资料检索\", \"cost_cents\": 20, \"duration_ms\": 2000, \"max_internal_requests\": 1, \"max_requests\": null, \"max_readbacks\": null, \"candidates\": null, \"failure_rule\": \"启动即计量；失败或中断不退还，实际重试新增尝试\"}, \"search_extended\": {\"mode\": \"search_extended\", \"label\": \"扩展资料检索\", \"cost_cents\": 60, \"duration_ms\": 6000, \"max_internal_requests\": 3, \"max_requests\": null, \"max_readbacks\": null, \"candidates\": null, \"failure_rule\": \"启动即计量；内部最多 3 次，失败不退还\"}, \"review\": {\"mode\": \"review\", \"label\": \"内容核验\", \"cost_cents\": 80, \"duration_ms\": 6000, \"max_internal_requests\": null, \"max_requests\": 3, \"max_readbacks\": 2, \"candidates\": null, \"failure_rule\": \"最多 3 次模型请求、2 次回读；触顶/中断不退还\"}, \"revision\": {\"mode\": \"revision\", \"label\": \"返修\", \"cost_cents\": 120, \"duration_ms\": 8000, \"max_internal_requests\": null, \"max_requests\": null, \"max_readbacks\": null, \"candidates\": null, \"failure_rule\": \"启动即计量；失败不退还\"}, \"save\": {\"mode\": \"save\", \"label\": \"方案保存\", \"cost_cents\": 10, \"duration_ms\": 1000, \"max_internal_requests\": 1, \"max_requests\": null, \"max_readbacks\": null, \"candidates\": null, \"failure_rule\": \"启动即计量；保存失败另行核实\"}, \"submit_script\": {\"mode\": \"submit_script\", \"label\": \"正式提交脚本\", \"cost_cents\": 120, \"duration_ms\": 8000, \"max_internal_requests\": null, \"max_requests\": null, \"max_readbacks\": null, \"candidates\": null, \"failure_rule\": \"启动即计量；失败或中断保留计量，同次恢复不重复收费\"}}}"
         },
         {
           "role": "user",
-          "content": "[任务输入] {\"task_id\": \"t_58c597695a49\", \"mode\": \"mock\", \"input_version\": 1, \"topic\": \"校园社团招新\", \"budget_cents\": 1000, \"deadline\": \"2026-10-30T15:59:59+00:00\", \"audience\": null, \"requirements\": [\"展示自动卡点的可证实能力\"], \"raw_input\": {\"topic\": \"校园社团招新\", \"budget\": \"10\", \"deadline\": \"2026-10-30\", \"audience\": null, \"requirements\": [\"展示自动卡点的可证实能力\"]}, \"sim_start\": \"2026-10-29T00:00:00+08:00\", \"max_rounds\": 24}"
+          "content": "[任务输入] {\"task_id\": \"t_182ad0947b4d\", \"mode\": \"mock\", \"input_version\": 1, \"topic\": \"校园社团招新\", \"budget_cents\": 1000, \"deadline\": \"2026-10-30T15:59:59+00:00\", \"audience\": null, \"requirements\": [\"展示自动卡点的可证实能力\"], \"raw_input\": {\"topic\": \"校园社团招新\", \"budget\": \"10\", \"deadline\": \"2026-10-30\", \"audience\": null, \"requirements\": [\"展示自动卡点的可证实能力\"]}, \"sim_start\": \"2026-10-29T00:00:00+08:00\", \"max_rounds\": 24}"
         },
         {
           "role": "user",
@@ -2444,12 +2441,7 @@
           }
         }
       ],
-      "tool_choice": "auto",
-      "stream": false,
-      "thinking": {
-        "type": "disabled"
-      },
-      "mock": true
+      "cursor": 1
     }
   ],
   "actual_messages_after_requests": [
@@ -2469,7 +2461,7 @@
       ],
       "tool_call_id": null,
       "name": null,
-      "created_at": "2026-10-29T20:00:49+00:00"
+      "created_at": "2026-10-29T20:26:36+00:00"
     },
     {
       "seq": 8,
@@ -2478,7 +2470,7 @@
       "tool_calls": [],
       "tool_call_id": "call_1",
       "name": "read_skill",
-      "created_at": "2026-10-29T20:00:49+00:00"
+      "created_at": "2026-10-29T20:26:36+00:00"
     },
     {
       "seq": 10,
@@ -2496,7 +2488,7 @@
       ],
       "tool_call_id": null,
       "name": null,
-      "created_at": "2026-10-29T20:00:49+00:00"
+      "created_at": "2026-10-29T20:26:36+00:00"
     },
     {
       "seq": 11,
@@ -2505,7 +2497,7 @@
       "tool_calls": [],
       "tool_call_id": "call_2",
       "name": "stop_incomplete",
-      "created_at": "2026-10-29T20:00:49+00:00"
+      "created_at": "2026-10-29T20:26:36+00:00"
     }
   ]
 }

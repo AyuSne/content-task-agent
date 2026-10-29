@@ -9,7 +9,7 @@ from pathlib import Path
 
 from cta.config import find_project_root
 
-DEFAULT_PRICING_VERSION = "2026-10-30.v1"
+DEFAULT_PRICING_VERSION = "2026-10-30.v2"
 
 
 @dataclass(frozen=True)

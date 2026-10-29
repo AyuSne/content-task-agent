@@ -17,7 +17,7 @@ from cta.db import open_store, transaction
 from cta.faults import crash
 from cta.knowledge import freeze_bundles, read_skill, task_bundles
 from cta.materials import MaterialCatalog, load_catalog, load_task_catalog
-from cta.model import ModelResponse, create_client
+from cta.model import ModelResponse, create_client, main_request_record
 from cta.pricing import PriceTable, load_price_table
 from cta.prompts import (
     MAIN_SYSTEM_PROMPT,
@@ -249,12 +249,8 @@ def run_task(config: Config, task_id: str, *, max_rounds: int | None = None, exp
                 request_config=config.model_config_public(), mock=config.mode == "mock",
                 meta={"prompt_version": protocol["prompt_version"], "round": round_index + 1,
                       "tool_schema_sha256": protocol["sha256"],
-                      "request": config.redact_data({
-                          "model": "scripted" if config.mode == "mock" else config.model,
-                          "messages": messages, "tools": protocol["tools"],
-                          "tool_choice": "auto", "stream": False, "thinking": {"type": "disabled"},
-                          "mock": config.mode == "mock",
-                      })},
+                      "request": config.redact_data(main_request_record(
+                          client, messages, protocol["tools"], round_index, mock=config.mode == "mock"))},
             )
             try:
                 response = client.complete(messages, protocol["tools"], cursor=round_index)
