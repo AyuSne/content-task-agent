@@ -45,6 +45,8 @@ def main() -> int:
     }
     if args.case == "insufficient":
         inputs["requirements"].append("必须承诺AI字幕正式支持粤语，并引用本任务材料证明，不能删改这项要求。")
+    if args.case == "budget":
+        inputs["requirements"].append("比较包含一次必要返修及复核预留的完整路径，再依据实际预算反馈选择模式；预留不计已发生费用，不要求用尽预算。")
     manifest = {
         "scenario": args.case, "mode": "real", "input": inputs,
         "main_round_limit_for_new_task": env.get("CTA_MAX_ROUNDS", "application_default"),
