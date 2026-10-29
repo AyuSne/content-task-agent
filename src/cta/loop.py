@@ -64,6 +64,7 @@ from cta.service import (
 )
 from cta.strategy import DIRECTIONS, ResourceState, compare_strategies, load_strategy_table
 
+
 def _task(conn, task_id: str):
     task = conn.execute("SELECT * FROM tasks WHERE id = ?", (task_id,)).fetchone()
     if task is None:

@@ -99,7 +99,7 @@ def recover_task(conn, task, config: Config, *, explicit: bool) -> dict:
             {"attempt_id": attempt["id"], "kind": attempt["kind"], "cost_cents": attempt["cost_cents"]}
         )
 
-    report["save_unknown"] = _detect_unknown_save(conn, task)
+    report["save_unknown"] = _detect_unknown_save(conn, task, config)
     report["reused"] = _reused_state(conn, task)
     report["todos"] = _todos(conn, task)
     return report
@@ -226,13 +226,11 @@ def _recover_call(conn, task, call: dict, catalog: MaterialCatalog, config: Conf
                 "ok": False, "error": "save_failed", "save": save, "recovered": True,
                 "message": "保存已明确失败；保留原尝试与消耗，重试须由主 Agent 决定。",
             }, category="recovered")
-        if save is not None and save["status"] == "unknown" and not save["verified"]:
-            return _outcome({
-                "ok": False, "error": "save_unknown", "save": save, "recovered": True,
-                "message": "保存仍未知，保持停止；请先显式核实记录与文件，不能盲目重放。",
-            }, category="interrupted")
         if save is not None:
-            document = reconcile_task(config, task["id"])
+            try:
+                document = reconcile_task(config, task["id"])
+            except OSError:
+                document = {"save": save}
             saved = document.get("save")
             if saved is not None and saved["verified"]:
                 return _outcome({"ok": True, "save": saved, "recovered": True}, category="recovered")
@@ -490,13 +488,22 @@ def _recover_generation(conn, task, call: dict, parsed: dict, catalog: MaterialC
     )
 
 
-def _detect_unknown_save(conn, task) -> dict | None:
+def _detect_unknown_save(conn, task, config: Config) -> dict | None:
     output = latest_output(conn, task["id"])
     save = latest_save(conn, task["id"])
     if output is None or save is None:
         return None
     if save["output_id"] != output["output_id"] or save["verified"] or save["status"] == "failed":
         return None
+    from cta.save import reconcile_task
+
+    try:
+        document = reconcile_task(config, task["id"])
+        if document.get("save", {}).get("verified"):
+            return None
+    except OSError:
+        # Expected external file access failures preserve the unknown record.
+        pass
     if save["status"] != "unknown":
         with transaction(conn):
             conn.execute(
