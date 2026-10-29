@@ -34,6 +34,13 @@ MAX_REQUESTS = 3
 MAX_READBACKS = 2
 
 
+def review_report_status(report: dict | None) -> str:
+    """A received report is complete only when the whole review reached a verdict."""
+    if report is not None and report["verdict"] in ("pass", "fail") and report["completeness"] == "full":
+        return "complete"
+    return "incomplete"
+
+
 class ReviewError(Exception):
     def __init__(self, message: str, code: str = "review_blocked"):
         super().__init__(message)
@@ -163,6 +170,47 @@ def _read_material(conn, task_id: str, catalog, material_id) -> dict:
     return catalog.read(material_id)
 
 
+def _review_history(conn, task_id: str) -> tuple[list[dict], list[dict]]:
+    history = []
+    unresolved = []
+    for row in conn.execute(
+        """
+        SELECT reviews.*, outputs.input_version FROM reviews
+        JOIN outputs ON outputs.id = reviews.output_id
+        WHERE reviews.task_id = ? ORDER BY reviews.rowid
+        """,
+        (task_id,),
+    ):
+        dispositions = {
+            item["finding_id"]: {"decision": item["decision"], "reason": item["reason"]}
+            for item in conn.execute("SELECT * FROM dispositions WHERE review_id = ?", (row["id"],))
+        }
+        findings = [
+            {**finding, "disposition": dispositions.get(finding["finding_id"])}
+            for finding in json.loads(row["findings_json"])
+        ]
+        history.append({
+            "review_id": row["id"],
+            "output_version": row["output_version"],
+            "input_version": row["input_version"],
+            "status": row["status"],
+            "verdict": row["verdict"],
+            "completeness": row["completeness"],
+            "summary": row["summary"],
+            "findings": findings,
+            "evidence_gaps": json.loads(row["evidence_gaps_json"]),
+        })
+        if row["status"] == "complete" and row["verdict"] == "pass":
+            unresolved = []
+        unresolved.extend(
+            {**finding, "review_id": row["id"], "input_version": row["input_version"]}
+            for finding in findings
+            if finding["severity"] in ("must_fix", "needs_evidence")
+            and (finding["disposition"] is None or finding["disposition"]["decision"] != "rejected")
+        )
+    return history, unresolved
+
+
 def review_task(config: Config, task_id: str) -> dict:
     price = load_price_table(config.project_root)
     with open_store(config.db_path) as conn:
@@ -211,6 +259,7 @@ def review_task(config: Config, task_id: str) -> dict:
         input_row = conn.execute(
             "SELECT * FROM task_inputs WHERE task_id = ? AND version = ?", (task["id"], task["input_version"])
         ).fetchone()
+        review_history, unresolved_findings = _review_history(conn, task["id"])
         payload = {
             "task_input": {
                 "topic": input_row["topic"],
@@ -223,6 +272,13 @@ def review_task(config: Config, task_id: str) -> dict:
             "campaign": output["content"],
             "program_checks": _program_checks(output),
             "reviewed_version": output["version"],
+            "review_history": review_history,
+            "unresolved_findings": unresolved_findings,
+            "review_scope": {
+                "current_input_version": task["input_version"],
+                "current_output_input_version": output["input_version"],
+                "history_applicability": "历史意见及处置须按当前要求和稿件重新核对；采纳不等于已修复，旧稿通过不直接继承。检查修改及整体关系，保留正确内容；新证据或回归可重新打开旧意见。",
+            },
             "limits": {"max_requests": max_requests, "max_readbacks": max_readbacks},
         }
         messages = [
@@ -233,6 +289,12 @@ def review_task(config: Config, task_id: str) -> dict:
             },
             {"role": "user", "content": "[待核验方案] " + json.dumps(payload, ensure_ascii=False)},
         ]
+        with transaction(conn):
+            for message in messages:
+                append_message(
+                    conn, task["id"], message["role"], message["content"], agent="reviewer",
+                    attempt_id=attempt_id, meta={"kind": "review_context", "output_version": output["version"]},
+                )
 
         try:
             client = create_client(config)
@@ -385,7 +447,7 @@ def review_task(config: Config, task_id: str) -> dict:
             document["review"] = latest_review(conn, task_id)
             return document
 
-        review_status = "complete" if report["verdict"] in ("pass", "fail") else "incomplete"
+        review_status = review_report_status(report)
         create_review(
             conn,
             task_id=task["id"],
@@ -402,15 +464,15 @@ def review_task(config: Config, task_id: str) -> dict:
             readbacks_used=readbacks_used,
         )
         finish_attempt(conn, attempt_id, status="success")
-        if report["verdict"] == "pass":
+        if review_status == "incomplete":
+            reason = "内容核验未完成，未形成通过结论。"
+            phase = "review_incomplete"
+        elif report["verdict"] == "pass":
             reason = "内容核验完成：通过。"
             phase = "reviewed"
         elif report["verdict"] == "fail":
             reason = "内容核验完成：未通过，仍有必须处理的意见。"
             phase = "reviewed"
-        else:
-            reason = "内容核验未完成，未形成通过结论。"
-            phase = "review_incomplete"
         conn.execute(
             "UPDATE tasks SET phase = ?, reason = ?, updated_at = ? WHERE id = ?",
             (phase, reason, utc_now_iso(), task["id"]),
