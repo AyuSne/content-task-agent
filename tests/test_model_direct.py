@@ -1,6 +1,7 @@
 """The real SDK adapter obeys the explicit direct-route contract."""
 
 import json
+import socket
 import threading
 from dataclasses import replace
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
@@ -51,6 +52,35 @@ def test_model_adapter_connects_directly_when_proxy_environment_is_present(cli_e
         assert received[0]["stream"] is False
         assert received[0]["thinking"] == {"type": "disabled"}
         assert config.model_config_public()["network_route"] == "direct"
+    finally:
+        server.shutdown()
+        server.server_close()
+        thread.join(timeout=2)
+
+
+def test_model_connection_error_retains_the_transport_cause(cli_env, monkeypatch):
+    monkeypatch.setenv("CTA_LLM_TIMEOUT", "1")
+
+    class InterruptedEndpoint(BaseHTTPRequestHandler):
+        def do_POST(self):
+            self.rfile.read(int(self.headers["Content-Length"]))
+            self.connection.shutdown(socket.SHUT_RDWR)
+            self.connection.close()
+
+        def log_message(self, *_args):
+            pass
+
+    server = ThreadingHTTPServer(("127.0.0.1", 0), InterruptedEndpoint)
+    thread = threading.Thread(target=server.serve_forever, daemon=True)
+    thread.start()
+    try:
+        config = replace(
+            load_config("real"), base_url=f"http://127.0.0.1:{server.server_port}", api_key="local-test-key",
+        )
+        response = DeepSeekClient(config).complete([{"role": "user", "content": "测试中断"}], [], cursor=0)
+        assert "APIConnectionError" in response.error
+        assert "RemoteProtocolError" in response.error
+        assert "Server disconnected without sending a response" in response.error
     finally:
         server.shutdown()
         server.server_close()
