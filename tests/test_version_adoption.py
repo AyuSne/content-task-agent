@@ -73,7 +73,7 @@ def test_adopted_knowledge_reaches_main_and_preserves_previous_body(cli_env, mod
     assert "UNADOPTED FILE CHANGE" not in json.dumps(after, ensure_ascii=False)
     history = after["knowledge_history"][-1]
     assert history["current"]["content"] == expected
-    assert history["previous"]["version"] == "2026-10-29.v1"
+    assert history["previous"]["version"] == before["knowledge"][0]["version"]
     assert "活动方案创作工作知识" in history["previous"]["content"]
 
 
@@ -152,3 +152,18 @@ def test_resource_update_checks_remaining_save_cost_after_review(cli_env, model_
     assert updated["resource_reassessment"]["projected_total_cents"] == 230
     assert updated["resource_reassessment"]["feasible"] is False
     assert updated["resources"]["sim_spent_cents"] == reviewed["resources"]["sim_spent_cents"] == 220
+
+
+def test_resource_reassessment_respects_evidence_based_rejection(cli_env, model_script):
+    from test_campaign_draft import _brief_then_draft_script, _tool
+    from test_revision_disposition import REVIEW_FAIL
+
+    task = _draft_ready(model_script, _review_item(REVIEW_FAIL))
+    cli_json("review", task["task_id"])
+    model_script(_brief_then_draft_script() + [_tool("record_disposition", {
+        "finding_id": "F1", "decision": "rejected", "reason": "M-001正文确实支持当前有限范围表述。",
+    })])
+    cli_json("run", task["task_id"], "--max-rounds", "1")
+    updated = cli_json("update", task["task_id"], "--budget", "2.30")
+    assert updated["resource_reassessment"]["projected_total_cents"] == 230
+    assert updated["resource_reassessment"]["feasible"] is True

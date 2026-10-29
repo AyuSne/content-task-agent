@@ -11,7 +11,14 @@ import os
 
 from cta.config import Config, utc_now_iso
 from cta.db import open_store
-from cta.export import build_files, build_report_file, build_trace_file, verify_records
+from cta.export import (
+    build_files,
+    build_report_file,
+    build_trace_file,
+    execution_report_markdown,
+    trace_text,
+    verify_records,
+)
 from cta.faults import crash
 from cta.pricing import load_price_table
 from cta.repository import (
@@ -44,7 +51,7 @@ def _blocking_open_questions(conn, task_id: str, output: dict) -> int:
     return brief_blocking + campaign_blocking
 
 
-def _preconditions(conn, task, output: dict) -> dict | None:
+def save_preconditions(conn, task, output: dict) -> dict | None:
     from cta.service import output_reuse_basis
 
     if output.get("input_version") != task["input_version"] and output_reuse_basis(conn, task, output) is None:
@@ -115,11 +122,16 @@ def _repair_files(conn, config: Config, task, output: dict, review: dict | None,
     Completion is written only after every rebuilt file verifies; a failed
     repair leaves the task uncompleted and the save unknown.
     """
-    should_complete = (task["status"] != "complete" and _preconditions(conn, task, output) is None
-                       and _guard(conn, task, 0, 0) is None)
+    should_complete = save_preconditions(conn, task, output) is None and _guard(conn, task, 0, 0) is None
+    conn.execute("UPDATE saves SET status = 'unknown', verified = 0 WHERE id = ?", (save["save_id"],))
+    conn.execute(
+        "UPDATE tasks SET status = 'incomplete', phase = 'save_unknown', reason = ? WHERE id = ?",
+        ("正在核实当前版本与全部交付文件；核实完成前不声明完成。", task["id"]),
+    )
+    conn.commit()
     verified_at = utc_now_iso()
     virtual = {**save, "verified": True, "status": "verified", "verified_at": verified_at}
-    final_task = dict(task)
+    final_task = dict(conn.execute("SELECT * FROM tasks WHERE id = ?", (task["id"],)).fetchone())
     if should_complete:
         final_task.update(
             status="complete",
@@ -128,13 +140,23 @@ def _repair_files(conn, config: Config, task, output: dict, review: dict | None,
             updated_at=verified_at,
             paused=0,
         )
-    base = build_files(
-        conn, config, final_task, output, review, virtual, include_report=False, include_trace=False
-    )
-    report = build_report_file(conn, config, final_task, output, review, virtual)
-    trace = build_trace_file(conn, config, final_task)
-    records = base + [report, trace]
-    ok, checked = verify_records(records)
+    error = None
+    try:
+        if save.get("attempt_id"):
+            attempt = conn.execute("SELECT status FROM attempts WHERE id = ?", (save["attempt_id"],)).fetchone()
+            if attempt["status"] in ("running", "interrupted"):
+                finish_attempt(conn, save["attempt_id"], status="success", meta={"reconciled": True})
+        base = build_files(
+            conn, config, final_task, output, review, virtual, include_report=False, include_trace=False
+        )
+        report = build_report_file(conn, config, final_task, output, review, virtual)
+        trace = build_trace_file(conn, config, final_task)
+        ok, checked = verify_records(base + [report, trace])
+        if not ok:
+            error = "导出修复后仍无法核实文件"
+    except OSError as exc:
+        ok, checked = False, save["files"]
+        error = config.redact(str(exc))[:800]
     if ok:
         conn.execute(
             "UPDATE saves SET status = 'verified', verified = 1, verified_at = ?, files_json = ?, error = NULL WHERE id = ?",
@@ -145,18 +167,14 @@ def _repair_files(conn, config: Config, task, output: dict, review: dict | None,
                 "UPDATE tasks SET status = 'complete', phase = 'complete', reason = ?, updated_at = ?, paused = 0 WHERE id = ?",
                 (final_task["reason"], verified_at, task["id"]),
             )
-        if save.get("attempt_id"):
-            finish_attempt(
-                conn,
-                save["attempt_id"],
-                status="success",
-                meta={"reconciled": True, "save_id": save["save_id"], "files": len(checked)},
-            )
     else:
+        conn.rollback()
         conn.execute(
-            "UPDATE saves SET files_json = ?, verified = 0, error = ? WHERE id = ?",
-            (json.dumps(checked, ensure_ascii=False), "导出修复后仍无法核实文件", save["save_id"]),
+            "UPDATE saves SET status = 'unknown', verified = 0, error = ? WHERE id = ?",
+            (error, save["save_id"]),
         )
+        conn.execute("UPDATE tasks SET reason = ?, updated_at = ? WHERE id = ?",
+                     ("保存结果未知：" + str(error), utc_now_iso(), task["id"]))
     conn.commit()
     return {
         "save_id": save["save_id"],
@@ -166,8 +184,8 @@ def _repair_files(conn, config: Config, task, output: dict, review: dict | None,
         "files": checked,
         "verified": ok,
         "verified_at": verified_at if ok else None,
-        "error": None if ok else "导出修复后仍无法核实文件",
-        "completed": should_complete and ok,
+        "error": error,
+        "completed": task["status"] != "complete" and should_complete and ok,
     }
 
 
@@ -192,8 +210,15 @@ def _find_existing_save(conn, task_id: str, output: dict) -> dict | None:
 
 def _reconcile_existing(conn, config: Config, task, output: dict, review: dict | None, save: dict) -> dict | None:
     if save["verified"] and save["files"]:
-        ok, checked = verify_records(save["files"])
-        if ok:
+        try:
+            ok, checked = verify_records(save["files"])
+            report = config.exports_dir / task["id"] / "execution-report.md"
+            trace = config.exports_dir / task["id"] / "trace.jsonl"
+            current = (report.read_text(encoding="utf-8") == execution_report_markdown(conn, task, output, review, save)
+                       and trace.read_text(encoding="utf-8") == trace_text(conn, task)) if ok else False
+        except OSError:
+            ok, current = False, False
+        if ok and current and task["status"] == "complete":
             return {**save, "files": checked, "reconciled": False}
     repaired = _repair_files(conn, config, task, output, review, save)
     return repaired
@@ -278,7 +303,7 @@ def save_task(config: Config, task_id: str) -> dict:
                     }
                 return document
 
-        blocked = _preconditions(conn, task, output)
+        blocked = save_preconditions(conn, task, output)
         if blocked is not None:
             document = TaskService(config).status(task_id)
             document["save"] = None

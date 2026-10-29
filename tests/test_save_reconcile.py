@@ -43,6 +43,32 @@ def test_export_repair_keeps_resource_infeasible_task_incomplete(cli_env, model_
     assert reconciled["resources"]["sim_spent_cents"] == 230
 
 
+def test_save_reuses_existing_result_after_resource_feasibility_is_restored(cli_env, model_script):
+    task, saved = _complete_task(model_script, cli_env)
+    cli_json("update", task["task_id"], "--budget", "2")
+    cli_json("update", task["task_id"], "--budget", "10")
+    code, restored = _save(task["task_id"])
+    assert code == 0
+    assert restored["status"] == "complete"
+    assert restored["save"]["save_id"] == saved["save"]["save_id"]
+    assert restored["resources"]["sim_spent_cents"] == 230
+    report = next(item for item in restored["save"]["files"] if item["path"].endswith("execution-report.md"))
+    assert "任务版本：3" in Path(report["path"]).read_text(encoding="utf-8")
+
+
+def test_unrepairable_verified_file_becomes_unknown_and_incomplete(cli_env, model_script):
+    task, saved = _complete_task(model_script, cli_env)
+    report = next(item for item in saved["save"]["files"] if item["path"].endswith("execution-report.md"))
+    path = Path(report["path"])
+    path.unlink()
+    path.mkdir()
+    reconciled = cli_json("reconcile", task["task_id"])
+    assert reconciled["status"] == "incomplete"
+    assert reconciled["save"]["verified"] is False
+    assert reconciled["save"]["status"] == "unknown"
+    assert reconciled["reconcile"]["error"]
+
+
 def test_export_repair_restores_missing_file_without_new_attempt(cli_env, model_script):
     task, saved = _complete_task(model_script, cli_env)
     report = next(item for item in saved["save"]["files"] if item["path"].endswith("execution-report.md"))

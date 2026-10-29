@@ -251,10 +251,11 @@ class TaskService:
     def _resource_reassessment(self, conn, task, intake, output, review, content_applicable: bool) -> dict:
         """Estimate the still-required path after an explicit resource update, without charging it."""
         price = load_price_table(self.config.project_root)
+        from cta.save import save_preconditions
+
         if task["status"] == STATUS_COMPLETE:
             modes = []
-        elif content_applicable and review is not None and review["output_id"] == output["output_id"] \
-                and review["status"] == "complete" and review["verdict"] == "pass":
+        elif content_applicable and save_preconditions(conn, task, output) is None:
             modes = ["save"]
         elif content_applicable and (review is None or review["status"] != "complete"):
             modes = ["review", "save"]

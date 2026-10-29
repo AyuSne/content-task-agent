@@ -1,0 +1,102 @@
+FFF                                                                      [100%]
+================================== FAILURES ===================================
+___ test_save_reuses_existing_result_after_resource_feasibility_is_restored ___
+
+cli_env = WindowsPath('C:/Users/10167/AppData/Local/Temp/pytest-of-10167/pytest-251/test_save_reuses_existing_resu0')
+model_script = <function model_script.<locals>.write at 0x000001BB0C6A32E0>
+
+    def test_save_reuses_existing_result_after_resource_feasibility_is_restored(cli_env, model_script):
+        task, saved = _complete_task(model_script, cli_env)
+        cli_json("update", task["task_id"], "--budget", "2")
+        cli_json("update", task["task_id"], "--budget", "10")
+        code, restored = _save(task["task_id"])
+        assert code == 0
+>       assert restored["status"] == "complete"
+E       AssertionError: assert 'incomplete' == 'complete'
+E         
+E         - complete
+E         + incomplete
+E         ? ++
+
+tests\test_save_reconcile.py:52: AssertionError
+_______ test_unrepairable_verified_file_becomes_unknown_and_incomplete ________
+
+cli_env = WindowsPath('C:/Users/10167/AppData/Local/Temp/pytest-of-10167/pytest-251/test_unrepairable_verified_fil0')
+model_script = <function model_script.<locals>.write at 0x000001BB0ECF53A0>
+
+    def test_unrepairable_verified_file_becomes_unknown_and_incomplete(cli_env, model_script):
+        task, saved = _complete_task(model_script, cli_env)
+        report = next(item for item in saved["save"]["files"] if item["path"].endswith("execution-report.md"))
+        path = Path(report["path"])
+        path.unlink()
+        path.mkdir()
+>       reconciled = cli_json("reconcile", task["task_id"])
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\test_save_reconcile.py:65: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+tests\conftest.py:49: in cli_json
+    code, out, err = run_cli(*args)
+                     ^^^^^^^^^^^^^^
+tests\conftest.py:42: in run_cli
+    code = main(list(args))
+           ^^^^^^^^^^^^^^^^
+src\cta\cli.py:310: in main
+    document = reconcile_task(config, args.task_id)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src\cta\save.py:236: in reconcile_task
+    if refresh_exports else _reconcile_existing(conn, config, task, output, review, save)
+                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src\cta\save.py:198: in _reconcile_existing
+    repaired = _repair_files(conn, config, task, output, review, save)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src\cta\save.py:134: in _repair_files
+    report = build_report_file(conn, config, final_task, output, review, virtual)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src\cta\export.py:398: in build_report_file
+    _write_atomic(path, execution_report_markdown(conn, task, output, review, save))
+src\cta\export.py:32: in _write_atomic
+    temp.replace(path)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = WindowsPath('C:/Users/10167/AppData/Local/Temp/pytest-of-10167/pytest-251/test_unrepairable_verified_fil0/data/mock/exports/t_3f8c2579cfe5/execution-report.md.tmp')
+target = WindowsPath('C:/Users/10167/AppData/Local/Temp/pytest-of-10167/pytest-251/test_unrepairable_verified_fil0/data/mock/exports/t_3f8c2579cfe5/execution-report.md')
+
+    def replace(self, target):
+        """
+        Rename this path to the target path, overwriting if that path exists.
+    
+        The target path may be absolute or relative. Relative paths are
+        interpreted relative to the current working directory, *not* the
+        directory of the Path object.
+    
+        Returns the new Path instance pointing to the target path.
+        """
+>       os.replace(self, target)
+E       PermissionError: [WinError 5] 拒绝访问。: 'C:\\Users\\10167\\AppData\\Local\\Temp\\pytest-of-10167\\pytest-251\\test_unrepairable_verified_fil0\\data\\mock\\exports\\t_3f8c2579cfe5\\execution-report.md.tmp' -> 'C:\\Users\\10167\\AppData\\Local\\Temp\\pytest-of-10167\\pytest-251\\test_unrepairable_verified_fil0\\data\\mock\\exports\\t_3f8c2579cfe5\\execution-report.md'
+
+C:\Users\10167\AppData\Roaming\uv\python\cpython-3.13.11-windows-x86_64-none\Lib\pathlib\_local.py:780: PermissionError
+________ test_resource_reassessment_respects_evidence_based_rejection _________
+
+cli_env = WindowsPath('C:/Users/10167/AppData/Local/Temp/pytest-of-10167/pytest-251/test_resource_reassessment_res0')
+model_script = <function model_script.<locals>.write at 0x000001BB0ECB9D00>
+
+    def test_resource_reassessment_respects_evidence_based_rejection(cli_env, model_script):
+        from test_campaign_draft import _brief_then_draft_script, _tool
+        from test_revision_disposition import REVIEW_FAIL
+    
+        task = _draft_ready(model_script, _review_item(REVIEW_FAIL))
+        cli_json("review", task["task_id"])
+        model_script(_brief_then_draft_script() + [_tool("record_disposition", {
+            "finding_id": "F1", "decision": "rejected", "reason": "M-001正文确实支持当前有限范围表述。",
+        })])
+        cli_json("run", task["task_id"], "--max-rounds", "1")
+        updated = cli_json("update", task["task_id"], "--budget", "2.30")
+>       assert updated["resource_reassessment"]["projected_total_cents"] == 230
+E       assert 430 == 230
+
+tests\test_version_adoption.py:168: AssertionError
+=========================== short test summary info ===========================
+FAILED tests/test_save_reconcile.py::test_save_reuses_existing_result_after_resource_feasibility_is_restored
+FAILED tests/test_save_reconcile.py::test_unrepairable_verified_file_becomes_unknown_and_incomplete
+FAILED tests/test_version_adoption.py::test_resource_reassessment_respects_evidence_based_rejection
