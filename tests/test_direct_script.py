@@ -162,3 +162,18 @@ def test_legacy_task_is_readable_but_execution_and_writes_are_blocked(cli_env, m
         assert '836aa827' in blocked['message']
     view = cli_json('inspect', task['task_id'])
     assert view['llm_requests'] == [] and view['attempts'] == []
+
+
+def test_clarification_after_script_preserves_the_accepted_version(cli_env, model_script):
+    task = cli_json('create', '--topic', '节奏', '--budget', '10', '--deadline', '2026-10-30T12:00:00+08:00')
+    model_script([{'name': 'propose_brief', 'arguments': BRIEF},
+                  {'name': 'submit_script', 'arguments': {'brief_version': 1, 'script': SCRIPT}},
+                  {'name': 'request_clarification', 'arguments': {'questions': [
+                      {'question': '是否可以补充产品材料？', 'impact': '影响其余内容', 'blocking': True}]}}])
+    result = cli_json('run', task['task_id'], '--max-rounds', '3')
+    view = cli_json('inspect', task['task_id'])
+    assert result['status'] == 'needs_input'
+    assert view['scripts'][0]['content']['script'] == SCRIPT
+    assert view['scripts'][0]['content']['brief_version'] == 1
+    assert len(view['attempts']) == 1 and view['resources']['sim_spent_cents'] == 120
+    assert view['clarifications'][0]['questions'][0]['blocking'] is True
