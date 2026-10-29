@@ -39,3 +39,4 @@ uv run python -m cta.comparison --mode real --method readback --case fixtures/co
 - 固定流程回归验证真实生成与整合共3次内容请求，核验失败后没有第二稿或业务保存，未伪报完成。
 
 定向4个回归通过（`green.txt`）；ruff通过。此记录不证明真实内容质量或对照效果。
+与主自主闭环和持久轮数修复集成后，9条定向回归通过，见 `integrated-green.txt`；集成前沿保留在Git父提交中。
