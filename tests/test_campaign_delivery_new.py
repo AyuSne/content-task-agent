@@ -90,6 +90,12 @@ def test_review_and_save_explicit_version_then_verify_all_delivery_files(cli_env
     text = Path(campaign_file["path"]).read_text(encoding="utf-8")
     assert SCRIPT["segments"][0]["voiceover"] in text
     assert "待制作" in text and "待获取" in text
+    report_file = next(x for x in saved["save"]["files"] if x["path"].endswith("execution-report.md"))
+    report = Path(report_file["path"]).read_text(encoding="utf-8")
+    assert "产物版本：1" in report and "被审版本 v1" in report and "版本 v1" in report
+    assert "校园情境与教程结合" in report and "演示操作并联系校园" in report
+    assert "尚未记录策略选择" not in report
+    assert "模拟工具费用" in report and "真实模型用量" in report and "活动费用" in report
 
 
 def test_later_script_revision_leaves_previous_campaign_snapshot_unchanged(cli_env, model_script):
@@ -229,3 +235,19 @@ def test_review_reads_only_task_materials_with_bounded_requests(cli_env, model_s
     messages = cli_json("inspect", task["task_id"])["reviewer_messages"]
     reads = [json.loads(m["content"]) for m in messages if m["role"] == "tool" and m["name"] == "read_material"]
     assert len(reads) == 2 and all(x["ok"] for x in reads)
+
+
+def test_unresolved_required_review_finding_blocks_delivery_without_save_attempt(cli_env, model_script):
+    from conftest import run_cli
+    from test_revision_disposition import REVIEW_FAIL
+
+    task = _new_draft_ready(model_script, _review_item(REVIEW_FAIL))
+    reviewed = cli_json("review", task["task_id"])
+    assert reviewed["review"]["findings"][0]["severity"] == "must_fix"
+    code, out, _ = run_cli("save", task["task_id"])
+    result = json.loads(out)
+    assert code != 0 and result["save_error"]["code"] == "unresolved_must_fix"
+    view = cli_json("inspect", task["task_id"])
+    assert view["status"] != "complete"
+    assert all(attempt["kind"] != "save_campaign" for attempt in view["attempts"])
+    assert view["resources"]["sim_spent_cents"] == 220
