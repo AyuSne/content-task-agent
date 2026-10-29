@@ -9,6 +9,28 @@ from datetime import UTC, datetime
 
 from cta.config import utc_now_iso
 
+LOCAL_TOOL_NAMES = frozenset({
+    "record_disposition", "record_dispositions", "compare_strategies", "choose_strategy", "estimate_cost",
+})
+
+
+def record_local_tool_result(conn, task_id: str, request_seq: int, tool_call_id: str, name: str, result: dict) -> None:
+    """Persist the original result in the same transaction as its local effects."""
+    conn.execute(
+        """INSERT INTO local_tool_results (task_id, request_seq, tool_call_id, name, result_json)
+           VALUES (?, ?, ?, ?, ?)""",
+        (task_id, request_seq, tool_call_id, name, json.dumps(result, ensure_ascii=False)),
+    )
+
+
+def local_tool_result(conn, task_id: str, call: dict) -> dict | None:
+    row = conn.execute(
+        """SELECT result_json FROM local_tool_results
+           WHERE task_id = ? AND agent = 'main' AND request_seq = ? AND tool_call_id = ? AND name = ?""",
+        (task_id, call["request_seq"], call["id"], call["function"]["name"]),
+    ).fetchone()
+    return None if row is None else json.loads(row["result_json"])
+
 
 def new_id(prefix: str) -> str:
     return prefix + secrets.token_hex(8)
@@ -85,9 +107,8 @@ def api_messages(conn: sqlite3.Connection, task_id: str, agent: str = "main") ->
 def find_pending_tool_calls(conn: sqlite3.Connection, task_id: str, agent: str = "main") -> list[dict]:
     """Return tool calls that have no matching tool result (interrupted round).
 
-    Recovery needs to know when the request was appended so it can verify
-    whether the business effect (brief, output, clarification, ...) happened
-    after the request and therefore belongs to it.
+    The request sequence identifies exact local result receipts. The timestamp
+    remains available for older action-specific recovery records.
     """
     rows = read_messages(conn, task_id, agent)
     answered = {row["tool_call_id"] for row in rows if row["role"] == "tool" and row["tool_call_id"]}
