@@ -24,8 +24,8 @@ MAIN_SYSTEM_PROMPT = """你是「内容任务规划」的主 Agent，服务虚�
 5. 每轮只调用一个工具。工具返回成功、失败、拒绝、部分成功或缺口都是真实反馈；下一步必须依据反馈选择，不重复无效调用，不假装成功，也不预设“先昂贵后便宜”或固定动作顺序。
 6. 预算与模拟截止是硬约束。方案中引用的预算数字必须与任务输入一致，不要自创总预算或剩余金额；工具被拒绝时阅读原因与完整剩余路径，改走当前可行的方向或模式；没有可行路径时用 stop_incomplete 说明具体缺口，并保留已完成成果。预估、预留不是实际支出；失败和额外消耗发生后重新估算。
    budget_cents 是本次方案准备的模拟工具费用上限，不是音乐采购、拍摄或投放预算；真实活动费用未知，单独标为待估，不得用任务预算承诺购买素材。方案截止时间约束活动方案准备及保存，后续制作与发布按另列建议排期执行。
-7. 按需要比较方向；已有依据充分时直接创作。简报可按需用 propose_brief 独立保存；首次提交脚本时也可在 submit_script 同时携带简报，或引用已保存的适用简报版本。返修提交完整新稿并引用旧稿，保护不需修改的内容。当前实现尚未接通引用脚本的完整方案提交，完成脚本后应说明缺口并停止，不能把脚本冒充完整方案。
-8. 完整方案提交成功后继续调用 review_campaign 核验当前版本。收到核验意见后，集中处置本审意见，明确关联意见、理由和证据；必要时返修并重新核验。当前稿满足要求、意见已有据处置且全路径可行时，调用 save_campaign 核实保存；保存未知时先停止等核实。
+7. 按需要比较方向；已有依据充分时直接创作。简报可按需用 propose_brief 独立保存；首次提交脚本时也可在 submit_script 同时携带简报，或引用已保存的适用简报版本。返修提交完整新稿并引用旧稿，保护不需修改的内容。然后调用 submit_campaign 引用脚本并提交完整方案的其他部分；不得重复提交脚本正文。
+8. 完整方案提交成功后继续调用 review_campaign 并以 campaign_ref 核验当前版本。收到核验意见后，集中处置本审意见，明确关联意见、理由和证据；必要时返修并重新核验。当前稿满足要求、意见已有据处置且全路径可行时，调用 save_campaign 并以 campaign_ref 核实保存；保存未知时先停止等核实。
 9. 核验 full/pass 后，当前合格稿可以直接保存，optional 不需要清零。比较保存当前稿与有明确实质收益的改进，收益需关联已确认目标，并考虑回归风险、完整路径及剩余主轮数；没有值得投入的新改进就保存。未来可选加固不自动构成本次返修义务，也不要为了清空新意见反复重写已通过稿件；不以最低价、花尽预算或固定改进次数代替判断。
 10. 不承诺涨粉、收益、爆款或转化；不把实验性能力写成正式能力；不输出内部思维过程。你负责持续推进到核实保存或有依据的未完成；简报、草稿或核验返回都不是任务终点。"""
 
@@ -156,6 +156,26 @@ _submit_script = {"type": "function", "function": {
             "evidence": {"type": "array", "items": _script_evidence}},
             "required": ["title", "direction", "duration_seconds", "segments", "evidence"], "additionalProperties": False}},
         "required": ["script"], "additionalProperties": False}}}
+_ref_schema = {"type": "object", "properties": {"id": {"type": "string"}, "version": {"type": "integer", "minimum": 1}}, "required": ["id", "version"], "additionalProperties": False}
+_text = {"type": "string"}
+def _object(fields, required=None):
+    return {"type": "object", "properties": fields, "required": required or list(fields), "additionalProperties": False}
+def _array(item):
+    return {"type": "array", "items": item}
+_submit_campaign = {"type": "function", "function": {
+    "name": "submit_campaign",
+    "description": "引用本任务已提交的适用脚本版本，提交其余完整活动方案。脚本正文由程序组装为固定快照，返回方案引用；接收不等于核验或交付。",
+    "parameters": _object({"script_ref": _ref_schema, "campaign": _object({
+        "strategy": _object({"name": _text, "rationale": _text, "alternatives": _array(_object({"name": _text, "why_not": _text}))}),
+        "activity": _object({"goal": _text, "audience": _text, "theme": _text, "format": _text,
+                             "content_items": _array(_object({"title": _text, "purpose": _text, "duration_s": {"type": "integer"}, "platform": _text}))}),
+        "materials": _array(_object({"name": _text, "material_id": _text, "status": {"type": "string", "enum": ["existing", "to_acquire", "to_create"]}, "use": _text, "position": _text, "rights_note": _text})),
+        "production_steps": _array(_object({"step": _text, "owner": _text, "timing": _text, "note": _text})),
+        "evidence": _array(_script_evidence),
+        "open_questions": _array(_object({"question": _text, "impact": _text, "blocking": {"type": "boolean"}}))
+    })})}}
+
+
 TOOL_DEFINITIONS = [
 {"type": "function", "function": {
         "name": "read_skill",
@@ -196,16 +216,16 @@ TOOL_DEFINITIONS = [
         "type": "function",
         "function": {
             "name": "review_campaign",
-            "description": "独立核验当前采用的完整方案版本，返回具体意见、证据缺口和内部请求用量。已完成且适用的核验直接复用；不完整核验不能算通过。",
-            "parameters": {"type": "object", "properties": {}, "additionalProperties": False},
+            "description": "独立核验明确引用的当前完整方案版本，返回具体意见、证据缺口和内部请求用量。已完成且适用的核验直接复用；不完整核验不能算通过。",
+            "parameters": _object({"campaign_ref": _ref_schema}),
         },
     },
 {
         "type": "function",
         "function": {
             "name": "save_campaign",
-            "description": "在版本、核验、意见处置和资源前提满足后保存当前采用方案，并核实交付文件；失败或未知如实返回，核实成功才完成。",
-            "parameters": {"type": "object", "properties": {}, "additionalProperties": False},
+            "description": "在版本、核验、意见处置和资源前提满足后保存明确引用的当前方案，并核实交付文件；失败或未知如实返回，核实成功才完成。",
+            "parameters": _object({"campaign_ref": _ref_schema}),
         },
     },
 {
@@ -262,6 +282,7 @@ TOOL_DEFINITIONS = [
         },
     },
 _submit_script,
+_submit_campaign,
 {
         "type": "function",
         "function": {

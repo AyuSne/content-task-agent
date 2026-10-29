@@ -39,3 +39,5 @@
 扩展运行 `tests/test_local_action_recovery.py` 暴露 03 新协议过渡的 21 项失败，未修改或宣称通过：同秒估算恢复 4（已移除 compare_strategies 两项、estimate_cost 仍传旧 generate_direct 两项）；同秒旧处置/选择 3；本地写入与回执间中断 4（单条/批量处置与旧 compare/choose）；旧策略拒绝恢复 1；回执恢复 9（单条/批量处置四项、旧 compare/choose 四项、旧价目 estimate_cost 成功路径一项）。处置依赖旧 _draft_ready，旧策略已退出新工具，估算清单需改成新价目动作。由 05/06/08/10 依新方案和批量处置迁移，并保留同秒关联本调用、写入与回执原子性、不重放/不重复收费、轮数和调用ID配对等有效断言；不得增加旧协议或删断言掩盖失败。
 
 2026-10-30 补充验证：`PYTHONPATH=src python -m pytest -p no:cacheprovider --basetemp .scratch/test-04-final2 tests/test_joint_brief_script.py tests/test_direct_script.py tests/test_brief_loop.py tests/test_protocol_freeze.py -q` 共 46 项通过；对修改文件的 Ruff 检查通过。共享简报校验拒绝缺失来源、依据、素材用途或未知项阻塞标识，两个入口均有 CLI 验证，不再把这些缺失静默补成事实。联合成功后避免提示重复提交脚本。仍需在工单 05 完成后解决 03 留下的两项方案路径测试，并依本记录处理本地动作恢复的 21 项旧协议测试；这些失败不属于以上 46 项通过。
+
+2026-10-30 同步 05 集成分支 `bfa35bf`，在冲突中同时保留联合简报提交和引用脚本的完整方案/核验/保存提示；联合回归 63 项通过（04、03、05、简报、协议冻结、价目及标准 Skill），另新增联合提交后引用脚本形成完整方案的 CLI 组合场景 1 项通过。当前仅为本工作分支验证，工单关闭及最终合并由集成合并者核实。

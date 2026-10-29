@@ -141,3 +141,24 @@ def test_brief_does_not_silently_treat_unspecified_unknown_as_nonblocking(cli_en
     result = json.loads(next(m['content'] for m in view['messages'] if m['role'] == 'tool' and m['name'] == name))
     assert not result['ok'] and 'blocking' in ' '.join(result['details'])
     assert view['brief'] is None and not view['scripts'] and not view['attempts']
+
+
+def test_joint_script_is_usable_for_complete_campaign_snapshot(cli_env, model_script):
+    from test_campaign_delivery_new import _campaign
+
+    task = cli_json('create', '--topic', '联合交付', '--budget', '10', '--deadline', '2026-10-30T12:00:00+08:00')
+    prefix = [{'name': 'submit_script', 'arguments': {'brief': BRIEF, 'script': SCRIPT}}]
+    model_script(prefix)
+    cli_json('run', task['task_id'], '--max-rounds', '1')
+    view = cli_json('inspect', task['task_id'])
+    script = view['scripts'][0]
+    ref = {'id': script['output_id'], 'version': script['version']}
+    model_script(prefix + [{'name': 'submit_campaign', 'arguments': {'script_ref': ref, 'campaign': _campaign()}}])
+    cli_json('resume', task['task_id'], '--max-rounds', '1')
+    view = cli_json('inspect', task['task_id'])
+    result = json.loads(next(m['content'] for m in view['messages'] if m['role'] == 'tool' and m['name'] == 'submit_campaign'))
+    assert result['ok'] and result['campaign_ref']['version'] == 1
+    campaign = next(x for x in view['outputs'] if x['kind'] == 'campaign')
+    assert campaign['content']['script_ref'] == ref and campaign['content']['script'] == SCRIPT
+    assert view['brief']['version'] == script['content']['brief_version'] == 1
+    assert view['resources']['sim_spent_cents'] == 120 and len(view['attempts']) == 1
