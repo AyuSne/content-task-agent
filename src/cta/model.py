@@ -13,6 +13,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Protocol
 
+import httpx
 from openai import OpenAI
 
 from cta.config import Config
@@ -60,10 +61,12 @@ class DeepSeekClient:
         if not config.api_key:
             raise ModelUnavailable("DEEPSEEK_API_KEY 未配置，不能进行真实模型调用。")
         self.config = config
+        timeout = float(os.environ.get("CTA_LLM_TIMEOUT", "180"))
         self.client = OpenAI(
             api_key=config.api_key,
             base_url=config.base_url,
-            timeout=float(os.environ.get("CTA_LLM_TIMEOUT", "180")),
+            http_client=httpx.Client(trust_env=False, timeout=timeout),
+            timeout=timeout,
             max_retries=0,
         )
 

@@ -4,6 +4,7 @@ version = "0.1.0"
 description = "内容任务规划 Agent：为虚构视频剪辑 App 的短视频推广活动准备有依据、可核验、可续跑的内容活动方案"
 requires-python = ">=3.12"
 dependencies = [
+    "httpx>=0.23,<1",
     "openai>=1.40,<3",
 ]
 

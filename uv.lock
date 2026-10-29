@@ -47,6 +47,7 @@ name = "content-task-agent"
 version = "0.1.0"
 source = { editable = "." }
 dependencies = [
+    { name = "httpx" },
     { name = "openai" },
 ]
 
@@ -57,7 +58,10 @@ dev = [
 ]
 
 [package.metadata]
-requires-dist = [{ name = "openai", specifier = ">=1.40,<3" }]
+requires-dist = [
+    { name = "httpx", specifier = ">=0.23,<1" },
+    { name = "openai", specifier = ">=1.40,<3" },
+]
 
 [package.metadata.requires-dev]
 dev = [
