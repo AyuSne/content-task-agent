@@ -79,6 +79,42 @@ def test_calibration_marks_misses_but_not_false_positives(cli_env, model_script,
     assert document["metrics"]["false_positives"] == []
 
 
+def test_calibration_keeps_incomplete_reports_out_of_completed_metrics(cli_env, model_script, tmp_path):
+    model_script([
+        {
+            "channel": "review", "type": "tool", "name": "report_review",
+            "arguments": {**_report("incomplete"), "completeness": "partial"},
+        }
+        for _ in range(12)
+    ])
+    code, out, err = run_cli("calibrate", "--output", str(tmp_path / "incomplete.json"))
+    assert code == 0, err
+    document = json.loads(out)
+    assert document["metrics"]["incomplete_reviews"] == 12
+    assert {result["report_status"] for result in document["results"]} == {"incomplete"}
+    assert document["metrics"]["evaluable_problem_samples"] == 0
+    assert document["metrics"]["evaluable_good_samples"] == 0
+    assert document["metrics"]["missed"] == []
+    assert document["metrics"]["false_positives"] == []
+
+
+def test_calibration_retains_complete_report_and_actual_evaluation_trace(cli_env, model_script, tmp_path):
+    items = _script_items()
+    items[0]["arguments"]["summary"] = "Unsupported claim requires correction."
+    items[0]["arguments"]["evidence_gaps"] = ["Source scope needs checking."]
+    model_script(items)
+    code, out, err = run_cli("calibrate", "--output", str(tmp_path / "trace.json"))
+    assert code == 0, err
+    first = json.loads(out)["results"][0]
+    assert first["summary"] == "Unsupported claim requires correction."
+    assert first["evidence_gaps"] == ["Source scope needs checking."]
+    assert first["request_records"][0]["model"] == "scripted"
+    assert first["request_records"][0]["mock"] is True
+    assert first["messages"][0]["role"] == "system"
+    assert first["messages"][-1]["role"] == "tool"
+    assert "label_source" not in json.dumps(first["messages"])
+
+
 def test_calibration_does_not_leak_labels_into_evaluator_payload(cli_env, model_script, tmp_path):
     model_script(_script_items())
     captured = []

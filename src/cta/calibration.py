@@ -12,7 +12,7 @@ from cta.knowledge import load_doc
 from cta.materials import load_catalog
 from cta.model import ModelResponse, create_client
 from cta.prompts import REVIEW_PROMPT_VERSION, REVIEW_SYSTEM_PROMPT, REVIEW_TOOL_DEFINITIONS
-from cta.review import MAX_READBACKS, MAX_REQUESTS, _validate_report
+from cta.review import MAX_READBACKS, MAX_REQUESTS, _validate_report, review_report_status
 
 DEFAULT_PAIRS = "2026-10-29.v1"
 
@@ -24,6 +24,8 @@ class Evaluation:
     readbacks: int
     errors: list[str]
     usage: dict
+    messages: list[dict]
+    request_records: list[dict]
 
 
 def _usage_add(total: dict, response: ModelResponse) -> None:
@@ -71,6 +73,7 @@ def _evaluate(config: Config, client, catalog, knowledge: str, pair: dict, campa
         "elapsed_ms": 0,
     }
     report = None
+    request_records = []
     for _ in range(MAX_REQUESTS):
         try:
             response = client.complete(
@@ -80,10 +83,21 @@ def _evaluate(config: Config, client, catalog, knowledge: str, pair: dict, campa
                 channel="review",
             )
         except Exception as exc:  # noqa: BLE001 - calibration records the failure
-            errors.append(f"{type(exc).__name__}: {exc}"[:500])
-            break
+            response = ModelResponse(error=config.redact(f"{type(exc).__name__}: {exc}")[:500])
         state["requests"] += 1
         _usage_add(usage, response)
+        request_records.append({
+            "request": usage["requests"],
+            "model": response.model,
+            "response_id": response.raw_id,
+            "mock": response.mock,
+            "usage": response.usage,
+            "elapsed_ms": response.elapsed_ms,
+            "error": response.error,
+            "finish_reason": response.finish_reason,
+            "content": response.content,
+            "tool_calls": [call.as_openai() for call in response.tool_calls],
+        })
         if response.error:
             errors.append(response.error)
             break
@@ -142,7 +156,10 @@ def _evaluate(config: Config, client, catalog, knowledge: str, pair: dict, campa
         )
         if report is not None:
             break
-    return Evaluation(report=report, requests=usage["requests"], readbacks=readbacks, errors=errors, usage=usage)
+    return Evaluation(
+        report=report, requests=usage["requests"], readbacks=readbacks, errors=errors, usage=usage,
+        messages=messages, request_records=request_records,
+    )
 
 
 def load_pairs(path: str | Path | None = None, project_root: Path | None = None) -> dict:
@@ -154,15 +171,19 @@ def load_pairs(path: str | Path | None = None, project_root: Path | None = None)
 def _metrics(results: list[dict]) -> dict:
     bad = [item for item in results if item["variant"] == "problem"]
     good = [item for item in results if item["variant"] == "good"]
-    misses = [item["pair_id"] for item in bad if not item["detected"]]
-    false_positives = [item["pair_id"] for item in good if item["must_fix"]]
+    evaluable_bad = [item for item in bad if item["report_status"] == "complete"]
+    evaluable_good = [item for item in good if item["report_status"] == "complete"]
+    misses = [item["pair_id"] for item in evaluable_bad if not item["detected"]]
+    false_positives = [item["pair_id"] for item in evaluable_good if item["must_fix"]]
     return {
         "problem_samples": len(bad),
         "good_samples": len(good),
-        "bad_detected": sum(1 for item in bad if item["detected"]),
+        "evaluable_problem_samples": len(evaluable_bad),
+        "evaluable_good_samples": len(evaluable_good),
+        "bad_detected": sum(1 for item in evaluable_bad if item["detected"]),
         "missed": misses,
         "false_positives": false_positives,
-        "optional_on_good": sum(item["optional"] for item in good),
+        "optional_on_good": sum(item["optional"] for item in evaluable_good),
         "incomplete_reviews": sum(1 for item in results if item["report_status"] != "complete"),
     }
 
@@ -195,9 +216,11 @@ def run_calibration(
                     "pair_id": pair["id"],
                     "issue": pair["issue"],
                     "variant": variant,
-                    "report_status": "incomplete" if report is None else "complete",
+                    "report_status": review_report_status(report),
                     "verdict": None if report is None else report["verdict"],
                     "completeness": None if report is None else report["completeness"],
+                    "summary": None if report is None else report["summary"],
+                    "evidence_gaps": [] if report is None else report["evidence_gaps"],
                     "findings": findings,
                     "must_fix": must_fix,
                     "optional": sum(1 for item in findings if item["severity"] == "optional"),
@@ -206,6 +229,8 @@ def run_calibration(
                     "readbacks": evaluation.readbacks,
                     "errors": evaluation.errors,
                     "usage": evaluation.usage,
+                    "messages": evaluation.messages,
+                    "request_records": evaluation.request_records,
                 }
             )
             for key, value in evaluation.usage.items():
