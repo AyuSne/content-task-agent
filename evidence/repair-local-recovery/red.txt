@@ -1,0 +1,331 @@
+FFFFFFFF                                                                 [100%]
+================================== FAILURES ===================================
+_ test_local_action_receipt_is_verified_without_replaying_or_charging[after_tool_effect-record_disposition] _
+
+cli_env = WindowsPath('C:/Users/10167/AppData/Local/Temp/pytest-of-10167/pytest-258/test_local_action_receipt_is_v0')
+model_script = <function model_script.<locals>.write at 0x00000254917E63E0>
+tool = 'record_disposition', point = 'after_tool_effect'
+
+    @pytest.mark.parametrize("tool", ["record_disposition", "record_dispositions", "compare_strategies", "choose_strategy"])
+    @pytest.mark.parametrize("point", ["after_tool_effect", "after_tool_request"])
+    def test_local_action_receipt_is_verified_without_replaying_or_charging(cli_env, model_script, tool, point):
+        task_id, script = _prepare(tool, model_script)
+        crashed = run_cli_process(
+            "run", task_id, "--max-rounds", "1", data_dir=cli_env / "data",
+            extra_env={"CTA_MODEL_SCRIPT": str(script), "CTA_FAULT_CRASH": point},
+        )
+        assert crashed.returncode == 70, crashed.stderr
+        before = cli_json("inspect", task_id)
+        pending = _pending_call(before)
+        assert pending["function"]["name"] == tool
+    
+        resumed = run_cli_process(
+            "resume", task_id, "--max-rounds", "0", data_dir=cli_env / "data",
+            extra_env={"CTA_MODEL_SCRIPT": str(script)},
+        )
+        assert resumed.returncode == 0, resumed.stderr
+        document = json.loads(resumed.stdout)
+        after = cli_json("inspect", task_id)
+        receipt = json.loads(_tool_result(after, pending["id"])["content"])
+        assert receipt["recovered"] is True
+        if point == "after_tool_effect":
+>           assert receipt["ok"] is True
+E           assert False is True
+
+tests\test_local_action_recovery.py:58: AssertionError
+_ test_local_action_receipt_is_verified_without_replaying_or_charging[after_tool_effect-record_dispositions] _
+
+cli_env = WindowsPath('C:/Users/10167/AppData/Local/Temp/pytest-of-10167/pytest-258/test_local_action_receipt_is_v1')
+model_script = <function model_script.<locals>.write at 0x0000025493797380>
+tool = 'record_dispositions', point = 'after_tool_effect'
+
+    @pytest.mark.parametrize("tool", ["record_disposition", "record_dispositions", "compare_strategies", "choose_strategy"])
+    @pytest.mark.parametrize("point", ["after_tool_effect", "after_tool_request"])
+    def test_local_action_receipt_is_verified_without_replaying_or_charging(cli_env, model_script, tool, point):
+        task_id, script = _prepare(tool, model_script)
+        crashed = run_cli_process(
+            "run", task_id, "--max-rounds", "1", data_dir=cli_env / "data",
+            extra_env={"CTA_MODEL_SCRIPT": str(script), "CTA_FAULT_CRASH": point},
+        )
+        assert crashed.returncode == 70, crashed.stderr
+        before = cli_json("inspect", task_id)
+        pending = _pending_call(before)
+        assert pending["function"]["name"] == tool
+    
+        resumed = run_cli_process(
+            "resume", task_id, "--max-rounds", "0", data_dir=cli_env / "data",
+            extra_env={"CTA_MODEL_SCRIPT": str(script)},
+        )
+        assert resumed.returncode == 0, resumed.stderr
+        document = json.loads(resumed.stdout)
+        after = cli_json("inspect", task_id)
+        receipt = json.loads(_tool_result(after, pending["id"])["content"])
+        assert receipt["recovered"] is True
+        if point == "after_tool_effect":
+>           assert receipt["ok"] is True
+E           assert False is True
+
+tests\test_local_action_recovery.py:58: AssertionError
+_ test_local_action_receipt_is_verified_without_replaying_or_charging[after_tool_effect-compare_strategies] _
+
+cli_env = WindowsPath('C:/Users/10167/AppData/Local/Temp/pytest-of-10167/pytest-258/test_local_action_receipt_is_v2')
+model_script = <function model_script.<locals>.write at 0x0000025493757060>
+tool = 'compare_strategies', point = 'after_tool_effect'
+
+    @pytest.mark.parametrize("tool", ["record_disposition", "record_dispositions", "compare_strategies", "choose_strategy"])
+    @pytest.mark.parametrize("point", ["after_tool_effect", "after_tool_request"])
+    def test_local_action_receipt_is_verified_without_replaying_or_charging(cli_env, model_script, tool, point):
+        task_id, script = _prepare(tool, model_script)
+        crashed = run_cli_process(
+            "run", task_id, "--max-rounds", "1", data_dir=cli_env / "data",
+            extra_env={"CTA_MODEL_SCRIPT": str(script), "CTA_FAULT_CRASH": point},
+        )
+        assert crashed.returncode == 70, crashed.stderr
+        before = cli_json("inspect", task_id)
+        pending = _pending_call(before)
+        assert pending["function"]["name"] == tool
+    
+        resumed = run_cli_process(
+            "resume", task_id, "--max-rounds", "0", data_dir=cli_env / "data",
+            extra_env={"CTA_MODEL_SCRIPT": str(script)},
+        )
+        assert resumed.returncode == 0, resumed.stderr
+        document = json.loads(resumed.stdout)
+        after = cli_json("inspect", task_id)
+        receipt = json.loads(_tool_result(after, pending["id"])["content"])
+        assert receipt["recovered"] is True
+        if point == "after_tool_effect":
+>           assert receipt["ok"] is True
+E           assert False is True
+
+tests\test_local_action_recovery.py:58: AssertionError
+_ test_local_action_receipt_is_verified_without_replaying_or_charging[after_tool_effect-choose_strategy] _
+
+cli_env = WindowsPath('C:/Users/10167/AppData/Local/Temp/pytest-of-10167/pytest-258/test_local_action_receipt_is_v3')
+model_script = <function model_script.<locals>.write at 0x0000025493797420>
+tool = 'choose_strategy', point = 'after_tool_effect'
+
+    @pytest.mark.parametrize("tool", ["record_disposition", "record_dispositions", "compare_strategies", "choose_strategy"])
+    @pytest.mark.parametrize("point", ["after_tool_effect", "after_tool_request"])
+    def test_local_action_receipt_is_verified_without_replaying_or_charging(cli_env, model_script, tool, point):
+        task_id, script = _prepare(tool, model_script)
+        crashed = run_cli_process(
+            "run", task_id, "--max-rounds", "1", data_dir=cli_env / "data",
+            extra_env={"CTA_MODEL_SCRIPT": str(script), "CTA_FAULT_CRASH": point},
+        )
+        assert crashed.returncode == 70, crashed.stderr
+        before = cli_json("inspect", task_id)
+        pending = _pending_call(before)
+        assert pending["function"]["name"] == tool
+    
+        resumed = run_cli_process(
+            "resume", task_id, "--max-rounds", "0", data_dir=cli_env / "data",
+            extra_env={"CTA_MODEL_SCRIPT": str(script)},
+        )
+        assert resumed.returncode == 0, resumed.stderr
+        document = json.loads(resumed.stdout)
+        after = cli_json("inspect", task_id)
+        receipt = json.loads(_tool_result(after, pending["id"])["content"])
+        assert receipt["recovered"] is True
+        if point == "after_tool_effect":
+>           assert receipt["ok"] is True
+E           assert False is True
+
+tests\test_local_action_recovery.py:58: AssertionError
+_ test_local_action_receipt_is_verified_without_replaying_or_charging[after_tool_request-record_disposition] _
+
+cli_env = WindowsPath('C:/Users/10167/AppData/Local/Temp/pytest-of-10167/pytest-258/test_local_action_receipt_is_v4')
+model_script = <function model_script.<locals>.write at 0x0000025493875080>
+tool = 'record_disposition', point = 'after_tool_request'
+
+    @pytest.mark.parametrize("tool", ["record_disposition", "record_dispositions", "compare_strategies", "choose_strategy"])
+    @pytest.mark.parametrize("point", ["after_tool_effect", "after_tool_request"])
+    def test_local_action_receipt_is_verified_without_replaying_or_charging(cli_env, model_script, tool, point):
+        task_id, script = _prepare(tool, model_script)
+        crashed = run_cli_process(
+            "run", task_id, "--max-rounds", "1", data_dir=cli_env / "data",
+            extra_env={"CTA_MODEL_SCRIPT": str(script), "CTA_FAULT_CRASH": point},
+        )
+        assert crashed.returncode == 70, crashed.stderr
+        before = cli_json("inspect", task_id)
+        pending = _pending_call(before)
+        assert pending["function"]["name"] == tool
+    
+        resumed = run_cli_process(
+            "resume", task_id, "--max-rounds", "0", data_dir=cli_env / "data",
+            extra_env={"CTA_MODEL_SCRIPT": str(script)},
+        )
+        assert resumed.returncode == 0, resumed.stderr
+        document = json.loads(resumed.stdout)
+        after = cli_json("inspect", task_id)
+        receipt = json.loads(_tool_result(after, pending["id"])["content"])
+        assert receipt["recovered"] is True
+        if point == "after_tool_effect":
+            assert receipt["ok"] is True
+            assert [item["tool"] for item in document["run"]["recovery"]["recovered_calls"]] == [tool]
+            if tool.startswith("record_disposition"):
+                assert receipt["review_id"] == before["reviews"][-1]["review_id"]
+                assert len(receipt["dispositions"]) == (1 if tool == "record_disposition" else 2)
+            elif tool == "compare_strategies":
+                assert receipt["estimate_id"] == before["estimates"][-1]["estimate_id"]
+            else:
+                assert receipt["selection_id"] == before["strategy_selections"][-1]["selection_id"]
+        else:
+            assert receipt["ok"] is False
+>           assert receipt["error"] == "local_action_interrupted"
+E           AssertionError: assert 'unknown_tool' == 'local_action_interrupted'
+E             
+E             - local_action_interrupted
+E             + unknown_tool
+
+tests\test_local_action_recovery.py:69: AssertionError
+_ test_local_action_receipt_is_verified_without_replaying_or_charging[after_tool_request-record_dispositions] _
+
+cli_env = WindowsPath('C:/Users/10167/AppData/Local/Temp/pytest-of-10167/pytest-258/test_local_action_receipt_is_v5')
+model_script = <function model_script.<locals>.write at 0x0000025493876160>
+tool = 'record_dispositions', point = 'after_tool_request'
+
+    @pytest.mark.parametrize("tool", ["record_disposition", "record_dispositions", "compare_strategies", "choose_strategy"])
+    @pytest.mark.parametrize("point", ["after_tool_effect", "after_tool_request"])
+    def test_local_action_receipt_is_verified_without_replaying_or_charging(cli_env, model_script, tool, point):
+        task_id, script = _prepare(tool, model_script)
+        crashed = run_cli_process(
+            "run", task_id, "--max-rounds", "1", data_dir=cli_env / "data",
+            extra_env={"CTA_MODEL_SCRIPT": str(script), "CTA_FAULT_CRASH": point},
+        )
+        assert crashed.returncode == 70, crashed.stderr
+        before = cli_json("inspect", task_id)
+        pending = _pending_call(before)
+        assert pending["function"]["name"] == tool
+    
+        resumed = run_cli_process(
+            "resume", task_id, "--max-rounds", "0", data_dir=cli_env / "data",
+            extra_env={"CTA_MODEL_SCRIPT": str(script)},
+        )
+        assert resumed.returncode == 0, resumed.stderr
+        document = json.loads(resumed.stdout)
+        after = cli_json("inspect", task_id)
+        receipt = json.loads(_tool_result(after, pending["id"])["content"])
+        assert receipt["recovered"] is True
+        if point == "after_tool_effect":
+            assert receipt["ok"] is True
+            assert [item["tool"] for item in document["run"]["recovery"]["recovered_calls"]] == [tool]
+            if tool.startswith("record_disposition"):
+                assert receipt["review_id"] == before["reviews"][-1]["review_id"]
+                assert len(receipt["dispositions"]) == (1 if tool == "record_disposition" else 2)
+            elif tool == "compare_strategies":
+                assert receipt["estimate_id"] == before["estimates"][-1]["estimate_id"]
+            else:
+                assert receipt["selection_id"] == before["strategy_selections"][-1]["selection_id"]
+        else:
+            assert receipt["ok"] is False
+>           assert receipt["error"] == "local_action_interrupted"
+E           AssertionError: assert 'unknown_tool' == 'local_action_interrupted'
+E             
+E             - local_action_interrupted
+E             + unknown_tool
+
+tests\test_local_action_recovery.py:69: AssertionError
+_ test_local_action_receipt_is_verified_without_replaying_or_charging[after_tool_request-compare_strategies] _
+
+cli_env = WindowsPath('C:/Users/10167/AppData/Local/Temp/pytest-of-10167/pytest-258/test_local_action_receipt_is_v6')
+model_script = <function model_script.<locals>.write at 0x0000025493797A60>
+tool = 'compare_strategies', point = 'after_tool_request'
+
+    @pytest.mark.parametrize("tool", ["record_disposition", "record_dispositions", "compare_strategies", "choose_strategy"])
+    @pytest.mark.parametrize("point", ["after_tool_effect", "after_tool_request"])
+    def test_local_action_receipt_is_verified_without_replaying_or_charging(cli_env, model_script, tool, point):
+        task_id, script = _prepare(tool, model_script)
+        crashed = run_cli_process(
+            "run", task_id, "--max-rounds", "1", data_dir=cli_env / "data",
+            extra_env={"CTA_MODEL_SCRIPT": str(script), "CTA_FAULT_CRASH": point},
+        )
+        assert crashed.returncode == 70, crashed.stderr
+        before = cli_json("inspect", task_id)
+        pending = _pending_call(before)
+        assert pending["function"]["name"] == tool
+    
+        resumed = run_cli_process(
+            "resume", task_id, "--max-rounds", "0", data_dir=cli_env / "data",
+            extra_env={"CTA_MODEL_SCRIPT": str(script)},
+        )
+        assert resumed.returncode == 0, resumed.stderr
+        document = json.loads(resumed.stdout)
+        after = cli_json("inspect", task_id)
+        receipt = json.loads(_tool_result(after, pending["id"])["content"])
+        assert receipt["recovered"] is True
+        if point == "after_tool_effect":
+            assert receipt["ok"] is True
+            assert [item["tool"] for item in document["run"]["recovery"]["recovered_calls"]] == [tool]
+            if tool.startswith("record_disposition"):
+                assert receipt["review_id"] == before["reviews"][-1]["review_id"]
+                assert len(receipt["dispositions"]) == (1 if tool == "record_disposition" else 2)
+            elif tool == "compare_strategies":
+                assert receipt["estimate_id"] == before["estimates"][-1]["estimate_id"]
+            else:
+                assert receipt["selection_id"] == before["strategy_selections"][-1]["selection_id"]
+        else:
+            assert receipt["ok"] is False
+>           assert receipt["error"] == "local_action_interrupted"
+E           AssertionError: assert 'unknown_tool' == 'local_action_interrupted'
+E             
+E             - local_action_interrupted
+E             + unknown_tool
+
+tests\test_local_action_recovery.py:69: AssertionError
+_ test_local_action_receipt_is_verified_without_replaying_or_charging[after_tool_request-choose_strategy] _
+
+cli_env = WindowsPath('C:/Users/10167/AppData/Local/Temp/pytest-of-10167/pytest-258/test_local_action_receipt_is_v7')
+model_script = <function model_script.<locals>.write at 0x0000025493796160>
+tool = 'choose_strategy', point = 'after_tool_request'
+
+    @pytest.mark.parametrize("tool", ["record_disposition", "record_dispositions", "compare_strategies", "choose_strategy"])
+    @pytest.mark.parametrize("point", ["after_tool_effect", "after_tool_request"])
+    def test_local_action_receipt_is_verified_without_replaying_or_charging(cli_env, model_script, tool, point):
+        task_id, script = _prepare(tool, model_script)
+        crashed = run_cli_process(
+            "run", task_id, "--max-rounds", "1", data_dir=cli_env / "data",
+            extra_env={"CTA_MODEL_SCRIPT": str(script), "CTA_FAULT_CRASH": point},
+        )
+        assert crashed.returncode == 70, crashed.stderr
+        before = cli_json("inspect", task_id)
+        pending = _pending_call(before)
+        assert pending["function"]["name"] == tool
+    
+        resumed = run_cli_process(
+            "resume", task_id, "--max-rounds", "0", data_dir=cli_env / "data",
+            extra_env={"CTA_MODEL_SCRIPT": str(script)},
+        )
+        assert resumed.returncode == 0, resumed.stderr
+        document = json.loads(resumed.stdout)
+        after = cli_json("inspect", task_id)
+        receipt = json.loads(_tool_result(after, pending["id"])["content"])
+        assert receipt["recovered"] is True
+        if point == "after_tool_effect":
+            assert receipt["ok"] is True
+            assert [item["tool"] for item in document["run"]["recovery"]["recovered_calls"]] == [tool]
+            if tool.startswith("record_disposition"):
+                assert receipt["review_id"] == before["reviews"][-1]["review_id"]
+                assert len(receipt["dispositions"]) == (1 if tool == "record_disposition" else 2)
+            elif tool == "compare_strategies":
+                assert receipt["estimate_id"] == before["estimates"][-1]["estimate_id"]
+            else:
+                assert receipt["selection_id"] == before["strategy_selections"][-1]["selection_id"]
+        else:
+            assert receipt["ok"] is False
+>           assert receipt["error"] == "local_action_interrupted"
+E           AssertionError: assert 'unknown_tool' == 'local_action_interrupted'
+E             
+E             - local_action_interrupted
+E             + unknown_tool
+
+tests\test_local_action_recovery.py:69: AssertionError
+=========================== short test summary info ===========================
+FAILED tests/test_local_action_recovery.py::test_local_action_receipt_is_verified_without_replaying_or_charging[after_tool_effect-record_disposition]
+FAILED tests/test_local_action_recovery.py::test_local_action_receipt_is_verified_without_replaying_or_charging[after_tool_effect-record_dispositions]
+FAILED tests/test_local_action_recovery.py::test_local_action_receipt_is_verified_without_replaying_or_charging[after_tool_effect-compare_strategies]
+FAILED tests/test_local_action_recovery.py::test_local_action_receipt_is_verified_without_replaying_or_charging[after_tool_effect-choose_strategy]
+FAILED tests/test_local_action_recovery.py::test_local_action_receipt_is_verified_without_replaying_or_charging[after_tool_request-record_disposition]
+FAILED tests/test_local_action_recovery.py::test_local_action_receipt_is_verified_without_replaying_or_charging[after_tool_request-record_dispositions]
+FAILED tests/test_local_action_recovery.py::test_local_action_receipt_is_verified_without_replaying_or_charging[after_tool_request-compare_strategies]
+FAILED tests/test_local_action_recovery.py::test_local_action_receipt_is_verified_without_replaying_or_charging[after_tool_request-choose_strategy]
