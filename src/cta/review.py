@@ -11,11 +11,12 @@ from datetime import datetime
 
 from cta.config import Config, utc_now_iso
 from cta.db import open_store, transaction
+from cta.evaluation import MAX_READBACKS, MAX_REQUESTS, evaluate, review_report_status
 from cta.knowledge import load_doc
 from cta.materials import load_task_catalog
-from cta.model import ModelResponse, create_client
+from cta.model import create_client
 from cta.pricing import load_price_table
-from cta.prompts import REVIEW_PROMPT_VERSION, REVIEW_SYSTEM_PROMPT, REVIEW_TOOL_DEFINITIONS
+from cta.prompts import REVIEW_PROMPT_VERSION, REVIEW_SYSTEM_PROMPT
 from cta.repository import (
     append_message,
     count_purpose_requests,
@@ -29,16 +30,6 @@ from cta.repository import (
     task_spent,
 )
 from cta.service import TaskNotFound, TaskService
-
-MAX_REQUESTS = 3
-MAX_READBACKS = 2
-
-
-def review_report_status(report: dict | None) -> str:
-    """A received report is complete only when the whole review reached a verdict."""
-    if report is not None and report["verdict"] in ("pass", "fail") and report["completeness"] == "full":
-        return "complete"
-    return "incomplete"
 
 
 class ReviewError(Exception):
@@ -89,85 +80,6 @@ def _guard(conn, task, cost_cents: int, duration_ms: int) -> dict | None:
         if task["sim_elapsed_ms"] + duration_ms > allowed_ms:
             return {"error": "deadline_exceeded", "message": "模拟截止时间不足以完成核验。"}
     return None
-
-
-def _validate_report(report: dict, output_version: int) -> tuple[dict, list[str]]:
-    errors: list[str] = []
-    if not isinstance(report, dict):
-        return {}, ["report_review 必须是 JSON 对象"]
-    verdict = report.get("verdict")
-    completeness = report.get("completeness")
-    if verdict not in ("pass", "fail", "incomplete"):
-        errors.append("verdict 必须是 pass/fail/incomplete")
-    if completeness not in ("full", "partial"):
-        errors.append("completeness 必须是 full/partial")
-    summary = report.get("summary")
-    if not isinstance(summary, str) or not summary.strip():
-        errors.append("summary 不能为空")
-    findings = report.get("findings")
-    if not isinstance(findings, list):
-        errors.append("findings 必须是数组")
-        findings = []
-    normalized_findings = []
-    seen = set()
-    for index, finding in enumerate(findings):
-        if not isinstance(finding, dict):
-            errors.append(f"findings[{index}] 必须是对象")
-            continue
-        finding_id = finding.get("finding_id")
-        if not isinstance(finding_id, str) or not finding_id or finding_id in seen:
-            errors.append(f"findings[{index}].finding_id 必须唯一且非空")
-            continue
-        seen.add(finding_id)
-        severity = finding.get("severity")
-        if severity not in ("must_fix", "optional", "needs_evidence"):
-            errors.append(f"findings[{index}].severity 无效")
-            continue
-        for field in ("location", "requirement", "evidence", "issue", "suggestion", "reviewed_version"):
-            if not isinstance(finding.get(field), str) or not finding.get(field, "").strip():
-                errors.append(f"findings[{index}].{field} 不能为空")
-                break
-        else:
-            if str(finding["reviewed_version"]) not in (str(output_version), f"v{output_version}"):
-                errors.append(f"findings[{index}].reviewed_version 必须对应被审版本 {output_version}")
-                continue
-            normalized_findings.append(
-                {
-                    "finding_id": finding_id,
-                    "severity": severity,
-                    "location": finding["location"].strip(),
-                    "requirement": finding["requirement"].strip(),
-                    "evidence": finding["evidence"].strip(),
-                    "issue": finding["issue"].strip(),
-                    "suggestion": finding["suggestion"].strip(),
-                    "reviewed_version": str(output_version),
-                }
-            )
-    gaps = report.get("evidence_gaps", [])
-    if not isinstance(gaps, list) or not all(isinstance(item, str) for item in gaps):
-        errors.append("evidence_gaps 必须是字符串数组")
-        gaps = []
-    if verdict == "pass" and any(item["severity"] == "must_fix" for item in normalized_findings):
-        errors.append("verdict=pass 时不能包含 must_fix")
-    if verdict == "pass" and any(item["severity"] == "needs_evidence" for item in normalized_findings):
-        errors.append("verdict=pass 时不能包含 needs_evidence")
-    if verdict == "pass" and gaps:
-        errors.append("verdict=pass 时 evidence_gaps 必须为空")
-    if verdict == "pass" and completeness != "full":
-        errors.append("verdict=pass 需要 completeness=full")
-    return {
-        "verdict": verdict,
-        "completeness": completeness,
-        "summary": summary.strip() if isinstance(summary, str) else "",
-        "findings": normalized_findings,
-        "evidence_gaps": gaps,
-    }, errors
-
-
-def _read_material(conn, task_id: str, catalog, material_id) -> dict:
-    if not isinstance(material_id, str) or not material_id:
-        return {"ok": False, "error": "invalid_arguments", "message": "material_id 必须是非空字符串。"}
-    return catalog.read(material_id)
 
 
 def _review_history(conn, task_id: str) -> tuple[list[dict], list[dict]]:
@@ -318,123 +230,31 @@ def review_task(config: Config, task_id: str) -> dict:
             conn.commit()
             raise ReviewError(f"模型不可用：{config.redact(str(exc))}", "model_unavailable") from exc
 
-        requests_used = 0
-        readbacks_used = 0
-        report = None
-        errors: list[str] = []
-        while requests_used < max_requests:
-            requests_used += 1
-            started = datetime.now().astimezone()
-            try:
-                response = client.complete(
-                    messages,
-                    REVIEW_TOOL_DEFINITIONS,
-                    cursor=count_purpose_requests(conn, task["id"], "review"),
-                    channel="review",
-                )
-            except Exception as exc:  # noqa: BLE001 - boundary records the real error
-                response = ModelResponse(error=config.redact(f"{type(exc).__name__}: {exc}")[:800])
-            finished = datetime.now().astimezone()
+        def record_request(response, started, finished, request_number):
             with transaction(conn):
                 record_llm_request(
-                    conn,
-                    task_id=task["id"],
-                    purpose="review",
-                    response=response,
-                    started_at=started,
-                    finished_at=finished,
-                    mock=response.mock,
-                    attempt_id=attempt_id,
-                    meta={"prompt_version": REVIEW_PROMPT_VERSION, "request": requests_used, "context": "isolated_review"},
+                    conn, task_id=task["id"], purpose="review", response=response,
+                    started_at=started, finished_at=finished, mock=response.mock, attempt_id=attempt_id,
+                    meta={"prompt_version": REVIEW_PROMPT_VERSION, "request": request_number, "context": "isolated_review"},
                 )
-            if response.error:
-                errors.append(response.error)
-                break
-            calls = list(response.tool_calls)
-            if response.finish_reason == "length" or len(calls) > 1 or not calls:
-                errors.append("核验响应必须是一个完整工具调用")
-                assistant_message = {"role": "assistant", "content": response.content or ""}
-                if calls:
-                    assistant_message["tool_calls"] = [call.as_openai() for call in calls]
-                messages.append(assistant_message)
-                with transaction(conn):
-                    append_message(
-                        conn, task["id"], "assistant", response.content,
-                        agent="reviewer",
-                        tool_calls=[call.as_openai() for call in calls] or None,
-                        attempt_id=attempt_id, meta={"kind": "review_request"},
-                    )
-                    for call in calls:
-                        rejection = {"ok": False, "error": "review_protocol", "message": "只允许一个核验动作。"}
-                        messages.append(
-                            {
-                                "role": "tool",
-                                "tool_call_id": call.id,
-                                "name": call.name,
-                                "content": json.dumps(rejection, ensure_ascii=False),
-                            }
-                        )
-                        append_message(
-                            conn, task["id"], "tool",
-                            json.dumps(rejection, ensure_ascii=False),
-                            agent="reviewer", tool_call_id=call.id, name=call.name, attempt_id=attempt_id,
-                            meta={"kind": "rejection"},
-                        )
-                if not calls:
-                    feedback_text = "[核验反馈] 本轮没有调用工具；请只调用一个 read_material 或 report_review。"
-                    messages.append({"role": "user", "content": feedback_text})
-                    with transaction(conn):
-                        append_message(
-                            conn, task["id"], "user", feedback_text,
-                            agent="reviewer", attempt_id=attempt_id, meta={"kind": "runtime_feedback"},
-                        )
-                continue
-            call = calls[0]
-            try:
-                arguments = json.loads(call.arguments or "{}")
-            except json.JSONDecodeError:
-                arguments = None
-            if not isinstance(arguments, dict):
-                arguments = None
+
+        def record_message(message):
             with transaction(conn):
                 append_message(
-                    conn, task["id"], "assistant", response.content, agent="reviewer",
-                    tool_calls=[call.as_openai()], attempt_id=attempt_id, meta={"kind": "review_request"},
+                    conn, task["id"], message["role"], message.get("content"), agent="reviewer",
+                    tool_calls=message.get("tool_calls"), tool_call_id=message.get("tool_call_id"),
+                    name=message.get("name"), attempt_id=attempt_id,
+                    meta={"kind": "review_tool_result" if message["role"] == "tool" else "review_request"},
                 )
-            messages.append({"role": "assistant", "content": response.content or "", "tool_calls": [call.as_openai()]})
-            if arguments is None:
-                tool_result = {"ok": False, "error": "invalid_arguments", "message": "参数必须是 JSON 对象。"}
-            elif call.name == "read_material":
-                if readbacks_used >= max_readbacks:
-                    tool_result = {"ok": False, "error": "readback_limit", "message": "回读次数已用完。"}
-                else:
-                    readbacks_used += 1
-                    tool_result = _read_material(conn, task["id"], catalog, arguments.get("material_id"))
-            elif call.name == "report_review":
-                normalized, report_errors = _validate_report(arguments, output["version"])
-                if report_errors:
-                    tool_result = {"ok": False, "error": "invalid_report", "details": report_errors[:8]}
-                else:
-                    report = normalized
-                    tool_result = {"ok": True, "message": "核验结果已接收。"}
-            else:
-                tool_result = {"ok": False, "error": "unknown_tool", "message": f"未知核验工具：{call.name}"}
-            messages.append(
-                {
-                    "role": "tool",
-                    "tool_call_id": call.id,
-                    "name": call.name,
-                    "content": json.dumps(tool_result, ensure_ascii=False),
-                }
-            )
-            with transaction(conn):
-                append_message(
-                    conn, task["id"], "tool", json.dumps(tool_result, ensure_ascii=False),
-                    agent="reviewer", tool_call_id=call.id, name=call.name, attempt_id=attempt_id,
-                    meta={"kind": "review_tool_result"},
-                )
-            if report is not None:
-                break
+
+        evaluation = evaluate(
+            messages, client, catalog.read, output_version=output["version"],
+            max_requests=max_requests, max_readbacks=max_readbacks,
+            cursor=count_purpose_requests(conn, task["id"], "review"), channel="review",
+            on_request=record_request, on_message=record_message, redact=config.redact,
+        )
+        report = evaluation.report
+        requests_used, readbacks_used, errors = evaluation.requests, evaluation.readbacks, evaluation.errors
 
         if report is None:
             create_review(

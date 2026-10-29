@@ -1,0 +1,88 @@
+FFF                                                                      [100%]
+================================== FAILURES ===================================
+_ test_invalid_read_argument_is_rejected_without_exercising_read_permission[production] _
+
+entry = 'production'
+cli_env = WindowsPath('C:/Users/10167/AppData/Local/Temp/pytest-of-10167/pytest-216/test_invalid_read_argument_is_0')
+model_script = <function model_script.<locals>.write at 0x0000026E5C808CC0>
+capsys = <_pytest.capture.CaptureFixture object at 0x0000026E5C733A10>
+
+    @pytest.mark.parametrize("entry", ["production", "calibration", "comparison"])
+    def test_invalid_read_argument_is_rejected_without_exercising_read_permission(entry, cli_env, model_script, capsys):
+        messages, reads, requests = _entry(
+            entry, cli_env, model_script, capsys, _item("read_material", {"material_id": []}),
+        )
+        results = [json.loads(m["content"]) for m in messages if m["role"] == "tool"]
+        assert results[0]["error"] == "invalid_arguments"
+>       assert reads == 0
+E       assert 1 == 0
+
+tests\test_evaluation_protocol.py:63: AssertionError
+_ test_invalid_read_argument_is_rejected_without_exercising_read_permission[calibration] _
+
+entry = 'calibration'
+cli_env = WindowsPath('C:/Users/10167/AppData/Local/Temp/pytest-of-10167/pytest-216/test_invalid_read_argument_is_1')
+model_script = <function model_script.<locals>.write at 0x0000026E5EE49BC0>
+capsys = <_pytest.capture.CaptureFixture object at 0x0000026E5EEC0F50>
+
+    @pytest.mark.parametrize("entry", ["production", "calibration", "comparison"])
+    def test_invalid_read_argument_is_rejected_without_exercising_read_permission(entry, cli_env, model_script, capsys):
+>       messages, reads, requests = _entry(
+            entry, cli_env, model_script, capsys, _item("read_material", {"material_id": []}),
+        )
+
+tests\test_evaluation_protocol.py:58: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+tests\test_evaluation_protocol.py:34: in _entry
+    result = cli_json("calibrate", "--pairs", str(path))
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests\conftest.py:49: in cli_json
+    code, out, err = run_cli(*args)
+                     ^^^^^^^^^^^^^^
+tests\conftest.py:42: in run_cli
+    code = main(list(args))
+           ^^^^^^^^^^^^^^^^
+src\cta\cli.py:306: in main
+    document = run_calibration(config, pairs_path=args.pairs, output_path=output)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src\cta\calibration.py:209: in run_calibration
+    evaluation = _evaluate(config, client, catalog, knowledge, pair, pair[key], state)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src\cta\calibration.py:139: in _evaluate
+    result = catalog.read(arguments.get("material_id"))
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <cta.materials.MaterialCatalog object at 0x0000026E5EEB3450>
+material_id = []
+
+    def read(self, material_id: str) -> dict:
+>       material = self._materials.get(material_id)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       TypeError: unhashable type: 'list'
+
+src\cta\materials.py:131: TypeError
+_ test_invalid_read_argument_is_rejected_without_exercising_read_permission[comparison] _
+
+entry = 'comparison'
+cli_env = WindowsPath('C:/Users/10167/AppData/Local/Temp/pytest-of-10167/pytest-216/test_invalid_read_argument_is_2')
+model_script = <function model_script.<locals>.write at 0x0000026E5EE4B240>
+capsys = <_pytest.capture.CaptureFixture object at 0x0000026E5EEC1450>
+
+    @pytest.mark.parametrize("entry", ["production", "calibration", "comparison"])
+    def test_invalid_read_argument_is_rejected_without_exercising_read_permission(entry, cli_env, model_script, capsys):
+        messages, reads, requests = _entry(
+            entry, cli_env, model_script, capsys, _item("read_material", {"material_id": []}),
+        )
+        results = [json.loads(m["content"]) for m in messages if m["role"] == "tool"]
+>       assert results[0]["error"] == "invalid_arguments"
+E       AssertionError: assert 'not_in_task_materials' == 'invalid_arguments'
+E         
+E         - invalid_arguments
+E         + not_in_task_materials
+
+tests\test_evaluation_protocol.py:62: AssertionError
+=========================== short test summary info ===========================
+FAILED tests/test_evaluation_protocol.py::test_invalid_read_argument_is_rejected_without_exercising_read_permission[production]
+FAILED tests/test_evaluation_protocol.py::test_invalid_read_argument_is_rejected_without_exercising_read_permission[calibration]
+FAILED tests/test_evaluation_protocol.py::test_invalid_read_argument_is_rejected_without_exercising_read_permission[comparison]

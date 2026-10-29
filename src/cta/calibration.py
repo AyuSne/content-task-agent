@@ -3,43 +3,21 @@
 from __future__ import annotations
 
 import json
-from dataclasses import dataclass
 from datetime import UTC, datetime
 from pathlib import Path
 
 from cta.config import Config, find_project_root
+from cta.evaluation import Evaluation, evaluate, review_report_status
 from cta.knowledge import load_doc
 from cta.materials import load_catalog
-from cta.model import ModelResponse, create_client
-from cta.prompts import REVIEW_PROMPT_VERSION, REVIEW_SYSTEM_PROMPT, REVIEW_TOOL_DEFINITIONS
-from cta.review import MAX_READBACKS, MAX_REQUESTS, _validate_report, review_report_status
+from cta.model import create_client
+from cta.pricing import load_price_table
+from cta.prompts import REVIEW_PROMPT_VERSION, REVIEW_SYSTEM_PROMPT
 
 DEFAULT_PAIRS = "2026-10-29.v2"
 
 
-@dataclass
-class Evaluation:
-    report: dict | None
-    requests: int
-    readbacks: int
-    errors: list[str]
-    usage: dict
-    messages: list[dict]
-    request_records: list[dict]
-
-
-def _usage_add(total: dict, response: ModelResponse) -> None:
-    usage = response.usage or {}
-    total["requests"] += 1
-    if usage.get("prompt_tokens") is None:
-        total["unknown_usage_requests"] += 1
-    for key in ("prompt_tokens", "completion_tokens", "total_tokens", "prompt_cache_hit_tokens", "prompt_cache_miss_tokens", "elapsed_ms"):
-        value = usage.get(key) if key != "elapsed_ms" else response.elapsed_ms
-        if value is not None:
-            total[key] = total.get(key, 0) + int(value)
-
-
-def _evaluate(config: Config, client, catalog, knowledge: str, pair: dict, campaign: dict, state: dict) -> Evaluation:
+def _evaluate(config: Config, client, catalog, knowledge: str, pair: dict, campaign: dict, state: dict, limits) -> Evaluation:
     payload = {
         "task_input": {
             "topic": "校准样例",
@@ -53,113 +31,20 @@ def _evaluate(config: Config, client, catalog, knowledge: str, pair: dict, campa
         "evidence": pair["evidence"],
         "program_checks": {"source": "calibration", "pair": "hidden"},
         "reviewed_version": 1,
-        "limits": {"max_requests": MAX_REQUESTS, "max_readbacks": MAX_READBACKS},
+        "limits": {"max_requests": limits.max_requests, "max_readbacks": limits.max_readbacks},
     }
     messages = [
         {"role": "system", "content": REVIEW_SYSTEM_PROMPT},
         {"role": "system", "content": "[核验工作知识]\n\n" + knowledge},
         {"role": "user", "content": "[待核验方案] " + json.dumps(payload, ensure_ascii=False)},
     ]
-    readbacks = 0
-    errors: list[str] = []
-    usage = {
-        "requests": 0,
-        "unknown_usage_requests": 0,
-        "prompt_tokens": 0,
-        "completion_tokens": 0,
-        "total_tokens": 0,
-        "prompt_cache_hit_tokens": 0,
-        "prompt_cache_miss_tokens": 0,
-        "elapsed_ms": 0,
-    }
-    report = None
-    request_records = []
-    for _ in range(MAX_REQUESTS):
-        try:
-            response = client.complete(
-                messages,
-                REVIEW_TOOL_DEFINITIONS,
-                cursor=state["requests"],
-                channel="review",
-            )
-        except Exception as exc:  # noqa: BLE001 - calibration records the failure
-            response = ModelResponse(error=config.redact(f"{type(exc).__name__}: {exc}")[:500])
-        state["requests"] += 1
-        _usage_add(usage, response)
-        request_records.append({
-            "request": usage["requests"],
-            "model": response.model,
-            "response_id": response.raw_id,
-            "mock": response.mock,
-            "usage": response.usage,
-            "elapsed_ms": response.elapsed_ms,
-            "error": response.error,
-            "finish_reason": response.finish_reason,
-            "content": response.content,
-            "tool_calls": [call.as_openai() for call in response.tool_calls],
-        })
-        if response.error:
-            errors.append(response.error)
-            break
-        calls = list(response.tool_calls)
-        if response.finish_reason == "length" or len(calls) > 1 or not calls:
-            assistant = {"role": "assistant", "content": response.content or ""}
-            if calls:
-                assistant["tool_calls"] = [call.as_openai() for call in calls]
-            messages.append(assistant)
-            for call in calls:
-                rejection = {"ok": False, "error": "review_protocol", "message": "只允许一个核验动作。"}
-                messages.append(
-                    {
-                        "role": "tool",
-                        "tool_call_id": call.id,
-                        "name": call.name,
-                        "content": json.dumps(rejection, ensure_ascii=False),
-                    }
-                )
-            if not calls:
-                messages.append({"role": "user", "content": "只调用一个 read_material 或 report_review。"})
-            errors.append("核验响应必须是一个完整工具调用")
-            continue
-        call = calls[0]
-        try:
-            arguments = json.loads(call.arguments or "{}")
-        except json.JSONDecodeError:
-            arguments = None
-        if not isinstance(arguments, dict):
-            arguments = None
-        messages.append({"role": "assistant", "content": response.content or "", "tool_calls": [call.as_openai()]})
-        if arguments is None:
-            result = {"ok": False, "error": "invalid_arguments", "message": "参数必须是 JSON 对象。"}
-        elif call.name == "read_material":
-            if readbacks >= MAX_READBACKS:
-                result = {"ok": False, "error": "readback_limit", "message": "回读次数已用完。"}
-            else:
-                readbacks += 1
-                result = catalog.read(arguments.get("material_id"))
-        elif call.name == "report_review":
-            normalized, report_errors = _validate_report(arguments, 1)
-            if report_errors:
-                result = {"ok": False, "error": "invalid_report", "details": report_errors[:8]}
-            else:
-                report = normalized
-                result = {"ok": True, "message": "核验结果已接收。"}
-        else:
-            result = {"ok": False, "error": "unknown_tool", "message": f"未知核验工具：{call.name}"}
-        messages.append(
-            {
-                "role": "tool",
-                "tool_call_id": call.id,
-                "name": call.name,
-                "content": json.dumps(result, ensure_ascii=False),
-            }
-        )
-        if report is not None:
-            break
-    return Evaluation(
-        report=report, requests=usage["requests"], readbacks=readbacks, errors=errors, usage=usage,
-        messages=messages, request_records=request_records,
+    evaluation = evaluate(
+        messages, client, catalog.read, output_version=1,
+        max_requests=limits.max_requests, max_readbacks=limits.max_readbacks,
+        cursor=state["requests"], channel="review", redact=config.redact,
     )
+    state["requests"] += evaluation.requests
+    return evaluation
 
 
 def load_pairs(path: str | Path | None = None, project_root: Path | None = None) -> dict:
@@ -200,13 +85,15 @@ def run_calibration(
     catalog = load_catalog(config.project_root)
     knowledge_doc = load_doc("content-review", config.project_root)
     knowledge = knowledge_doc.content
+    pricing = load_price_table(config.project_root)
+    limits = pricing.mode("review")
     client = client or create_client(config)
     state = {"requests": 0}
     results = []
     total_usage = {key: 0 for key in ("requests", "unknown_usage_requests", "prompt_tokens", "completion_tokens", "total_tokens", "prompt_cache_hit_tokens", "prompt_cache_miss_tokens", "elapsed_ms")}
     for pair in pairs["pairs"]:
         for variant, key in (("problem", "bad"), ("good", "good")):
-            evaluation = _evaluate(config, client, catalog, knowledge, pair, pair[key], state)
+            evaluation = _evaluate(config, client, catalog, knowledge, pair, pair[key], state, limits)
             report = evaluation.report
             findings = [] if report is None else report["findings"]
             must_fix = sum(1 for item in findings if item["severity"] == "must_fix")
@@ -241,6 +128,8 @@ def run_calibration(
         "calibration_version": pairs["version"],
         "knowledge_version": f"{knowledge_doc.knowledge_id} {knowledge_doc.version}",
         "prompt_version": REVIEW_PROMPT_VERSION,
+        "pricing_version": pricing.version,
+        "limits": {"max_requests": limits.max_requests, "max_readbacks": limits.max_readbacks},
         "model_config": config.model_config_public(),
         "mode": config.mode,
         "simulated_cost": "not_applicable: 校准不创建内容任务，不进入任务模拟预算",
