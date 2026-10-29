@@ -175,6 +175,19 @@ def finish_attempt(
     )
 
 
+def start_llm_request(conn, *, task_id: str, purpose: str, started_at: datetime,
+                      request_config: dict, mock: bool, attempt_id=None, meta: dict | None = None) -> str:
+    request_id = new_id("r_")
+    conn.execute(
+        "INSERT INTO llm_requests (id, task_id, attempt_id, purpose, model, status, started_at, mock, meta_json) "
+        "VALUES (?, ?, ?, ?, ?, 'running', ?, ?, ?)",
+        (request_id, task_id, attempt_id, purpose, request_config["model"], started_at.isoformat(), int(mock),
+         json.dumps({**(meta or {}), "request_config": request_config}, ensure_ascii=False)),
+    )
+    conn.commit()
+    return request_id
+
+
 def record_llm_request(
     conn: sqlite3.Connection,
     *,
@@ -186,8 +199,11 @@ def record_llm_request(
     mock: bool,
     attempt_id: str | None = None,
     meta: dict | None = None,
+    request_id: str | None = None,
 ) -> str:
-    request_id = new_id("r_")
+    request_id = request_id or new_id("r_")
+    prior = conn.execute("SELECT meta_json FROM llm_requests WHERE id = ?", (request_id,)).fetchone()
+    prior_meta = {} if prior is None else json.loads(prior["meta_json"])
     usage = response.usage or {}
     status = "error" if response.error else "success"
     conn.execute(
@@ -197,6 +213,12 @@ def record_llm_request(
                                   cache_hit_tokens, cache_miss_tokens, elapsed_ms,
                                   started_at, finished_at, error, response_model, mock, meta_json)
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        ON CONFLICT(id) DO UPDATE SET status=excluded.status, model=excluded.model,
+            prompt_tokens=excluded.prompt_tokens, completion_tokens=excluded.completion_tokens,
+            total_tokens=excluded.total_tokens, cache_hit_tokens=excluded.cache_hit_tokens,
+            cache_miss_tokens=excluded.cache_miss_tokens, elapsed_ms=excluded.elapsed_ms,
+            finished_at=excluded.finished_at, error=excluded.error, response_model=excluded.response_model,
+            mock=excluded.mock, meta_json=excluded.meta_json
         """,
         (
             request_id,
@@ -216,7 +238,7 @@ def record_llm_request(
             response.error,
             None if response.error else response.model,
             1 if mock else 0,
-            json.dumps({**(meta or {}), **({"request_config": response.request_config} if response.request_config else {})},
+            json.dumps({**prior_meta, **(meta or {}), **({"request_config": response.request_config} if response.request_config else {})},
                        ensure_ascii=False),
         ),
     )

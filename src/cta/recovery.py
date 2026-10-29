@@ -41,6 +41,7 @@ def recover_task(conn, task, config: Config, *, explicit: bool) -> dict:
         "recovered_calls": [],
         "interrupted_calls": [],
         "interrupted_attempts": [],
+        "interrupted_requests": [],
         "save_unknown": None,
         "unpaused": False,
         "reused": {},
@@ -101,6 +102,16 @@ def recover_task(conn, task, config: Config, *, explicit: bool) -> dict:
         )
 
     report["save_unknown"] = _detect_unknown_save(conn, task, config)
+    pending_requests = conn.execute(
+        "SELECT id, purpose FROM llm_requests WHERE task_id = ? AND status = 'running'", (task["id"],)
+    ).fetchall()
+    with transaction(conn):
+        for request in pending_requests:
+            conn.execute(
+                "UPDATE llm_requests SET status = 'interrupted', error = ? WHERE id = ?",
+                ("请求已启动，进程中断前未收到完整响应；真实用量未知。", request["id"]),
+            )
+            report["interrupted_requests"].append(dict(request))
     report["reused"] = _reused_state(conn, task)
     report["todos"] = _todos(conn, task)
     return report
@@ -111,6 +122,7 @@ def recovery_has_events(report: dict) -> bool:
         report["pending_calls"]
         or report["interrupted_attempts"]
         or report["save_unknown"]
+        or report["interrupted_requests"]
     )
 
 

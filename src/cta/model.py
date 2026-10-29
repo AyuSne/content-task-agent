@@ -173,6 +173,8 @@ class ScriptedClient:
             if actual != item["expected_tool_names"]:
                 return ModelResponse(error="scripted model received changed tool definitions", model="scripted", mock=True)
         kind = item.get("type", "tool")
+        if kind == "crash":
+            os._exit(70)
         if kind == "error":
             return ModelResponse(
                 error=self.redact(str(item.get("message", "scripted model error"))),

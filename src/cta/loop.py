@@ -51,6 +51,7 @@ from cta.repository import (
     record_stop,
     snapshot_state,
     start_attempt,
+    start_llm_request,
     task_spent,
 )
 from cta.review import ReviewError, review_task
@@ -236,6 +237,12 @@ def run_task(config: Config, task_id: str, *, max_rounds: int | None = None, exp
 
             messages = api_messages(conn, task_id)
             started = datetime.now(UTC)
+            request_id = start_llm_request(
+                conn, task_id=task_id, purpose=f"main_loop_round_{round_index + 1}", started_at=started,
+                request_config=config.model_config_public(), mock=config.mode == "mock",
+                meta={"prompt_version": protocol["prompt_version"], "round": round_index + 1,
+                      "tool_schema_sha256": protocol["sha256"]},
+            )
             try:
                 response = client.complete(messages, protocol["tools"], cursor=round_index)
             except Exception as exc:  # noqa: BLE001 - boundary
@@ -251,6 +258,7 @@ def run_task(config: Config, task_id: str, *, max_rounds: int | None = None, exp
                     started_at=started,
                     finished_at=finished,
                     mock=response.mock,
+                    request_id=request_id,
                     meta={"prompt_version": protocol["prompt_version"], "round": round_index + 1,
                           "tool_schema_sha256": protocol["sha256"]},
                 )
@@ -1283,6 +1291,12 @@ def _generate_script(
                     meta={"kind": "generation_prompt", "candidate": candidate_index + 1},
                 )
         started = datetime.now(UTC)
+        request_id = start_llm_request(
+            conn, task_id=task["id"], purpose="script_generation", started_at=started,
+            request_config=config.model_config_public(), mock=config.mode == "mock", attempt_id=attempt_id,
+            meta={"strategy": strategy, "candidate": candidate_index + 1,
+                  "context": "isolated_generation", "prompt_version": GENERATION_PROMPT_VERSION},
+        )
         try:
             response = client.complete(
                 messages,
@@ -1303,6 +1317,7 @@ def _generate_script(
                 started_at=started,
                 finished_at=finished,
                 mock=response.mock,
+                request_id=request_id,
                 attempt_id=attempt_id,
                 meta={
                     "strategy": strategy,

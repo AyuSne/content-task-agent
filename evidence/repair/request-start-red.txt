@@ -1,0 +1,93 @@
+FFF                                                                      [100%]
+================================== FAILURES ===================================
+_ test_process_death_during_model_request_preserves_attempt_before_resume[main] _
+
+cli_env = WindowsPath('C:/Users/10167/AppData/Local/Temp/pytest-of-10167/pytest-267/test_process_death_during_mode0')
+model_script = <function model_script.<locals>.write at 0x0000019ED2DD51C0>
+channel = 'main'
+
+    @pytest.mark.parametrize("channel", ["main", "generation", "review"])
+    def test_process_death_during_model_request_preserves_attempt_before_resume(cli_env, model_script, channel):
+        if channel == "main":
+            items = [{"type": "crash"}, _tool("stop_incomplete", {"reason": "已明确保留中断请求，不继续业务。"})]
+            purpose = "main_loop_round_1"
+        elif channel == "generation":
+            items = _brief_then_draft_script()
+            items = items[:3] + [{"type": "crash", "channel": "generation"}, items[2], _generation_item(), items[-1]]
+            purpose = "script_generation"
+        else:
+            items = [*_brief_then_draft_script(), _tool("review_campaign", {}), {"type": "crash", "channel": "review"},
+                     _tool("review_campaign", {}), _review_item(REVIEW_PASS), _tool("save_campaign", {})]
+            purpose = "review"
+        script = model_script(items)
+        task_id = _create()["task_id"]
+        process = run_cli_process("run", task_id, data_dir=cli_env / "data", extra_env={"CTA_MODEL_SCRIPT": str(script)})
+        assert process.returncode == 70, process.stderr
+        before = cli_json("inspect", task_id)
+        pending = [request for request in before["llm_requests"] if request["purpose"] == purpose]
+>       assert pending and pending[-1]["status"] == "running"
+E       assert ([])
+
+tests\test_request_interruption.py:30: AssertionError
+_ test_process_death_during_model_request_preserves_attempt_before_resume[generation] _
+
+cli_env = WindowsPath('C:/Users/10167/AppData/Local/Temp/pytest-of-10167/pytest-267/test_process_death_during_mode1')
+model_script = <function model_script.<locals>.write at 0x0000019ED2EB1080>
+channel = 'generation'
+
+    @pytest.mark.parametrize("channel", ["main", "generation", "review"])
+    def test_process_death_during_model_request_preserves_attempt_before_resume(cli_env, model_script, channel):
+        if channel == "main":
+            items = [{"type": "crash"}, _tool("stop_incomplete", {"reason": "已明确保留中断请求，不继续业务。"})]
+            purpose = "main_loop_round_1"
+        elif channel == "generation":
+            items = _brief_then_draft_script()
+            items = items[:3] + [{"type": "crash", "channel": "generation"}, items[2], _generation_item(), items[-1]]
+            purpose = "script_generation"
+        else:
+            items = [*_brief_then_draft_script(), _tool("review_campaign", {}), {"type": "crash", "channel": "review"},
+                     _tool("review_campaign", {}), _review_item(REVIEW_PASS), _tool("save_campaign", {})]
+            purpose = "review"
+        script = model_script(items)
+        task_id = _create()["task_id"]
+        process = run_cli_process("run", task_id, data_dir=cli_env / "data", extra_env={"CTA_MODEL_SCRIPT": str(script)})
+        assert process.returncode == 70, process.stderr
+        before = cli_json("inspect", task_id)
+        pending = [request for request in before["llm_requests"] if request["purpose"] == purpose]
+>       assert pending and pending[-1]["status"] == "running"
+E       assert ([])
+
+tests\test_request_interruption.py:30: AssertionError
+_ test_process_death_during_model_request_preserves_attempt_before_resume[review] _
+
+cli_env = WindowsPath('C:/Users/10167/AppData/Local/Temp/pytest-of-10167/pytest-267/test_process_death_during_mode2')
+model_script = <function model_script.<locals>.write at 0x0000019ED2EB3C40>
+channel = 'review'
+
+    @pytest.mark.parametrize("channel", ["main", "generation", "review"])
+    def test_process_death_during_model_request_preserves_attempt_before_resume(cli_env, model_script, channel):
+        if channel == "main":
+            items = [{"type": "crash"}, _tool("stop_incomplete", {"reason": "已明确保留中断请求，不继续业务。"})]
+            purpose = "main_loop_round_1"
+        elif channel == "generation":
+            items = _brief_then_draft_script()
+            items = items[:3] + [{"type": "crash", "channel": "generation"}, items[2], _generation_item(), items[-1]]
+            purpose = "script_generation"
+        else:
+            items = [*_brief_then_draft_script(), _tool("review_campaign", {}), {"type": "crash", "channel": "review"},
+                     _tool("review_campaign", {}), _review_item(REVIEW_PASS), _tool("save_campaign", {})]
+            purpose = "review"
+        script = model_script(items)
+        task_id = _create()["task_id"]
+        process = run_cli_process("run", task_id, data_dir=cli_env / "data", extra_env={"CTA_MODEL_SCRIPT": str(script)})
+        assert process.returncode == 70, process.stderr
+        before = cli_json("inspect", task_id)
+        pending = [request for request in before["llm_requests"] if request["purpose"] == purpose]
+>       assert pending and pending[-1]["status"] == "running"
+E       assert ([])
+
+tests\test_request_interruption.py:30: AssertionError
+=========================== short test summary info ===========================
+FAILED tests/test_request_interruption.py::test_process_death_during_model_request_preserves_attempt_before_resume[main]
+FAILED tests/test_request_interruption.py::test_process_death_during_model_request_preserves_attempt_before_resume[generation]
+FAILED tests/test_request_interruption.py::test_process_death_during_model_request_preserves_attempt_before_resume[review]

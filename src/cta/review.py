@@ -27,6 +27,7 @@ from cta.repository import (
     latest_review,
     record_llm_request,
     start_attempt,
+    start_llm_request,
     task_spent,
 )
 from cta.service import TaskNotFound, TaskService
@@ -240,11 +241,22 @@ def review_task(config: Config, task_id: str) -> dict:
             conn.commit()
             raise ReviewError(f"模型不可用：{config.redact(str(exc))}", "model_unavailable") from exc
 
+        active_request_id = None
+
+        def start_request(started, request_number):
+            nonlocal active_request_id
+            active_request_id = start_llm_request(
+                conn, task_id=task["id"], purpose="review", started_at=started, attempt_id=attempt_id,
+                request_config=config.model_config_public(), mock=config.mode == "mock",
+                meta={"prompt_version": REVIEW_PROMPT_VERSION, "request": request_number, "context": "isolated_review"},
+            )
+
         def record_request(response, started, finished, request_number):
             with transaction(conn):
                 record_llm_request(
                     conn, task_id=task["id"], purpose="review", response=response,
                     started_at=started, finished_at=finished, mock=response.mock, attempt_id=attempt_id,
+                    request_id=active_request_id,
                     meta={"prompt_version": REVIEW_PROMPT_VERSION, "request": request_number, "context": "isolated_review"},
                 )
 
@@ -261,7 +273,7 @@ def review_task(config: Config, task_id: str) -> dict:
             messages, client, catalog.read, output_version=output["version"],
             max_requests=max_requests, max_readbacks=max_readbacks,
             cursor=count_purpose_requests(conn, task["id"], "review"), channel="review",
-            on_request=record_request, on_message=record_message, redact=config.redact,
+            on_request=record_request, on_request_started=start_request, on_message=record_message, redact=config.redact,
         )
         report = evaluation.report
         requests_used, readbacks_used, errors = evaluation.requests, evaluation.readbacks, evaluation.errors

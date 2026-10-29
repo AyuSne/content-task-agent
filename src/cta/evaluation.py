@@ -139,6 +139,7 @@ def evaluate(
     cursor: int = 0,
     channel: str = "review",
     on_request: Callable[[ModelResponse, datetime, datetime, int], None] | None = None,
+    on_request_started: Callable[[datetime, int], None] | None = None,
     on_message: Callable[[dict], None] | None = None,
     redact: Callable[[str], str] = str,
     protocol_corrections: bool = True,
@@ -165,6 +166,8 @@ def evaluate(
 
     for index in range(max_requests):
         started = datetime.now(UTC)
+        if on_request_started is not None:
+            on_request_started(started, index + 1)
         try:
             response = client.complete(history, tools, cursor=cursor + index, channel=channel)
         except Exception as exc:  # noqa: BLE001 - only the external model interaction is converted
