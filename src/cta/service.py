@@ -72,8 +72,8 @@ class TaskService:
                 INSERT INTO tasks (id, mode, fingerprint, dedupe_key, status, reason,
                                    input_version, current_output_id, created_at, updated_at,
                                    sim_elapsed_ms, sim_start, used_rounds, paused,
-                                   materials_version, pricing_version, strategy_version)
-                VALUES (?, ?, ?, ?, ?, ?, 1, NULL, ?, ?, 0, ?, 0, 0, ?, ?, ?)
+                                   materials_version, pricing_version, strategy_version, max_rounds)
+                VALUES (?, ?, ?, ?, ?, ?, 1, NULL, ?, ?, 0, ?, 0, 0, ?, ?, ?, ?)
                 """,
                 (
                     task_id,
@@ -88,6 +88,7 @@ class TaskService:
                     load_catalog(self.config.project_root).version,
                     load_price_table(self.config.project_root).version,
                     load_strategy_table(self.config.project_root).version,
+                    MAX_ROUNDS,
                 ),
             )
             self._insert_input(conn, task_id, intake, now)
@@ -651,7 +652,7 @@ class TaskService:
             "sim_now": sim_now.isoformat(),
             "sim_elapsed_ms": task["sim_elapsed_ms"],
             "used_rounds": task["used_rounds"],
-            "max_rounds": MAX_ROUNDS,
+            "max_rounds": task["max_rounds"],
             "paused": bool(task["paused"]),
             "current_output": current_output,
             "save": None

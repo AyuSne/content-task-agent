@@ -42,8 +42,6 @@ def execution_report_markdown(
 ) -> str:
     from datetime import datetime, timedelta
 
-    from cta.service import MAX_ROUNDS
-
     input_row = conn.execute(
         "SELECT * FROM task_inputs WHERE task_id = ? AND version = ?", (task["id"], task["input_version"])
     ).fetchone()
@@ -78,7 +76,7 @@ def execution_report_markdown(
         f"- 状态：`{task['status']}`；阶段：`{task['phase']}`",
         f"- 原因：{task['reason']}",
         f"- 任务版本：{task['input_version']}；产物版本：{None if output is None else output['version']}",
-        f"- 模拟时钟：起点 {task['sim_start']}；已用 {task['sim_elapsed_ms']} ms；模拟完成时刻 {sim_complete.isoformat()}；已用轮数 {task['used_rounds']}/{MAX_ROUNDS}",
+        f"- 模拟时钟：起点 {task['sim_start']}；已用 {task['sim_elapsed_ms']} ms；模拟完成时刻 {sim_complete.isoformat()}；已用轮数 {task['used_rounds']}/{task['max_rounds']}",
         f"- 真实墙钟：从创建到最近更新 {wall_text}；API 采得累计耗时 {usage['elapsed_ms']} ms",
         (
             f"- 模拟费用：预算 {input_row['budget_cents']} 分；已发生 {spent} 分；剩余 "

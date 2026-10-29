@@ -1,0 +1,25 @@
+F                                                                        [100%]
+================================== FAILURES ===================================
+_____________ test_new_process_does_not_replace_task_round_limit ______________
+
+cli_env = WindowsPath('C:/Users/10167/AppData/Local/Temp/pytest-of-10167/pytest-173/test_new_process_does_not_repl0')
+
+    def test_new_process_does_not_replace_task_round_limit(cli_env):
+        data = cli_env / "limit-data"
+        created = run_cli_process(
+            "create", "--topic", "轮数持久化", "--budget", "10", "--deadline", "2026-10-30",
+            data_dir=data, extra_env={"CTA_MAX_ROUNDS": "12"},
+        )
+        assert created.returncode == 0, created.stderr
+        task = json.loads(created.stdout)
+        assert task["progress"]["max_rounds"] == 12
+        restarted = run_cli_process(
+            "status", task["task_id"], data_dir=data, extra_env={"CTA_MAX_ROUNDS": "24"},
+        )
+        assert restarted.returncode == 0, restarted.stderr
+>       assert json.loads(restarted.stdout)["progress"]["max_rounds"] == 12
+E       assert 24 == 12
+
+tests\test_runtime_limits.py:21: AssertionError
+=========================== short test summary info ===========================
+FAILED tests/test_runtime_limits.py::test_new_process_does_not_replace_task_round_limit

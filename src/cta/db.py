@@ -13,7 +13,7 @@ from pathlib import Path
 
 from cta import __version__
 
-SCHEMA_VERSION = 6
+SCHEMA_VERSION = 7
 
 SCHEMA = """
 CREATE TABLE IF NOT EXISTS meta (
@@ -35,6 +35,7 @@ CREATE TABLE IF NOT EXISTS tasks (
     sim_elapsed_ms INTEGER NOT NULL DEFAULT 0,
     sim_start TEXT NOT NULL,
     used_rounds INTEGER NOT NULL DEFAULT 0,
+    max_rounds INTEGER NOT NULL DEFAULT 12,
     paused INTEGER NOT NULL DEFAULT 0,
     phase TEXT NOT NULL DEFAULT 'created',
     brief_version INTEGER NOT NULL DEFAULT 0,
@@ -316,6 +317,7 @@ def _ensure_columns(conn: sqlite3.Connection) -> None:
         "strategy_version": "TEXT NOT NULL DEFAULT ''",
         "current_review_id": "TEXT",
         "current_save_id": "TEXT",
+        "max_rounds": "INTEGER NOT NULL DEFAULT 12",
     }
     for name, definition in additions.items():
         if name not in columns:
