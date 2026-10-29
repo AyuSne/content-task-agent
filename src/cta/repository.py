@@ -90,8 +90,15 @@ def read_messages(conn: sqlite3.Connection, task_id: str, agent: str = "main") -
 
 
 def api_messages(conn: sqlite3.Connection, task_id: str, agent: str = "main") -> list[dict]:
+    rows = read_messages(conn, task_id, agent)
+    # Host events may precede the first run. The stable system prefix is
+    # presented first while the real events retain their relative order.
+    if agent == "main":
+        prefix = [row for row in rows if row["role"] == "system" and
+                  json.loads(row["meta_json"]).get("kind") in {"system", "skill_directory", "knowledge"}]
+        rows = prefix + [row for row in rows if row not in prefix]
     result = []
-    for row in read_messages(conn, task_id, agent):
+    for row in rows:
         message: dict = {"role": row["role"]}
         if row["content"] is not None:
             message["content"] = row["content"]
@@ -814,8 +821,10 @@ def snapshot_state(conn: sqlite3.Connection, task_id: str) -> dict:
     task = conn.execute("SELECT * FROM tasks WHERE id = ?", (task_id,)).fetchone()
     brief = latest_brief(conn, task_id)
     output = latest_output(conn, task_id)
+    script = latest_output(conn, task_id, kind="script")
     review = latest_review(conn, task_id)
     save = latest_save(conn, task_id)
+    output_applicable = output is not None and input_version_applies(conn, task, output["input_version"])
     questions = conn.execute(
         "SELECT questions_json FROM clarifications WHERE task_id = ? ORDER BY id DESC LIMIT 1", (task_id,)
     ).fetchone()
@@ -830,12 +839,34 @@ def snapshot_state(conn: sqlite3.Connection, task_id: str) -> dict:
         "input_version": task["input_version"],
         "brief_version": task["brief_version"],
         "output_version": None if output is None else output["version"],
-        "review": None
-        if review is None
-        else {"review_id": review["review_id"], "status": review["status"], "verdict": review["verdict"]},
-        "save": None
-        if save is None
-        else {"save_id": save["save_id"], "status": save["status"], "verified": save["verified"]},
+        "campaign": None if output is None else {
+            "id": output["output_id"], "version": output["version"], "input_version": output["input_version"],
+            "status": output["status"], "input_applicable": output_applicable,
+            "script_ref": output["content"].get("script_ref"),
+        },
+        "latest_script": None if script is None else {
+            "id": script["output_id"], "version": script["version"], "input_version": script["input_version"],
+            "input_applicable": input_version_applies(conn, task, script["input_version"]),
+        },
+        "plan": {**plan_view(conn, task_id),
+                 "interpretation": "计划是主 Agent 的工作安排；步骤状态不是产物、核验或保存成功的证据，输入变化后需复核。"},
+        "brief": None if brief is None else {
+            "version": brief["version"], "input_version": brief["input_version"],
+            "input_applicable": input_version_applies(conn, task, brief["input_version"]),
+        },
+        "review": None if review is None else {
+            "review_id": review["review_id"], "status": review["status"], "verdict": review["verdict"],
+            "output_id": review["output_id"], "output_version": review["output_version"],
+            "applies_to_current": bool(output_applicable and review["output_id"] == output["output_id"]
+                                       and review["status"] == "complete"),
+        },
+        "save": None if save is None else {
+            "save_id": save["save_id"], "status": save["status"], "verified": save["verified"],
+            "output_id": save["output_id"], "output_version": save["output_version"],
+            "applies_to_current": bool(output_applicable and save["output_id"] == output["output_id"]
+                                       and review is not None and review["output_id"] == output["output_id"]
+                                       and review["status"] == "complete"),
+        },
         "sim_elapsed_ms": task["sim_elapsed_ms"],
         "used_rounds": task["used_rounds"],
         "max_rounds": task["max_rounds"],

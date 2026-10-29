@@ -6,6 +6,7 @@ environment. Public views expose presence, never the value.
 
 from __future__ import annotations
 
+import json
 import os
 from dataclasses import dataclass
 from datetime import UTC, datetime, timedelta, timezone
@@ -108,9 +109,19 @@ class Config:
         }
 
     def redact(self, text: str) -> str:
-        if self.api_key and self.api_key in text:
-            return text.replace(self.api_key, "***redacted***")
+        if self.api_key:
+            text = text.replace(self.api_key, "***redacted***")
+            text = text.replace(json.dumps(self.api_key, ensure_ascii=False)[1:-1], "***redacted***")
         return text
+
+    def redact_data(self, value):
+        if isinstance(value, str):
+            return self.redact(value)
+        if isinstance(value, list):
+            return [self.redact_data(item) for item in value]
+        if isinstance(value, dict):
+            return {key: self.redact_data(item) for key, item in value.items()}
+        return value
 
 
 def load_config(mode: str | None = None, data_dir: str | os.PathLike[str] | None = None) -> Config:

@@ -1,17 +1,9 @@
 """Ticket 04: independent review, dispositions boundary, verified save and export."""
 
-import copy
 import json
 from pathlib import Path
 
 from conftest import VALID, cli_json, run_cli
-from test_campaign_draft import (
-    CAMPAIGN,
-    _brief_then_draft_script,
-    _campaign_tool,
-    _create,
-    _run_until_draft,
-)
 
 REVIEW_PASS = {
     "verdict": "pass",
@@ -46,13 +38,8 @@ def _review_item(report, **extra):
 
 
 def _draft_ready(model_script, review_item):
-    script = _brief_then_draft_script()
-    script.append(review_item)
-    model_script(script)
-    task = _create()
-    draft = _run_until_draft(task["task_id"])
-    assert draft["progress"]["phase"] == "draft_ready"
-    return task
+    from test_campaign_delivery_new import _new_draft_ready
+    return _new_draft_ready(model_script, review_item)
 
 
 def _save(task_id, monkeypatch=None):
@@ -174,15 +161,16 @@ def test_explicit_save_failure_keeps_cost_and_incomplete_state(cli_env, model_sc
 
 
 def test_save_blocked_by_blocking_campaign_question(cli_env, model_script):
-    campaign = copy.deepcopy(CAMPAIGN)
+    from test_campaign_delivery_new import _campaign, _script_ready
+    from test_campaign_draft import _tool
+    task, prefix, script_ref = _script_ready(model_script)
+    campaign = _campaign()
     campaign["open_questions"] = [
         {"question": "产品录屏由谁提供？", "impact": "核心演示无法制作", "blocking": True}
     ]
-    script = _brief_then_draft_script(campaign_item=_campaign_tool(campaign))
-    script.append(_review_item(REVIEW_PASS))
-    model_script(script)
-    task = _create()
-    _run_until_draft(task["task_id"])
+    model_script(prefix + [_tool("submit_campaign", {"script_ref": script_ref, "campaign": campaign}),
+                           _review_item(REVIEW_PASS)])
+    cli_json("resume", task["task_id"], "--max-rounds", "1")
     cli_json("review", task["task_id"])
     code, document = _save(task["task_id"])
     assert code == 4
@@ -222,14 +210,10 @@ def test_incomplete_verdict_is_not_recorded_as_complete_and_can_retry(cli_env, m
 
 
 def test_non_object_review_arguments_are_rejected_then_continue(cli_env, model_script):
-    script = _brief_then_draft_script()
-    script += [
+    task = _draft_ready(model_script, [
         {"channel": "review", "type": "tool", "name": "read_material", "arguments": "[]"},
         _review_item(REVIEW_PASS),
-    ]
-    model_script(script)
-    task = _create()
-    _run_until_draft(task["task_id"])
+    ])
     reviewed = cli_json("review", task["task_id"])
     assert reviewed["review"]["status"] == "complete"
     assert reviewed["review"]["verdict"] == "pass"

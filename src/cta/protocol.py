@@ -5,7 +5,7 @@ import json
 from cta.prompts import TOOL_DEFINITIONS
 
 # Bump when handler semantics change, even if the JSON schema stays the same.
-HANDLER_VERSION = "direct-script-recovery-v1"
+HANDLER_VERSION = "context-composition-v2"
 
 
 def _without_descriptions(value):
@@ -39,8 +39,11 @@ def incompatibility(conn, task_id):
     version = protocol.get("prompt_version")
     handler = protocol.get("handler_version")
     if handler:
+        recovery = "804247d" if handler == "direct-script-recovery-v1" else (
+            f"git log --all -S {handler} -- src/cta/protocol.py 查找对应提交"
+        )
         return {"error": "incompatible_protocol", "message":
-                f"任务采用处理版本 {handler}，与当前程序不兼容；请使用 git log --all -S {handler} -- src/cta/protocol.py 查找其固定代码提交并用原采用资料恢复。"}
+                f"任务采用处理版本 {handler}，与当前程序不兼容；请使用 {recovery} 和原采用资料恢复。"}
     names = {tool["function"]["name"] for tool in protocol.get("tools", [])}
     if version == "main-2026-10-30.dispositions-v1":
         recovery = "c5df5f9"

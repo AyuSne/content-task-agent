@@ -49,7 +49,9 @@ def execution_report_markdown(
     spent = task_spent(conn, task["id"])
     attempts = conn.execute("SELECT * FROM attempts WHERE task_id = ? ORDER BY rowid", (task["id"],)).fetchall()
     ledger = conn.execute("SELECT * FROM ledger WHERE task_id = ? ORDER BY id", (task["id"],)).fetchall()
-    brief = latest_brief(conn, task["id"])
+    from cta.campaign import campaign_brief
+
+    brief = campaign_brief(conn, task["id"], output) if output is not None else latest_brief(conn, task["id"])
     selection = latest_strategy_selection(conn, task["id"])
     estimate = latest_estimate(conn, task["id"])
     stops = list_stops(conn, task["id"])
@@ -407,7 +409,9 @@ def build_files(
         )
     if include_trace:
         files.append((task_dir / "trace.jsonl", trace_text(conn, task)))
-    brief = latest_brief(conn, task["id"])
+    from cta.campaign import campaign_brief
+
+    brief = campaign_brief(conn, task["id"], output)
     if brief is not None:
         files.append(
             (task_dir / f"brief-v{brief['version']}.json", json.dumps(brief["content"], ensure_ascii=False, indent=2) + "\n")

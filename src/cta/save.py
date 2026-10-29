@@ -42,7 +42,7 @@ class SaveBlocked(ValueError):
 
 
 def _blocking_open_questions(conn, task_id: str, output: dict) -> int:
-    brief = campaign_brief(conn, task_id, output)
+    brief = campaign_brief(conn, task_id, output)["content"]
     brief_blocking = sum(1 for item in brief.get("unknowns", []) if item.get("blocking"))
     campaign_blocking = sum(
         1 for item in output["content"].get("open_questions", []) if item.get("blocking")
@@ -297,6 +297,13 @@ def save_task(config: Config, task_id: str, *, tool_call_id: str | None = None, 
                 "message": "保存结果无法核实；保持未知，不盲目重放。请显式核实或修复导出。",
             }
             return document
+        blocked = save_preconditions(conn, task, output)
+        if blocked is not None:
+            document = TaskService(config).status(task_id)
+            document["save"] = existing
+            document["save_error"] = blocked
+            document["duplicate"] = False
+            return document
         if existing is not None and existing["status"] != "failed":
             review = latest_review(conn, task_id)
             repaired = _reconcile_existing(conn, config, task, output, review, existing)
@@ -312,13 +319,6 @@ def save_task(config: Config, task_id: str, *, tool_call_id: str | None = None, 
                     }
                 return document
 
-        blocked = save_preconditions(conn, task, output)
-        if blocked is not None:
-            document = TaskService(config).status(task_id)
-            document["save"] = None
-            document["save_error"] = blocked
-            document["duplicate"] = False
-            return document
         guard = _guard(conn, task, spec.cost_cents, spec.duration_ms)
         if guard is not None:
             document = TaskService(config).status(task_id)
