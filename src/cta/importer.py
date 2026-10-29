@@ -14,7 +14,7 @@ from pathlib import Path
 from cta.config import Config, utc_now_iso
 from cta.db import open_store, transaction
 from cta.loop import _validate_campaign
-from cta.materials import load_catalog
+from cta.materials import load_task_catalog
 from cta.repository import append_message, create_output, latest_output, new_id
 from cta.service import STATUS_IN_PROGRESS, TaskNotFound, TaskService
 
@@ -252,7 +252,7 @@ def import_draft(config: Config, task_id: str, file_path: str | Path) -> dict:
                 "导入稿改变了已确认受众；请先用 update 形成新任务版本，不能把正文变化静默升级为授权。",
             )
 
-        catalog = load_catalog(config.project_root)
+        catalog = load_task_catalog(conn, task, config.project_root)
         for material in campaign.get("materials", []):
             if not material.get("material_id"):
                 match = next(
