@@ -68,7 +68,7 @@ def execution_report_markdown(
         wall_text = "未知"
     from cta.repository import plan_view
 
-    plan = [(step["title"], step["status"]) for step in plan_view(task, output, review, save)["steps"]]
+    plan = plan_view(conn, task["id"])["steps"]
     lines = [
         f"# 执行报告：{input_row['topic']}",
         "",
@@ -101,8 +101,12 @@ def execution_report_markdown(
         "",
     ]
     status_labels = {"done": "已完成", "current": "进行中", "pending": "待开始"}
-    for title, status in plan:
-        lines.append(f"- {title}：{status_labels.get(status, status)}")
+    if not plan:
+        lines.append("- 尚未建立任务计划；阶段与执行事实见本报告其他部分。")
+    for step in plan:
+        dependencies = ", ".join(step["depends_on"]) or "无"
+        refs = ", ".join(f"{ref['kind']}:{ref['id']}" for ref in step["references"]) or "无"
+        lines.append(f"- {step['id']} / {step['title']}：{status_labels.get(step['status'], step['status'])}；依赖：{dependencies}；关联：{refs}")
     for step in (output or {}).get("content", {}).get("activity", {}).get("content_items", []):
         lines.append(f"- 内容安排：{step.get('title')}（{step.get('duration_s')} 秒，{step.get('platform')}）")
     for attempt in attempts:
