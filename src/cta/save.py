@@ -45,7 +45,9 @@ def _blocking_open_questions(conn, task_id: str, output: dict) -> int:
 
 
 def _preconditions(conn, task, output: dict) -> dict | None:
-    if output.get("input_version") != task["input_version"]:
+    from cta.service import output_reuse_basis
+
+    if output.get("input_version") != task["input_version"] and output_reuse_basis(conn, task, output) is None:
         return {"code": "input_changed", "message": "产物基于旧输入版本，需先按新输入复核并形成新产物。"}
     review = latest_review(conn, task["id"])
     if review is None:
