@@ -62,7 +62,7 @@ def test_one_invalid_decision_rejects_whole_batch_without_writes_or_simulated_co
     result = json.loads(next(message["content"] for message in inspected["messages"]
                              if message.get("name") == "record_dispositions" and message["role"] == "tool"))
     assert result["ok"] is False
-    assert result["error"] in ("invalid_arguments", "finding_not_found", "invalid_dispositions")
+    assert result["error"] in ("invalid_arguments", "finding_not_found")
     assert after["resources"]["sim_spent_cents"] == before["resources"]["sim_spent_cents"]
 
 
