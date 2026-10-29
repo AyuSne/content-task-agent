@@ -304,7 +304,7 @@ def import_draft(config: Config, task_id: str, file_path: str | Path) -> dict:
             conn,
             task_id,
             "user",
-            "[人工稿导入] " + json.dumps({"base_output_id": current_output["output_id"], "output_id": output["output_id"], "output_version": output["version"], "input_version": task["input_version"], "campaign": {**fields, "script": campaign["script"], "script_ref": ref}, "file": str(path), "instruction": "这是当前完整人工稿，须重新核验；旧评审及处置不继承。"}, ensure_ascii=False),
+            "[人工稿导入] " + json.dumps({"base_output_id": current_output["output_id"], "output_id": output["output_id"], "output_version": output["version"], "input_version": task["input_version"], "campaign": latest_output(conn, task_id)["content"], "file": str(path), "instruction": "这是当前完整人工稿，须重新核验；旧评审及处置不继承。"}, ensure_ascii=False),
             meta={"kind": "human_import", "output_version": output["version"], "imported_output_id": output["output_id"]},
         )
         import_info = {

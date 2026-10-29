@@ -1,7 +1,7 @@
 import json
 from pathlib import Path
 
-from conftest import cli_json, run_cli
+from conftest import cli_json, run_cli, run_cli_process
 from test_campaign_delivery_new import _new_draft_ready
 from test_review_save import REVIEW_PASS, _review_item
 
@@ -69,10 +69,13 @@ def test_import_script_edit_creates_unbilled_version_and_injects_complete_snapsh
     assert len(after['attempts']) == len(before['attempts'])
     assert after['resources']['sim_spent_cents'] == before['resources']['sim_spent_cents']
     model_script(prefix + [_tool('stop_incomplete', {'reason': '人工稿检查'})])
-    cli_json('resume', task_id, '--max-rounds', '1')
+    resumed = run_cli_process('resume', task_id, '--max-rounds', '1', data_dir=cli_env / 'data')
+    assert resumed.returncode == 0, resumed.stderr
     view = cli_json('inspect', task_id)
     imported = [m for m in view['messages'] if '[人工稿导入]' in (m['content'] or '')]
     assert len(imported) == 1 and '选择片段后再对齐节拍' in imported[0]['content']
+    payload = json.loads(imported[0]['content'].split('] ', 1)[1])
+    assert payload['campaign'] == campaigns[-1]['content']
     assert not any('[待核验人工稿]' in (m['content'] or '') for m in view['messages'])
     code, out, _ = run_cli('import-draft', task_id, '--file', str(path))
     assert code == 4 and json.loads(out)['error'] == 'stale_base'
