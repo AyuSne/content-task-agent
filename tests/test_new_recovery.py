@@ -371,3 +371,30 @@ def test_save_failure_with_missing_receipt_remains_failure(cli_env, model_script
     assert result['save']['save_id'] == before['save']['save_id'] and after['status'] != 'complete'
     assert len(after['attempts']) == len(before['attempts'])
     assert after['resources']['sim_spent_cents'] == before['resources']['sim_spent_cents']
+
+
+def test_recover_revised_script_using_brief_from_resource_only_input_version(cli_env, model_script):
+    from copy import deepcopy
+    from test_direct_script import SCRIPT
+
+    task, prefix, script_ref = _script_ready(model_script)
+    task_id = task['task_id']
+    cli_json('update', task_id, '--budget', '20')
+    revised = deepcopy(SCRIPT)
+    revised['segments'][0]['voiceover'] = '资源调整后继续修改表达'
+    path = model_script(prefix + [_tool('submit_script', {'brief_version': 1, 'script': revised,
+                                                           'revises_script_ref': script_ref})])
+    crashed = run_cli_process('resume', task_id, '--max-rounds', '1', data_dir=cli_env / 'data',
+                              extra_env={'CTA_MODEL_SCRIPT': str(path), 'CTA_FAULT_CRASH': 'after_tool_effect'})
+    assert crashed.returncode == 70
+    before = cli_json('inspect', task_id)
+    resumed = run_cli_process('resume', task_id, '--max-rounds', '0', data_dir=cli_env / 'data',
+                              extra_env={'CTA_MODEL_SCRIPT': str(path)})
+    assert resumed.returncode == 0, resumed.stderr
+    after = cli_json('inspect', task_id)
+    receipt = _result(after, 'submit_script')[-1]
+    assert receipt['ok'] and receipt['recovered']
+    assert receipt['script_ref']['id'] == before['scripts'][-1]['output_id']
+    assert before['scripts'][-1]['input_version'] == 2 and before['brief']['input_version'] == 1
+    assert after['scripts'] == before['scripts'] and after['attempts'] == before['attempts']
+    assert after['resources']['sim_spent_cents'] == before['resources']['sim_spent_cents']

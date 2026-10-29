@@ -19,6 +19,7 @@ from cta.repository import (
     append_message,
     find_pending_tool_calls,
     finish_attempt,
+    input_version_applies,
     latest_brief,
     latest_output,
     latest_review,
@@ -283,7 +284,8 @@ def _recover_script(conn, task, call):
         content = json.loads(output["content_json"])
         brief = conn.execute("SELECT input_version FROM briefs WHERE task_id = ? AND version = ?",
                              (task["id"], content["brief_version"])).fetchone()
-        if attempt["status"] != "success" or brief is None or brief["input_version"] != output["input_version"]:
+        output_task = {"id": task["id"], "input_version": output["input_version"]}
+        if attempt["status"] != "success" or brief is None or not input_version_applies(conn, output_task, brief["input_version"]):
             return _outcome({"ok": False, "error": "script_result_unknown", "started": True, "charged": True,
                              "attempt_id": attempt["id"], "recovered": True,
                              "message": "脚本、简报或尝试状态无法共同核实；保留消耗，不声明成功。"},
