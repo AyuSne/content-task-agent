@@ -317,13 +317,16 @@ def _document(config: Config, task_id: str, run_info: dict) -> dict:
 
 
 def _main_protocol(conn, task) -> dict:
+    prompt_version = "unknown: legacy prompt version not recorded"
     for row in conn.execute(
         "SELECT meta_json FROM messages WHERE task_id = ? AND agent = 'main' ORDER BY seq", (task["id"],)
     ):
         meta = json.loads(row["meta_json"])
         if "tool_protocol" in meta:
             return meta["tool_protocol"]
-    protocol = _protocol_definition()
+        if meta.get("kind") == "system":
+            prompt_version = meta["prompt_version"]
+    protocol = _protocol_definition(prompt_version)
     with transaction(conn):
         append_message(conn, task["id"], "user",
                        "[工具定义采用] 本次起冻结所用工具定义与顺序；此前历史未记录定义，不能追认为已冻结。",
@@ -331,9 +334,9 @@ def _main_protocol(conn, task) -> dict:
     return protocol
 
 
-def _protocol_definition() -> dict:
+def _protocol_definition(prompt_version: str = PROMPT_VERSION) -> dict:
     return {
-        "prompt_version": PROMPT_VERSION,
+        "prompt_version": prompt_version,
         "tools": TOOL_DEFINITIONS,
         "sha256": hashlib.sha256(json.dumps(TOOL_DEFINITIONS, ensure_ascii=False).encode()).hexdigest(),
     }
