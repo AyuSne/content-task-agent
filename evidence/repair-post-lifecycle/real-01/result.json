@@ -1,0 +1,523 @@
+{
+  "source_task_id": "t_2c8aac8edf5e",
+  "source_inspect": "D:\\AAA小影科技\\content-task-agent\\examples\\repair-live\\normal-knowledge2-01\\08-final-inspect.json",
+  "source_progress": {
+    "sim_start": "2026-10-29T00:00:00+08:00",
+    "sim_now": "2026-10-29T00:00:18+08:00",
+    "sim_elapsed_ms": 18000,
+    "used_rounds": 14,
+    "max_rounds": 24,
+    "paused": false,
+    "current_output": {
+      "output_id": "o_e0456c3a3e4e8c9e",
+      "version": 1,
+      "status": "draft",
+      "strategy": "user_scenario"
+    },
+    "save": null,
+    "phase": "stopped",
+    "brief_version": 1,
+    "last_run_at": "2026-10-29T03:49:21+00:00"
+  },
+  "model_config": {
+    "provider": "deepseek",
+    "sdk": "openai",
+    "base_url": "https://api.deepseek.com",
+    "model": "deepseek-flash",
+    "api_key": "set",
+    "thinking": false,
+    "streaming": false,
+    "sdk_auto_retries": 0,
+    "network_route": "direct"
+  },
+  "prompt_version": "main-2026-10-29.v10",
+  "max_output_tokens": 128,
+  "request_interval_seconds": 6,
+  "sdk_retries": 0,
+  "note": "External diagnostics only; no tool effects and no writes to the content-task ledger.",
+  "attempts": [
+    {
+      "arm": "default",
+      "index": 1,
+      "keepalive_expiry": 5,
+      "http2_enabled": false,
+      "started_at": "2026-10-29T03:51:41.206851+00:00",
+      "connection_trace": [
+        {
+          "event": "connection.connect_tcp.started",
+          "offset_s": 0.9543
+        },
+        {
+          "event": "connection.connect_tcp.complete",
+          "offset_s": 0.9786
+        },
+        {
+          "event": "connection.start_tls.started",
+          "offset_s": 0.9787
+        },
+        {
+          "event": "connection.start_tls.complete",
+          "offset_s": 1.0198
+        }
+      ],
+      "usage": {
+        "completion_tokens": 48,
+        "prompt_tokens": 32418,
+        "total_tokens": 32466,
+        "completion_tokens_details": null,
+        "prompt_tokens_details": {
+          "audio_tokens": null,
+          "cache_write_tokens": null,
+          "cached_tokens": 29184
+        },
+        "prompt_cache_hit_tokens": 29184,
+        "prompt_cache_miss_tokens": 3234
+      },
+      "error_causes": [],
+      "body_bytes": 119515,
+      "body_sha256": "77fd345a6ec88ec2ebdfc4c8b05c2c9899e112fec5a62457dba14f02fc9884d6",
+      "http_version": "HTTP/1.1",
+      "http_status": 200,
+      "response_model": "deepseek-flash",
+      "response_id": "f20b0755-daea-4cd8-abac-d68a780deb1d",
+      "finish_reason": "tool_calls",
+      "elapsed_s": 2.089,
+      "finished_at": "2026-10-29T03:51:43.296141+00:00",
+      "new_tls_connections": 1
+    },
+    {
+      "arm": "default",
+      "index": 2,
+      "keepalive_expiry": 5,
+      "http2_enabled": false,
+      "started_at": "2026-10-29T03:51:49.297639+00:00",
+      "connection_trace": [
+        {
+          "event": "connection.connect_tcp.started",
+          "offset_s": 0.007
+        },
+        {
+          "event": "connection.connect_tcp.complete",
+          "offset_s": 0.0242
+        },
+        {
+          "event": "connection.start_tls.started",
+          "offset_s": 0.0243
+        },
+        {
+          "event": "connection.start_tls.complete",
+          "offset_s": 0.0692
+        }
+      ],
+      "usage": {
+        "completion_tokens": 22,
+        "prompt_tokens": 32418,
+        "total_tokens": 32440,
+        "completion_tokens_details": null,
+        "prompt_tokens_details": {
+          "audio_tokens": null,
+          "cache_write_tokens": null,
+          "cached_tokens": 32256
+        },
+        "prompt_cache_hit_tokens": 32256,
+        "prompt_cache_miss_tokens": 162
+      },
+      "error_causes": [],
+      "body_bytes": 119515,
+      "body_sha256": "77fd345a6ec88ec2ebdfc4c8b05c2c9899e112fec5a62457dba14f02fc9884d6",
+      "http_version": "HTTP/1.1",
+      "http_status": 200,
+      "response_model": "deepseek-flash",
+      "response_id": "64613bf7-a83f-4303-a87b-2fbbd789ca49",
+      "finish_reason": "tool_calls",
+      "elapsed_s": 1.01,
+      "finished_at": "2026-10-29T03:51:50.307248+00:00",
+      "new_tls_connections": 1
+    },
+    {
+      "arm": "default",
+      "index": 3,
+      "keepalive_expiry": 5,
+      "http2_enabled": false,
+      "started_at": "2026-10-29T03:51:56.308148+00:00",
+      "connection_trace": [
+        {
+          "event": "connection.connect_tcp.started",
+          "offset_s": 0.007
+        },
+        {
+          "event": "connection.connect_tcp.complete",
+          "offset_s": 0.0214
+        },
+        {
+          "event": "connection.start_tls.started",
+          "offset_s": 0.0214
+        },
+        {
+          "event": "connection.start_tls.complete",
+          "offset_s": 0.0624
+        }
+      ],
+      "usage": {
+        "completion_tokens": 22,
+        "prompt_tokens": 32418,
+        "total_tokens": 32440,
+        "completion_tokens_details": null,
+        "prompt_tokens_details": {
+          "audio_tokens": null,
+          "cache_write_tokens": null,
+          "cached_tokens": 32256
+        },
+        "prompt_cache_hit_tokens": 32256,
+        "prompt_cache_miss_tokens": 162
+      },
+      "error_causes": [],
+      "body_bytes": 119515,
+      "body_sha256": "77fd345a6ec88ec2ebdfc4c8b05c2c9899e112fec5a62457dba14f02fc9884d6",
+      "http_version": "HTTP/1.1",
+      "http_status": 200,
+      "response_model": "deepseek-flash",
+      "response_id": "671bbced-5b27-46f9-8331-bf939166478f",
+      "finish_reason": "tool_calls",
+      "elapsed_s": 0.552,
+      "finished_at": "2026-10-29T03:51:56.859930+00:00",
+      "new_tls_connections": 1
+    },
+    {
+      "arm": "keepalive180",
+      "index": 1,
+      "keepalive_expiry": 180,
+      "http2_enabled": false,
+      "started_at": "2026-10-29T03:51:56.873252+00:00",
+      "connection_trace": [
+        {
+          "event": "connection.connect_tcp.started",
+          "offset_s": 0.007
+        },
+        {
+          "event": "connection.connect_tcp.complete",
+          "offset_s": 0.0079
+        },
+        {
+          "event": "connection.start_tls.started",
+          "offset_s": 0.008
+        },
+        {
+          "event": "connection.start_tls.complete",
+          "offset_s": 0.0619
+        }
+      ],
+      "usage": {
+        "completion_tokens": 22,
+        "prompt_tokens": 32418,
+        "total_tokens": 32440,
+        "completion_tokens_details": null,
+        "prompt_tokens_details": {
+          "audio_tokens": null,
+          "cache_write_tokens": null,
+          "cached_tokens": 32256
+        },
+        "prompt_cache_hit_tokens": 32256,
+        "prompt_cache_miss_tokens": 162
+      },
+      "error_causes": [],
+      "body_bytes": 119515,
+      "body_sha256": "77fd345a6ec88ec2ebdfc4c8b05c2c9899e112fec5a62457dba14f02fc9884d6",
+      "http_version": "HTTP/1.1",
+      "http_status": 200,
+      "response_model": "deepseek-flash",
+      "response_id": "c1d6b455-1223-487a-a943-a3c79106027a",
+      "finish_reason": "tool_calls",
+      "elapsed_s": 1.165,
+      "finished_at": "2026-10-29T03:51:58.038047+00:00",
+      "new_tls_connections": 1
+    },
+    {
+      "arm": "keepalive180",
+      "index": 2,
+      "keepalive_expiry": 180,
+      "http2_enabled": false,
+      "started_at": "2026-10-29T03:52:04.039159+00:00",
+      "connection_trace": [],
+      "usage": {
+        "completion_tokens": 55,
+        "prompt_tokens": 32418,
+        "total_tokens": 32473,
+        "completion_tokens_details": null,
+        "prompt_tokens_details": {
+          "audio_tokens": null,
+          "cache_write_tokens": null,
+          "cached_tokens": 32256
+        },
+        "prompt_cache_hit_tokens": 32256,
+        "prompt_cache_miss_tokens": 162
+      },
+      "error_causes": [],
+      "body_bytes": 119515,
+      "body_sha256": "77fd345a6ec88ec2ebdfc4c8b05c2c9899e112fec5a62457dba14f02fc9884d6",
+      "http_version": "HTTP/1.1",
+      "http_status": 200,
+      "response_model": "deepseek-flash",
+      "response_id": "9526ea56-cb00-465b-b0ce-5937a5be498c",
+      "finish_reason": "tool_calls",
+      "elapsed_s": 0.886,
+      "finished_at": "2026-10-29T03:52:04.924910+00:00",
+      "new_tls_connections": 0
+    },
+    {
+      "arm": "keepalive180",
+      "index": 3,
+      "keepalive_expiry": 180,
+      "http2_enabled": false,
+      "started_at": "2026-10-29T03:52:10.926433+00:00",
+      "connection_trace": [],
+      "usage": {
+        "completion_tokens": 22,
+        "prompt_tokens": 32418,
+        "total_tokens": 32440,
+        "completion_tokens_details": null,
+        "prompt_tokens_details": {
+          "audio_tokens": null,
+          "cache_write_tokens": null,
+          "cached_tokens": 32256
+        },
+        "prompt_cache_hit_tokens": 32256,
+        "prompt_cache_miss_tokens": 162
+      },
+      "error_causes": [],
+      "body_bytes": 119515,
+      "body_sha256": "77fd345a6ec88ec2ebdfc4c8b05c2c9899e112fec5a62457dba14f02fc9884d6",
+      "http_version": "HTTP/1.1",
+      "http_status": 200,
+      "response_model": "deepseek-flash",
+      "response_id": "724e328a-3346-43ef-9873-be0effead50e",
+      "finish_reason": "tool_calls",
+      "elapsed_s": 0.844,
+      "finished_at": "2026-10-29T03:52:11.770788+00:00",
+      "new_tls_connections": 0
+    },
+    {
+      "arm": "http2",
+      "index": 1,
+      "keepalive_expiry": 5,
+      "http2_enabled": true,
+      "started_at": "2026-10-29T03:52:11.785545+00:00",
+      "connection_trace": [
+        {
+          "event": "connection.connect_tcp.started",
+          "offset_s": 0.0076
+        },
+        {
+          "event": "connection.connect_tcp.complete",
+          "offset_s": 0.0163
+        },
+        {
+          "event": "connection.start_tls.started",
+          "offset_s": 0.0163
+        },
+        {
+          "event": "connection.start_tls.complete",
+          "offset_s": 0.0647
+        }
+      ],
+      "usage": {
+        "completion_tokens": 41,
+        "prompt_tokens": 32418,
+        "total_tokens": 32459,
+        "completion_tokens_details": null,
+        "prompt_tokens_details": {
+          "audio_tokens": null,
+          "cache_write_tokens": null,
+          "cached_tokens": 32256
+        },
+        "prompt_cache_hit_tokens": 32256,
+        "prompt_cache_miss_tokens": 162
+      },
+      "error_causes": [],
+      "body_bytes": 119515,
+      "body_sha256": "77fd345a6ec88ec2ebdfc4c8b05c2c9899e112fec5a62457dba14f02fc9884d6",
+      "http_version": "HTTP/2",
+      "http_status": 200,
+      "response_model": "deepseek-flash",
+      "response_id": "ca2c6945-ed56-4453-840d-ac1b26bc805e",
+      "finish_reason": "tool_calls",
+      "elapsed_s": 1.135,
+      "finished_at": "2026-10-29T03:52:12.920700+00:00",
+      "new_tls_connections": 1
+    },
+    {
+      "arm": "http2",
+      "index": 2,
+      "keepalive_expiry": 5,
+      "http2_enabled": true,
+      "started_at": "2026-10-29T03:52:18.921591+00:00",
+      "connection_trace": [
+        {
+          "event": "connection.connect_tcp.started",
+          "offset_s": 0.0064
+        },
+        {
+          "event": "connection.connect_tcp.complete",
+          "offset_s": 0.0265
+        },
+        {
+          "event": "connection.start_tls.started",
+          "offset_s": 0.0265
+        },
+        {
+          "event": "connection.start_tls.complete",
+          "offset_s": 0.0669
+        }
+      ],
+      "usage": {
+        "completion_tokens": 70,
+        "prompt_tokens": 32418,
+        "total_tokens": 32488,
+        "completion_tokens_details": null,
+        "prompt_tokens_details": {
+          "audio_tokens": null,
+          "cache_write_tokens": null,
+          "cached_tokens": 32256
+        },
+        "prompt_cache_hit_tokens": 32256,
+        "prompt_cache_miss_tokens": 162
+      },
+      "error_causes": [],
+      "body_bytes": 119515,
+      "body_sha256": "77fd345a6ec88ec2ebdfc4c8b05c2c9899e112fec5a62457dba14f02fc9884d6",
+      "http_version": "HTTP/2",
+      "http_status": 200,
+      "response_model": "deepseek-flash",
+      "response_id": "68e0e17b-5d60-4889-a0b0-8a01b8447eb7",
+      "finish_reason": "tool_calls",
+      "elapsed_s": 1.269,
+      "finished_at": "2026-10-29T03:52:20.190413+00:00",
+      "new_tls_connections": 1
+    },
+    {
+      "arm": "http2",
+      "index": 3,
+      "keepalive_expiry": 5,
+      "http2_enabled": true,
+      "started_at": "2026-10-29T03:52:26.192057+00:00",
+      "connection_trace": [
+        {
+          "event": "connection.connect_tcp.started",
+          "offset_s": 0.0101
+        },
+        {
+          "event": "connection.connect_tcp.complete",
+          "offset_s": 0.0199
+        },
+        {
+          "event": "connection.start_tls.started",
+          "offset_s": 0.02
+        },
+        {
+          "event": "connection.start_tls.complete",
+          "offset_s": 0.0739
+        }
+      ],
+      "usage": {
+        "completion_tokens": 22,
+        "prompt_tokens": 32418,
+        "total_tokens": 32440,
+        "completion_tokens_details": null,
+        "prompt_tokens_details": {
+          "audio_tokens": null,
+          "cache_write_tokens": null,
+          "cached_tokens": 32256
+        },
+        "prompt_cache_hit_tokens": 32256,
+        "prompt_cache_miss_tokens": 162
+      },
+      "error_causes": [],
+      "body_bytes": 119515,
+      "body_sha256": "77fd345a6ec88ec2ebdfc4c8b05c2c9899e112fec5a62457dba14f02fc9884d6",
+      "http_version": "HTTP/2",
+      "http_status": 200,
+      "response_model": "deepseek-flash",
+      "response_id": "af4afbb1-8a55-43ee-8ef6-096069a8b4fc",
+      "finish_reason": "tool_calls",
+      "elapsed_s": 0.864,
+      "finished_at": "2026-10-29T03:52:27.055882+00:00",
+      "new_tls_connections": 1
+    },
+    {
+      "arm": "windows_curl_fresh",
+      "index": 1,
+      "started_at": "2026-10-29T03:52:27.057847+00:00",
+      "body_bytes": 119515,
+      "body_sha256": "77fd345a6ec88ec2ebdfc4c8b05c2c9899e112fec5a62457dba14f02fc9884d6",
+      "usage": {
+        "prompt_tokens": 32418,
+        "completion_tokens": 22,
+        "total_tokens": 32440,
+        "prompt_tokens_details": {
+          "cached_tokens": 32256
+        },
+        "prompt_cache_hit_tokens": 32256,
+        "prompt_cache_miss_tokens": 162
+      },
+      "error_causes": [],
+      "elapsed_s": 0.801,
+      "exit_code": 0,
+      "curl_metadata": "200|1.1|198.18.0.20|0.755376",
+      "finished_at": "2026-10-29T03:52:27.858982+00:00",
+      "response_model": "deepseek-flash",
+      "response_id": "49ce8e7a-b2e4-4c1f-b554-f627b5480769",
+      "error_response": null
+    },
+    {
+      "arm": "windows_curl_fresh",
+      "index": 2,
+      "started_at": "2026-10-29T03:52:33.860294+00:00",
+      "body_bytes": 119515,
+      "body_sha256": "77fd345a6ec88ec2ebdfc4c8b05c2c9899e112fec5a62457dba14f02fc9884d6",
+      "usage": {
+        "prompt_tokens": 32418,
+        "completion_tokens": 78,
+        "total_tokens": 32496,
+        "prompt_tokens_details": {
+          "cached_tokens": 32256
+        },
+        "prompt_cache_hit_tokens": 32256,
+        "prompt_cache_miss_tokens": 162
+      },
+      "error_causes": [],
+      "elapsed_s": 1.113,
+      "exit_code": 0,
+      "curl_metadata": "200|1.1|198.18.0.20|1.090765",
+      "finished_at": "2026-10-29T03:52:34.973808+00:00",
+      "response_model": "deepseek-flash",
+      "response_id": "5ded64ef-9509-400d-ab20-ec845e6493b5",
+      "error_response": null
+    },
+    {
+      "arm": "windows_curl_fresh",
+      "index": 3,
+      "started_at": "2026-10-29T03:52:40.975208+00:00",
+      "body_bytes": 119515,
+      "body_sha256": "77fd345a6ec88ec2ebdfc4c8b05c2c9899e112fec5a62457dba14f02fc9884d6",
+      "usage": {
+        "prompt_tokens": 32418,
+        "completion_tokens": 22,
+        "total_tokens": 32440,
+        "prompt_tokens_details": {
+          "cached_tokens": 32256
+        },
+        "prompt_cache_hit_tokens": 32256,
+        "prompt_cache_miss_tokens": 162
+      },
+      "error_causes": [],
+      "elapsed_s": 1.084,
+      "exit_code": 0,
+      "curl_metadata": "200|1.1|198.18.0.20|1.058888",
+      "finished_at": "2026-10-29T03:52:42.059134+00:00",
+      "response_model": "deepseek-flash",
+      "response_id": "dd639682-659e-4f7f-a140-4a404bb434d9",
+      "error_response": null
+    }
+  ],
+  "shared_body_sha256": "77fd345a6ec88ec2ebdfc4c8b05c2c9899e112fec5a62457dba14f02fc9884d6"
+}
