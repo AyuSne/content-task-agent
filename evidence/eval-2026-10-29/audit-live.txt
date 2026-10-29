@@ -1,0 +1,47 @@
+[
+  {
+    "case": "budget-impossible",
+    "status": "incomplete",
+    "invariants_hold": true
+  },
+  {
+    "case": "campus-15",
+    "status": "complete",
+    "invariants_hold": true
+  },
+  {
+    "case": "deadline-impossible",
+    "status": "incomplete",
+    "invariants_hold": true
+  },
+  {
+    "case": "minor-15",
+    "status": "complete",
+    "invariants_hold": true
+  },
+  {
+    "case": "missing-input",
+    "status": "needs_input",
+    "invariants_hold": true
+  },
+  {
+    "case": "save-crash-recovery",
+    "status": "complete",
+    "invariants_hold": true
+  },
+  {
+    "case": "subtitle-30",
+    "status": "complete",
+    "invariants_hold": true
+  },
+  {
+    "case": "travel-60",
+    "status": "complete",
+    "invariants_hold": true
+  },
+  {
+    "case": "unsupported-cantonese",
+    "status": "needs_input",
+    "invariants_hold": true
+  }
+]

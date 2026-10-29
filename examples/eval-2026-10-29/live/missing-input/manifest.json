@@ -1,0 +1,110 @@
+{
+  "case": {
+    "id": "missing-input",
+    "topic": "",
+    "budget": "",
+    "deadline": "",
+    "audience": "",
+    "requirements": [],
+    "expected_status": "needs_input",
+    "no_model_requests": true
+  },
+  "input": {
+    "budget": "",
+    "deadline": "",
+    "requirements": [
+      "准备完整内容活动方案，产品主张只用材料支持的正式能力；不作涨粉、收益或爆款承诺。",
+      "方案交给运营继续制作。允许把缺少的画面、操作录屏和原创配乐列为待制作，写清责任人、位置和权属核对；不可冒充现成素材。平台和发布排期可以提出建议，不必把可建议项当成关键阻塞。"
+    ],
+    "id": "missing-input",
+    "topic": "",
+    "audience": "",
+    "expected_status": "needs_input",
+    "no_model_requests": true
+  },
+  "commands": [
+    {
+      "label": "01-create",
+      "argv": [
+        "D:\\AAA小影科技\\content-task-agent\\.venv\\Scripts\\python.exe",
+        "-m",
+        "cta",
+        "--mode",
+        "real",
+        "--data-dir",
+        "D:\\AAA小影科技\\content-task-agent\\examples\\eval-2026-10-29\\live\\missing-input\\data",
+        "create",
+        "--new",
+        "--topic",
+        "",
+        "--budget",
+        "",
+        "--deadline",
+        "",
+        "--audience",
+        "",
+        "--requirement",
+        "准备完整内容活动方案，产品主张只用材料支持的正式能力；不作涨粉、收益或爆款承诺。",
+        "--requirement",
+        "方案交给运营继续制作。允许把缺少的画面、操作录屏和原创配乐列为待制作，写清责任人、位置和权属核对；不可冒充现成素材。平台和发布排期可以提出建议，不必把可建议项当成关键阻塞。"
+      ],
+      "exit_code": 0,
+      "wall_seconds": 0.476,
+      "fault": null
+    },
+    {
+      "label": "02-run",
+      "argv": [
+        "D:\\AAA小影科技\\content-task-agent\\.venv\\Scripts\\python.exe",
+        "-m",
+        "cta",
+        "--mode",
+        "real",
+        "--data-dir",
+        "D:\\AAA小影科技\\content-task-agent\\examples\\eval-2026-10-29\\live\\missing-input\\data",
+        "run",
+        "t_22e3bb00e6d1"
+      ],
+      "exit_code": 0,
+      "wall_seconds": 2.722,
+      "fault": null
+    },
+    {
+      "label": "05-inspect",
+      "argv": [
+        "D:\\AAA小影科技\\content-task-agent\\.venv\\Scripts\\python.exe",
+        "-m",
+        "cta",
+        "--mode",
+        "real",
+        "--data-dir",
+        "D:\\AAA小影科技\\content-task-agent\\examples\\eval-2026-10-29\\live\\missing-input\\data",
+        "inspect",
+        "t_22e3bb00e6d1"
+      ],
+      "exit_code": 0,
+      "wall_seconds": 0.372,
+      "fault": null
+    },
+    {
+      "label": "06-export",
+      "argv": [
+        "D:\\AAA小影科技\\content-task-agent\\.venv\\Scripts\\python.exe",
+        "-m",
+        "cta",
+        "--mode",
+        "real",
+        "--data-dir",
+        "D:\\AAA小影科技\\content-task-agent\\examples\\eval-2026-10-29\\live\\missing-input\\data",
+        "export",
+        "t_22e3bb00e6d1"
+      ],
+      "exit_code": 0,
+      "wall_seconds": 0.425,
+      "fault": null
+    }
+  ],
+  "started_unix": 1793261915.0872722,
+  "finished_unix": 1793261919.0872178,
+  "task_id": "t_22e3bb00e6d1"
+}

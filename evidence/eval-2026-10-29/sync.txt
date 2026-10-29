@@ -1,0 +1,7 @@
+Resolved 24 packages in 4ms
+   Building content-task-agent @ file:///D:/AAA%E5%B0%8F%E5%BD%B1%E7%A7%91%E6%8A%80/content-task-agent
+      Built content-task-agent @ file:///D:/AAA%E5%B0%8F%E5%BD%B1%E7%A7%91%E6%8A%80/content-task-agent
+Prepared 1 package in 4.16s
+Uninstalled 1 package in 12ms
+Installed 1 package in 83ms
+ ~ content-task-agent==0.1.0 (from file:///D:/AAA%E5%B0%8F%E5%BD%B1%E7%A7%91%E6%8A%80/content-task-agent)

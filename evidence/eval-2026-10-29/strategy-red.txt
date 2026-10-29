@@ -1,0 +1,79 @@
+FFF                                                                      [100%]
+================================== FAILURES ===================================
+_ test_default_strategy_advice_does_not_prescribe_unrelated_example_facts[\u82f1\u8bed\u53e3\u64adAI\u5b57\u5e55\u529f\u80fd\u6f14\u793a-\u6210\u5e74\u82f1\u8bed\u53e3\u64ad\u521b\u4f5c\u8005] _
+
+cli_env = WindowsPath('C:/Users/10167/AppData/Local/Temp/pytest-of-10167/pytest-290/test_default_strategy_advice_d0')
+topic = 'Ӣ��ڲ�AI��Ļ������ʾ', audience = '����Ӣ��ڲ�������'
+
+    @pytest.mark.parametrize("topic,audience", [
+        ("Ӣ��ڲ�AI��Ļ������ʾ", "����Ӣ��ڲ�������"),
+        ("��ĩ���м����̳�", "25-40��������а�����"),
+    ])
+    def test_default_strategy_advice_does_not_prescribe_unrelated_example_facts(cli_env, topic, audience):
+        task = cli_json("create", "--new", "--topic", topic, "--audience", audience,
+                        "--budget", "10", "--deadline", "2026-10-30")
+        comparison = cli_json("strategies", task["task_id"])
+        advice = json.dumps(comparison["directions"], ensure_ascii=False)
+>       assert "У԰" not in advice
+E       assert 'У԰' not in '[{"directio...e": true}]}]'
+E         
+E         'У԰' is contained here:
+E         ?                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                ...
+E         
+E         ...Full output truncated, use '-vv' to show
+
+tests\test_strategy_task_scope.py:18: AssertionError
+_ test_default_strategy_advice_does_not_prescribe_unrelated_example_facts[\u5468\u672b\u65c5\u884c\u526a\u8f91\u6559\u7a0b-25-40\u5c81\u6210\u5e74\u65c5\u884c\u7231\u597d\u8005] _
+
+cli_env = WindowsPath('C:/Users/10167/AppData/Local/Temp/pytest-of-10167/pytest-290/test_default_strategy_advice_d1')
+topic = '��ĩ���м����̳�', audience = '25-40��������а�����'
+
+    @pytest.mark.parametrize("topic,audience", [
+        ("Ӣ��ڲ�AI��Ļ������ʾ", "����Ӣ��ڲ�������"),
+        ("��ĩ���м����̳�", "25-40��������а�����"),
+    ])
+    def test_default_strategy_advice_does_not_prescribe_unrelated_example_facts(cli_env, topic, audience):
+        task = cli_json("create", "--new", "--topic", topic, "--audience", audience,
+                        "--budget", "10", "--deadline", "2026-10-30")
+        comparison = cli_json("strategies", task["task_id"])
+        advice = json.dumps(comparison["directions"], ensure_ascii=False)
+>       assert "У԰" not in advice
+E       assert 'У԰' not in '[{"directio...e": true}]}]'
+E         
+E         'У԰' is contained here:
+E         ?                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                ...
+E         
+E         ...Full output truncated, use '-vv' to show
+
+tests\test_strategy_task_scope.py:18: AssertionError
+_____ test_existing_task_uses_its_strategy_version_after_default_changes ______
+
+cli_env = WindowsPath('C:/Users/10167/AppData/Local/Temp/pytest-of-10167/pytest-290/test_existing_task_uses_its_st0')
+model_script = <function model_script.<locals>.write at 0x00000269906839C0>
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x00000269904CF770>
+
+    def test_existing_task_uses_its_strategy_version_after_default_changes(cli_env, model_script, monkeypatch):
+        monkeypatch.setenv("CTA_STRATEGY_VERSION", "2026-10-29.v2")
+        task = cli_json("create", "--topic", "Ӣ��ڲ���Ļ", "--budget", "10", "--deadline", "2026-10-30")
+        task_id = task["task_id"]
+        original = cli_json("strategies", task_id)
+        monkeypatch.setenv("CTA_STRATEGY_VERSION", "2026-10-29.v1")
+        status = cli_json("status", task_id)
+        comparison = cli_json("strategies", task_id)
+        assert status["versions"]["strategy"] == "2026-10-29.v2"
+>       assert status["strategy"]["directions"] == [
+            {key: d[key] for key in ("direction", "label", "expression_goal", "material_needs", "evidence_queries",
+                                    "required_queries", "risk")}
+            for d in original["directions"]
+        ]
+E       AssertionError: assert [{'direction'...����������'], ...}] == [{'direction'...��Ȩ��״̬'], ...}]
+E         
+E         At index 0 diff: {'direction': 'functional_demo', 'label': '������ʾ', 'expression_goal': 'ֱ��չʾ�Զ���������ʲô����β����������ʲô', 'material_needs': ['��Ʒ����¼������������', 'M-001 �Զ��������������÷�Χ', 'M-004 Ʒ�Ʊ������'], 'evidence_queries': ['�Զ��������������÷�Χ', '��Ʒ����¼���ز�״̬'], 'required_queries': 2, 'risk': 'ȱ�ٿ�չʾ�Ĳ���¼��ʱ�޷���������������ʾ���龳�������İ�������'} != {'direction': 'functional_demo', 'label': '������ʾ', 'expression_goal': 'ֱ��չʾ��ǰ����Ŀ�깦������ʲô����β���������������', 'material_needs': ['Ŀ�깦�ܵĲ���¼������������Ȩ��״̬', '��ǰ�����Ʒ���Ŷ�Ӧ����ʽ����ԭ�������÷�Χ', '��������õ�Ʒ�Ʊ������'], 'evidence_queries': ['��ǰ����Ŀ�깦�ܵ���ʽ���������÷�Χ', '��Ӧ������ʾ�زĵĿ���״̬��Ȩ��'], 'required_queries': 2...
+E         
+E         ...Full output truncated, use '-vv' to show
+
+tests\test_strategy_task_scope.py:34: AssertionError
+=========================== short test summary info ===========================
+FAILED tests/test_strategy_task_scope.py::test_default_strategy_advice_does_not_prescribe_unrelated_example_facts[\u82f1\u8bed\u53e3\u64adAI\u5b57\u5e55\u529f\u80fd\u6f14\u793a-\u6210\u5e74\u82f1\u8bed\u53e3\u64ad\u521b\u4f5c\u8005]
+FAILED tests/test_strategy_task_scope.py::test_default_strategy_advice_does_not_prescribe_unrelated_example_facts[\u5468\u672b\u65c5\u884c\u526a\u8f91\u6559\u7a0b-25-40\u5c81\u6210\u5e74\u65c5\u884c\u7231\u597d\u8005]
+FAILED tests/test_strategy_task_scope.py::test_existing_task_uses_its_strategy_version_after_default_changes

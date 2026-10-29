@@ -1,0 +1,26 @@
+{
+  "task_id": "t_22e3bb00e6d1",
+  "output_version": null,
+  "save_id": null,
+  "verified": true,
+  "delivery_complete": false,
+  "files": [
+    {
+      "path": "D:\\AAA小影科技\\content-task-agent\\examples\\eval-2026-10-29\\live\\missing-input\\data\\real\\exports\\t_22e3bb00e6d1\\execution-report.md",
+      "sha256": "0793e0a8863b2655a94662e93deaf80d019fea24d5723274f87e95006ce80322",
+      "bytes": 1733,
+      "exists": true,
+      "current_sha256": "0793e0a8863b2655a94662e93deaf80d019fea24d5723274f87e95006ce80322",
+      "ok": true
+    },
+    {
+      "path": "D:\\AAA小影科技\\content-task-agent\\examples\\eval-2026-10-29\\live\\missing-input\\data\\real\\exports\\t_22e3bb00e6d1\\trace.jsonl",
+      "sha256": "60d91e67f9af97786dd7d1825bb3262e3cf5eba6f343a80d81dad319f7bee001",
+      "bytes": 143,
+      "exists": true,
+      "current_sha256": "60d91e67f9af97786dd7d1825bb3262e3cf5eba6f343a80d81dad319f7bee001",
+      "ok": true
+    }
+  ],
+  "repaired": false
+}

@@ -1,0 +1,70 @@
+{
+  "task_id": "t_170101b8dddc",
+  "output_version": 1,
+  "save_id": "s_1886d31127568573",
+  "verified": false,
+  "delivery_complete": false,
+  "files": [
+    {
+      "path": "D:\\AAA小影科技\\content-task-agent\\examples\\eval-2026-10-29\\live\\travel-60\\data\\real\\exports\\t_170101b8dddc\\execution-report.md",
+      "sha256": "f0115c03f2fda1e18757710adb91e9dc785cda989a130743fa60dea7db25862f",
+      "bytes": 11571,
+      "exists": true,
+      "current_sha256": "f0115c03f2fda1e18757710adb91e9dc785cda989a130743fa60dea7db25862f",
+      "ok": true
+    },
+    {
+      "path": "D:\\AAA小影科技\\content-task-agent\\examples\\eval-2026-10-29\\live\\travel-60\\data\\real\\exports\\t_170101b8dddc\\trace.jsonl",
+      "sha256": "91125654ba05339337237d5d02078be514ba04c0e2be282da6083befc0de2a43",
+      "bytes": 120903,
+      "exists": true,
+      "current_sha256": "91125654ba05339337237d5d02078be514ba04c0e2be282da6083befc0de2a43",
+      "ok": true
+    }
+  ],
+  "existing_save_file_checks": [
+    {
+      "path": "D:\\AAA小影科技\\content-task-agent\\examples\\eval-2026-10-29\\live\\travel-60\\data\\real\\exports\\t_170101b8dddc\\campaign-v1.md",
+      "sha256": "13efeff954a8b47e46352b6c2d38ad9afc8473e566f471d951ae5785295a240e",
+      "bytes": 11484,
+      "exists": true,
+      "current_sha256": "274701efa2e35001dc1ca287f73ec960ff4097f0c4a4f805e16ac1995cf1f289",
+      "ok": false
+    },
+    {
+      "path": "D:\\AAA小影科技\\content-task-agent\\examples\\eval-2026-10-29\\live\\travel-60\\data\\real\\exports\\t_170101b8dddc\\campaign-v1.json",
+      "sha256": "f9d374c0e4374126cf8e80e9d34c65adc6a0f5a33f5d48eca65b671f53480bc4",
+      "bytes": 13888,
+      "exists": true,
+      "current_sha256": "f9d374c0e4374126cf8e80e9d34c65adc6a0f5a33f5d48eca65b671f53480bc4",
+      "ok": true
+    },
+    {
+      "path": "D:\\AAA小影科技\\content-task-agent\\examples\\eval-2026-10-29\\live\\travel-60\\data\\real\\exports\\t_170101b8dddc\\brief-v1.json",
+      "sha256": "89ed139ddde4e03dc686470996cde66b55220e249d2d1d49ceaa0fddb63d627d",
+      "bytes": 8109,
+      "exists": true,
+      "current_sha256": "89ed139ddde4e03dc686470996cde66b55220e249d2d1d49ceaa0fddb63d627d",
+      "ok": true
+    },
+    {
+      "path": "D:\\AAA小影科技\\content-task-agent\\examples\\eval-2026-10-29\\live\\travel-60\\data\\real\\exports\\t_170101b8dddc\\execution-report.md",
+      "sha256": "d2bb5c1ffe8594b34eabd74b9cd34eaf9f8872c888ab1acd7eee627f072b2a10",
+      "bytes": 11544,
+      "exists": true,
+      "current_sha256": "d2bb5c1ffe8594b34eabd74b9cd34eaf9f8872c888ab1acd7eee627f072b2a10",
+      "ok": true
+    },
+    {
+      "path": "D:\\AAA小影科技\\content-task-agent\\examples\\eval-2026-10-29\\live\\travel-60\\data\\real\\exports\\t_170101b8dddc\\trace.jsonl",
+      "sha256": "8e6d45bfced365bc2debbd04465da0d13d968ba45026953409b7383ffac6435e",
+      "bytes": 120897,
+      "exists": true,
+      "current_sha256": "8e6d45bfced365bc2debbd04465da0d13d968ba45026953409b7383ffac6435e",
+      "ok": true
+    }
+  ],
+  "save_status": "unknown",
+  "repaired": false,
+  "message": "保留现有活动稿。保存未核实或已失败；请显式导入编辑，或核实/修复后决定业务重试。"
+}

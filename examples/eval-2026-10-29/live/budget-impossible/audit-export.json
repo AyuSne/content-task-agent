@@ -1,0 +1,34 @@
+{
+  "task_id": "t_51e56db848f6",
+  "output_version": null,
+  "save_id": null,
+  "verified": true,
+  "delivery_complete": false,
+  "files": [
+    {
+      "path": "D:\\AAA小影科技\\content-task-agent\\examples\\eval-2026-10-29\\live\\budget-impossible\\data\\real\\exports\\t_51e56db848f6\\execution-report.md",
+      "sha256": "0d8b9fd72adb3832915e9017ff72bd8a8e2fbbc0bf5b46cd6efa63759f93161e",
+      "bytes": 8472,
+      "exists": true,
+      "current_sha256": "0d8b9fd72adb3832915e9017ff72bd8a8e2fbbc0bf5b46cd6efa63759f93161e",
+      "ok": true
+    },
+    {
+      "path": "D:\\AAA小影科技\\content-task-agent\\examples\\eval-2026-10-29\\live\\budget-impossible\\data\\real\\exports\\t_51e56db848f6\\trace.jsonl",
+      "sha256": "14cc7e5cff1d1b666d37f5da9e49c054fb40690291f4c596f1549eeb11b5c56c",
+      "bytes": 41688,
+      "exists": true,
+      "current_sha256": "14cc7e5cff1d1b666d37f5da9e49c054fb40690291f4c596f1549eeb11b5c56c",
+      "ok": true
+    },
+    {
+      "path": "D:\\AAA小影科技\\content-task-agent\\examples\\eval-2026-10-29\\live\\budget-impossible\\data\\real\\exports\\t_51e56db848f6\\brief-v1.json",
+      "sha256": "8c1eae8212a11fe3f871d391f945e4fed010d600508252336937d793d7efa247",
+      "bytes": 6724,
+      "exists": true,
+      "current_sha256": "8c1eae8212a11fe3f871d391f945e4fed010d600508252336937d793d7efa247",
+      "ok": true
+    }
+  ],
+  "repaired": false
+}

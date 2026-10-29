@@ -1,0 +1,50 @@
+{
+  "task_id": "t_35ce5df38272",
+  "output_version": 3,
+  "save_id": "s_35970cd2284722d7",
+  "verified": true,
+  "delivery_complete": true,
+  "files": [
+    {
+      "path": "D:\\AAA小影科技\\content-task-agent\\examples\\eval-2026-10-29\\live\\save-crash-recovery\\data\\real\\exports\\t_35ce5df38272\\campaign-v3.md",
+      "sha256": "ffe53ba4e211212c66961317475abbbe08f4039a4c7fe35c9eac6896d15c83af",
+      "bytes": 15471,
+      "exists": true,
+      "current_sha256": "ffe53ba4e211212c66961317475abbbe08f4039a4c7fe35c9eac6896d15c83af",
+      "ok": true
+    },
+    {
+      "path": "D:\\AAA小影科技\\content-task-agent\\examples\\eval-2026-10-29\\live\\save-crash-recovery\\data\\real\\exports\\t_35ce5df38272\\campaign-v3.json",
+      "sha256": "e30aa2fae211875fee998e15d03dd6fbe55e4338341f133b890ad030ee0e0b85",
+      "bytes": 18453,
+      "exists": true,
+      "current_sha256": "e30aa2fae211875fee998e15d03dd6fbe55e4338341f133b890ad030ee0e0b85",
+      "ok": true
+    },
+    {
+      "path": "D:\\AAA小影科技\\content-task-agent\\examples\\eval-2026-10-29\\live\\save-crash-recovery\\data\\real\\exports\\t_35ce5df38272\\brief-v1.json",
+      "sha256": "828d6fd0b2b2ad28baac00aad07378108af84d2e178d51319e450b17f5c9c802",
+      "bytes": 6902,
+      "exists": true,
+      "current_sha256": "828d6fd0b2b2ad28baac00aad07378108af84d2e178d51319e450b17f5c9c802",
+      "ok": true
+    },
+    {
+      "path": "D:\\AAA小影科技\\content-task-agent\\examples\\eval-2026-10-29\\live\\save-crash-recovery\\data\\real\\exports\\t_35ce5df38272\\execution-report.md",
+      "sha256": "fa7c2f7c2de3b2e86aeca3cd88e6a0816e701b83b186b6cdc73c48d058a1df5f",
+      "bytes": 14865,
+      "exists": true,
+      "current_sha256": "fa7c2f7c2de3b2e86aeca3cd88e6a0816e701b83b186b6cdc73c48d058a1df5f",
+      "ok": true
+    },
+    {
+      "path": "D:\\AAA小影科技\\content-task-agent\\examples\\eval-2026-10-29\\live\\save-crash-recovery\\data\\real\\exports\\t_35ce5df38272\\trace.jsonl",
+      "sha256": "f0f072bec4fb104f94d1139d87e02866aba1d03287383ca2da9f067cf92c59b0",
+      "bytes": 235565,
+      "exists": true,
+      "current_sha256": "f0f072bec4fb104f94d1139d87e02866aba1d03287383ca2da9f067cf92c59b0",
+      "ok": true
+    }
+  ],
+  "repaired": false
+}

@@ -1,0 +1,113 @@
+{
+  "case": {
+    "id": "travel-60",
+    "topic": "帧剪周末旅行记录剪辑教程",
+    "audience": "25-40岁成年旅行爱好者",
+    "requirements": [
+      "一条60秒竖屏主视频，演示自动卡点后微调，再为普通话口播制作可编辑字幕。不把大学生合成调研外推为该受众事实。旅行画面可由制作人员后续自行拍摄并核对权属。"
+    ],
+    "expected_status": "complete",
+    "duration_s": 60
+  },
+  "input": {
+    "budget": "20",
+    "deadline": "2026-10-30T12:00:00+08:00",
+    "requirements": [
+      "准备完整内容活动方案，产品主张只用材料支持的正式能力；不作涨粉、收益或爆款承诺。",
+      "方案交给运营继续制作。允许把缺少的画面、操作录屏和原创配乐列为待制作，写清责任人、位置和权属核对；不可冒充现成素材。平台和发布排期可以提出建议，不必把可建议项当成关键阻塞。",
+      "一条60秒竖屏主视频，演示自动卡点后微调，再为普通话口播制作可编辑字幕。不把大学生合成调研外推为该受众事实。旅行画面可由制作人员后续自行拍摄并核对权属。"
+    ],
+    "id": "travel-60",
+    "topic": "帧剪周末旅行记录剪辑教程",
+    "audience": "25-40岁成年旅行爱好者",
+    "expected_status": "complete",
+    "duration_s": 60
+  },
+  "commands": [
+    {
+      "label": "01-create",
+      "argv": [
+        "D:\\AAA小影科技\\content-task-agent\\.venv\\Scripts\\python.exe",
+        "-m",
+        "cta",
+        "--mode",
+        "real",
+        "--data-dir",
+        "D:\\AAA小影科技\\content-task-agent\\examples\\eval-2026-10-29\\post-fix\\travel-60\\data",
+        "create",
+        "--new",
+        "--topic",
+        "帧剪周末旅行记录剪辑教程",
+        "--budget",
+        "20",
+        "--deadline",
+        "2026-10-30T12:00:00+08:00",
+        "--audience",
+        "25-40岁成年旅行爱好者",
+        "--requirement",
+        "准备完整内容活动方案，产品主张只用材料支持的正式能力；不作涨粉、收益或爆款承诺。",
+        "--requirement",
+        "方案交给运营继续制作。允许把缺少的画面、操作录屏和原创配乐列为待制作，写清责任人、位置和权属核对；不可冒充现成素材。平台和发布排期可以提出建议，不必把可建议项当成关键阻塞。",
+        "--requirement",
+        "一条60秒竖屏主视频，演示自动卡点后微调，再为普通话口播制作可编辑字幕。不把大学生合成调研外推为该受众事实。旅行画面可由制作人员后续自行拍摄并核对权属。"
+      ],
+      "exit_code": 0,
+      "wall_seconds": 0.739,
+      "fault": null
+    },
+    {
+      "label": "02-run",
+      "argv": [
+        "D:\\AAA小影科技\\content-task-agent\\.venv\\Scripts\\python.exe",
+        "-m",
+        "cta",
+        "--mode",
+        "real",
+        "--data-dir",
+        "D:\\AAA小影科技\\content-task-agent\\examples\\eval-2026-10-29\\post-fix\\travel-60\\data",
+        "run",
+        "t_54c642f3fdb0"
+      ],
+      "exit_code": 0,
+      "wall_seconds": 74.371,
+      "fault": null
+    },
+    {
+      "label": "05-inspect",
+      "argv": [
+        "D:\\AAA小影科技\\content-task-agent\\.venv\\Scripts\\python.exe",
+        "-m",
+        "cta",
+        "--mode",
+        "real",
+        "--data-dir",
+        "D:\\AAA小影科技\\content-task-agent\\examples\\eval-2026-10-29\\post-fix\\travel-60\\data",
+        "inspect",
+        "t_54c642f3fdb0"
+      ],
+      "exit_code": 0,
+      "wall_seconds": 0.604,
+      "fault": null
+    },
+    {
+      "label": "06-export",
+      "argv": [
+        "D:\\AAA小影科技\\content-task-agent\\.venv\\Scripts\\python.exe",
+        "-m",
+        "cta",
+        "--mode",
+        "real",
+        "--data-dir",
+        "D:\\AAA小影科技\\content-task-agent\\examples\\eval-2026-10-29\\post-fix\\travel-60\\data",
+        "export",
+        "t_54c642f3fdb0"
+      ],
+      "exit_code": 0,
+      "wall_seconds": 0.622,
+      "fault": null
+    }
+  ],
+  "started_unix": 1793262032.2945037,
+  "finished_unix": 1793262108.6439228,
+  "task_id": "t_54c642f3fdb0"
+}

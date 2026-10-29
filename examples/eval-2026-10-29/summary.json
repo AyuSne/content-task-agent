@@ -1,0 +1,265 @@
+{
+  "cases": [
+    {
+      "group": "live",
+      "case": "budget-impossible",
+      "task_id": "t_51e56db848f6",
+      "expected": "incomplete",
+      "scenario_status": "incomplete",
+      "current_status": "incomplete",
+      "passed": true,
+      "audit_passed": true,
+      "rounds": 7,
+      "simulation_cny_cent": 40,
+      "requests": 7,
+      "unknown_usage_requests": 0,
+      "strategy_version": "2026-10-29.v1"
+    },
+    {
+      "group": "live",
+      "case": "campus-15",
+      "task_id": "t_dbb75fd87a0a",
+      "expected": "complete",
+      "scenario_status": "complete",
+      "current_status": "complete",
+      "passed": true,
+      "audit_passed": true,
+      "rounds": 14,
+      "simulation_cny_cent": 460,
+      "requests": 18,
+      "unknown_usage_requests": 0,
+      "strategy_version": "2026-10-29.v1"
+    },
+    {
+      "group": "live",
+      "case": "deadline-impossible",
+      "task_id": "t_5995ba859f03",
+      "expected": "incomplete",
+      "scenario_status": "incomplete",
+      "current_status": "incomplete",
+      "passed": true,
+      "audit_passed": true,
+      "rounds": 8,
+      "simulation_cny_cent": 40,
+      "requests": 8,
+      "unknown_usage_requests": 0,
+      "strategy_version": "2026-10-29.v1"
+    },
+    {
+      "group": "live",
+      "case": "minor-15",
+      "task_id": "t_e06259b2474c",
+      "expected": "complete",
+      "scenario_status": "complete",
+      "current_status": "complete",
+      "passed": true,
+      "audit_passed": true,
+      "rounds": 16,
+      "simulation_cny_cent": 410,
+      "requests": 20,
+      "unknown_usage_requests": 0,
+      "strategy_version": "2026-10-29.v1"
+    },
+    {
+      "group": "live",
+      "case": "missing-input",
+      "task_id": "t_22e3bb00e6d1",
+      "expected": "needs_input",
+      "scenario_status": "needs_input",
+      "current_status": "needs_input",
+      "passed": true,
+      "audit_passed": true,
+      "rounds": 0,
+      "simulation_cny_cent": 0,
+      "requests": 0,
+      "unknown_usage_requests": 0,
+      "strategy_version": "2026-10-29.v1"
+    },
+    {
+      "group": "live",
+      "case": "save-crash-recovery",
+      "task_id": "t_35ce5df38272",
+      "expected": "complete",
+      "scenario_status": "complete",
+      "current_status": "complete",
+      "passed": true,
+      "audit_passed": true,
+      "rounds": 17,
+      "simulation_cny_cent": 450,
+      "requests": 22,
+      "unknown_usage_requests": 0,
+      "strategy_version": "2026-10-29.v1"
+    },
+    {
+      "group": "live",
+      "case": "subtitle-30",
+      "task_id": "t_7e4077e9aa53",
+      "expected": "complete",
+      "scenario_status": "complete",
+      "current_status": "complete",
+      "passed": true,
+      "audit_passed": true,
+      "rounds": 15,
+      "simulation_cny_cent": 330,
+      "requests": 18,
+      "unknown_usage_requests": 0,
+      "strategy_version": "2026-10-29.v1"
+    },
+    {
+      "group": "live",
+      "case": "travel-60",
+      "task_id": "t_170101b8dddc",
+      "expected": "complete",
+      "scenario_status": "complete",
+      "current_status": "complete",
+      "passed": true,
+      "audit_passed": true,
+      "rounds": 9,
+      "simulation_cny_cent": 290,
+      "requests": 11,
+      "unknown_usage_requests": 0,
+      "strategy_version": "2026-10-29.v1"
+    },
+    {
+      "group": "live",
+      "case": "unsupported-cantonese",
+      "task_id": "t_e61819d3b390",
+      "expected": "needs_input",
+      "scenario_status": "needs_input",
+      "current_status": "needs_input",
+      "passed": true,
+      "audit_passed": true,
+      "rounds": 5,
+      "simulation_cny_cent": 40,
+      "requests": 5,
+      "unknown_usage_requests": 0,
+      "strategy_version": "2026-10-29.v1"
+    },
+    {
+      "group": "post-fix",
+      "case": "subtitle-30",
+      "task_id": "t_f8dd9c83f31d",
+      "expected": "complete",
+      "scenario_status": "complete",
+      "current_status": "complete",
+      "passed": true,
+      "audit_passed": true,
+      "rounds": 10,
+      "simulation_cny_cent": 330,
+      "requests": 12,
+      "unknown_usage_requests": 0,
+      "strategy_version": "2026-10-29.v2"
+    },
+    {
+      "group": "post-fix",
+      "case": "travel-60",
+      "task_id": "t_54c642f3fdb0",
+      "expected": "complete",
+      "scenario_status": "complete",
+      "current_status": "complete",
+      "passed": true,
+      "audit_passed": true,
+      "rounds": 11,
+      "simulation_cny_cent": 370,
+      "requests": 14,
+      "unknown_usage_requests": 1,
+      "strategy_version": "2026-10-29.v2"
+    }
+  ],
+  "task_usage_including_human_import": {
+    "requests": 135,
+    "unknown_usage_requests": 1,
+    "prompt_tokens": 2368015,
+    "completion_tokens": 109520
+  },
+  "reviewer_evals": [
+    {
+      "file": "reviewer-baseline.json",
+      "version": "2026-10-29.v2",
+      "metrics": {
+        "problem_samples": 6,
+        "good_samples": 6,
+        "evaluable_problem_samples": 6,
+        "evaluable_good_samples": 6,
+        "bad_detected": 6,
+        "missed": [],
+        "false_positives": [],
+        "optional_on_good": 7,
+        "incomplete_reviews": 0
+      },
+      "usage": {
+        "requests": 12,
+        "unknown_usage_requests": 0,
+        "prompt_tokens": 65336,
+        "completion_tokens": 8752,
+        "total_tokens": 74088,
+        "prompt_cache_hit_tokens": 63104,
+        "prompt_cache_miss_tokens": 2232,
+        "elapsed_ms": 59471
+      }
+    },
+    {
+      "file": "reviewer-holdout.json",
+      "version": "2026-10-29.holdout-v1",
+      "metrics": {
+        "problem_samples": 3,
+        "good_samples": 3,
+        "evaluable_problem_samples": 3,
+        "evaluable_good_samples": 3,
+        "bad_detected": 3,
+        "missed": [],
+        "false_positives": [
+          "H1-explicit-duration"
+        ],
+        "optional_on_good": 3,
+        "incomplete_reviews": 0
+      },
+      "usage": {
+        "requests": 7,
+        "unknown_usage_requests": 0,
+        "prompt_tokens": 38375,
+        "completion_tokens": 6271,
+        "total_tokens": 44646,
+        "prompt_cache_hit_tokens": 24832,
+        "prompt_cache_miss_tokens": 13543,
+        "elapsed_ms": 39063
+      }
+    },
+    {
+      "file": "reviewer-holdout-v2.json",
+      "version": "2026-10-29.holdout-v2",
+      "metrics": {
+        "problem_samples": 3,
+        "good_samples": 3,
+        "evaluable_problem_samples": 3,
+        "evaluable_good_samples": 3,
+        "bad_detected": 3,
+        "missed": [],
+        "false_positives": [],
+        "optional_on_good": 7,
+        "incomplete_reviews": 0
+      },
+      "usage": {
+        "requests": 8,
+        "unknown_usage_requests": 0,
+        "prompt_tokens": 44262,
+        "completion_tokens": 7837,
+        "total_tokens": 52099,
+        "prompt_cache_hit_tokens": 41600,
+        "prompt_cache_miss_tokens": 2662,
+        "elapsed_ms": 49211
+      }
+    }
+  ],
+  "files": {
+    "initial_current": 35,
+    "post_fix": 10,
+    "historical_unchanged": 89
+  },
+  "limitations": [
+    "holdout-v1 H1.good contained an actual timing contradiction; its original label is invalid, not a verified false positive.",
+    "holdout-v2 is a corrected derived set, not an independent population sample.",
+    "One additional default request identity was created by the operations probe, with zero model calls and zero simulated spend; not included among evaluated delivery scenarios.",
+    "Real API amounts and developer-agent token usage remain unknown."
+  ]
+}

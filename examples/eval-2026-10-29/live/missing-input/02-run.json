@@ -1,0 +1,280 @@
+{
+  "task_id": "t_22e3bb00e6d1",
+  "mode": "real",
+  "status": "needs_input",
+  "reason": "输入不完整或无效，需要补充：主题、预算、方案截止时间",
+  "duplicate": false,
+  "created_at": "2026-10-29T08:18:35+00:00",
+  "updated_at": "2026-10-29T08:18:35+00:00",
+  "input": {
+    "version": 1,
+    "topic": null,
+    "budget": null,
+    "budget_cents": null,
+    "deadline": null,
+    "audience": null,
+    "requirements": [
+      "准备完整内容活动方案，产品主张只用材料支持的正式能力；不作涨粉、收益或爆款承诺。",
+      "方案交给运营继续制作。允许把缺少的画面、操作录屏和原创配乐列为待制作，写清责任人、位置和权属核对；不可冒充现成素材。平台和发布排期可以提出建议，不必把可建议项当成关键阻塞。"
+    ],
+    "raw": {
+      "topic": "",
+      "budget": "",
+      "deadline": "",
+      "audience": "",
+      "requirements": [
+        "准备完整内容活动方案，产品主张只用材料支持的正式能力；不作涨粉、收益或爆款承诺。",
+        "方案交给运营继续制作。允许把缺少的画面、操作录屏和原创配乐列为待制作，写清责任人、位置和权属核对；不可冒充现成素材。平台和发布排期可以提出建议，不必把可建议项当成关键阻塞。"
+      ]
+    },
+    "fingerprint": "5ebb8002f4e27ac46d8a96c1de7883b90338106adc6a6ad20f2fa7d9967560e4"
+  },
+  "validation": {
+    "errors": [
+      {
+        "field": "topic",
+        "code": "required",
+        "message": "主题（topic）为必填项，且不能为空白。"
+      },
+      {
+        "field": "budget",
+        "code": "required",
+        "message": "任务预算（budget）为必填项，单位为元。"
+      },
+      {
+        "field": "deadline",
+        "code": "required",
+        "message": "方案截止时间（deadline）为必填项，使用 ISO-8601 时间。"
+      }
+    ],
+    "interpretations": []
+  },
+  "brief": null,
+  "review": null,
+  "content_reuse": null,
+  "save": null,
+  "strategy": {
+    "table_version": "2026-10-29.v1",
+    "directions": [
+      {
+        "direction": "functional_demo",
+        "label": "功能演示",
+        "expression_goal": "直接展示自动卡点能做什么、如何操作、结果是什么",
+        "material_needs": [
+          "产品操作录屏（待制作）",
+          "M-001 自动卡点能力与适用范围",
+          "M-004 品牌表达规则"
+        ],
+        "evidence_queries": [
+          "自动卡点能力与适用范围",
+          "产品操作录屏素材状态"
+        ],
+        "required_queries": 2,
+        "risk": "缺少可展示的操作录屏时无法制作；纯功能演示对情境吸引力的帮助有限"
+      },
+      {
+        "direction": "user_scenario",
+        "label": "用户情境",
+        "expression_goal": "用校园社团招新情境承接自动卡点带来的成片效果",
+        "material_needs": [
+          "M-005 校园场景素材（已有）",
+          "M-003 校园用户调研（仅代表合成样本）",
+          "M-006 背景音乐授权（待获取）",
+          "M-001 自动卡点能力依据"
+        ],
+        "evidence_queries": [
+          "校园受众与使用情境",
+          "校园场景素材与音乐授权状态",
+          "自动卡点能力与适用范围"
+        ],
+        "required_queries": 3,
+        "risk": "情境画面不能单独证明产品能力；音乐授权未取得前不能写成已可用"
+      },
+      {
+        "direction": "tutorial",
+        "label": "教程",
+        "expression_goal": "分步说明如何完成一次自动卡点，并把操作与结果对应起来",
+        "material_needs": [
+          "M-001 自动卡点能力与边界",
+          "M-002 AI 字幕能力（如使用）",
+          "M-004 品牌表达规则",
+          "产品操作录屏（待制作）"
+        ],
+        "evidence_queries": [
+          "自动卡点操作步骤与能力边界",
+          "相关产品能力与正式支持范围",
+          "品牌表达与素材限制"
+        ],
+        "required_queries": 3,
+        "risk": "短片内容密度高；需要更完整的操作录屏和更清晰的步骤取舍"
+      }
+    ],
+    "latest_selection": null,
+    "selection_count": 0,
+    "mode_table_version": "2026-10-29.v1"
+  },
+  "plan": {
+    "version": "plan-2026-10-29.v1",
+    "steps": [
+      {
+        "step": "brief",
+        "title": "业务简报",
+        "status": "current"
+      },
+      {
+        "step": "campaign_draft",
+        "title": "完整活动方案草稿",
+        "status": "pending"
+      },
+      {
+        "step": "review",
+        "title": "内容核验",
+        "status": "pending"
+      },
+      {
+        "step": "save",
+        "title": "核实保存与导出",
+        "status": "pending"
+      }
+    ]
+  },
+  "todos": [
+    {
+      "step": "brief",
+      "title": "业务简报",
+      "status": "current"
+    },
+    {
+      "step": "campaign_draft",
+      "title": "完整活动方案草稿",
+      "status": "pending"
+    },
+    {
+      "step": "review",
+      "title": "内容核验",
+      "status": "pending"
+    },
+    {
+      "step": "save",
+      "title": "核实保存与导出",
+      "status": "pending"
+    }
+  ],
+  "recovery": null,
+  "gaps": [],
+  "mode_notice": "真实模型运行；小样本观察不代表生产质量或统计显著结论。",
+  "progress": {
+    "sim_start": "2026-10-29T00:00:00+08:00",
+    "sim_now": "2026-10-29T00:00:00+08:00",
+    "sim_elapsed_ms": 0,
+    "used_rounds": 0,
+    "max_rounds": 24,
+    "paused": false,
+    "current_output": null,
+    "save": null,
+    "phase": "created",
+    "brief_version": 0,
+    "last_run_at": null
+  },
+  "resources": {
+    "budget_cents": null,
+    "sim_spent_cents": 0,
+    "remaining_cents": null,
+    "real_requests": 0,
+    "mock_requests": 0,
+    "model_requests": 0,
+    "real_usage": {
+      "requests": 0,
+      "real_requests": 0,
+      "mock_requests": 0,
+      "unknown_usage_requests": 0,
+      "usage_complete": true,
+      "prompt_tokens": 0,
+      "completion_tokens": 0,
+      "cache_hit_tokens": 0,
+      "cache_miss_tokens": 0,
+      "elapsed_ms": 0
+    },
+    "real_cost": null,
+    "amount_status": {
+      "simulated_tool_fee": "incurred_and_estimated",
+      "real_model_usage": "unknown",
+      "activity_costs": "not_applicable"
+    },
+    "simulated_tool_fee": {
+      "category": "simulated_tool_fee",
+      "unit": "CNY_cent",
+      "source": "pricing:2026-10-29.v1",
+      "nature": "incurred",
+      "incurred_cents": 0,
+      "ledger_entries": 0,
+      "estimated": null,
+      "reserved": null,
+      "note": "预留与估算是可行性判断，不是实际支出；实际消耗只累计账本中 nature=incurred 的记录。"
+    },
+    "real_model_usage": {
+      "category": "real_model_usage",
+      "unit": "request/token",
+      "source": "DeepSeek API response usage（openai SDK）",
+      "nature": "actual_usage",
+      "requests": 0,
+      "real_requests": 0,
+      "mock_requests": 0,
+      "unknown_usage_requests": 0,
+      "prompt_tokens": 0,
+      "completion_tokens": 0,
+      "cache_hit_tokens": 0,
+      "cache_miss_tokens": 0,
+      "elapsed_ms": 0,
+      "amount": {
+        "status": "unknown",
+        "value_cents": null,
+        "reason": "没有可靠的单价来源，不把 token 用量换算成金额；未发生真实请求时也不补成已核实零费用。"
+      }
+    },
+    "activity_costs": {
+      "category": "activity_cost",
+      "unit": "CNY_cent",
+      "source": "task_input/campaign.materials",
+      "status": "not_applicable",
+      "nature": "not_applicable",
+      "entries": [],
+      "reason": "任务输入、资料与执行未涉及活动制作或投放预算/实际支出。"
+    },
+    "unknown": [
+      "real_model_usage.amount"
+    ],
+    "not_applicable": [
+      "activity_costs"
+    ]
+  },
+  "model_config": {
+    "provider": "deepseek",
+    "sdk": "openai",
+    "base_url": "https://api.deepseek.com",
+    "model": "deepseek-flash",
+    "api_key": "set",
+    "thinking": false,
+    "streaming": false,
+    "sdk_auto_retries": 0,
+    "network_route": "direct",
+    "keepalive_expiry_seconds": 180
+  },
+  "versions": {
+    "app": "0.1.0",
+    "prompt": "main-2026-10-29.v11",
+    "materials": "2026-10-29.v1",
+    "pricing": "2026-10-29.v1",
+    "strategy": "2026-10-29.v1"
+  },
+  "artifacts": {
+    "campaign_versions": 0
+  },
+  "run": {
+    "rounds_used": 0,
+    "stop_reason": "needs_input",
+    "requests": 0,
+    "explicit_resume": false,
+    "recovery": null
+  }
+}

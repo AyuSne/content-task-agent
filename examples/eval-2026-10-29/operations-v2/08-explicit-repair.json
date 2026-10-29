@@ -1,0 +1,50 @@
+{
+  "task_id": "t_170101b8dddc",
+  "output_version": 1,
+  "save_id": "s_1886d31127568573",
+  "verified": true,
+  "delivery_complete": true,
+  "files": [
+    {
+      "path": "D:\\AAA小影科技\\content-task-agent\\examples\\eval-2026-10-29\\live\\travel-60\\data\\real\\exports\\t_170101b8dddc\\campaign-v1.md",
+      "sha256": "13efeff954a8b47e46352b6c2d38ad9afc8473e566f471d951ae5785295a240e",
+      "bytes": 11484,
+      "exists": true,
+      "current_sha256": "13efeff954a8b47e46352b6c2d38ad9afc8473e566f471d951ae5785295a240e",
+      "ok": true
+    },
+    {
+      "path": "D:\\AAA小影科技\\content-task-agent\\examples\\eval-2026-10-29\\live\\travel-60\\data\\real\\exports\\t_170101b8dddc\\campaign-v1.json",
+      "sha256": "f9d374c0e4374126cf8e80e9d34c65adc6a0f5a33f5d48eca65b671f53480bc4",
+      "bytes": 13888,
+      "exists": true,
+      "current_sha256": "f9d374c0e4374126cf8e80e9d34c65adc6a0f5a33f5d48eca65b671f53480bc4",
+      "ok": true
+    },
+    {
+      "path": "D:\\AAA小影科技\\content-task-agent\\examples\\eval-2026-10-29\\live\\travel-60\\data\\real\\exports\\t_170101b8dddc\\brief-v1.json",
+      "sha256": "89ed139ddde4e03dc686470996cde66b55220e249d2d1d49ceaa0fddb63d627d",
+      "bytes": 8109,
+      "exists": true,
+      "current_sha256": "89ed139ddde4e03dc686470996cde66b55220e249d2d1d49ceaa0fddb63d627d",
+      "ok": true
+    },
+    {
+      "path": "D:\\AAA小影科技\\content-task-agent\\examples\\eval-2026-10-29\\live\\travel-60\\data\\real\\exports\\t_170101b8dddc\\execution-report.md",
+      "sha256": "7a835c96c649452fbd2375d607fd8f270d6a458102aa40a906df9c6cd59f0d16",
+      "bytes": 11544,
+      "exists": true,
+      "current_sha256": "7a835c96c649452fbd2375d607fd8f270d6a458102aa40a906df9c6cd59f0d16",
+      "ok": true
+    },
+    {
+      "path": "D:\\AAA小影科技\\content-task-agent\\examples\\eval-2026-10-29\\live\\travel-60\\data\\real\\exports\\t_170101b8dddc\\trace.jsonl",
+      "sha256": "e0a566d781cfc0efeefa43054b99d29c8d09e917be295613ddf40b8eb9d15412",
+      "bytes": 120897,
+      "exists": true,
+      "current_sha256": "e0a566d781cfc0efeefa43054b99d29c8d09e917be295613ddf40b8eb9d15412",
+      "ok": true
+    }
+  ],
+  "repaired": true
+}

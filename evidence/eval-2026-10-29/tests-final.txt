@@ -1,0 +1,39 @@
+........................................................................ [ 34%]
+........................................................................ [ 69%]
+.........................F.....................................          [100%]
+================================== FAILURES ===================================
+_____ test_existing_task_uses_its_strategy_version_after_default_changes ______
+
+cli_env = WindowsPath('C:/Users/10167/AppData/Local/Temp/pytest-of-10167/pytest-292/test_existing_task_uses_its_st0')
+model_script = <function model_script.<locals>.write at 0x000001B9D7EFBC40>
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000001B9D7C93D90>
+
+    def test_existing_task_uses_its_strategy_version_after_default_changes(cli_env, model_script, monkeypatch):
+        monkeypatch.setenv("CTA_STRATEGY_VERSION", "2026-10-29.v2")
+        task = cli_json("create", "--topic", "英语口播字幕", "--budget", "10", "--deadline", "2026-10-30")
+        task_id = task["task_id"]
+        original = cli_json("strategies", task_id)
+        monkeypatch.setenv("CTA_STRATEGY_VERSION", "2026-10-29.v1")
+        status = cli_json("status", task_id)
+        comparison = cli_json("strategies", task_id)
+        assert status["versions"]["strategy"] == "2026-10-29.v2"
+        assert status["strategy"]["directions"] == [
+            {key: d[key] for key in ("direction", "label", "expression_goal", "material_needs", "evidence_queries",
+                                    "required_queries", "risk")}
+            for d in original["directions"]
+        ]
+        assert comparison["strategy_version"] == original["strategy_version"]
+        assert comparison["directions"] == original["directions"]
+        model_script([{"name": "compare_strategies", "arguments": {
+            "search_mode": "search_basic", "generation_mode": "generate_direct",
+        }}])
+        cli_json("run", task_id, "--max-rounds", "1")
+        facts = cli_json("inspect", task_id)
+>       returned = next(json.loads(m["content"]) for m in facts["messages"]
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        if m["role"] == "tool" and m["name"] == "compare_strategies")
+E       KeyError: 'strategy_version'
+
+tests\test_strategy_task_scope.py:46: KeyError
+=========================== short test summary info ===========================
+FAILED tests/test_strategy_task_scope.py::test_existing_task_uses_its_strategy_version_after_default_changes

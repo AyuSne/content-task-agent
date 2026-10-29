@@ -1,0 +1,50 @@
+{
+  "task_id": "t_f8dd9c83f31d",
+  "output_version": 1,
+  "save_id": "s_32be1822ad64d804",
+  "verified": true,
+  "delivery_complete": true,
+  "files": [
+    {
+      "path": "D:\\AAA小影科技\\content-task-agent\\examples\\eval-2026-10-29\\post-fix\\subtitle-30\\data\\real\\exports\\t_f8dd9c83f31d\\campaign-v1.md",
+      "sha256": "4cca77ccb8422d629a169528ae518508183efc064c35857101edbe07f1536e81",
+      "bytes": 9226,
+      "exists": true,
+      "current_sha256": "4cca77ccb8422d629a169528ae518508183efc064c35857101edbe07f1536e81",
+      "ok": true
+    },
+    {
+      "path": "D:\\AAA小影科技\\content-task-agent\\examples\\eval-2026-10-29\\post-fix\\subtitle-30\\data\\real\\exports\\t_f8dd9c83f31d\\campaign-v1.json",
+      "sha256": "231771fbee947d8e93b55b565e6408ade9a57c889f1dc7739b7cff474c0682ff",
+      "bytes": 11686,
+      "exists": true,
+      "current_sha256": "231771fbee947d8e93b55b565e6408ade9a57c889f1dc7739b7cff474c0682ff",
+      "ok": true
+    },
+    {
+      "path": "D:\\AAA小影科技\\content-task-agent\\examples\\eval-2026-10-29\\post-fix\\subtitle-30\\data\\real\\exports\\t_f8dd9c83f31d\\brief-v1.json",
+      "sha256": "6eb6e9a5f619ffcb8701e0c42b6dd1e07577ffbebdcda9722f8b559ed51120b2",
+      "bytes": 6372,
+      "exists": true,
+      "current_sha256": "6eb6e9a5f619ffcb8701e0c42b6dd1e07577ffbebdcda9722f8b559ed51120b2",
+      "ok": true
+    },
+    {
+      "path": "D:\\AAA小影科技\\content-task-agent\\examples\\eval-2026-10-29\\post-fix\\subtitle-30\\data\\real\\exports\\t_f8dd9c83f31d\\execution-report.md",
+      "sha256": "025ede1f17116a50ec6821c4a8f85f623108ec610727c12af274ed489feec730",
+      "bytes": 13249,
+      "exists": true,
+      "current_sha256": "025ede1f17116a50ec6821c4a8f85f623108ec610727c12af274ed489feec730",
+      "ok": true
+    },
+    {
+      "path": "D:\\AAA小影科技\\content-task-agent\\examples\\eval-2026-10-29\\post-fix\\subtitle-30\\data\\real\\exports\\t_f8dd9c83f31d\\trace.jsonl",
+      "sha256": "6e7251ff602b2e530bd7dee0e89e20dfce511bea712da309b534a0649fbc5c2d",
+      "bytes": 119210,
+      "exists": true,
+      "current_sha256": "6e7251ff602b2e530bd7dee0e89e20dfce511bea712da309b534a0649fbc5c2d",
+      "ok": true
+    }
+  ],
+  "repaired": false
+}

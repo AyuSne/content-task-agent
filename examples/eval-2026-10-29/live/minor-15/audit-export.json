@@ -1,0 +1,50 @@
+{
+  "task_id": "t_e06259b2474c",
+  "output_version": 3,
+  "save_id": "s_d77afc68fd045e04",
+  "verified": true,
+  "delivery_complete": true,
+  "files": [
+    {
+      "path": "D:\\AAA小影科技\\content-task-agent\\examples\\eval-2026-10-29\\live\\minor-15\\data\\real\\exports\\t_e06259b2474c\\campaign-v3.md",
+      "sha256": "6175e551fb634cb2b75b60139642bcccad5cb1c61c8a2583c0d9201c221a91a0",
+      "bytes": 12962,
+      "exists": true,
+      "current_sha256": "6175e551fb634cb2b75b60139642bcccad5cb1c61c8a2583c0d9201c221a91a0",
+      "ok": true
+    },
+    {
+      "path": "D:\\AAA小影科技\\content-task-agent\\examples\\eval-2026-10-29\\live\\minor-15\\data\\real\\exports\\t_e06259b2474c\\campaign-v3.json",
+      "sha256": "32a730e3de5e153bbfa369a85b54efa2edf44200122a4d919106c74321e75abf",
+      "bytes": 15355,
+      "exists": true,
+      "current_sha256": "32a730e3de5e153bbfa369a85b54efa2edf44200122a4d919106c74321e75abf",
+      "ok": true
+    },
+    {
+      "path": "D:\\AAA小影科技\\content-task-agent\\examples\\eval-2026-10-29\\live\\minor-15\\data\\real\\exports\\t_e06259b2474c\\brief-v1.json",
+      "sha256": "2864dd0e7774b8983fb2e17d69dd784a5d229ea2b11b2318d4dbe8b99c524245",
+      "bytes": 6634,
+      "exists": true,
+      "current_sha256": "2864dd0e7774b8983fb2e17d69dd784a5d229ea2b11b2318d4dbe8b99c524245",
+      "ok": true
+    },
+    {
+      "path": "D:\\AAA小影科技\\content-task-agent\\examples\\eval-2026-10-29\\live\\minor-15\\data\\real\\exports\\t_e06259b2474c\\execution-report.md",
+      "sha256": "f234c0c932d4210538470bcd7443b2dfe4e0ff0bb1c25b5b4bcecd420fe7b5f0",
+      "bytes": 17706,
+      "exists": true,
+      "current_sha256": "f234c0c932d4210538470bcd7443b2dfe4e0ff0bb1c25b5b4bcecd420fe7b5f0",
+      "ok": true
+    },
+    {
+      "path": "D:\\AAA小影科技\\content-task-agent\\examples\\eval-2026-10-29\\live\\minor-15\\data\\real\\exports\\t_e06259b2474c\\trace.jsonl",
+      "sha256": "60caac3fcf8363decf76daa1edd8d092c667f5b88d3106d8d064ddecc3a6c51e",
+      "bytes": 212073,
+      "exists": true,
+      "current_sha256": "60caac3fcf8363decf76daa1edd8d092c667f5b88d3106d8d064ddecc3a6c51e",
+      "ok": true
+    }
+  ],
+  "repaired": false
+}

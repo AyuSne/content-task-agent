@@ -1,0 +1,112 @@
+{
+  "case": {
+    "id": "deadline-impossible",
+    "topic": "帧剪自动卡点完整推广方案",
+    "audience": "18-24岁大学生",
+    "deadline": "2026-10-29T00:00:05+08:00",
+    "requirements": [
+      "一条30秒主视频；方案截止为硬约束，未经核验不得保存完成。"
+    ],
+    "expected_status": "incomplete"
+  },
+  "input": {
+    "budget": "20",
+    "deadline": "2026-10-29T00:00:05+08:00",
+    "requirements": [
+      "准备完整内容活动方案，产品主张只用材料支持的正式能力；不作涨粉、收益或爆款承诺。",
+      "方案交给运营继续制作。允许把缺少的画面、操作录屏和原创配乐列为待制作，写清责任人、位置和权属核对；不可冒充现成素材。平台和发布排期可以提出建议，不必把可建议项当成关键阻塞。",
+      "一条30秒主视频；方案截止为硬约束，未经核验不得保存完成。"
+    ],
+    "id": "deadline-impossible",
+    "topic": "帧剪自动卡点完整推广方案",
+    "audience": "18-24岁大学生",
+    "expected_status": "incomplete"
+  },
+  "commands": [
+    {
+      "label": "01-create",
+      "argv": [
+        "D:\\AAA小影科技\\content-task-agent\\.venv\\Scripts\\python.exe",
+        "-m",
+        "cta",
+        "--mode",
+        "real",
+        "--data-dir",
+        "D:\\AAA小影科技\\content-task-agent\\examples\\eval-2026-10-29\\live\\deadline-impossible\\data",
+        "create",
+        "--new",
+        "--topic",
+        "帧剪自动卡点完整推广方案",
+        "--budget",
+        "20",
+        "--deadline",
+        "2026-10-29T00:00:05+08:00",
+        "--audience",
+        "18-24岁大学生",
+        "--requirement",
+        "准备完整内容活动方案，产品主张只用材料支持的正式能力；不作涨粉、收益或爆款承诺。",
+        "--requirement",
+        "方案交给运营继续制作。允许把缺少的画面、操作录屏和原创配乐列为待制作，写清责任人、位置和权属核对；不可冒充现成素材。平台和发布排期可以提出建议，不必把可建议项当成关键阻塞。",
+        "--requirement",
+        "一条30秒主视频；方案截止为硬约束，未经核验不得保存完成。"
+      ],
+      "exit_code": 0,
+      "wall_seconds": 0.638,
+      "fault": null
+    },
+    {
+      "label": "02-run",
+      "argv": [
+        "D:\\AAA小影科技\\content-task-agent\\.venv\\Scripts\\python.exe",
+        "-m",
+        "cta",
+        "--mode",
+        "real",
+        "--data-dir",
+        "D:\\AAA小影科技\\content-task-agent\\examples\\eval-2026-10-29\\live\\deadline-impossible\\data",
+        "run",
+        "t_5995ba859f03"
+      ],
+      "exit_code": 0,
+      "wall_seconds": 30.692,
+      "fault": null
+    },
+    {
+      "label": "05-inspect",
+      "argv": [
+        "D:\\AAA小影科技\\content-task-agent\\.venv\\Scripts\\python.exe",
+        "-m",
+        "cta",
+        "--mode",
+        "real",
+        "--data-dir",
+        "D:\\AAA小影科技\\content-task-agent\\examples\\eval-2026-10-29\\live\\deadline-impossible\\data",
+        "inspect",
+        "t_5995ba859f03"
+      ],
+      "exit_code": 0,
+      "wall_seconds": 0.405,
+      "fault": null
+    },
+    {
+      "label": "06-export",
+      "argv": [
+        "D:\\AAA小影科技\\content-task-agent\\.venv\\Scripts\\python.exe",
+        "-m",
+        "cta",
+        "--mode",
+        "real",
+        "--data-dir",
+        "D:\\AAA小影科技\\content-task-agent\\examples\\eval-2026-10-29\\live\\deadline-impossible\\data",
+        "export",
+        "t_5995ba859f03"
+      ],
+      "exit_code": 0,
+      "wall_seconds": 0.566,
+      "fault": null
+    }
+  ],
+  "started_unix": 1793261746.2154968,
+  "finished_unix": 1793261778.522866,
+  "task_id": "t_5995ba859f03"
+}

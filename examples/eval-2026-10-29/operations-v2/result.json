@@ -1,0 +1,17 @@
+{
+  "task_id": "t_170101b8dddc",
+  "checks": {
+    "duplicate_reuses_default_task": true,
+    "explicit_new_stays_independent": true,
+    "run_resume_do_not_repeat_work": true,
+    "exports_preserve_operator_edit": true,
+    "edited_save_not_falsely_complete": true,
+    "explicit_repair_restores_authority": true,
+    "resource_update_reuses_content": true,
+    "no_new_model_request": true,
+    "no_new_simulated_charge": true,
+    "rounds_preserved": true,
+    "saved_hashes_match": true
+  },
+  "passed": true
+}

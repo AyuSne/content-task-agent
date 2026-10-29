@@ -1,0 +1,20 @@
+PLW1510 `subprocess.run` without explicit `check` argument
+  --> scripts\run_eval_suite.py:75:19
+   |
+73 |         argv = [sys.executable, "-m", "cta", "--mode", "real", "--data-dir", str(target / "data"), *args]
+74 |         start = time.time()
+75 |         process = subprocess.run(argv, cwd=ROOT, env=call_env, capture_output=True, text=True, encoding="utf-8")
+   |                   ^^^^^^^^^^^^^^
+76 |         (target / f"{label}.json").write_text(process.stdout, encoding="utf-8")
+77 |         if process.stderr:
+   |
+help: Add explicit `check=False`
+   |
+74 |         start = time.time()
+   -         process = subprocess.run(argv, cwd=ROOT, env=call_env, capture_output=True, text=True, encoding="utf-8")
+75 +         process = subprocess.run(argv, check=False, cwd=ROOT, env=call_env, capture_output=True, text=True, encoding="utf-8")
+76 |         (target / f"{label}.json").write_text(process.stdout, encoding="utf-8")
+   |
+note: This suggestion may be incorrect or produce invalid syntax. It requires manual review and cannot be applied automatically
+
+Found 1 error.

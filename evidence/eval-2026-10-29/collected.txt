@@ -1,0 +1,24 @@
+tests/test_autonomous_delivery.py: 6
+tests/test_batch_dispositions.py: 6
+tests/test_brief_loop.py: 18
+tests/test_calibration.py: 6
+tests/test_campaign_draft.py: 8
+tests/test_comparison.py: 7
+tests/test_evaluation_protocol.py: 15
+tests/test_human_import.py: 11
+tests/test_local_action_recovery.py: 23
+tests/test_model_direct.py: 2
+tests/test_process_resume.py: 13
+tests/test_protocol_freeze.py: 1
+tests/test_regressions.py: 5
+tests/test_request_interruption.py: 3
+tests/test_review_feedback_context.py: 2
+tests/test_review_save.py: 9
+tests/test_revision_disposition.py: 6
+tests/test_runtime_limits.py: 1
+tests/test_save_reconcile.py: 11
+tests/test_strategy.py: 14
+tests/test_task_intake.py: 19
+tests/test_update_validity.py: 9
+tests/test_version_adoption.py: 9
+

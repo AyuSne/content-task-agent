@@ -1,0 +1,279 @@
+{
+  "case": "subtitle-30",
+  "task_id": "t_7e4077e9aa53",
+  "status": "complete",
+  "checks": {
+    "simulation_ledger_matches": true,
+    "simulation_time_matches": true,
+    "audit_did_not_charge": true,
+    "audit_did_not_call_model": true,
+    "round_limit_preserved": true,
+    "no_mock_requests": true,
+    "main_message_pairing": true,
+    "unique_call_ids": true,
+    "no_running_request": true,
+    "verified_current_save": true,
+    "all_delivery_hashes_match": true,
+    "within_simulated_budget": true,
+    "within_simulated_deadline": true,
+    "review_applies_to_current_version": true,
+    "trace_save_matches_authority": true
+  },
+  "invariants_hold": true,
+  "input": {
+    "version": 1,
+    "topic": "帧剪英语口播AI字幕功能演示",
+    "budget": "20.00",
+    "budget_cents": 2000,
+    "deadline": "2026-10-30T04:00:00+00:00",
+    "audience": "18岁以上英语口播视频创作者",
+    "requirements": [
+      "准备完整内容活动方案，产品主张只用材料支持的正式能力；不作涨粉、收益或爆款承诺。",
+      "方案交给运营继续制作。允许把缺少的画面、操作录屏和原创配乐列为待制作，写清责任人、位置和权属核对；不可冒充现成素材。平台和发布排期可以提出建议，不必把可建议项当成关键阻塞。",
+      "仅一条30秒主视频，核心为英语语音转可编辑字幕及人工校对，不把一键翻译成英语写成翻译为任意语言，不宣称识别百分百准确。操作演示可后续录制。"
+    ],
+    "raw": {
+      "topic": "帧剪英语口播AI字幕功能演示",
+      "budget": "20",
+      "deadline": "2026-10-30T12:00:00+08:00",
+      "audience": "18岁以上英语口播视频创作者",
+      "requirements": [
+        "准备完整内容活动方案，产品主张只用材料支持的正式能力；不作涨粉、收益或爆款承诺。",
+        "方案交给运营继续制作。允许把缺少的画面、操作录屏和原创配乐列为待制作，写清责任人、位置和权属核对；不可冒充现成素材。平台和发布排期可以提出建议，不必把可建议项当成关键阻塞。",
+        "仅一条30秒主视频，核心为英语语音转可编辑字幕及人工校对，不把一键翻译成英语写成翻译为任意语言，不宣称识别百分百准确。操作演示可后续录制。"
+      ]
+    },
+    "fingerprint": "b56e8aabad9d6b0a0db2d514f57046aefec2dff38e3aeda6b4c40e23cedb09e5"
+  },
+  "progress": {
+    "sim_start": "2026-10-29T00:00:00+08:00",
+    "sim_now": "2026-10-29T00:00:25+08:00",
+    "sim_elapsed_ms": 25000,
+    "used_rounds": 15,
+    "max_rounds": 24,
+    "paused": false,
+    "current_output": {
+      "output_id": "o_138f07188e4e0ddf",
+      "version": 2,
+      "status": "draft",
+      "strategy": "functional_demo"
+    },
+    "save": {
+      "save_id": "s_361c275356df0a86",
+      "output_version": 2,
+      "status": "verified",
+      "verified": true
+    },
+    "phase": "complete",
+    "brief_version": 1,
+    "last_run_at": "2026-10-29T08:13:14+00:00"
+  },
+  "resources": {
+    "budget_cents": 2000,
+    "sim_spent_cents": 330,
+    "remaining_cents": 1670,
+    "real_requests": 18,
+    "mock_requests": 0,
+    "model_requests": 18,
+    "real_usage": {
+      "requests": 18,
+      "real_requests": 18,
+      "mock_requests": 0,
+      "unknown_usage_requests": 0,
+      "usage_complete": true,
+      "prompt_tokens": 346120,
+      "completion_tokens": 17152,
+      "cache_hit_tokens": 297600,
+      "cache_miss_tokens": 48520,
+      "elapsed_ms": 94036
+    },
+    "real_cost": null,
+    "amount_status": {
+      "simulated_tool_fee": "incurred_and_estimated",
+      "real_model_usage": "unknown",
+      "activity_costs": "unknown"
+    },
+    "simulated_tool_fee": {
+      "category": "simulated_tool_fee",
+      "unit": "CNY_cent",
+      "source": "pricing:2026-10-29.v1",
+      "nature": "incurred",
+      "incurred_cents": 330,
+      "ledger_entries": 6,
+      "estimated": {
+        "estimate_id": "e_921a493aac2d6ee2",
+        "kind": "strategy_choice",
+        "direction": "functional_demo",
+        "search_mode": "search_basic",
+        "generation_mode": "generate_direct",
+        "search_queries": 0,
+        "include_revision": true,
+        "total_cost_cents": 410,
+        "total_duration_ms": 29000,
+        "incurred_cents": 40,
+        "remaining_cents": 1960,
+        "feasible": true,
+        "strategy_version": "2026-10-29.v1",
+        "pricing_version": "2026-10-29.v1",
+        "created_at": "2026-10-29T08:12:09+00:00",
+        "nature": "estimated"
+      },
+      "reserved": {
+        "selection_id": "st_2543e5aab35adbc3",
+        "direction": "functional_demo",
+        "search_mode": "search_basic",
+        "generation_mode": "generate_direct",
+        "search_queries": 0,
+        "include_revision": true,
+        "improvement": false,
+        "expected_benefit": null,
+        "rationale": "用户限定 30 秒内讲清\"英语语音转可编辑字幕 + 人工校对\"两件事，功能演示直接把操作与结果对应起来，最省时长；教程方向需要更完整的分步操作录屏、30 秒内密度过高，用户情境依赖情境画面但 M-005 只能说明使用场景、不能证明功能，且 M-006 音乐授权未购。功能演示的资料需求（M-002 正式能力 + M-004 表达规则）已由简报确认，剩余必要检索 0 次，generate_direct 一次生成即可；含一次返修与复核的完整路径 410 分，在剩余 1960 分预算与 2026-10-30 04:00 UTC 截止内可行。情境画面仅作第 1 段钩子使用，产品能力全部由待制作录屏与 M-002 证据支撑。",
+        "total_cost_cents": 410,
+        "total_duration_ms": 29000,
+        "incurred_cents": 40,
+        "remaining_cents": 1960,
+        "strategy_version": "2026-10-29.v1",
+        "pricing_version": "2026-10-29.v1",
+        "created_at": "2026-10-29T08:12:09+00:00",
+        "nature": "reserved"
+      },
+      "note": "预留与估算是可行性判断，不是实际支出；实际消耗只累计账本中 nature=incurred 的记录。"
+    },
+    "real_model_usage": {
+      "category": "real_model_usage",
+      "unit": "request/token",
+      "source": "DeepSeek API response usage（openai SDK）",
+      "nature": "actual_usage",
+      "requests": 18,
+      "real_requests": 18,
+      "mock_requests": 0,
+      "unknown_usage_requests": 0,
+      "prompt_tokens": 346120,
+      "completion_tokens": 17152,
+      "cache_hit_tokens": 297600,
+      "cache_miss_tokens": 48520,
+      "elapsed_ms": 94036,
+      "amount": {
+        "status": "unknown",
+        "value_cents": null,
+        "reason": "没有可靠的单价来源，不把 token 用量换算成金额；未发生真实请求时也不补成已核实零费用。"
+      }
+    },
+    "activity_costs": {
+      "category": "activity_cost",
+      "unit": "CNY_cent",
+      "source": "campaign.materials",
+      "status": "unknown",
+      "nature": "unknown",
+      "entries": [
+        {
+          "name": "帧剪 v4.2 英语口播字幕操作录屏（生成字幕段）",
+          "material_id": null,
+          "status": "to_create",
+          "amount_cents": null,
+          "nature": "unknown",
+          "source": "campaign.materials"
+        },
+        {
+          "name": "帧剪 v4.2 英语口播字幕操作录屏（逐句校对段）",
+          "material_id": null,
+          "status": "to_create",
+          "amount_cents": null,
+          "nature": "unknown",
+          "source": "campaign.materials"
+        },
+        {
+          "name": "帧剪 v4.2 英语口播字幕操作录屏（批量改样式段）",
+          "material_id": null,
+          "status": "to_create",
+          "amount_cents": null,
+          "nature": "unknown",
+          "source": "campaign.materials"
+        },
+        {
+          "name": "打字界面示意画面（逐句敲字幕键盘特写）",
+          "material_id": null,
+          "status": "to_create",
+          "amount_cents": null,
+          "nature": "unknown",
+          "source": "campaign.materials"
+        },
+        {
+          "name": "收束边界说明字幕卡",
+          "material_id": null,
+          "status": "to_create",
+          "amount_cents": null,
+          "nature": "unknown",
+          "source": "campaign.materials"
+        },
+        {
+          "name": "原创节拍配乐",
+          "material_id": null,
+          "status": "to_create",
+          "amount_cents": null,
+          "nature": "unknown",
+          "source": "campaign.materials"
+        },
+        {
+          "name": "背景音乐《Late Bus》",
+          "material_id": "M-006",
+          "status": "to_acquire",
+          "amount_cents": null,
+          "nature": "unknown",
+          "source": "campaign.materials"
+        }
+      ],
+      "reason": "方案含待获取或待制作素材，但任务输入与材料未给出活动预算或已发生支出金额。"
+    },
+    "unknown": [
+      "real_model_usage.amount",
+      "activity_costs"
+    ],
+    "not_applicable": []
+  },
+  "review": {
+    "review_id": "v_928cc5e36eb3f84d",
+    "output_id": "o_138f07188e4e0ddf",
+    "output_version": 2,
+    "status": "complete",
+    "verdict": "pass",
+    "completeness": "full",
+    "findings": [
+      {
+        "finding_id": "F3",
+        "severity": "optional",
+        "location": "strategy.alternatives（tutorial / user_scenario 的 why_not）",
+        "requirement": "前后一致：方案内部对备选方向的否决理由应与当前主题和证据一致",
+        "evidence": "strategy_estimates 中 functional_demo/user_scenario/tutorial 的 material_needs 均写「M-001 自动卡点能力与适用范围」，direction 描述为「直接展示自动卡点能做什么」；而被审稿 strategy 与 script 全部围绕 AI 字幕（M-002）能力，方案 sources 亦未使用 M-001",
+        "issue": "备选方向的否决理由沿用了自动卡点主题的表述，与本题 AI 字幕主题不完全对应；虽然不影响运营按现稿制作，但运营复核方向取舍时可能被旧口径误导",
+        "suggestion": "把 alternatives 中指向「自动卡点」的措辞改为 AI 字幕功能演示口径（如“教程需更细的分步录屏”“情境画面不能证明字幕能力”），避免沿用上一主题模板；可选改进，不阻塞交付",
+        "reviewed_version": "2"
+      },
+      {
+        "finding_id": "F4",
+        "severity": "optional",
+        "location": "script.segments 第 5 段 visual/subtitle；materials「收束边界说明字幕卡」",
+        "requirement": "需求覆盖：30 秒内让受众看懂用法与边界",
+        "evidence": "第 5 段仅 2 秒，字幕卡需同时承载“正式支持普通话与英语识别”“一键翻译仅译为英语”“识别结果需人工校对”三条信息，而 subtitle 字段只含前两条中的语言范围与校对两条；E4 支持翻译方向说明",
+        "issue": "2 秒内三条边界文字同屏可读性偏紧，字幕卡文案与 subtitle 字段未完全一致，运营定稿时缺少明确取舍口径",
+        "suggestion": "在字幕卡 rights_note 或第 5 段 visual 中明确三条边界的排列顺序与可读时长（如语言范围与校对为主、翻译方向以小字补充），或把翻译方向前移到第 4 段结束处；不影响现有事实口径",
+        "reviewed_version": "2"
+      }
+    ],
+    "summary": "方案 v2 五项质量要求核对通过：单条 30 秒主视频、英语语音转可编辑字幕+逐句人工校对 + 批量改样式，语言与翻译边界、无准确率与收益承诺均符合要求；事实主张逐条对应 M-002/M-004/M-005/M-006 及适用范围；上一轮两条 optional 已实质修复（打字界面示意入清单并写入权属核对、E5 与 E6 拆分且第 1、4 段改引 E6），脚本台词与时长未改动、无回归；待制作/待获取项均有位置、责任角色、时点、替代方案与发布前条件，模拟预算/截止与制作发布排期已分离。未发现 must_fix，无阻塞性证据缺口。",
+    "evidence_gaps": [],
+    "requests_used": 1,
+    "readbacks_used": 0,
+    "attempt_id": "a_d2ee226d75d70459",
+    "created_at": "2026-10-29T08:13:10+00:00"
+  },
+  "versions": {
+    "app": "0.1.0",
+    "prompt": "main-2026-10-29.v11",
+    "materials": "2026-10-29.v1",
+    "pricing": "2026-10-29.v1",
+    "strategy": "2026-10-29.v1"
+  },
+  "source_manifest": "examples\\eval-2026-10-29\\live\\subtitle-30\\manifest.json",
+  "initial_scenario_result": "complete"
+}

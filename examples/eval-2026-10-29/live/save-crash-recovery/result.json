@@ -1,0 +1,195 @@
+{
+  "case": "save-crash-recovery",
+  "task_id": "t_35ce5df38272",
+  "status": "complete",
+  "reason": "核实导出修复后确认产物与交付文件一致。",
+  "checks": {
+    "expected_status": true,
+    "ledger_matches": true,
+    "clock_matches": true,
+    "rounds_bounded": true,
+    "message_pairing": true,
+    "real_only": true,
+    "requests_finished": true,
+    "within_budget": true,
+    "within_deadline": true,
+    "current_verified_save": true,
+    "current_review": true,
+    "saved_hashes": true,
+    "requested_duration": true,
+    "crash_observed": true,
+    "recovery_did_not_duplicate_save": true
+  },
+  "passed": true,
+  "progress": {
+    "sim_start": "2026-10-29T00:00:00+08:00",
+    "sim_now": "2026-10-29T00:00:35+08:00",
+    "sim_elapsed_ms": 35000,
+    "used_rounds": 17,
+    "max_rounds": 24,
+    "paused": false,
+    "current_output": {
+      "output_id": "o_8d5357933a6ba82e",
+      "version": 3,
+      "status": "draft",
+      "strategy": "user_scenario"
+    },
+    "save": {
+      "save_id": "s_35970cd2284722d7",
+      "output_version": 3,
+      "status": "verified",
+      "verified": true
+    },
+    "phase": "complete",
+    "brief_version": 1,
+    "last_run_at": "2026-10-29T08:18:28+00:00"
+  },
+  "resources": {
+    "budget_cents": 2000,
+    "sim_spent_cents": 450,
+    "remaining_cents": 1550,
+    "real_requests": 22,
+    "mock_requests": 0,
+    "model_requests": 22,
+    "real_usage": {
+      "requests": 22,
+      "real_requests": 22,
+      "mock_requests": 0,
+      "unknown_usage_requests": 0,
+      "usage_complete": true,
+      "prompt_tokens": 477637,
+      "completion_tokens": 24675,
+      "cache_hit_tokens": 414208,
+      "cache_miss_tokens": 63429,
+      "elapsed_ms": 127197
+    },
+    "real_cost": null,
+    "amount_status": {
+      "simulated_tool_fee": "incurred_and_estimated",
+      "real_model_usage": "unknown",
+      "activity_costs": "unknown"
+    },
+    "simulated_tool_fee": {
+      "category": "simulated_tool_fee",
+      "unit": "CNY_cent",
+      "source": "pricing:2026-10-29.v1",
+      "nature": "incurred",
+      "incurred_cents": 450,
+      "ledger_entries": 7,
+      "estimated": {
+        "estimate_id": "e_f93416b40a32b0bd",
+        "kind": "strategy_choice",
+        "direction": "user_scenario",
+        "search_mode": "search_basic",
+        "generation_mode": "generate_direct",
+        "search_queries": 0,
+        "include_revision": true,
+        "total_cost_cents": 410,
+        "total_duration_ms": 29000,
+        "incurred_cents": 80,
+        "remaining_cents": 1920,
+        "feasible": true,
+        "strategy_version": "2026-10-29.v1",
+        "pricing_version": "2026-10-29.v1",
+        "created_at": "2026-10-29T08:16:47+00:00",
+        "nature": "estimated"
+      },
+      "reserved": {
+        "selection_id": "st_3afaed723aa0457c",
+        "direction": "user_scenario",
+        "search_mode": "search_basic",
+        "generation_mode": "generate_direct",
+        "search_queries": 0,
+        "include_revision": true,
+        "improvement": false,
+        "expected_benefit": null,
+        "rationale": "任务要求是用 30 秒学习打卡主题演示“自动对齐节拍 + 逐段微调”，受众为 18-24 岁大学生。用户情境方向以学习打卡的真实校园片段承接操作录屏，让能力演示有场景落点，且 M-005 校园素材包已获授权可直接使用（情境画面只表达场景，能力仍由 M-001 支撑），比纯功能演示更能对上 M-003 中“学习打卡”这一高频创作类型；相比教程方向，30 秒内保留“自动卡点→逐段微调”两步主线即可，避免步骤过密导致操作录屏需求膨胀。资料查询已覆盖能力、受众、素材与音乐授权状态，剩余检索 0 次；已知风险（录屏待制作、M-006 授权未购）在方案中以待制作项与原创配乐替代路径处理。direct 生成单候选在本预算下足够，并预留一次返修复核：按估算全路径 410 分，剩余预算 1920 分，预计完成时间远早于方案截止。",
+        "total_cost_cents": 410,
+        "total_duration_ms": 29000,
+        "incurred_cents": 80,
+        "remaining_cents": 1920,
+        "strategy_version": "2026-10-29.v1",
+        "pricing_version": "2026-10-29.v1",
+        "created_at": "2026-10-29T08:16:47+00:00",
+        "nature": "reserved"
+      },
+      "note": "预留与估算是可行性判断，不是实际支出；实际消耗只累计账本中 nature=incurred 的记录。"
+    },
+    "real_model_usage": {
+      "category": "real_model_usage",
+      "unit": "request/token",
+      "source": "DeepSeek API response usage（openai SDK）",
+      "nature": "actual_usage",
+      "requests": 22,
+      "real_requests": 22,
+      "mock_requests": 0,
+      "unknown_usage_requests": 0,
+      "prompt_tokens": 477637,
+      "completion_tokens": 24675,
+      "cache_hit_tokens": 414208,
+      "cache_miss_tokens": 63429,
+      "elapsed_ms": 127197,
+      "amount": {
+        "status": "unknown",
+        "value_cents": null,
+        "reason": "没有可靠的单价来源，不把 token 用量换算成金额；未发生真实请求时也不补成已核实零费用。"
+      }
+    },
+    "activity_costs": {
+      "category": "activity_cost",
+      "unit": "CNY_cent",
+      "source": "campaign.materials",
+      "status": "unknown",
+      "nature": "unknown",
+      "entries": [
+        {
+          "name": "帧剪 4.2 自动卡点操作录屏（选片→选曲→自动卡点）",
+          "material_id": null,
+          "status": "to_create",
+          "amount_cents": null,
+          "nature": "unknown",
+          "source": "campaign.materials"
+        },
+        {
+          "name": "帧剪 4.2 逐段微调与一键重新卡点录屏",
+          "material_id": null,
+          "status": "to_create",
+          "amount_cents": null,
+          "nature": "unknown",
+          "source": "campaign.materials"
+        },
+        {
+          "name": "30 秒成片完整回看录屏",
+          "material_id": null,
+          "status": "to_create",
+          "amount_cents": null,
+          "nature": "unknown",
+          "source": "campaign.materials"
+        },
+        {
+          "name": "原创鼓点配乐（约 120 BPM，鼓点清晰）",
+          "material_id": null,
+          "status": "to_create",
+          "amount_cents": null,
+          "nature": "unknown",
+          "source": "campaign.materials"
+        },
+        {
+          "name": "背景音乐《Late Bus》（备选替换）",
+          "material_id": "M-006",
+          "status": "to_acquire",
+          "amount_cents": null,
+          "nature": "unknown",
+          "source": "campaign.materials"
+        }
+      ],
+      "reason": "方案含待获取或待制作素材，但任务输入与材料未给出活动预算或已发生支出金额。"
+    },
+    "unknown": [
+      "real_model_usage.amount",
+      "activity_costs"
+    ],
+    "not_applicable": []
+  },
+  "evidence": "D:\\AAA小影科技\\content-task-agent\\examples\\eval-2026-10-29\\live\\save-crash-recovery"
+}

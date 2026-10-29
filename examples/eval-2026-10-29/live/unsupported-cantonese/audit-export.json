@@ -1,0 +1,26 @@
+{
+  "task_id": "t_e61819d3b390",
+  "output_version": null,
+  "save_id": null,
+  "verified": true,
+  "delivery_complete": false,
+  "files": [
+    {
+      "path": "D:\\AAA小影科技\\content-task-agent\\examples\\eval-2026-10-29\\live\\unsupported-cantonese\\data\\real\\exports\\t_e61819d3b390\\execution-report.md",
+      "sha256": "3459b626e7c72100d0f8123c17bc0c3d2f37e78cee0d80a61230cfc4860816c5",
+      "bytes": 6600,
+      "exists": true,
+      "current_sha256": "3459b626e7c72100d0f8123c17bc0c3d2f37e78cee0d80a61230cfc4860816c5",
+      "ok": true
+    },
+    {
+      "path": "D:\\AAA小影科技\\content-task-agent\\examples\\eval-2026-10-29\\live\\unsupported-cantonese\\data\\real\\exports\\t_e61819d3b390\\trace.jsonl",
+      "sha256": "f5179adc769ff7075e62d61713f4bbdb78be1f86775df199c702b7c89311c17a",
+      "bytes": 26049,
+      "exists": true,
+      "current_sha256": "f5179adc769ff7075e62d61713f4bbdb78be1f86775df199c702b7c89311c17a",
+      "ok": true
+    }
+  ],
+  "repaired": false
+}

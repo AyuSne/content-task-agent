@@ -1,0 +1,8 @@
+Traceback (most recent call last):
+  File "D:\AAA小影科技\content-task-agent\scripts\run_eval_operations.py", line 83, in <module>
+    raise SystemExit(main())
+                     ~~~~^^
+  File "D:\AAA小影科技\content-task-agent\scripts\run_eval_operations.py", line 45, in main
+    assert duplicate["task_id"] == task_id and duplicate["duplicate"]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError

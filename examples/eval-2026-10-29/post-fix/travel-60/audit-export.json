@@ -1,0 +1,50 @@
+{
+  "task_id": "t_54c642f3fdb0",
+  "output_version": 1,
+  "save_id": "s_fdc57c4aac31d67c",
+  "verified": true,
+  "delivery_complete": true,
+  "files": [
+    {
+      "path": "D:\\AAA小影科技\\content-task-agent\\examples\\eval-2026-10-29\\post-fix\\travel-60\\data\\real\\exports\\t_54c642f3fdb0\\campaign-v1.md",
+      "sha256": "af3f9c2902090552f7555c48ccf10cd342a04e56cc307b269a11dbb6d54a00b6",
+      "bytes": 13489,
+      "exists": true,
+      "current_sha256": "af3f9c2902090552f7555c48ccf10cd342a04e56cc307b269a11dbb6d54a00b6",
+      "ok": true
+    },
+    {
+      "path": "D:\\AAA小影科技\\content-task-agent\\examples\\eval-2026-10-29\\post-fix\\travel-60\\data\\real\\exports\\t_54c642f3fdb0\\campaign-v1.json",
+      "sha256": "4ef19eebdf2a1535d3e7af65e1f0797b0c3e1770cdbf9b2446ba1539c12eef52",
+      "bytes": 16427,
+      "exists": true,
+      "current_sha256": "4ef19eebdf2a1535d3e7af65e1f0797b0c3e1770cdbf9b2446ba1539c12eef52",
+      "ok": true
+    },
+    {
+      "path": "D:\\AAA小影科技\\content-task-agent\\examples\\eval-2026-10-29\\post-fix\\travel-60\\data\\real\\exports\\t_54c642f3fdb0\\brief-v1.json",
+      "sha256": "2b2f9e3007d5af1e85e10dbbae9df5759ad8c5e1c8503aef4ca0b5af7dffd12c",
+      "bytes": 7040,
+      "exists": true,
+      "current_sha256": "2b2f9e3007d5af1e85e10dbbae9df5759ad8c5e1c8503aef4ca0b5af7dffd12c",
+      "ok": true
+    },
+    {
+      "path": "D:\\AAA小影科技\\content-task-agent\\examples\\eval-2026-10-29\\post-fix\\travel-60\\data\\real\\exports\\t_54c642f3fdb0\\execution-report.md",
+      "sha256": "0ffe1213239a2c29e90c66c1223215f5ca15db64eef344d96d9e4fb832898725",
+      "bytes": 14440,
+      "exists": true,
+      "current_sha256": "0ffe1213239a2c29e90c66c1223215f5ca15db64eef344d96d9e4fb832898725",
+      "ok": true
+    },
+    {
+      "path": "D:\\AAA小影科技\\content-task-agent\\examples\\eval-2026-10-29\\post-fix\\travel-60\\data\\real\\exports\\t_54c642f3fdb0\\trace.jsonl",
+      "sha256": "0189923aefaf1007d57523558a0a3f190620866f008dda0d3ca44e8986be6f4b",
+      "bytes": 146784,
+      "exists": true,
+      "current_sha256": "0189923aefaf1007d57523558a0a3f190620866f008dda0d3ca44e8986be6f4b",
+      "ok": true
+    }
+  ],
+  "repaired": false
+}

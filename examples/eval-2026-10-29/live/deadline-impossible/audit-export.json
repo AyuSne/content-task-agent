@@ -1,0 +1,34 @@
+{
+  "task_id": "t_5995ba859f03",
+  "output_version": null,
+  "save_id": null,
+  "verified": true,
+  "delivery_complete": false,
+  "files": [
+    {
+      "path": "D:\\AAA小影科技\\content-task-agent\\examples\\eval-2026-10-29\\live\\deadline-impossible\\data\\real\\exports\\t_5995ba859f03\\execution-report.md",
+      "sha256": "51113e72c04f404ce0be196da5d67de19f6370cbb7af412c0c69f10aa5f739b5",
+      "bytes": 10631,
+      "exists": true,
+      "current_sha256": "51113e72c04f404ce0be196da5d67de19f6370cbb7af412c0c69f10aa5f739b5",
+      "ok": true
+    },
+    {
+      "path": "D:\\AAA小影科技\\content-task-agent\\examples\\eval-2026-10-29\\live\\deadline-impossible\\data\\real\\exports\\t_5995ba859f03\\trace.jsonl",
+      "sha256": "df5f26ee83d6f11f386c2ece5bbd6836cac1cd92c5ad42605fa0a45d33e3d7da",
+      "bytes": 51152,
+      "exists": true,
+      "current_sha256": "df5f26ee83d6f11f386c2ece5bbd6836cac1cd92c5ad42605fa0a45d33e3d7da",
+      "ok": true
+    },
+    {
+      "path": "D:\\AAA小影科技\\content-task-agent\\examples\\eval-2026-10-29\\live\\deadline-impossible\\data\\real\\exports\\t_5995ba859f03\\brief-v1.json",
+      "sha256": "be763aad25de22a08efb7a90781dae2936f667de0d20a2f8ed75d331d3531aba",
+      "bytes": 7868,
+      "exists": true,
+      "current_sha256": "be763aad25de22a08efb7a90781dae2936f667de0d20a2f8ed75d331d3531aba",
+      "ok": true
+    }
+  ],
+  "repaired": false
+}

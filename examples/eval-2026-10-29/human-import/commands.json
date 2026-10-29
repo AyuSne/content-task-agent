@@ -1,0 +1,79 @@
+[
+  {
+    "label": "01-reconcile",
+    "argv": [
+      "D:\\AAA小影科技\\content-task-agent\\.venv\\Scripts\\python.exe",
+      "-m",
+      "cta",
+      "--mode",
+      "real",
+      "--data-dir",
+      "examples\\eval-2026-10-29\\live\\campus-15\\data",
+      "reconcile",
+      "t_dbb75fd87a0a"
+    ],
+    "exit_code": 0
+  },
+  {
+    "label": "02-import",
+    "argv": [
+      "D:\\AAA小影科技\\content-task-agent\\.venv\\Scripts\\python.exe",
+      "-m",
+      "cta",
+      "--mode",
+      "real",
+      "--data-dir",
+      "examples\\eval-2026-10-29\\live\\campus-15\\data",
+      "import-draft",
+      "t_dbb75fd87a0a",
+      "--file",
+      "examples\\eval-2026-10-29\\human-import\\operator-edited.md"
+    ],
+    "exit_code": 0
+  },
+  {
+    "label": "03-resume",
+    "argv": [
+      "D:\\AAA小影科技\\content-task-agent\\.venv\\Scripts\\python.exe",
+      "-m",
+      "cta",
+      "--mode",
+      "real",
+      "--data-dir",
+      "examples\\eval-2026-10-29\\live\\campus-15\\data",
+      "resume",
+      "t_dbb75fd87a0a"
+    ],
+    "exit_code": 0
+  },
+  {
+    "label": "04-inspect",
+    "argv": [
+      "D:\\AAA小影科技\\content-task-agent\\.venv\\Scripts\\python.exe",
+      "-m",
+      "cta",
+      "--mode",
+      "real",
+      "--data-dir",
+      "examples\\eval-2026-10-29\\live\\campus-15\\data",
+      "inspect",
+      "t_dbb75fd87a0a"
+    ],
+    "exit_code": 0
+  },
+  {
+    "label": "05-export",
+    "argv": [
+      "D:\\AAA小影科技\\content-task-agent\\.venv\\Scripts\\python.exe",
+      "-m",
+      "cta",
+      "--mode",
+      "real",
+      "--data-dir",
+      "examples\\eval-2026-10-29\\live\\campus-15\\data",
+      "export",
+      "t_dbb75fd87a0a"
+    ],
+    "exit_code": 0
+  }
+]

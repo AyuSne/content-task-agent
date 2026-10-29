@@ -1,0 +1,50 @@
+{
+  "task_id": "t_dbb75fd87a0a",
+  "output_version": 2,
+  "save_id": "s_993e1dce2d5a82c1",
+  "verified": true,
+  "delivery_complete": true,
+  "files": [
+    {
+      "path": "D:\\AAA小影科技\\content-task-agent\\examples\\eval-2026-10-29\\live\\campus-15\\data\\real\\exports\\t_dbb75fd87a0a\\campaign-v2.md",
+      "sha256": "9c52b8f4ab14ce1c684485469888040489a4b5123f5b46252c8ee6d2e2df7255",
+      "bytes": 13267,
+      "exists": true,
+      "current_sha256": "9c52b8f4ab14ce1c684485469888040489a4b5123f5b46252c8ee6d2e2df7255",
+      "ok": true
+    },
+    {
+      "path": "D:\\AAA小影科技\\content-task-agent\\examples\\eval-2026-10-29\\live\\campus-15\\data\\real\\exports\\t_dbb75fd87a0a\\campaign-v2.json",
+      "sha256": "9e3c98b90a8422fd6658644b364015bdc02cf3e83d441af8357c1dd14ce267a7",
+      "bytes": 15946,
+      "exists": true,
+      "current_sha256": "9e3c98b90a8422fd6658644b364015bdc02cf3e83d441af8357c1dd14ce267a7",
+      "ok": true
+    },
+    {
+      "path": "D:\\AAA小影科技\\content-task-agent\\examples\\eval-2026-10-29\\live\\campus-15\\data\\real\\exports\\t_dbb75fd87a0a\\brief-v1.json",
+      "sha256": "a9a88529ac9ecb3d1bea1760106726c08f99b36d1c2fa9f86d5f13e3d89e5f7c",
+      "bytes": 6812,
+      "exists": true,
+      "current_sha256": "a9a88529ac9ecb3d1bea1760106726c08f99b36d1c2fa9f86d5f13e3d89e5f7c",
+      "ok": true
+    },
+    {
+      "path": "D:\\AAA小影科技\\content-task-agent\\examples\\eval-2026-10-29\\live\\campus-15\\data\\real\\exports\\t_dbb75fd87a0a\\execution-report.md",
+      "sha256": "7193834768b15444e1c1b19d2acef0576d11d6289fcca90d66607fa1836730a6",
+      "bytes": 14018,
+      "exists": true,
+      "current_sha256": "7193834768b15444e1c1b19d2acef0576d11d6289fcca90d66607fa1836730a6",
+      "ok": true
+    },
+    {
+      "path": "D:\\AAA小影科技\\content-task-agent\\examples\\eval-2026-10-29\\live\\campus-15\\data\\real\\exports\\t_dbb75fd87a0a\\trace.jsonl",
+      "sha256": "e48f25abf33655c4c17ecf7d3fd44f3aa679cc7fbab420bd9827deece0efada3",
+      "bytes": 169349,
+      "exists": true,
+      "current_sha256": "e48f25abf33655c4c17ecf7d3fd44f3aa679cc7fbab420bd9827deece0efada3",
+      "ok": true
+    }
+  ],
+  "repaired": false
+}
