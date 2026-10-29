@@ -1,0 +1,327 @@
+{
+  "version": "readback-holdout-2026-10-29.v1",
+  "pairs": [
+    {
+      "id": "source-needed",
+      "requirements": [
+        "主视频为30秒，突出自动卡点；字幕功能只能使用正式支持范围，不得把实验性功能当正式功能。"
+      ],
+      "evidence": [
+        {
+          "material_id": "M-001",
+          "quote": "自动卡点会分析所选音乐的节拍，把用户选中的视频片段对齐到节拍点。用户可以逐段微调，也可以一键重新卡点。",
+          "scope": "iOS/Android4.2以上，15/30/60秒"
+        },
+        {
+          "material_id": "M-005",
+          "quote": "已取得演员授权，限本题活动使用；素材只说明情境，不能证明能力"
+        },
+        {
+          "material_id": "M-006",
+          "quote": "商用授权尚未购买；仅可试听，不可直接用于发布"
+        },
+        {
+          "material_id": "M-002",
+          "title": "AI字幕能力说明",
+          "scope": "当前正式支持语言范围，正文需回查"
+        }
+      ],
+      "material_ids": [
+        "M-001",
+        "M-002",
+        "M-005",
+        "M-006"
+      ],
+      "campaign": {
+        "strategy": {
+          "name": "functional_demo",
+          "rationale": "展示社团活动剪辑与字幕操作",
+          "alternatives": [
+            {
+              "name": "tutorial",
+              "why_not": "30秒以演示为主"
+            }
+          ]
+        },
+        "activity": {
+          "goal": "让18-24岁大学生了解帧剪自动卡点与字幕边界",
+          "audience": "18-24岁大学生",
+          "theme": "把社团现场剪成你的节奏",
+          "format": "1条30秒演示视频",
+          "content_items": [
+            {
+              "title": "主视频",
+              "purpose": "演示卡点与字幕编辑",
+              "duration_s": 30,
+              "platform": "短视频信息流（建议）"
+            }
+          ]
+        },
+        "script": {
+          "duration_s": 30,
+          "segments": [
+            {
+              "index": 1,
+              "time_range": "0-10s",
+              "visual": "社团招新场景",
+              "audio": "现场声",
+              "subtitle": "把现场拍下来",
+              "material_ids": [
+                "M-005"
+              ],
+              "evidence_ids": []
+            },
+            {
+              "index": 2,
+              "time_range": "10-20s",
+              "visual": "待录制4.2正式版自动卡点操作，逐段微调",
+              "audio": "待取得商用授权音乐",
+              "subtitle": "所选片段对齐节拍，还可逐段微调",
+              "material_ids": [],
+              "evidence_ids": [
+                "E1"
+              ]
+            },
+            {
+              "index": 3,
+              "time_range": "20-30s",
+              "visual": "待录制4.2正式版AI字幕编辑演示",
+              "audio": "演员授权粤语台词",
+              "subtitle": "AI字幕正式支持粤语识别",
+              "material_ids": [],
+              "evidence_ids": [
+                "E2"
+              ]
+            }
+          ]
+        },
+        "materials": [
+          {
+            "name": "校园场景视频素材包",
+            "material_id": "M-005",
+            "status": "existing",
+            "use": "社团情境",
+            "position": "第1段",
+            "rights_note": "限本题活动，已取得演员授权"
+          },
+          {
+            "name": "正式版操作录屏",
+            "material_id": "",
+            "status": "to_create",
+            "use": "演示操作",
+            "position": "第2、3段",
+            "rights_note": "制作前核对正式功能边界"
+          },
+          {
+            "name": "背景音乐",
+            "material_id": "M-006",
+            "status": "to_acquire",
+            "use": "卡点演示",
+            "position": "第2段",
+            "rights_note": "商用授权未购买，获得前不可发布"
+          }
+        ],
+        "production_steps": [
+          {
+            "step": "核对字幕能力与正式版本",
+            "owner": "产品与运营",
+            "timing": "制作前",
+            "note": "M-002登记的能力说明为事实来源"
+          },
+          {
+            "step": "录屏与剪辑",
+            "owner": "内容制作",
+            "timing": "核对后",
+            "note": "片段合计30秒，音乐获授权后使用"
+          }
+        ],
+        "evidence": [
+          {
+            "id": "E1",
+            "claim": "自动卡点可逐段微调",
+            "material_id": "M-001",
+            "quote": "用户可以逐段微调",
+            "scope": "iOS/Android4.2以上，15/30/60秒成片",
+            "use": "第2段"
+          },
+          {
+            "id": "E2",
+            "claim": "AI字幕正式支持粤语识别",
+            "material_id": "M-002",
+            "quote": "",
+            "scope": "当前正式版本",
+            "use": "第3段字幕"
+          }
+        ],
+        "open_questions": []
+      },
+      "expected": {
+        "issue": "第3段将粤语实验能力写为正式能力",
+        "location": "script.segments[2].subtitle",
+        "source": "M-002合成产品原文，正式支持普通话与英语；粤语为测试",
+        "evaluator": "项目固定材料与明确要求；非主观风格偏好"
+      }
+    },
+    {
+      "id": "source-sufficient",
+      "requirements": [
+        "主视频为30秒，突出自动卡点；字幕功能只能使用正式支持范围，不得把实验性功能当正式功能。"
+      ],
+      "evidence": [
+        {
+          "material_id": "M-001",
+          "quote": "自动卡点会分析所选音乐的节拍，把用户选中的视频片段对齐到节拍点。用户可以逐段微调，也可以一键重新卡点。",
+          "scope": "iOS/Android4.2以上，15/30/60秒"
+        },
+        {
+          "material_id": "M-005",
+          "quote": "已取得演员授权，限本题活动使用；素材只说明情境，不能证明能力"
+        },
+        {
+          "material_id": "M-006",
+          "quote": "商用授权尚未购买；仅可试听，不可直接用于发布"
+        },
+        {
+          "material_id": "M-002",
+          "quote": "AI 字幕可把视频中的人声转成可编辑字幕，支持批量改样式和一键翻译为英语。普通话与英语为正式支持语言；粤语、日语等仍在小范围测试，识别质量不稳定。",
+          "scope": "当前正式支持普通话与英语识别；其他语言为实验性，不计入对外承诺"
+        }
+      ],
+      "material_ids": [
+        "M-001",
+        "M-002",
+        "M-005",
+        "M-006"
+      ],
+      "campaign": {
+        "strategy": {
+          "name": "functional_demo",
+          "rationale": "展示社团活动剪辑与字幕操作",
+          "alternatives": [
+            {
+              "name": "tutorial",
+              "why_not": "30秒以演示为主"
+            }
+          ]
+        },
+        "activity": {
+          "goal": "让18-24岁大学生了解帧剪自动卡点与字幕边界",
+          "audience": "18-24岁大学生",
+          "theme": "把社团现场剪成你的节奏",
+          "format": "1条30秒演示视频",
+          "content_items": [
+            {
+              "title": "主视频",
+              "purpose": "演示卡点与字幕编辑",
+              "duration_s": 30,
+              "platform": "短视频信息流（建议）"
+            }
+          ]
+        },
+        "script": {
+          "duration_s": 30,
+          "segments": [
+            {
+              "index": 1,
+              "time_range": "0-10s",
+              "visual": "社团招新场景",
+              "audio": "现场声",
+              "subtitle": "把现场拍下来",
+              "material_ids": [
+                "M-005"
+              ],
+              "evidence_ids": []
+            },
+            {
+              "index": 2,
+              "time_range": "10-20s",
+              "visual": "待录制4.2正式版自动卡点操作，逐段微调",
+              "audio": "待取得商用授权音乐",
+              "subtitle": "所选片段对齐节拍，还可逐段微调",
+              "material_ids": [],
+              "evidence_ids": [
+                "E1"
+              ]
+            },
+            {
+              "index": 3,
+              "time_range": "20-30s",
+              "visual": "待录制4.2正式版AI字幕编辑演示",
+              "audio": "演员授权粤语台词",
+              "subtitle": "AI字幕正式支持粤语识别",
+              "material_ids": [],
+              "evidence_ids": [
+                "E2"
+              ]
+            }
+          ]
+        },
+        "materials": [
+          {
+            "name": "校园场景视频素材包",
+            "material_id": "M-005",
+            "status": "existing",
+            "use": "社团情境",
+            "position": "第1段",
+            "rights_note": "限本题活动，已取得演员授权"
+          },
+          {
+            "name": "正式版操作录屏",
+            "material_id": "",
+            "status": "to_create",
+            "use": "演示操作",
+            "position": "第2、3段",
+            "rights_note": "制作前核对正式功能边界"
+          },
+          {
+            "name": "背景音乐",
+            "material_id": "M-006",
+            "status": "to_acquire",
+            "use": "卡点演示",
+            "position": "第2段",
+            "rights_note": "商用授权未购买，获得前不可发布"
+          }
+        ],
+        "production_steps": [
+          {
+            "step": "核对字幕能力与正式版本",
+            "owner": "产品与运营",
+            "timing": "制作前",
+            "note": "M-002登记的能力说明为事实来源"
+          },
+          {
+            "step": "录屏与剪辑",
+            "owner": "内容制作",
+            "timing": "核对后",
+            "note": "片段合计30秒，音乐获授权后使用"
+          }
+        ],
+        "evidence": [
+          {
+            "id": "E1",
+            "claim": "自动卡点可逐段微调",
+            "material_id": "M-001",
+            "quote": "用户可以逐段微调",
+            "scope": "iOS/Android4.2以上，15/30/60秒成片",
+            "use": "第2段"
+          },
+          {
+            "id": "E2",
+            "claim": "AI字幕正式支持粤语识别",
+            "material_id": "M-002",
+            "quote": "",
+            "scope": "当前正式版本",
+            "use": "第3段字幕"
+          }
+        ],
+        "open_questions": []
+      },
+      "expected": {
+        "issue": "第3段将粤语实验能力写为正式能力",
+        "location": "script.segments[2].subtitle",
+        "source": "M-002合成产品原文，正式支持普通话与英语；粤语为测试",
+        "evaluator": "项目固定材料与明确要求；非主观风格偏好"
+      }
+    }
+  ]
+}

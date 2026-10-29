@@ -1,0 +1,45 @@
+F                                                                        [100%]
+================================== FAILURES ===================================
+__ test_failed_baseline_without_candidate_still_retains_attempts_and_result ___
+
+cli_env = WindowsPath('C:/Users/10167/AppData/Local/Temp/pytest-of-10167/pytest-188/test_failed_baseline_without_c0')
+model_script = <function model_script.<locals>.write at 0x00000203D42745E0>
+capsys = <_pytest.capture.CaptureFixture object at 0x00000203D41338C0>
+
+    def test_failed_baseline_without_candidate_still_retains_attempts_and_result(cli_env, model_script, capsys):
+        model_script([])
+>       code, report, output = _run(cli_env, capsys, "oneshot", budget="1")
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\test_comparison.py:100: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+tests\test_comparison.py:18: in _run
+    code = main(["--mode", "mock", "--method", method, "--case", str(path), "--output", str(output)])
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src\cta\comparison.py:262: in main
+    result = run_experiment(config, case, args.method, args.output, order=args.order)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src\cta\comparison.py:218: in run_experiment
+    exported = export_task(config, task_id)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+config = Config(mode='mock', project_root=WindowsPath('D:/AAA小影科技/.scratch/content-task-agent-build/worktrees/repair-comparison...elta(seconds=28800))), base_url='https://api.deepseek.com', model='deepseek-flash', api_key='sk-test-super-secret-key')
+task_id = 't_33c0fd7f6476'
+
+    def export_task(config: Config, task_id: str) -> dict:
+        from cta.db import open_store
+        from cta.service import TaskNotFound
+    
+        with open_store(config.db_path) as conn:
+            task = conn.execute("SELECT * FROM tasks WHERE id = ?", (task_id,)).fetchone()
+            if task is None:
+                raise TaskNotFound(task_id)
+            output = latest_output(conn, task_id)
+            if output is None:
+>               raise ValueError("任务还没有可导出的完整方案草稿。")
+E               ValueError: 任务还没有可导出的完整方案草稿。
+
+src\cta\export.py:441: ValueError
+=========================== short test summary info ===========================
+FAILED tests/test_comparison.py::test_failed_baseline_without_candidate_still_retains_attempts_and_result

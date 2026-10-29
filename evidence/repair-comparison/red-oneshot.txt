@@ -1,0 +1,32 @@
+F                                                                        [100%]
+================================== FAILURES ===================================
+______ test_oneshot_uses_model_output_and_records_independent_assessment ______
+
+cli_env = WindowsPath('C:/Users/10167/AppData/Local/Temp/pytest-of-10167/pytest-171/test_oneshot_uses_model_output0')
+model_script = <function model_script.<locals>.write at 0x000002798AE949A0>
+capsys = <_pytest.capture.CaptureFixture object at 0x000002798AD1F770>
+
+    def test_oneshot_uses_model_output_and_records_independent_assessment(cli_env, model_script, capsys):
+        candidate = copy.deepcopy(CAMPAIGN)
+        candidate["activity"]["theme"] = "���Ա������ɵ�Ψһ����"
+        model_script([
+            {"channel": "comparison", "name": "propose_campaign", "arguments": candidate},
+            {"channel": "review", "name": "report_review", "arguments": REVIEW_PASS},
+        ])
+>       code, report, output = _run(cli_env, capsys, "oneshot")
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\test_comparison.py:30: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+tmp_path = WindowsPath('C:/Users/10167/AppData/Local/Temp/pytest-of-10167/pytest-171/test_oneshot_uses_model_output0')
+capsys = <_pytest.capture.CaptureFixture object at 0x000002798AD1F770>
+method = 'oneshot', case_changes = {}
+
+    def _run(tmp_path, capsys, method, **case_changes):
+>       from cta.comparison import main
+E       ModuleNotFoundError: No module named 'cta.comparison'
+
+tests\test_comparison.py:11: ModuleNotFoundError
+=========================== short test summary info ===========================
+FAILED tests/test_comparison.py::test_oneshot_uses_model_output_and_records_independent_assessment
