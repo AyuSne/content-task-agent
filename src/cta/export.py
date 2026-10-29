@@ -333,7 +333,9 @@ def trace_events(conn, task) -> list[dict]:
     return events
 
 
-def campaign_export_markdown(output: dict, task, *, verified: bool = False) -> str:
+def campaign_export_markdown(conn, output: dict, task, *, verified: bool = False) -> str:
+    from cta.service import output_reuse_basis
+
     body = output["content_md"] or campaign_markdown(output["content"])
     body = body.replace("\r\n", "\n").replace("\r", "\n")
     notice = VERIFIED_NOTICE if verified else DRAFT_NOTICE
@@ -342,7 +344,8 @@ def campaign_export_markdown(output: dict, task, *, verified: bool = False) -> s
         "task_id": task["id"],
         "output_id": output["output_id"],
         "output_version": output["version"],
-        "input_version": output["input_version"],
+        "input_version": task["input_version"] if output_reuse_basis(conn, task, output) else output["input_version"],
+        "source_input_version": output["input_version"],
     }
     return body.rstrip() + "\n\n<!-- cta:" + json.dumps(metadata, ensure_ascii=False) + " -->\n"
 
@@ -366,7 +369,7 @@ def build_files(
     version = output["version"]
     files = [
         (task_dir / f"campaign-v{version}.md", campaign_export_markdown(
-            output, task, verified=bool(save and save["verified"] and save["output_id"] == output["output_id"]))),
+            conn, output, task, verified=bool(save and save["verified"] and save["output_id"] == output["output_id"]))),
         (task_dir / f"campaign-v{version}.json", json.dumps(campaign, ensure_ascii=False, indent=2) + "\n"),
     ]
     if include_report:
@@ -430,7 +433,7 @@ def verify_records(records: list[dict]) -> tuple[bool, list[dict]]:
     return ok, checked
 
 
-def export_task(config: Config, task_id: str) -> dict:
+def export_task(config: Config, task_id: str, *, repair: bool = False) -> dict:
     from cta.db import open_store
     from cta.service import TaskNotFound
 
@@ -451,12 +454,37 @@ def export_task(config: Config, task_id: str) -> dict:
                     "verified": ok, "delivery_complete": False, "files": checked, "repaired": False}
         review = latest_review(conn, task_id)
         save = latest_save(conn, task_id)
-        if save is not None and save["verified"]:
-            ok, checked = verify_records(save["files"])
-            if not ok:
+        if review is not None and review["output_id"] != output["output_id"]:
+            review = None
+        if save is not None and save["output_id"] != output["output_id"]:
+            save = None
+        if save is not None:
+            rebuilt = False
+            try:
+                ok, checked = verify_records(save["files"]) if save["files"] else (False, [])
+            except OSError:
+                ok, checked = False, []
+            if repair or (save["verified"] and ok):
+                from cta.save import reconcile_task
+
+                reconciliation = reconcile_task(config, task_id)
+                rebuilt = reconciliation.get("reconcile", {}).get("reconciled", False)
+                task = conn.execute("SELECT * FROM tasks WHERE id = ?", (task_id,)).fetchone()
+                save = latest_save(conn, task_id)
+                ok, checked = verify_records(save["files"]) if save["verified"] else (False, [])
+            elif save["verified"]:
                 from cta.save import invalidate_export_verification
 
                 invalidate_export_verification(conn, task_id, save["save_id"], "交付文件与保存记录不一致；需要显式修复或导入人工稿。")
+                task = conn.execute("SELECT * FROM tasks WHERE id = ?", (task_id,)).fetchone()
+                save = latest_save(conn, task_id)
+            if not save["verified"]:
+                records = [build_report_file(conn, config, task, output, review, save), build_trace_file(conn, config, task)]
+                _, process_files = verify_records(records)
+                return {"task_id": task_id, "output_version": output["version"], "save_id": save["save_id"],
+                        "verified": False, "delivery_complete": False, "files": process_files,
+                        "existing_save_file_checks": checked, "save_status": save["status"], "repaired": False,
+                        "message": "保留现有活动稿。保存未核实或已失败；请显式导入编辑，或核实/修复后决定业务重试。"}
             return {
                 "task_id": task_id,
                 "output_version": output["version"],
@@ -464,8 +492,18 @@ def export_task(config: Config, task_id: str) -> dict:
                 "verified": ok,
                 "delivery_complete": bool(ok and task["status"] == "complete"),
                 "files": checked,
-                "repaired": False,
+                "repaired": rebuilt,
             }
+        target = config.exports_dir / task_id / f"campaign-v{output['version']}.md"
+        if target.is_file() and not repair:
+            actual = target.read_text(encoding="utf-8").rsplit("\n<!-- cta:", 1)[0].rstrip()
+            expected = campaign_export_markdown(conn, output, task).rsplit("\n<!-- cta:", 1)[0].rstrip()
+            if actual != expected:
+                records = [build_report_file(conn, config, task, output, review, None), build_trace_file(conn, config, task)]
+                _, checked = verify_records(records)
+                return {"task_id": task_id, "output_version": output["version"], "save_id": None,
+                        "verified": False, "delivery_complete": False, "files": checked, "repaired": False,
+                        "message": "当前活动稿含外部编辑，已保留。请显式import-draft或export --repair。"}
         records = build_files(conn, config, task, output, review, save)
         ok, checked = verify_records(records)
         return {
@@ -473,6 +511,7 @@ def export_task(config: Config, task_id: str) -> dict:
             "output_version": output["version"],
             "save_id": None if save is None else save["save_id"],
             "verified": ok,
+            "delivery_complete": False,
             "files": checked,
             "repaired": False,
         }

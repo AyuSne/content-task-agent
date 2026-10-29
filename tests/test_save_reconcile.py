@@ -83,6 +83,10 @@ def test_export_detects_changed_file_without_overwriting_operator_edit(cli_env, 
     assert checked["verified"] is False
     assert checked["delivery_complete"] is False
     assert path.read_text(encoding="utf-8") == "operator edit not imported"
+    again = cli_json("export", task["task_id"])
+    assert again["verified"] is False
+    assert again["delivery_complete"] is False
+    assert path.read_text(encoding="utf-8") == "operator edit not imported"
     status = cli_json("status", task["task_id"])
     assert status["status"] == "incomplete"
     assert status["save"]["status"] == "unknown"

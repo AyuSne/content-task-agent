@@ -1,0 +1,23 @@
+F                                                                        [100%]
+================================== FAILURES ===================================
+_____ test_export_detects_changed_file_without_overwriting_operator_edit ______
+
+cli_env = WindowsPath('C:/Users/10167/AppData/Local/Temp/pytest-of-10167/pytest-285/test_export_detects_changed_fi0')
+model_script = <function model_script.<locals>.write at 0x00000184CF32E8E0>
+
+    def test_export_detects_changed_file_without_overwriting_operator_edit(cli_env, model_script):
+        task, saved = _complete_task(model_script, cli_env)
+        markdown = next(item for item in saved["save"]["files"] if item["path"].endswith("campaign-v1.md"))
+        path = Path(markdown["path"])
+        path.write_text("operator edit not imported", encoding="utf-8")
+        checked = cli_json("export", task["task_id"])
+        assert checked["verified"] is False
+        assert checked["delivery_complete"] is False
+        assert path.read_text(encoding="utf-8") == "operator edit not imported"
+        again = cli_json("export", task["task_id"])
+>       assert again["verified"] is False
+E       assert True is False
+
+tests\test_save_reconcile.py:87: AssertionError
+=========================== short test summary info ===========================
+FAILED tests/test_save_reconcile.py::test_export_detects_changed_file_without_overwriting_operator_edit

@@ -131,11 +131,12 @@ def _repair_files(conn, config: Config, task, output: dict, review: dict | None,
     Completion is written only after every rebuilt file verifies; a failed
     repair leaves the task uncompleted and the save unknown.
     """
-    should_complete = save_preconditions(conn, task, output) is None and _guard(conn, task, 0, 0) is None
+    blocker = save_preconditions(conn, task, output) or _guard(conn, task, 0, 0)
+    should_complete = blocker is None
     invalidate_export_verification(conn, task["id"], save["save_id"], "正在核实当前版本与全部交付文件；核实完成前不声明完成。")
     verified_at = utc_now_iso()
     virtual = {**save, "verified": True, "status": "verified", "verified_at": verified_at}
-    final_task = dict(conn.execute("SELECT * FROM tasks WHERE id = ?", (task["id"],)).fetchone())
+    final_task = {**dict(task), "updated_at": verified_at}
     if should_complete:
         final_task.update(
             status="complete",
@@ -144,6 +145,8 @@ def _repair_files(conn, config: Config, task, output: dict, review: dict | None,
             updated_at=verified_at,
             paused=0,
         )
+    elif task["status"] == "complete":
+        final_task.update(status="incomplete", phase="stopped", reason=blocker["message"])
     error = None
     try:
         if save.get("attempt_id"):
@@ -158,11 +161,10 @@ def _repair_files(conn, config: Config, task, output: dict, review: dict | None,
             "UPDATE saves SET status = 'verified', verified = 1, verified_at = ?, error = NULL WHERE id = ?",
             (verified_at, save["save_id"]),
         )
-        if should_complete:
-            conn.execute(
-                "UPDATE tasks SET status = 'complete', phase = 'complete', reason = ?, updated_at = ?, paused = 0 WHERE id = ?",
-                (final_task["reason"], verified_at, task["id"]),
-            )
+        conn.execute(
+            "UPDATE tasks SET status = ?, phase = ?, reason = ?, updated_at = ?, paused = ? WHERE id = ?",
+            (final_task["status"], final_task["phase"], final_task["reason"], verified_at, final_task["paused"], task["id"]),
+        )
         trace = build_trace_file(conn, config, final_task)
         ok, checked = verify_records(base + [report, trace])
         if not ok:
@@ -192,6 +194,7 @@ def _repair_files(conn, config: Config, task, output: dict, review: dict | None,
         "verified_at": verified_at if ok else None,
         "error": error,
         "completed": task["status"] != "complete" and should_complete and ok,
+        "reconciled": True,
     }
 
 
@@ -223,7 +226,7 @@ def _reconcile_existing(conn, config: Config, task, output: dict, review: dict |
             current = (report.read_text(encoding="utf-8") == execution_report_markdown(conn, task, output, review, save)
                        and trace.read_text(encoding="utf-8") == trace_text(conn, task)
                        and (config.exports_dir / task["id"] / f"campaign-v{output['version']}.md").read_text(encoding="utf-8")
-                       == campaign_export_markdown(output, task, verified=True)) if ok else False
+                       == campaign_export_markdown(conn, output, task, verified=True)) if ok else False
         except OSError:
             ok, current = False, False
         if ok and current and task["status"] == "complete":

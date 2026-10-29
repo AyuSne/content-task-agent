@@ -279,14 +279,7 @@ def main(argv: list[str] | None = None) -> int:
         elif args.command == "export":
             from cta.export import export_task
 
-            if args.repair:
-                from cta.save import reconcile_task
-
-                reconciled = reconcile_task(config, args.task_id)
-                if reconciled.get("status") == "version_mismatch" or reconciled.get("save_error"):
-                    _emit(reconciled, args.format)
-                    return 4
-            document = export_task(config, args.task_id)
+            document = export_task(config, args.task_id, repair=args.repair)
         elif args.command == "strategies":
             document = service.strategy_comparison(
                 args.task_id,

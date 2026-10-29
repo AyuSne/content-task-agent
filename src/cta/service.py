@@ -253,6 +253,8 @@ class TaskService:
         price = load_price_table(self.config.project_root)
         from cta.save import save_preconditions
 
+        if review is not None and output is not None and review["output_id"] != output["output_id"]:
+            review = None
         if task["status"] == STATUS_COMPLETE:
             modes = []
         elif content_applicable and save_preconditions(conn, task, output) is None:

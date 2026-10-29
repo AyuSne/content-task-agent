@@ -1,0 +1,57 @@
+FFF                                                                      [100%]
+================================== FAILURES ===================================
+__ test_latest_resource_reused_export_can_be_imported_with_source_provenance __
+
+cli_env = WindowsPath('C:/Users/10167/AppData/Local/Temp/pytest-of-10167/pytest-284/test_latest_resource_reused_ex0')
+model_script = <function model_script.<locals>.write at 0x00000276941877E0>
+
+    def test_latest_resource_reused_export_can_be_imported_with_source_provenance(cli_env, model_script):
+        task = _verified_task(model_script)
+        cli_json("update", task["task_id"], "--budget", "20")
+        cli_json("reconcile", task["task_id"])
+        path, text = _exported_markdown(task["task_id"])
+        edited = cli_env / "resource-edit.md"
+        edited.write_text(text.replace("把招新现场剪成你的节奏", "新资源下的人工稿"), encoding="utf-8")
+        code, imported = _import(task["task_id"], edited)
+>       assert code == 0, imported
+E       AssertionError: {'error': 'stale_input', 'task_id': 't_6697d9ecf099', 'message': '导入文件基于旧任务输入；请重新导出最新稿。', 'details': []}
+E       assert 4 == 0
+
+tests\test_human_import.py:88: AssertionError
+_ test_pending_human_output_exports_current_version_instead_of_old_saved_files _
+
+cli_env = WindowsPath('C:/Users/10167/AppData/Local/Temp/pytest-of-10167/pytest-284/test_pending_human_output_expo0')
+model_script = <function model_script.<locals>.write at 0x0000027696618900>
+
+    def test_pending_human_output_exports_current_version_instead_of_old_saved_files(cli_env, model_script):
+        task = _verified_task(model_script)
+        path, text = _exported_markdown(task["task_id"])
+        edited = cli_env / "pending-edit.md"
+        edited.write_text(text.replace("把招新现场剪成你的节奏", "尚待核验的当前人工稿"), encoding="utf-8")
+        assert _import(task["task_id"], edited)[0] == 0
+        exported = cli_json("export", task["task_id"])
+        assert exported["output_version"] == 2
+>       assert exported["save_id"] is None
+E       AssertionError: assert 's_0c782a8cef164e8e' is None
+
+tests\test_human_import.py:103: AssertionError
+__ test_resource_update_of_pending_human_draft_reserves_only_review_and_save __
+
+cli_env = WindowsPath('C:/Users/10167/AppData/Local/Temp/pytest-of-10167/pytest-284/test_resource_update_of_pendin0')
+model_script = <function model_script.<locals>.write at 0x00000276965E74C0>
+
+    def test_resource_update_of_pending_human_draft_reserves_only_review_and_save(cli_env, model_script):
+        task = _verified_task(model_script)
+        path, text = _exported_markdown(task["task_id"])
+        edited = cli_env / "review-pending.md"
+        edited.write_text(text.replace("把招新现场剪成你的节奏", "人工稿待核验资源估算"), encoding="utf-8")
+        assert _import(task["task_id"], edited)[0] == 0
+        updated = cli_json("update", task["task_id"], "--budget", "3.20")
+>       assert updated["resource_reassessment"]["projected_total_cents"] == 320
+E       assert 440 == 320
+
+tests\test_human_import.py:118: AssertionError
+=========================== short test summary info ===========================
+FAILED tests/test_human_import.py::test_latest_resource_reused_export_can_be_imported_with_source_provenance
+FAILED tests/test_human_import.py::test_pending_human_output_exports_current_version_instead_of_old_saved_files
+FAILED tests/test_human_import.py::test_resource_update_of_pending_human_draft_reserves_only_review_and_save
