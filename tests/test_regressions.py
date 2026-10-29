@@ -66,7 +66,7 @@ def test_estimate_required_arguments_and_projected_completion(cli_env, model_scr
     model_script(
         [
             _tool("estimate_cost", {}),
-            _tool("estimate_cost", {"actions": ["search_basic", "generate_direct", "review", "save"]}),
+            _tool("estimate_cost", {"actions": ["search_basic", "submit_script", "review", "save"]}),
             _brief_tool(),
         ]
     )
