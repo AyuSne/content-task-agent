@@ -67,6 +67,7 @@ from cta.service import (
     TaskService,
 )
 from cta.strategy import DIRECTIONS, ResourceState, compare_strategies, load_strategy_table
+from cta.task_plan import update_plan
 
 
 def _task(conn, task_id: str):
@@ -762,6 +763,8 @@ def _execute_business_tool(
     *,
     tool_call_id: str | None = None,
 ) -> dict:
+    if name == "update_plan":
+        return update_plan(conn, task["id"], parsed)
     if name == "search_materials":
         return _search(conn, task, parsed, price, catalog, tool_call_id=tool_call_id)
     if name == "read_material":

@@ -72,8 +72,7 @@ def test_scripted_main_loop_produces_valid_brief_with_evidence_and_accounting(cl
     assert doc["progress"]["used_rounds"] == 3
     assert doc["brief"]["version"] == 1
     assert doc["brief"]["content"]["goal"] == BRIEF["goal"]
-    assert doc["plan"]["steps"][0]["status"] == "done"
-    assert doc["plan"]["steps"][1]["status"] == "current"
+    assert doc["plan"] == {"version": 0, "steps": []}
     assert doc["gaps"] and doc["gaps"][0]["source"] == "brief"
     assert "Mock" in doc["mode_notice"]
     assert doc["resources"]["sim_spent_cents"] == 20

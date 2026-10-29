@@ -410,6 +410,10 @@ class TaskService:
                 {"version": row["version"], "content": json.loads(row["content_json"]), "created_at": row["created_at"]}
                 for row in conn.execute("SELECT * FROM briefs WHERE task_id = ? ORDER BY version", (task_id,))
             ]
+            view["plan_history"] = [
+                {"version": row["version"], "steps": json.loads(row["steps_json"]), "created_at": row["created_at"]}
+                for row in conn.execute("SELECT * FROM task_plans WHERE task_id = ? ORDER BY version", (task_id,))
+            ]
             view["knowledge"] = [
                 {
                     "knowledge_id": row["knowledge_id"],
@@ -666,8 +670,8 @@ class TaskService:
             "content_reuse": output_reuse_basis(conn, task, output),
             "save": save,
             "strategy": strategy,
-            "plan": plan_view(task, output, review, save),
-            "todos": pending_todos(task, output, review, save),
+            "plan": plan_view(conn, task["id"]),
+            "todos": pending_todos(conn, task["id"]),
             "recovery": None if recovery_row is None else json.loads(recovery_row["meta_json"]).get("summary"),
             "gaps": self._gaps(conn, task, brief),
             "mode_notice": (

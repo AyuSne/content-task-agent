@@ -353,15 +353,9 @@ def test_pause_freezes_sim_clock_and_explicit_resume_continues_saved_progress(cl
     assert resumed["input"]["version"] == 1
     assert resumed["input"]["budget"] == "10.00"
     assert resumed["input"]["deadline"] == "2026-10-30T04:00:00+00:00"
-    assert plan_before == [
-        {"step": "campaign_draft", "title": "完整活动方案草稿", "status": "current"},
-        {"step": "review", "title": "内容核验", "status": "pending"},
-        {"step": "save", "title": "核实保存与导出", "status": "pending"},
-    ]
-    assert resumed["todos"] == [
-        {"step": "review", "title": "内容核验", "status": "current"},
-        {"step": "save", "title": "核实保存与导出", "status": "pending"},
-    ]
+    # No plan was proposed in this script; phase progress must not fabricate one.
+    assert plan_before == []
+    assert resumed["todos"] == []
 
 
 def test_resume_after_round_cap_does_not_grant_new_rounds_or_charge(cli_env, model_script):

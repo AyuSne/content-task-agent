@@ -10,7 +10,7 @@ from datetime import UTC, datetime
 from cta.config import utc_now_iso
 
 LOCAL_TOOL_NAMES = frozenset({
-    "record_disposition", "record_dispositions", "compare_strategies", "choose_strategy", "estimate_cost",
+    "record_disposition", "record_dispositions", "compare_strategies", "choose_strategy", "estimate_cost", "update_plan",
 })
 
 
@@ -426,41 +426,18 @@ def latest_save(conn: sqlite3.Connection, task_id: str) -> dict | None:
     }
 
 
-PLAN_VERSION = "plan-2026-10-29.v1"
+def plan_view(conn, task_id: str) -> dict:
+    row = conn.execute(
+        "SELECT version, steps_json, created_at FROM task_plans WHERE task_id = ? ORDER BY version DESC LIMIT 1",
+        (task_id,),
+    ).fetchone()
+    if row is None:
+        return {"version": 0, "steps": []}
+    return {"version": row["version"], "steps": json.loads(row["steps_json"]), "created_at": row["created_at"]}
 
 
-def plan_view(task, output: dict | None, review: dict | None, save: dict | None) -> dict:
-    """The task plan shared by status views, reports and recovery."""
-    brief_done = int(task["brief_version"]) > 0
-    phase = task["phase"]
-    draft_done = output is not None
-    review_done = review is not None and review["status"] == "complete"
-    save_done = save is not None and save["verified"]
-    return {
-        "version": PLAN_VERSION,
-        "steps": [
-            {"step": "brief", "title": "业务简报", "status": "done" if brief_done else "current"},
-            {
-                "step": "campaign_draft",
-                "title": "完整活动方案草稿",
-                "status": "done" if draft_done else ("current" if phase == "brief_ready" else "pending"),
-            },
-            {
-                "step": "review",
-                "title": "内容核验",
-                "status": "done" if review_done else ("current" if phase in ("draft_ready", "review_incomplete") else "pending"),
-            },
-            {
-                "step": "save",
-                "title": "核实保存与导出",
-                "status": "done" if save_done else ("current" if phase in ("reviewed", "save_failed", "save_unknown") else "pending"),
-            },
-        ],
-    }
-
-
-def pending_todos(task, output: dict | None, review: dict | None, save: dict | None) -> list[dict]:
-    return [dict(step) for step in plan_view(task, output, review, save)["steps"] if step["status"] != "done"]
+def pending_todos(conn, task_id: str) -> list[dict]:
+    return [step for step in plan_view(conn, task_id)["steps"] if step["status"] != "done"]
 
 
 def create_save(
@@ -823,7 +800,7 @@ def snapshot_state(conn: sqlite3.Connection, task_id: str) -> dict:
         "spent_cents": task_spent(conn, task_id),
         "brief_goal": (brief or {}).get("content", {}).get("goal"),
         "open_questions": [] if questions is None else json.loads(questions["questions_json"]),
-        "todos": pending_todos(task, output, review, save),
+        "todos": pending_todos(conn, task_id),
         "recovery_count": int(recovery_count["n"]),
     }
 

@@ -71,8 +71,7 @@ def test_review_pass_then_verified_save_and_exports(cli_env, model_script):
     assert reviewed["review"]["requests_used"] == 1
     assert reviewed["review"]["readbacks_used"] == 0
     assert reviewed["resources"]["sim_spent_cents"] == 140 + 80
-    assert reviewed["plan"]["steps"][2]["status"] == "done"
-    assert reviewed["plan"]["steps"][3]["status"] == "current"
+    assert reviewed["plan"] == {"version": 0, "steps": []}
 
     inspected = cli_json("inspect", task["task_id"])
     assert inspected["reviewer_knowledge"][0]["knowledge_id"] == "content-review"
