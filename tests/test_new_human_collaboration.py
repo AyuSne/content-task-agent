@@ -295,3 +295,32 @@ def test_agent_continues_after_resource_update_and_import_to_reviewed_saved_vers
     messages = [m['content'] or '' for m in view['messages']]
     assert any('结合新资源进行校园教程' in message and '[人工稿导入]' in message for message in messages)
     assert any('[输入更新]' in message and '"input_version": 2' in message for message in messages)
+
+
+def test_old_disposition_cannot_unblock_human_edited_version(cli_env, model_script):
+    from copy import deepcopy
+
+    from test_campaign_draft import _tool
+    from test_review_dispositions_new import _reviewed
+    from test_revision_disposition import REVIEW_FAIL
+
+    task_id, prefix, _, campaign_ref, review_id = _reviewed(model_script)
+    evidence = {'kind': 'requirement', 'input_version': 1, 'field_path': 'requirements[0]', 'quote': '突出自动卡点'}
+    decision = {'finding_id': 'F1', 'decision': 'rejected', 'reason': '原要求支持', 'evidence': [evidence]}
+    recorded = _tool('record_dispositions', {'review_id': review_id, 'campaign_ref': campaign_ref, 'decisions': [decision]})
+    second_review = deepcopy(REVIEW_FAIL)
+    second_review['findings'][0]['reviewed_version'] = '2'
+    model_script(prefix + [recorded, _review_item(REVIEW_FAIL), _review_item(second_review)])
+    cli_json('resume', task_id, '--max-rounds', '1')
+    saved = cli_json('save', task_id)
+    path = next(Path(item['path']) for item in saved['save']['files'] if item['path'].endswith('campaign-v1.md'))
+    path.write_text(path.read_text(encoding='utf-8').replace('演示操作并联系校园', '重新组合校园表达'), encoding='utf-8')
+    code, out, _ = run_cli('import-draft', task_id, '--file', str(path))
+    assert code == 0, out
+    reviewed = cli_json('review', task_id)
+    assert reviewed['review']['output_version'] == 2 and reviewed['review']['review_id'] != review_id
+    code, out, _ = run_cli('save', task_id)
+    assert code == 4 and json.loads(out)['save_error']['code'] == 'unresolved_must_fix'
+    view = cli_json('inspect', task_id)
+    assert len(view['dispositions']) == 1 and view['dispositions'][0]['review_id'] == review_id
+    assert view['save']['output_version'] == 1 and view['status'] != 'complete'
