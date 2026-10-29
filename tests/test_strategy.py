@@ -619,7 +619,7 @@ def test_generation_failure_reestimate_and_alternative_then_complete(cli_env, mo
             _generation_item(type="error", message="candidate upstream 500"),
             _tool(
                 "estimate_cost",
-                {"search_mode": "search_basic", "generation_mode": "generate_direct", "search_queries": 1},
+                {"actions": ["search_basic", "generate_direct", "review", "save"]},
             ),
             _tool(
                 "choose_strategy",

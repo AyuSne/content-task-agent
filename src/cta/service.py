@@ -250,7 +250,7 @@ class TaskService:
 
     def _resource_reassessment(self, conn, task, intake, output, review, content_applicable: bool) -> dict:
         """Estimate the still-required path after an explicit resource update, without charging it."""
-        price = load_price_table(self.config.project_root)
+        price = load_price_table(self.config.project_root, version=task["pricing_version"])
         from cta.save import save_preconditions
 
         if review is not None and output is not None and review["output_id"] != output["output_id"]:
@@ -681,6 +681,7 @@ class TaskService:
             ),
             "progress": self._progress_view(task, output, save),
             "resources": self._resources_view(conn, task, input_row, spent),
+            "pricing_overview": load_price_table(self.config.project_root, version=task["pricing_version"]).overview(),
             "model_config": self.config.model_config_public(),
             "versions": {
                 "app": __version__,
@@ -714,9 +715,9 @@ class TaskService:
         directions: list[str] | None = None,
     ) -> dict:
         """Read-only strategy comparison for the operator view; never executes or charges."""
-        price = load_price_table(self.config.project_root)
         with open_store(self.config.db_path) as conn:
             task = self._require_task(conn, task_id)
+            price = load_price_table(self.config.project_root, version=task["pricing_version"])
             table = load_strategy_table(self.config.project_root, version=task["strategy_version"])
             input_row = conn.execute(
                 "SELECT * FROM task_inputs WHERE task_id = ? AND version = ?",

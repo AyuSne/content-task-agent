@@ -65,6 +65,26 @@ class PriceTable:
         except KeyError as exc:
             raise ValueError(f"unknown pricing mode: {key}") from exc
 
+    def overview(self) -> dict:
+        return {
+            "version": self.version,
+            "currency": self.currency,
+            "source": self.path.name,
+            "modes": {key: spec.as_dict() for key, spec in self.modes.items()},
+        }
+
+    def estimate_actions(self, actions: list[str]) -> dict:
+        lines = [self.mode(action).as_dict() for action in actions]
+        return {
+            "version": self.version,
+            "currency": self.currency,
+            "pricing_source": self.path.name,
+            "lines": lines,
+            "total_cost_cents": sum(line["cost_cents"] for line in lines),
+            "total_duration_ms": sum(line["duration_ms"] for line in lines),
+            "notes": "估算不是实际支出；执行前仍须按当前预算与模拟截止检查。",
+        }
+
     def remaining_after_generation(self, generation_mode: str) -> dict:
         """Cost/time of the still-required generation, review and save steps."""
         specs = [
@@ -122,9 +142,9 @@ class PriceTable:
         }
 
 
-def load_price_table(project_root: Path | None = None) -> PriceTable:
+def load_price_table(project_root: Path | None = None, *, version: str | None = None) -> PriceTable:
     root = project_root or find_project_root()
-    version = os.environ.get("CTA_PRICING_VERSION") or DEFAULT_PRICING_VERSION
+    version = version or os.environ.get("CTA_PRICING_VERSION") or DEFAULT_PRICING_VERSION
     path = root / "fixtures" / "pricing" / f"{version}.json"
     payload = json.loads(path.read_text(encoding="utf-8"))
     if payload["version"] != version:
