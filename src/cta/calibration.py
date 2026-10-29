@@ -14,7 +14,7 @@ from cta.model import ModelResponse, create_client
 from cta.prompts import REVIEW_PROMPT_VERSION, REVIEW_SYSTEM_PROMPT, REVIEW_TOOL_DEFINITIONS
 from cta.review import MAX_READBACKS, MAX_REQUESTS, _validate_report, review_report_status
 
-DEFAULT_PAIRS = "2026-10-29.v1"
+DEFAULT_PAIRS = "2026-10-29.v2"
 
 
 @dataclass
