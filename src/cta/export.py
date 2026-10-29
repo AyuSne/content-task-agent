@@ -117,7 +117,11 @@ def execution_report_markdown(
         )
     lines += ["", "## 创作策略与反馈", ""]
     if selection is None:
-        lines.append("- 尚未记录策略选择。")
+        strategy = (output or {}).get("content", {}).get("strategy")
+        if strategy:
+            lines.append(f"- 方案方向：{strategy['name']}；理由：{strategy['rationale']}")
+        else:
+            lines.append("- 尚未记录策略选择。")
     else:
         lines += [
             (
