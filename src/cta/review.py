@@ -256,6 +256,16 @@ def review_task(config: Config, task_id: str) -> dict:
         conn.commit()
 
         brief = latest_brief(conn, task["id"])
+        used_material_ids = {
+            item["material_id"]
+            for item in output["content"].get("evidence", []) + output["content"].get("materials", [])
+            if item.get("material_id")
+        }
+        if brief is not None:
+            used_material_ids.update(
+                item["material_id"]
+                for item in brief["content"].get("product_facts", []) + brief["content"].get("sources", [])
+            )
         input_row = conn.execute(
             "SELECT * FROM task_inputs WHERE task_id = ? AND version = ?", (task["id"], task["input_version"])
         ).fetchone()
@@ -270,6 +280,11 @@ def review_task(config: Config, task_id: str) -> dict:
             },
             "brief": brief["content"] if brief else None,
             "campaign": output["content"],
+            "evidence": [catalog.get(mid).as_dict() for mid in sorted(used_material_ids)],
+            "delivery_scope": {
+                "deliverable": "campaign_plan",
+                "deadline_applies_to": "完成并核实保存活动方案；后续成片制作、音乐采购和发布另列执行排期。",
+            },
             "program_checks": _program_checks(output),
             "reviewed_version": output["version"],
             "review_history": review_history,

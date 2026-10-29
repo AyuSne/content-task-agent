@@ -1,0 +1,12 @@
+[
+  {
+    "tls": "default",
+    "error": "ConnectError('[SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1032)')",
+    "cause": "ConnectError(SSLEOFError(8, '[SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1032)'))"
+  },
+  {
+    "tls": "tls12",
+    "error": "ConnectError('[SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1032)')",
+    "cause": "ConnectError(SSLEOFError(8, '[SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1032)'))"
+  }
+]

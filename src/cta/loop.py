@@ -7,6 +7,7 @@ the model; each round is counted and failures stay visible.
 
 from __future__ import annotations
 
+import hashlib
 import json
 import os
 from datetime import UTC, datetime, timedelta
@@ -63,9 +64,6 @@ from cta.service import (
 )
 from cta.strategy import DIRECTIONS, ResourceState, compare_strategies, load_strategy_table
 
-TOOL_NAMES = {item["function"]["name"] for item in TOOL_DEFINITIONS}
-
-
 def _task(conn, task_id: str):
     task = conn.execute("SELECT * FROM tasks WHERE id = ?", (task_id,)).fetchone()
     if task is None:
@@ -103,6 +101,7 @@ def run_task(config: Config, task_id: str, *, max_rounds: int | None = None, exp
         run_info["recovery"] = report
         task = _task(conn, task_id)
         _ensure_base_context(conn, task, config)
+        protocol = _main_protocol(conn, task)
         task = _task(conn, task_id)
 
         unpaused = False
@@ -236,7 +235,7 @@ def run_task(config: Config, task_id: str, *, max_rounds: int | None = None, exp
             messages = api_messages(conn, task_id)
             started = datetime.now(UTC)
             try:
-                response = client.complete(messages, TOOL_DEFINITIONS, cursor=round_index)
+                response = client.complete(messages, protocol["tools"], cursor=round_index)
             except Exception as exc:  # noqa: BLE001 - boundary
                 response = ModelResponse(error=config.redact(f"{type(exc).__name__}: {exc}")[:800], model=config.model)
             finished = datetime.now(UTC)
@@ -250,7 +249,8 @@ def run_task(config: Config, task_id: str, *, max_rounds: int | None = None, exp
                     started_at=started,
                     finished_at=finished,
                     mock=response.mock,
-                    meta={"prompt_version": PROMPT_VERSION, "round": round_index + 1},
+                    meta={"prompt_version": protocol["prompt_version"], "round": round_index + 1,
+                          "tool_schema_sha256": protocol["sha256"]},
                 )
 
             if response.error:
@@ -266,7 +266,8 @@ def run_task(config: Config, task_id: str, *, max_rounds: int | None = None, exp
                 run_info["stop_reason"] = "model_error"
                 break
 
-            outcome = _handle_response(conn, task, response, price, catalog, config, client, strategy_table)
+            outcome = _handle_response(conn, task, response, price, catalog, config, client, strategy_table,
+                                       tools=protocol["tools"])
             task = _task(conn, task_id)
             _ensure_phase_context(conn, task, config)
             _snapshot(conn, task)
@@ -314,6 +315,29 @@ def _document(config: Config, task_id: str, run_info: dict) -> dict:
     return document
 
 
+def _main_protocol(conn, task) -> dict:
+    for row in conn.execute(
+        "SELECT meta_json FROM messages WHERE task_id = ? AND agent = 'main' ORDER BY seq", (task["id"],)
+    ):
+        meta = json.loads(row["meta_json"])
+        if "tool_protocol" in meta:
+            return meta["tool_protocol"]
+    protocol = _protocol_definition()
+    with transaction(conn):
+        append_message(conn, task["id"], "user",
+                       "[工具定义采用] 本次起冻结所用工具定义与顺序；此前历史未记录定义，不能追认为已冻结。",
+                       meta={"kind": "tool_schema_adoption", "tool_protocol": protocol})
+    return protocol
+
+
+def _protocol_definition() -> dict:
+    return {
+        "prompt_version": PROMPT_VERSION,
+        "tools": TOOL_DEFINITIONS,
+        "sha256": hashlib.sha256(json.dumps(TOOL_DEFINITIONS, ensure_ascii=False).encode()).hexdigest(),
+    }
+
+
 def _ensure_base_context(conn, task, config: Config) -> None:
     """Append the stable system/knowledge/input prefix only for a fresh task.
 
@@ -322,7 +346,7 @@ def _ensure_base_context(conn, task, config: Config) -> None:
     """
     with transaction(conn):
         existing = conn.execute(
-            "SELECT COUNT(*) AS n FROM messages WHERE task_id = ? AND agent = 'main'", (task["id"],)
+            "SELECT COUNT(*) AS n FROM messages WHERE task_id = ? AND agent = 'main' AND role = 'system'", (task["id"],)
         ).fetchone()
         if int(existing["n"]) > 0:
             return
@@ -331,7 +355,8 @@ def _ensure_base_context(conn, task, config: Config) -> None:
             task["id"],
             "system",
             MAIN_SYSTEM_PROMPT,
-            meta={"kind": "system", "prompt_version": PROMPT_VERSION},
+            meta={"kind": "system", "prompt_version": PROMPT_VERSION,
+                  "tool_protocol": _protocol_definition()},
         )
         doc = load_doc("campaign-creation", config.project_root)
         conn.execute(
@@ -506,6 +531,8 @@ def _handle_response(
     config: Config,
     client,
     strategy_table,
+    *,
+    tools: list[dict] | None = None,
 ) -> dict:
     calls = list(response.tool_calls)
     if response.finish_reason == "length":
@@ -577,7 +604,7 @@ def _handle_response(
 
     crash("after_tool_request")
     call = calls[0]
-    parsed, error = _parse_call(call)
+    parsed, error = _parse_call(call, tools if tools is not None else TOOL_DEFINITIONS)
     if error is not None:
         with transaction(conn):
             append_message(
@@ -664,8 +691,8 @@ def _handle_response(
     return {"terminal": terminal, "stop_reason": stop_reason}
 
 
-def _parse_call(call) -> tuple[dict, dict | None]:
-    if call.name not in TOOL_NAMES:
+def _parse_call(call, tools: list[dict]) -> tuple[dict, dict | None]:
+    if call.name not in {item["function"]["name"] for item in tools}:
         return {}, {"error": "unknown_tool", "message": f"未知工具：{call.name}；本轮未执行任何业务动作。"}
     try:
         parsed = json.loads(call.arguments or "{}")

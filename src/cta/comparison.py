@@ -77,10 +77,9 @@ class Experiment:
             task = _task(conn, self.task_id)
             catalog = load_task_catalog(conn, task, self.config.project_root)
             _handle_response(conn, task, response, self.price, catalog, self.config, self.client, self.strategies)
-            last = api_messages(conn, self.task_id)[-1]
             # A successful state-changing tool may append a snapshot after its result.
             results = [m for m in api_messages(conn, self.task_id) if m.get("tool_call_id") == response.tool_calls[0].id]
-            result = json.loads(results[-1]["content"]) if results else last
+            result = json.loads(results[-1]["content"])
         self.trace.append({"controller": "fixed", "tool": name, "arguments": arguments, "result": result})
         return result
 

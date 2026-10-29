@@ -1,0 +1,43 @@
+[
+  {
+    "kind": "httpx",
+    "error": "ConnectError('[SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1032)')",
+    "cause": "ConnectError(SSLEOFError(8, '[SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1032)'))",
+    "seconds": 5.271
+  },
+  {
+    "kind": "raw",
+    "error": "SSLEOFError(8, '[SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1032)')",
+    "cause": "None",
+    "seconds": 5.177
+  },
+  {
+    "kind": "raw-alpn",
+    "error": "SSLEOFError(8, '[SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1032)')",
+    "cause": "None",
+    "seconds": 5.176
+  },
+  {
+    "kind": "raw-ipv4",
+    "error": "SSLEOFError(8, '[SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1032)')",
+    "cause": "None",
+    "seconds": 5.178
+  },
+  {
+    "kind": "httpx-cipher-tls12",
+    "error": "ConnectError('[SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1032)')",
+    "cause": "ConnectError(SSLEOFError(8, '[SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1032)'))",
+    "seconds": 5.27
+  },
+  {
+    "kind": "raw-cipher-tls12",
+    "error": "SSLEOFError(8, '[SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1032)')",
+    "cause": "None",
+    "seconds": 5.176
+  },
+  {
+    "kind": "other-host",
+    "status": 301,
+    "seconds": 1.15
+  }
+]

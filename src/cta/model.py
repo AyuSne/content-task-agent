@@ -153,6 +153,10 @@ class ScriptedClient:
                 mock=True,
             )
         item = items[cursor]
+        if "expected_tool_names" in item:
+            actual = [tool["function"]["name"] for tool in tools]
+            if actual != item["expected_tool_names"]:
+                return ModelResponse(error="scripted model received changed tool definitions", model="scripted", mock=True)
         kind = item.get("type", "tool")
         if kind == "error":
             return ModelResponse(

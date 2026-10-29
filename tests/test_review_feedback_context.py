@@ -15,6 +15,24 @@ from test_campaign_draft import (
 from test_revision_disposition import REVIEW_FAIL, REVIEW_PASS_V2, _review_item
 
 
+def test_review_receives_existing_evidence_for_brief_and_campaign(cli_env, model_script):
+    model_script(_brief_then_draft_script() + [_review_item(REVIEW_PASS_V2)])
+    task_id = _create()["task_id"]
+    _run_until_draft(task_id)
+    cli_json("review", task_id)
+    inspected = cli_json("inspect", task_id)
+    payload = next(
+        json.loads(message["content"].removeprefix("[待核验方案] "))
+        for message in inspected["reviewer_messages"]
+        if message["role"] == "user" and message["content"].startswith("[待核验方案] ")
+    )
+    evidence = {item["material_id"]: item for item in payload["evidence"]}
+    assert "复杂变速或弱节拍音乐需要人工调整" in evidence["M-001"]["text"]
+    assert "仅代表该合成样本" in evidence["M-003"]["scope"]
+    assert "商用授权尚未购买" in evidence["M-006"]["scope"] or "商用授权尚未购买" in evidence["M-006"]["text"]
+    assert payload["delivery_scope"]["deliverable"] == "campaign_plan"
+
+
 def test_re_review_receives_original_findings_dispositions_and_applicable_versions(cli_env, model_script):
     failed = copy.deepcopy(REVIEW_FAIL)
     failed["findings"].append({
