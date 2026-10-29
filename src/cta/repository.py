@@ -11,7 +11,7 @@ from cta.config import utc_now_iso
 
 LOCAL_TOOL_NAMES = frozenset({
     "read_skill", "record_disposition", "record_dispositions",
-    "estimate_cost", "update_plan",
+    "estimate_cost", "update_plan", "submit_campaign",
 })
 
 

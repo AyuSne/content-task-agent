@@ -63,9 +63,10 @@ def test_action_list_estimate_reports_missing_delivery_and_prices_selected_actio
 
 
 def test_review_and_verified_save_use_task_price_after_default_changes(cli_env, model_script, monkeypatch):
-    from test_review_save import REVIEW_PASS, _draft_ready, _review_item
+    from test_campaign_delivery_new import _new_draft_ready
+    from test_review_save import REVIEW_PASS, _review_item
 
-    task = _draft_ready(model_script, _review_item(REVIEW_PASS))
+    task = _new_draft_ready(model_script, _review_item(REVIEW_PASS))
     monkeypatch.setenv("CTA_PRICING_VERSION", "test-alternate")
     reviewed = cli_json("review", task["task_id"])
     assert reviewed["resources"]["sim_spent_cents"] == 220

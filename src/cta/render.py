@@ -36,14 +36,15 @@ def campaign_markdown(campaign: dict) -> str:
             f"{index}. {item.get('title', '')}｜{item.get('purpose', '')}｜"
             f"{item.get('duration_s', '')} 秒｜{item.get('platform', '')}"
         )
-    lines += ["", f"## 主视频脚本（{script.get('duration_s', '')} 秒）", ""]
+    lines += ["", f"## 主视频脚本（{script.get('duration_seconds', '')} 秒）", ""]
+    lines += [f"脚本标题：{script.get('title', '')}", ""]
     for segment in script.get("segments", []):
         lines += [
-            f"### {segment.get('index', '')}. {segment.get('time_range', '')}",
+            f"### {segment.get('segment_id', '')}. {str(segment.get('duration_seconds', '')) + ' 秒'}",
             "",
             f"- 画面：{segment.get('visual', '')}",
-            f"- 音频：{segment.get('audio', '')}",
-            f"- 字幕：{segment.get('subtitle', '')}",
+            f"- 音频：{segment.get('voiceover', '')}",
+            f"- 字幕：{segment.get('on_screen_text', '')}",
             f"- 素材：{', '.join(segment.get('material_ids', [])) or '无'}",
             f"- 证据：{', '.join(segment.get('evidence_ids', [])) or '无'}",
             "",

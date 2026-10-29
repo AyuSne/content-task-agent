@@ -58,6 +58,7 @@ from cta.service import (
     STATUS_NEEDS_INPUT,
     TaskNotFound,
     TaskService,
+    output_reuse_basis,
 )
 from cta.task_plan import update_plan
 
@@ -681,15 +682,24 @@ def _handle_response(
     elif call.name == "request_clarification":
         result, terminal = _request_clarification(conn, task, parsed)
     elif call.name == "review_campaign":
+        target_error = _campaign_target_error(conn, task, parsed)
         try:
+            if target_error:
+                raise ReviewError(target_error, "invalid_campaign_ref")
             document = review_task(config, task["id"])
-            result = {"ok": True, "review": document["review"], "resources": document["resources"],
+            review = document["review"]
+            result = {"ok": review["status"] == "complete", "review": review, "resources": document["resources"],
                       "delivery_options": _delivery_options(conn, task)}
+            if review["status"] != "complete":
+                result.update(error="review_incomplete", message="核验未完成，不能作为通过依据。")
         except ReviewError as exc:
             result = {"ok": False, "error": exc.code, "message": str(exc)}
         terminal = False
     elif call.name == "save_campaign":
+        target_error = _campaign_target_error(conn, task, parsed)
         try:
+            if target_error:
+                raise SaveBlocked("invalid_campaign_ref", target_error)
             document = save_task(config, task["id"])
             result = {
                 "ok": document["status"] == STATUS_COMPLETE,
@@ -749,9 +759,20 @@ def _parse_call(call, tools: list[dict]) -> tuple[dict, dict | None]:
         return {}, {"error": "invalid_arguments", "message": "工具参数不是合法 JSON；本轮未执行任何业务动作。"}
     if not isinstance(parsed, dict):
         return {}, {"error": "invalid_arguments", "message": "工具参数必须是 JSON 对象。"}
-    if call.name in ("review_campaign", "save_campaign") and parsed:
-        return {}, {"error": "invalid_arguments", "message": "该工具只作用于当前采用版本，不接受额外参数。"}
     return parsed, None
+
+
+def _campaign_target_error(conn, task, parsed):
+    ref = parsed.get("campaign_ref")
+    output = latest_output(conn, task["id"])
+    if (set(parsed) != {"campaign_ref"} or not isinstance(ref, dict) or set(ref) != {"id", "version"}
+            or not isinstance(ref.get("id"), str) or not isinstance(ref.get("version"), int)
+            or isinstance(ref.get("version"), bool) or output is None
+            or ref["id"] != output["output_id"] or ref["version"] != output["version"]):
+        return "campaign_ref 必须明确引用本任务当前方案 ID 和版本。"
+    if output["input_version"] != task["input_version"] and output_reuse_basis(conn, task, output) is None:
+        return "方案不适用于当前输入版本。"
+    return None
 
 
 def _execute_business_tool(
@@ -765,6 +786,9 @@ def _execute_business_tool(
     *,
     tool_call_id: str | None = None,
 ) -> dict:
+    if name == "submit_campaign":
+        from cta.campaign import submit_campaign
+        return submit_campaign(conn, task, parsed, catalog)
     if name == "read_skill":
         return read_skill(conn, task["id"], parsed)
     if name == "update_plan":

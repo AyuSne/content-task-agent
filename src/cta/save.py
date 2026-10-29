@@ -9,6 +9,7 @@ from __future__ import annotations
 import json
 import os
 
+from cta.campaign import campaign_brief
 from cta.config import Config, utc_now_iso
 from cta.db import open_store
 from cta.export import (
@@ -25,7 +26,6 @@ from cta.pricing import load_price_table
 from cta.repository import (
     create_save,
     finish_attempt,
-    latest_brief,
     latest_output,
     latest_review,
     latest_save,
@@ -42,10 +42,8 @@ class SaveBlocked(ValueError):
 
 
 def _blocking_open_questions(conn, task_id: str, output: dict) -> int:
-    brief = latest_brief(conn, task_id)
-    brief_blocking = 0 if brief is None else sum(
-        1 for item in brief["content"].get("unknowns", []) if item.get("blocking")
-    )
+    brief = campaign_brief(conn, task_id, output)
+    brief_blocking = sum(1 for item in brief.get("unknowns", []) if item.get("blocking"))
     campaign_blocking = sum(
         1 for item in output["content"].get("open_questions", []) if item.get("blocking")
     )

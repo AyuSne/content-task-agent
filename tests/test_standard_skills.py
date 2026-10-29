@@ -89,7 +89,8 @@ def test_reviewer_preloads_task_adopted_body_even_if_source_changes(cli_env, mod
     import shutil
     from pathlib import Path
 
-    from test_review_save import REVIEW_PASS, _draft_ready, _review_item
+    from test_campaign_delivery_new import _new_draft_ready
+    from test_review_save import REVIEW_PASS, _review_item
 
     knowledge = cli_env / "knowledge"
     shutil.copytree(Path(__file__).resolve().parents[1] / "knowledge", knowledge)
@@ -97,7 +98,7 @@ def test_reviewer_preloads_task_adopted_body_even_if_source_changes(cli_env, mod
     monkeypatch.setenv("CTA_KNOWLEDGE_DIR", str(knowledge))
     reviewer_path = cli_env / ".agents/skills/content-review/SKILL.md"
     original = reviewer_path.read_text(encoding="utf-8")
-    task_id = _draft_ready(model_script, _review_item(REVIEW_PASS))["task_id"]
+    task_id = _new_draft_ready(model_script, _review_item(REVIEW_PASS))["task_id"]
     reviewer_path.write_text("UNADOPTED REVIEW BODY", encoding="utf-8")
     cli_json("review", task_id)
     view = cli_json("inspect", task_id)
