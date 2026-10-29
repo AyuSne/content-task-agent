@@ -15,6 +15,7 @@ from cta.config import Config, utc_now_iso
 from cta.db import transaction
 from cta.materials import MaterialCatalog, load_task_catalog
 from cta.repository import (
+    LOCAL_TOOL_NAMES,
     append_message,
     find_pending_tool_calls,
     finish_attempt,
@@ -22,7 +23,7 @@ from cta.repository import (
     latest_output,
     latest_review,
     latest_save,
-    list_strategy_selections,
+    local_tool_result,
     pending_todos,
     task_llm_usage,
     task_spent,
@@ -209,10 +210,8 @@ def _recover_call(conn, task, call: dict, catalog: MaterialCatalog, config: Conf
             return _outcome({"ok": False, "error": "invalid_arguments", "message": "material_id 必须是非空字符串。"}, category="interrupted")
         result = {**catalog.read(material_id), "recovered": True}
         return _outcome(result, category="recovered" if result.get("ok") else "interrupted")
-    if name == "estimate_cost":
-        return _recover_estimate(conn, task, parsed)
-    if name in ("record_disposition", "record_dispositions", "compare_strategies", "choose_strategy"):
-        return _recover_local_action(conn, task, call, parsed)
+    if name in LOCAL_TOOL_NAMES:
+        return _recover_local_action(conn, task, call)
     if name == "propose_brief":
         return _recover_brief(conn, task, call)
     if name == "propose_campaign":
@@ -273,52 +272,13 @@ def _outcome(result: dict, *, category: str, attempt_id=None, attempt_status=Non
     }
 
 
-def _recover_local_action(conn, task, call: dict, parsed: dict) -> dict:
-    name = call["function"]["name"]
-    result = None
-    if name in ("record_disposition", "record_dispositions"):
-        decisions = [parsed] if name == "record_disposition" else parsed.get("decisions")
-        review, output = latest_review(conn, task["id"]), latest_output(conn, task["id"])
-        if review is not None and output is not None and review["output_id"] == output["output_id"] \
-                and isinstance(decisions, list) and decisions:
-            stored = {row["finding_id"]: dict(row) for row in conn.execute(
-                "SELECT * FROM dispositions WHERE review_id = ? AND created_at >= ?",
-                (review["review_id"], call["requested_at"]),
-            )}
-            if all(isinstance(item, dict) and isinstance(item.get("finding_id"), str)
-                   and item["finding_id"] in stored and item.get("decision") == stored[item["finding_id"]]["decision"]
-                   and isinstance(item.get("reason"), str)
-                   and item["reason"].strip() == stored[item["finding_id"]]["reason"] for item in decisions):
-                result = {"ok": True, "review_id": review["review_id"], "dispositions": decisions}
-    elif name == "compare_strategies":
-        rows = conn.execute(
-            "SELECT * FROM estimates WHERE task_id = ? AND kind = 'strategy_comparison' AND created_at >= ? ORDER BY rowid DESC",
-            (task["id"], call["requested_at"]),
-        )
-        for row in rows:
-            if (row["search_mode"] == parsed.get("search_mode") and row["generation_mode"] == parsed.get("generation_mode")
-                    and row["search_queries"] == parsed.get("search_queries")
-                    and bool(row["include_revision"]) == parsed.get("include_revision", False)):
-                detail = json.loads(row["detail_json"])
-                if parsed.get("directions") is None or set(parsed["directions"]) == {d["direction"] for d in detail["directions"]}:
-                    result = {**detail, "ok": True, "estimate_id": row["id"], "nature": "estimated"}
-                    break
-    else:
-        for selection in reversed(list_strategy_selections(conn, task["id"])):
-            if (selection["created_at"] >= call["requested_at"] and selection["direction"] == parsed.get("direction")
-                    and selection["search_mode"] == parsed.get("search_mode")
-                    and selection["generation_mode"] == parsed.get("generation_mode")
-                    and (parsed.get("search_queries") is None or selection["search_queries"] == parsed["search_queries"])
-                    and selection["include_revision"] == parsed.get("include_revision", False)
-                    and selection["improvement"] == parsed.get("improvement", False)
-                    and isinstance(parsed.get("rationale"), str) and selection["rationale"] == parsed["rationale"].strip()):
-                result = {"ok": True, **selection, "selection_recorded": True}
-                break
+def _recover_local_action(conn, task, call: dict) -> dict:
+    result = local_tool_result(conn, task["id"], call)
     if result is not None:
         return _outcome({**result, "recovered": True}, category="recovered")
     return _outcome({
         "ok": False, "error": "local_action_interrupted", "recovered": True,
-        "message": "未找到与本请求完整匹配的权威结果；保留已有局部事实，不重放动作，由主 Agent 决定下一步。",
+        "message": "未找到本请求的精确持久回执（历史记录也可能缺少回执）；无法核实是否执行，不重放动作，由主 Agent 决定下一步。",
     }, category="interrupted")
 
 
@@ -364,21 +324,6 @@ def _recover_search(conn, task, call: dict, parsed: dict, catalog: MaterialCatal
     }
     status = "success" if attempt["status"] == "running" else None
     return _outcome(result, category="recovered", attempt_id=attempt["id"], attempt_status=status)
-
-
-def _recover_estimate(conn, task, parsed: dict) -> dict:
-    from cta.loop import _estimate
-    from cta.pricing import load_price_table
-
-    try:
-        price = load_price_table()
-        result = _estimate(conn, task, parsed, price)
-    except Exception as exc:  # noqa: BLE001 - recovery reports rather than crashes
-        return _outcome(
-            {"ok": False, "error": "interrupted", "message": f"估算请求中断且无法重建：{exc}", "recovered": True},
-            category="interrupted",
-        )
-    return _outcome({**result, "recovered": True}, category="recovered" if result.get("ok") else "interrupted")
 
 
 def _recover_brief(conn, task, call: dict) -> dict:

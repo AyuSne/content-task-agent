@@ -34,6 +34,7 @@ from cta.recovery import (
 )
 from cta.render import campaign_markdown
 from cta.repository import (
+    LOCAL_TOOL_NAMES,
     api_messages,
     append_message,
     append_snapshot,
@@ -48,6 +49,7 @@ from cta.repository import (
     latest_strategy_selection,
     record_estimate,
     record_llm_request,
+    record_local_tool_result,
     record_stop,
     snapshot_state,
     start_attempt,
@@ -610,7 +612,7 @@ def _handle_response(
         return {"terminal": False}
 
     with transaction(conn):
-        append_message(
+        request_seq = append_message(
             conn,
             task["id"],
             "assistant",
@@ -650,7 +652,20 @@ def _handle_response(
             )
         return {"terminal": False}
 
-    if call.name == "propose_brief":
+    if call.name in LOCAL_TOOL_NAMES:
+        # These helpers perform only local writes. Their effects and exact
+        # return value must commit together before a missing receipt is possible.
+        with transaction(conn):
+            if call.name in ("record_disposition", "record_dispositions"):
+                disposition = _record_disposition if call.name == "record_disposition" else _record_dispositions
+                result = disposition(conn, task, parsed)
+                result["delivery_options"] = _delivery_options(conn, task)
+            else:
+                result = _execute_business_tool(conn, task, call.name, parsed, price, catalog, config, strategy_table)
+            crash("before_local_tool_receipt")
+            record_local_tool_result(conn, task["id"], request_seq, call.id, call.name, result)
+        terminal = False
+    elif call.name == "propose_brief":
         result, terminal = _propose_brief(conn, task, parsed, catalog)
     elif call.name == "propose_campaign":
         result, terminal = _propose_campaign(conn, task, parsed, catalog)
@@ -659,14 +674,6 @@ def _handle_response(
         terminal = False
     elif call.name == "request_clarification":
         result, terminal = _request_clarification(conn, task, parsed)
-    elif call.name == "record_disposition":
-        result = _record_disposition(conn, task, parsed)
-        result["delivery_options"] = _delivery_options(conn, task)
-        terminal = False
-    elif call.name == "record_dispositions":
-        result = _record_dispositions(conn, task, parsed)
-        result["delivery_options"] = _delivery_options(conn, task)
-        terminal = False
     elif call.name == "review_campaign":
         try:
             document = review_task(config, task["id"])
@@ -898,25 +905,24 @@ def _estimate(conn, task, parsed: dict, price: PriceTable) -> dict:
         estimate["time_gap_ms"] = int(allowed_ms - (task["sim_elapsed_ms"] + estimate["total_duration_ms"]))
         estimate["within_deadline"] = estimate["time_gap_ms"] >= 0
     feasible = bool(estimate["affordable"] and estimate["within_deadline"] is not False)
-    with transaction(conn):
-        recorded = record_estimate(
-            conn,
-            task_id=task["id"],
-            kind="cost_estimate",
-            direction=None,
-            search_mode=search_mode,
-            generation_mode=generation_mode,
-            search_queries=search_queries,
-            include_revision=include_revision,
-            strategy_version=task["strategy_version"],
-            pricing_version=price.version,
-            total_cost_cents=estimate["total_cost_cents"],
-            total_duration_ms=estimate["total_duration_ms"],
-            incurred_cents=spent,
-            remaining_cents=remaining,
-            feasible=feasible,
-            detail={"estimate": estimate},
-        )
+    recorded = record_estimate(
+        conn,
+        task_id=task["id"],
+        kind="cost_estimate",
+        direction=None,
+        search_mode=search_mode,
+        generation_mode=generation_mode,
+        search_queries=search_queries,
+        include_revision=include_revision,
+        strategy_version=task["strategy_version"],
+        pricing_version=price.version,
+        total_cost_cents=estimate["total_cost_cents"],
+        total_duration_ms=estimate["total_duration_ms"],
+        incurred_cents=spent,
+        remaining_cents=remaining,
+        feasible=feasible,
+        detail={"estimate": estimate},
+    )
     estimate["estimate_id"] = recorded["estimate_id"]
     estimate["nature"] = "estimated"
     return {"ok": True, "estimate": estimate, "estimate_id": recorded["estimate_id"]}
@@ -966,25 +972,24 @@ def _compare_strategies(conn, task, parsed: dict, price: PriceTable, strategy_ta
         total_cost = min(item["path"]["total_cost_cents"] for item in comparison["directions"])
         total_duration = min(item["path"]["total_duration_ms"] for item in comparison["directions"])
     detail = {key: value for key, value in comparison.items() if key != "mode_table"}
-    with transaction(conn):
-        recorded = record_estimate(
-            conn,
-            task_id=task["id"],
-            kind="strategy_comparison",
-            direction=None,
-            search_mode=search_mode,
-            generation_mode=generation_mode,
-            search_queries=search_queries,
-            include_revision=include_revision,
-            strategy_version=strategy_table.version,
-            pricing_version=price.version,
-            total_cost_cents=total_cost,
-            total_duration_ms=total_duration,
-            incurred_cents=state.incurred_cents,
-            remaining_cents=state.remaining_budget_cents,
-            feasible=cheapest is not None,
-            detail=detail,
-        )
+    recorded = record_estimate(
+        conn,
+        task_id=task["id"],
+        kind="strategy_comparison",
+        direction=None,
+        search_mode=search_mode,
+        generation_mode=generation_mode,
+        search_queries=search_queries,
+        include_revision=include_revision,
+        strategy_version=strategy_table.version,
+        pricing_version=price.version,
+        total_cost_cents=total_cost,
+        total_duration_ms=total_duration,
+        incurred_cents=state.incurred_cents,
+        remaining_cents=state.remaining_budget_cents,
+        feasible=cheapest is not None,
+        detail=detail,
+    )
     comparison["estimate_id"] = recorded["estimate_id"]
     comparison["nature"] = "estimated"
     return comparison
@@ -1049,25 +1054,24 @@ def _choose_strategy(conn, task, parsed: dict, price: PriceTable, strategy_table
         "deadline_feasible": item["deadline_feasible"],
         "infeasibility": item["infeasibility"],
     }
-    with transaction(conn):
-        recorded_estimate = record_estimate(
-            conn,
-            task_id=task["id"],
-            kind="strategy_choice",
-            direction=direction,
-            search_mode=search_mode,
-            generation_mode=generation_mode,
-            search_queries=item["search_queries"],
-            include_revision=include_revision,
-            strategy_version=strategy_table.version,
-            pricing_version=price.version,
-            total_cost_cents=item["path"]["total_cost_cents"],
-            total_duration_ms=item["path"]["total_duration_ms"],
-            incurred_cents=state.incurred_cents,
-            remaining_cents=state.remaining_budget_cents,
-            feasible=item["feasible"],
-            detail=detail,
-        )
+    recorded_estimate = record_estimate(
+        conn,
+        task_id=task["id"],
+        kind="strategy_choice",
+        direction=direction,
+        search_mode=search_mode,
+        generation_mode=generation_mode,
+        search_queries=item["search_queries"],
+        include_revision=include_revision,
+        strategy_version=strategy_table.version,
+        pricing_version=price.version,
+        total_cost_cents=item["path"]["total_cost_cents"],
+        total_duration_ms=item["path"]["total_duration_ms"],
+        incurred_cents=state.incurred_cents,
+        remaining_cents=state.remaining_budget_cents,
+        feasible=item["feasible"],
+        detail=detail,
+    )
     if not item["feasible"]:
         return {
             "ok": False,
@@ -1084,26 +1088,25 @@ def _choose_strategy(conn, task, parsed: dict, price: PriceTable, strategy_table
             "selection_recorded": False,
             "nature": "estimated",
         }
-    with transaction(conn):
-        selection = create_strategy_selection(
-            conn,
-            task_id=task["id"],
-            direction=direction,
-            search_mode=search_mode,
-            generation_mode=generation_mode,
-            search_queries=item["search_queries"],
-            include_revision=include_revision,
-            improvement=improvement,
-            expected_benefit=expected_benefit.strip() if isinstance(expected_benefit, str) else None,
-            rationale=rationale.strip(),
-            strategy_version=strategy_table.version,
-            pricing_version=price.version,
-            path=item["path"],
-            total_cost_cents=item["path"]["total_cost_cents"],
-            total_duration_ms=item["path"]["total_duration_ms"],
-            incurred_cents=state.incurred_cents,
-            remaining_cents=state.remaining_budget_cents,
-        )
+    selection = create_strategy_selection(
+        conn,
+        task_id=task["id"],
+        direction=direction,
+        search_mode=search_mode,
+        generation_mode=generation_mode,
+        search_queries=item["search_queries"],
+        include_revision=include_revision,
+        improvement=improvement,
+        expected_benefit=expected_benefit.strip() if isinstance(expected_benefit, str) else None,
+        rationale=rationale.strip(),
+        strategy_version=strategy_table.version,
+        pricing_version=price.version,
+        path=item["path"],
+        total_cost_cents=item["path"]["total_cost_cents"],
+        total_duration_ms=item["path"]["total_duration_ms"],
+        incurred_cents=state.incurred_cents,
+        remaining_cents=state.remaining_budget_cents,
+    )
     return {
         "ok": True,
         "selection_id": selection["selection_id"],
@@ -2005,17 +2008,16 @@ def _record_dispositions(conn, task, parsed: dict) -> dict:
             return {"ok": False, "error": "invalid_arguments", "message": "每项 reason 必须非空。"}
         seen.add(finding_id)
         normalized.append({"finding_id": finding_id, "decision": decision, "reason": reason.strip()})
-    with transaction(conn):
-        conn.executemany(
-            """
-            INSERT INTO dispositions (review_id, finding_id, decision, reason, created_at)
-            VALUES (?, ?, ?, ?, ?)
-            ON CONFLICT(review_id, finding_id) DO UPDATE SET decision = excluded.decision,
-                reason = excluded.reason, created_at = excluded.created_at
-            """,
-            [(review["review_id"], item["finding_id"], item["decision"], item["reason"], utc_now_iso())
-             for item in normalized],
-        )
+    conn.executemany(
+        """
+        INSERT INTO dispositions (review_id, finding_id, decision, reason, created_at)
+        VALUES (?, ?, ?, ?, ?)
+        ON CONFLICT(review_id, finding_id) DO UPDATE SET decision = excluded.decision,
+            reason = excluded.reason, created_at = excluded.created_at
+        """,
+        [(review["review_id"], item["finding_id"], item["decision"], item["reason"], utc_now_iso())
+         for item in normalized],
+    )
     return {
         "ok": True,
         "review_id": review["review_id"],

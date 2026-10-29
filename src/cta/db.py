@@ -13,7 +13,7 @@ from pathlib import Path
 
 from cta import __version__
 
-SCHEMA_VERSION = 7
+SCHEMA_VERSION = 8
 
 SCHEMA = """
 CREATE TABLE IF NOT EXISTS meta (
@@ -80,6 +80,17 @@ CREATE TABLE IF NOT EXISTS messages (
     created_at TEXT NOT NULL,
     meta_json TEXT NOT NULL DEFAULT '{}',
     UNIQUE(task_id, agent, seq)
+);
+
+CREATE TABLE IF NOT EXISTS local_tool_results (
+    task_id TEXT NOT NULL REFERENCES tasks(id) ON DELETE CASCADE,
+    agent TEXT NOT NULL DEFAULT 'main',
+    request_seq INTEGER NOT NULL,
+    tool_call_id TEXT NOT NULL,
+    name TEXT NOT NULL,
+    result_json TEXT NOT NULL,
+    PRIMARY KEY(task_id, agent, request_seq, tool_call_id),
+    FOREIGN KEY(task_id, agent, request_seq) REFERENCES messages(task_id, agent, seq)
 );
 
 CREATE TABLE IF NOT EXISTS attempts (
