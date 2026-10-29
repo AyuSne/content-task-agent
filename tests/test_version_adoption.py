@@ -56,6 +56,7 @@ def test_materials_are_frozen_at_creation_before_the_first_run(cli_env, model_sc
 def test_adopted_knowledge_reaches_main_and_preserves_previous_body(cli_env, model_script, monkeypatch):
     knowledge = cli_env / "knowledge"
     shutil.copytree(Path(__file__).resolve().parents[1] / "knowledge", knowledge)
+    shutil.copytree(Path(__file__).resolve().parents[1] / ".agents/skills", cli_env / ".agents/skills")
     monkeypatch.setenv("CTA_KNOWLEDGE_DIR", str(knowledge))
     model_script([_tool("estimate_path", {}), _tool("estimate_path", {})])
     task_id = _create()["task_id"]

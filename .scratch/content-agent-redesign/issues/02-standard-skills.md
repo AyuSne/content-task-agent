@@ -37,3 +37,5 @@
 2026-10-30：已实现项目级标准 Skill 正文与条件引用；主 Agent 和独立核验分别从任务冻结的版本预装，目录、真实读取、拒绝及采用记录经 CLI inspect 可查，预装未伪造工具调用。Mock 模型的 CLI 行为测试覆盖正文与引用、路径拒绝、跨进程复用、显式采用前后正文及引用快照和核验上下文；测试：`PYTHONPATH=src python -m pytest -p no:cacheprovider --basetemp .scratch/test-02-09 tests/test_standard_skills.py tests/test_version_adoption.py tests/test_review_save.py tests/test_brief_loop.py -q` 通过 41 项；合并 01/07 后运行 `tests/test_standard_skills.py tests/test_task_plan.py tests/test_task_pricing.py` 及受上下文消息增加影响的两项回归，共 16 项通过。实现提交 8b62e1c，合并提交由集成记录补充。
 
 待完成跨票验收：创作 Skill 仍沿旧系统及工具保留固定比较/脚本生成过渡指引，工单 03 必须在直接提交能力接通时同步替换并验证一致性；本项不勾选，工单仍保持 ready-for-agent，不能宣称全票完成。02 已验收的读取和版本基础可供 03 构建；真实模型效果归工单 11，当前证据为 Mock。
+
+2026-10-30：合并至 `5d965de`。合并核对发现原载体位于 `knowledge/skills/`，与 D-01 已确认的项目级路径不一致；已迁至本仓库 `.agents/skills/` 并由原 manifest 指向同一正文及引用，旧知识版本文件保留。合并后验证：标准 Skill、显式采用、跨进程恢复、计划与费用及合并断言共 25 项通过。最后一项仍待 03 同步新职责并验证。

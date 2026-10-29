@@ -603,6 +603,7 @@ def _copy_runtime_inputs(tmp_path):
     shutil.copy(REPO_ROOT / "fixtures" / "materials" / "catalog.json", material_path)
     knowledge_dir = tmp_path / "knowledge"
     shutil.copytree(REPO_ROOT / "knowledge", knowledge_dir)
+    shutil.copytree(REPO_ROOT / ".agents/skills", tmp_path / ".agents/skills")
     payload = json.loads(material_path.read_text(encoding="utf-8"))
     for material in payload["materials"]:
         if material["id"] == "M-001":

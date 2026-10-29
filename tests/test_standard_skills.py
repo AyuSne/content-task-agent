@@ -18,6 +18,7 @@ def test_preloaded_skill_is_discoverable_and_readable_by_model(cli_env, model_sc
     assert result["resource"] == "SKILL.md"
     assert result["content"].startswith("---\nname: campaign-creation\n")
     assert "sha256" in result and "version" in result
+    assert "/.agents/skills/campaign-creation/SKILL.md" in result["source"].replace("\\", "/")
 
 
 def test_reference_reads_are_confined_and_reuse_task_version_across_processes(cli_env, model_script, monkeypatch):
@@ -28,9 +29,10 @@ def test_reference_reads_are_confined_and_reuse_task_version_across_processes(cl
 
     knowledge = cli_env / "knowledge"
     shutil.copytree(Path(__file__).resolve().parents[1] / "knowledge", knowledge)
+    shutil.copytree(Path(__file__).resolve().parents[1] / ".agents/skills", cli_env / ".agents/skills")
     monkeypatch.setenv("CTA_KNOWLEDGE_DIR", str(knowledge))
     resource = "references/evidence-examples.md"
-    original = (knowledge / "skills/campaign-creation" / resource).read_text(encoding="utf-8")
+    original = (cli_env / ".agents/skills/campaign-creation" / resource).read_text(encoding="utf-8")
     model_script([
         _tool("read_skill", {"name": "campaign-creation", "resource": resource}),
         _tool("read_skill", {"name": "campaign-creation", "resource": "../../manifest.json"}),
@@ -38,7 +40,7 @@ def test_reference_reads_are_confined_and_reuse_task_version_across_processes(cl
     ])
     task_id = _create()["task_id"]
     cli_json("run", task_id, "--max-rounds", "2")
-    (knowledge / "skills/campaign-creation" / resource).write_text("CHANGED WITHOUT ADOPTION", encoding="utf-8")
+    (cli_env / ".agents/skills/campaign-creation" / resource).write_text("CHANGED WITHOUT ADOPTION", encoding="utf-8")
     process = run_cli_process("resume", task_id, "--max-rounds", "1", data_dir=cli_env / "data")
     assert process.returncode == 0, process.stderr
     view = cli_json("inspect", task_id)
@@ -56,9 +58,10 @@ def test_explicit_adoption_records_and_uses_new_reference_snapshot(cli_env, mode
 
     knowledge = cli_env / "knowledge"
     shutil.copytree(Path(__file__).resolve().parents[1] / "knowledge", knowledge)
+    shutil.copytree(Path(__file__).resolve().parents[1] / ".agents/skills", cli_env / ".agents/skills")
     monkeypatch.setenv("CTA_KNOWLEDGE_DIR", str(knowledge))
     resource = "references/evidence-examples.md"
-    path = knowledge / "skills/campaign-creation" / resource
+    path = cli_env / ".agents/skills/campaign-creation" / resource
     original = path.read_text(encoding="utf-8")
     model_script([_tool("read_skill", {"name": "campaign-creation", "resource": resource}),
                   _tool("read_skill", {"name": "campaign-creation", "resource": resource})])
@@ -90,8 +93,9 @@ def test_reviewer_preloads_task_adopted_body_even_if_source_changes(cli_env, mod
 
     knowledge = cli_env / "knowledge"
     shutil.copytree(Path(__file__).resolve().parents[1] / "knowledge", knowledge)
+    shutil.copytree(Path(__file__).resolve().parents[1] / ".agents/skills", cli_env / ".agents/skills")
     monkeypatch.setenv("CTA_KNOWLEDGE_DIR", str(knowledge))
-    reviewer_path = knowledge / "skills/content-review/SKILL.md"
+    reviewer_path = cli_env / ".agents/skills/content-review/SKILL.md"
     original = reviewer_path.read_text(encoding="utf-8")
     task_id = _draft_ready(model_script, _review_item(REVIEW_PASS))["task_id"]
     reviewer_path.write_text("UNADOPTED REVIEW BODY", encoding="utf-8")
