@@ -132,6 +132,7 @@ def append_recovery_fact(conn, task, report: dict, *, unpaused: bool = False) ->
         "sim_elapsed_ms": task["sim_elapsed_ms"],
         "sim_start": task["sim_start"],
         "used_rounds": task["used_rounds"],
+        "max_rounds": task["max_rounds"],
         "spent_cents": task_spent(conn, task["id"]),
         "requests": usage["requests"],
         "reused": report["reused"],
@@ -207,6 +208,42 @@ def _recover_call(conn, task, call: dict, catalog: MaterialCatalog, config: Conf
         return _recover_stop(conn, task, call)
     if name == "generate_script":
         return _recover_generation(conn, task, call, parsed, catalog)
+    if name == "review_campaign":
+        output = latest_output(conn, task["id"])
+        review = latest_review(conn, task["id"])
+        if output is not None and review is not None and review["output_id"] == output["output_id"]:
+            return _outcome({"ok": True, "review": review, "recovered": True}, category="recovered")
+        return _outcome({
+            "ok": False, "error": "review_interrupted", "recovered": True,
+            "message": "上次核验没有完整权威结果；保留已发生消耗，仅可重新执行该有界步骤。",
+        }, category="interrupted")
+    if name == "save_campaign":
+        from cta.save import reconcile_task
+
+        save = latest_save(conn, task["id"])
+        if save is not None and save["status"] == "failed":
+            return _outcome({
+                "ok": False, "error": "save_failed", "save": save, "recovered": True,
+                "message": "保存已明确失败；保留原尝试与消耗，重试须由主 Agent 决定。",
+            }, category="recovered")
+        if save is not None and save["status"] == "unknown" and not save["verified"]:
+            return _outcome({
+                "ok": False, "error": "save_unknown", "save": save, "recovered": True,
+                "message": "保存仍未知，保持停止；请先显式核实记录与文件，不能盲目重放。",
+            }, category="interrupted")
+        if save is not None:
+            document = reconcile_task(config, task["id"])
+            saved = document.get("save")
+            if saved is not None and saved["verified"]:
+                return _outcome({"ok": True, "save": saved, "recovered": True}, category="recovered")
+            return _outcome({
+                "ok": False, "error": "save_unknown", "save": saved, "recovered": True,
+                "message": "保存结果未核实，保持未知；不能盲目重放。",
+            }, category="interrupted")
+        return _outcome({
+            "ok": False, "error": "save_interrupted", "recovered": True, "no_charge": True,
+            "message": "保存开始前中断，没有保存记录；由主 Agent 决定下一步。",
+        }, category="interrupted")
     return _outcome(
         {"ok": False, "error": "unknown_tool", "message": f"未知工具：{name}；本轮未执行任何业务动作。", "recovered": True},
         category="interrupted",

@@ -51,8 +51,9 @@ from cta.repository import (
     start_attempt,
     task_spent,
 )
+from cta.review import ReviewError, review_task
+from cta.save import SaveBlocked, reconcile_task, save_task
 from cta.service import (
-    MAX_ROUNDS,
     STATUS_COMPLETE,
     STATUS_IN_PROGRESS,
     STATUS_INCOMPLETE,
@@ -93,9 +94,6 @@ def run_task(config: Config, task_id: str, *, max_rounds: int | None = None, exp
 
     with open_store(config.db_path) as conn:
         task = _task(conn, task_id)
-        if task["status"] == STATUS_COMPLETE:
-            run_info["stop_reason"] = "already_complete"
-            return _document(config, task_id, run_info)
         if task["status"] == STATUS_NEEDS_INPUT and not _has_messages(conn, task_id):
             run_info["stop_reason"] = "needs_input"
             return _document(config, task_id, run_info)
@@ -139,14 +137,9 @@ def run_task(config: Config, task_id: str, *, max_rounds: int | None = None, exp
             return _document(config, task_id, run_info)
 
         if explicit_resume:
-            for phase in ("draft_ready", "reviewed", "review_incomplete", "save_failed"):
-                if task["phase"] == phase:
-                    run_info["stop_reason"] = phase
-                    return _document(config, task_id, run_info)
-
             if task["status"] == STATUS_INCOMPLETE:
-                if task["used_rounds"] >= MAX_ROUNDS:
-                    _set_incomplete(conn, task, f"达到主循环轮数上限（{MAX_ROUNDS} 轮）；显式续跑不获得新额度。")
+                if task["used_rounds"] >= task["max_rounds"]:
+                    _set_incomplete(conn, task, f"达到主循环轮数上限（{task['max_rounds']} 轮）；显式续跑不获得新额度。")
                     run_info["stop_reason"] = "max_rounds"
                     return _document(config, task_id, run_info)
                 if _past_deadline(conn, task):
@@ -169,23 +162,18 @@ def run_task(config: Config, task_id: str, *, max_rounds: int | None = None, exp
                 _ensure_phase_context(conn, task, config)
                 _snapshot(conn, task)
                 task = _task(conn, task_id)
-                for phase in ("draft_ready", "reviewed", "review_incomplete", "save_failed"):
-                    if task["phase"] == phase:
-                        run_info["stop_reason"] = phase
-                        return _document(config, task_id, run_info)
         else:
             if task["status"] == STATUS_INCOMPLETE:
                 run_info["stop_reason"] = "incomplete"
                 return _document(config, task_id, run_info)
-            if task["phase"] == "draft_ready":
-                run_info["stop_reason"] = "draft_ready"
-                return _document(config, task_id, run_info)
 
         if task["status"] == STATUS_COMPLETE:
+            if recovery_has_events(report) or explicit_resume:
+                reconcile_task(config, task_id, refresh_exports=True)
             run_info["stop_reason"] = "already_complete"
             return _document(config, task_id, run_info)
-        if task["used_rounds"] >= MAX_ROUNDS:
-            _set_incomplete(conn, task, f"达到主循环轮数上限（{MAX_ROUNDS} 轮），保留现有成果。")
+        if task["used_rounds"] >= task["max_rounds"]:
+            _set_incomplete(conn, task, f"达到主循环轮数上限（{task['max_rounds']} 轮），保留现有成果。")
             run_info["stop_reason"] = "max_rounds"
             return _document(config, task_id, run_info)
         if _past_deadline(conn, task):
@@ -213,13 +201,13 @@ def run_task(config: Config, task_id: str, *, max_rounds: int | None = None, exp
             if task["status"] in (STATUS_COMPLETE, STATUS_INCOMPLETE):
                 run_info["stop_reason"] = task["status"]
                 break
-            if task["used_rounds"] >= MAX_ROUNDS:
+            if task["used_rounds"] >= task["max_rounds"]:
                 _set_incomplete(
                     conn,
                     task,
-                    f"达到主循环轮数上限（{MAX_ROUNDS} 轮），保留现有成果。",
+                    f"达到主循环轮数上限（{task['max_rounds']} 轮），保留现有成果。",
                     kind="max_rounds",
-                    gaps=[{"gap": f"达到主循环轮数上限（{MAX_ROUNDS} 轮）", "impact": "未完成步骤不再执行；需显式续跑或调整条件"}],
+                    gaps=[{"gap": f"达到主循环轮数上限（{task['max_rounds']} 轮）", "impact": "未完成步骤不再执行；需显式续跑或调整条件"}],
                 )
                 run_info["stop_reason"] = "max_rounds"
                 break
@@ -280,7 +268,14 @@ def run_task(config: Config, task_id: str, *, max_rounds: int | None = None, exp
                 break
 
             outcome = _handle_response(conn, task, response, price, catalog, config, client, strategy_table)
+            task = _task(conn, task_id)
+            _ensure_phase_context(conn, task, config)
+            _snapshot(conn, task)
             if outcome["terminal"]:
+                if task["status"] == STATUS_COMPLETE:
+                    # The save's main-tool receipt is now durable; include it
+                    # and the final snapshot in the same verified delivery.
+                    reconcile_task(config, task_id, refresh_exports=True)
                 run_info["stop_reason"] = outcome["stop_reason"]
                 break
 
@@ -367,6 +362,7 @@ def _ensure_base_context(conn, task, config: Config) -> None:
             "audience": input_row["audience"],
             "requirements": json.loads(input_row["requirements_json"]),
             "sim_start": task["sim_start"],
+            "max_rounds": task["max_rounds"],
         }
         append_message(
             conn,
@@ -378,7 +374,7 @@ def _ensure_base_context(conn, task, config: Config) -> None:
 
 
 def _ensure_phase_context(conn, task, config: Config) -> None:
-    if task["phase"] not in ("brief_ready", "reviewed", "input_updated"):
+    if task["phase"] not in ("brief_ready", "draft_ready", "reviewed", "review_incomplete", "input_updated"):
         return
     with transaction(conn):
         if task["phase"] == "brief_ready":
@@ -395,7 +391,27 @@ def _ensure_phase_context(conn, task, config: Config) -> None:
                     "再整合活动安排、素材用途、制作步骤与证据，调用 propose_campaign 提交完整方案草稿。",
                     meta={"kind": "phase_transition", "from": "brief", "to": "campaign_draft"},
                 )
-        if task["phase"] == "reviewed":
+        if task["phase"] == "draft_ready":
+            output = latest_output(conn, task["id"])
+            if output is not None and output["status"] == "pending_review":
+                imported = conn.execute(
+                    "SELECT COUNT(*) AS n FROM messages WHERE task_id = ? AND agent = 'main' AND meta_json LIKE ?",
+                    (task["id"], f'%"imported_output_id": "{output["output_id"]}"%'),
+                ).fetchone()
+                if not imported["n"]:
+                    append_message(
+                        conn, task["id"], "user",
+                        "[待核验人工稿] " + json.dumps({
+                            "output_id": output["output_id"],
+                            "output_version": output["version"],
+                            "input_version": output["input_version"],
+                            "campaign": output["content"],
+                            "markdown": output["content_md"],
+                            "instruction": "这是当前采用的完整人工稿。检查修改与整体关系，调用 review_campaign；旧稿通过结论不继承。",
+                        }, ensure_ascii=False),
+                        meta={"kind": "imported_campaign", "imported_output_id": output["output_id"]},
+                    )
+        if task["phase"] in ("reviewed", "review_incomplete"):
             review = latest_review(conn, task["id"])
             pattern = "%review_feedback%"
             if review is not None:
@@ -586,6 +602,30 @@ def _handle_response(
     elif call.name == "record_disposition":
         result = _record_disposition(conn, task, parsed)
         terminal = False
+    elif call.name == "review_campaign":
+        try:
+            document = review_task(config, task["id"])
+            result = {"ok": True, "review": document["review"], "resources": document["resources"]}
+        except ReviewError as exc:
+            result = {"ok": False, "error": exc.code, "message": str(exc)}
+        terminal = False
+    elif call.name == "save_campaign":
+        try:
+            document = save_task(config, task["id"])
+            result = {
+                "ok": document["status"] == STATUS_COMPLETE,
+                "save": document.get("save"),
+                "resources": document["resources"],
+                **({"error": document["save_error"]["code"], "message": document["save_error"]["message"]}
+                   if document.get("save_error") else {}),
+            }
+            terminal = result["ok"] or result.get("error") == "save_unknown"
+            if document["progress"]["phase"] == "save_failed":
+                with transaction(conn):
+                    conn.execute("UPDATE tasks SET status = ? WHERE id = ?", (STATUS_IN_PROGRESS, task["id"]))
+        except SaveBlocked as exc:
+            result = {"ok": False, "error": exc.code, "message": exc.message}
+            terminal = False
     elif call.name == "stop_incomplete":
         result, terminal = _stop_incomplete(conn, task, parsed)
     else:
@@ -597,6 +637,10 @@ def _handle_response(
     crash("after_tool_effect")
     if call.name == "propose_campaign":
         crash("after_campaign_effect")
+    if call.name == "review_campaign":
+        crash("after_review_effect")
+    if call.name == "save_campaign":
+        crash("after_save_effect")
 
     with transaction(conn):
         append_message(
@@ -624,6 +668,8 @@ def _parse_call(call) -> tuple[dict, dict | None]:
         return {}, {"error": "invalid_arguments", "message": "工具参数不是合法 JSON；本轮未执行任何业务动作。"}
     if not isinstance(parsed, dict):
         return {}, {"error": "invalid_arguments", "message": "工具参数必须是 JSON 对象。"}
+    if call.name in ("review_campaign", "save_campaign") and parsed:
+        return {}, {"error": "invalid_arguments", "message": "该工具只作用于当前采用版本，不接受额外参数。"}
     return parsed, None
 
 
@@ -1123,6 +1169,20 @@ def _generate_script(
         "focus": focus,
         "materials": material_context,
     }
+    current_output = latest_output(conn, task["id"])
+    if current_output is not None:
+        review = latest_review(conn, task["id"])
+        dispositions = [] if review is None else [dict(row) for row in conn.execute(
+            "SELECT finding_id, decision, reason FROM dispositions WHERE review_id = ? ORDER BY id",
+            (review["review_id"],),
+        )]
+        request_payload["revision"] = {
+            "current_output_version": current_output["version"],
+            "current_campaign": current_output["content"],
+            "review": review,
+            "dispositions": dispositions,
+            "protection": "围绕具体意见修改脚本及受影响关系，保护其余已正确的事实、要求、素材状态与内容。",
+        }
     base_messages = [
         {"role": "system", "content": SCRIPT_GENERATION_SYSTEM_PROMPT},
         {
@@ -1412,7 +1472,7 @@ def _propose_campaign(conn, task, parsed: dict, catalog: MaterialCatalog) -> tup
         "output_id": output["output_id"],
         "output_version": output["version"],
         "message": "完整方案草稿已保存；尚未核验，不代表可交付。",
-    }, True
+    }, False
 
 
 def _validate_campaign(campaign: dict, catalog: MaterialCatalog) -> tuple[dict, list[str]]:
@@ -1684,7 +1744,7 @@ def _propose_brief(conn, task, parsed: dict, catalog: MaterialCatalog) -> tuple[
                 task["id"],
             ),
         )
-    return {"ok": True, "brief_version": version, "message": "业务简报已通过校验并保存；本阶段结束。"}, True
+    return {"ok": True, "brief_version": version, "message": "业务简报已通过校验并保存；继续组织完整方案。"}, False
 
 
 def _validate_brief(brief: dict, catalog: MaterialCatalog) -> tuple[dict, list[str]]:
