@@ -115,7 +115,8 @@ def _repair_files(conn, config: Config, task, output: dict, review: dict | None,
     Completion is written only after every rebuilt file verifies; a failed
     repair leaves the task uncompleted and the save unknown.
     """
-    should_complete = task["status"] != "complete" and _preconditions(conn, task, output) is None
+    should_complete = (task["status"] != "complete" and _preconditions(conn, task, output) is None
+                       and _guard(conn, task, 0, 0) is None)
     verified_at = utc_now_iso()
     virtual = {**save, "verified": True, "status": "verified", "verified_at": verified_at}
     final_task = dict(task)

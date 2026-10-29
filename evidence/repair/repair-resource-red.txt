@@ -1,0 +1,24 @@
+F                                                                        [100%]
+================================== FAILURES ===================================
+________ test_export_repair_keeps_resource_infeasible_task_incomplete _________
+
+cli_env = WindowsPath('C:/Users/10167/AppData/Local/Temp/pytest-of-10167/pytest-232/test_export_repair_keeps_resou0')
+model_script = <function model_script.<locals>.write at 0x000002B4C4B416C0>
+
+    def test_export_repair_keeps_resource_infeasible_task_incomplete(cli_env, model_script):
+        task, saved = _complete_task(model_script, cli_env)
+        updated = cli_json("update", task["task_id"], "--budget", "2")
+        assert updated["status"] == "incomplete"
+        campaign = next(item for item in saved["save"]["files"] if item["path"].endswith("campaign-v1.json"))
+        Path(campaign["path"]).unlink()
+        reconciled = cli_json("reconcile", task["task_id"])
+>       assert reconciled["status"] == "incomplete"
+E       AssertionError: assert 'complete' == 'incomplete'
+E         
+E         - incomplete
+E         ? --
+E         + complete
+
+tests\test_save_reconcile.py:42: AssertionError
+=========================== short test summary info ===========================
+FAILED tests/test_save_reconcile.py::test_export_repair_keeps_resource_infeasible_task_incomplete
