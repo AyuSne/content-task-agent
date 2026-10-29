@@ -1,0 +1,35 @@
+F                                                                        [100%]
+================================== FAILURES ===================================
+___________ test_model_connection_error_retains_the_transport_cause ___________
+
+cli_env = WindowsPath('C:/Users/10167/AppData/Local/Temp/pytest-of-10167/pytest-236/test_model_connection_error_re0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x00000214471B5BA0>
+
+    def test_model_connection_error_retains_the_transport_cause(cli_env, monkeypatch):
+        monkeypatch.setenv("CTA_LLM_TIMEOUT", "1")
+    
+        class InterruptedEndpoint(BaseHTTPRequestHandler):
+            def do_POST(self):
+                self.rfile.read(int(self.headers["Content-Length"]))
+                self.connection.shutdown(socket.SHUT_RDWR)
+                self.connection.close()
+    
+            def log_message(self, *_args):
+                pass
+    
+        server = ThreadingHTTPServer(("127.0.0.1", 0), InterruptedEndpoint)
+        thread = threading.Thread(target=server.serve_forever, daemon=True)
+        thread.start()
+        try:
+            config = replace(
+                load_config("real"), base_url=f"http://127.0.0.1:{server.server_port}", api_key="local-test-key",
+            )
+            response = DeepSeekClient(config).complete([{"role": "user", "content": "测试中断"}], [], cursor=0)
+            assert "APIConnectionError" in response.error
+>           assert "RemoteProtocolError" in response.error
+E           AssertionError: assert 'RemoteProtocolError' in 'APIConnectionError: Connection error.'
+E            +  where 'APIConnectionError: Connection error.' = ModelResponse(content=None, tool_calls=(), finish_reason=None, model='deepseek-flash', usage=None, error='APIConnectionError: Connection error.', mock=False, elapsed_ms=976, raw_id=None).error
+
+tests\test_model_direct.py:82: AssertionError
+=========================== short test summary info ===========================
+FAILED tests/test_model_direct.py::test_model_connection_error_retains_the_transport_cause

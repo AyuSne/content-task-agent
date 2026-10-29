@@ -56,6 +56,14 @@ class ModelClient(Protocol):
     ) -> ModelResponse: ...
 
 
+def _error_message(config: Config, exc: Exception) -> str:
+    causes = []
+    while exc is not None:
+        causes.append(f"{type(exc).__name__}: {exc}")
+        exc = exc.__cause__ or (None if exc.__suppress_context__ else exc.__context__)
+    return config.redact(" <- ".join(causes))[:800]
+
+
 class DeepSeekClient:
     def __init__(self, config: Config):
         if not config.api_key:
@@ -88,7 +96,7 @@ class DeepSeekClient:
         try:
             response = self.client.chat.completions.create(**request)
         except Exception as exc:  # noqa: BLE001 - boundary records the real error
-            message = self.config.redact(f"{type(exc).__name__}: {exc}")[:800]
+            message = _error_message(self.config, exc)
             return ModelResponse(
                 error=message,
                 model=self.config.model,

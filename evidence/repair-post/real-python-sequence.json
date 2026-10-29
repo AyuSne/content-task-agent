@@ -1,0 +1,323 @@
+{
+  "model_config": {
+    "provider": "deepseek",
+    "sdk": "openai",
+    "base_url": "https://api.deepseek.com",
+    "model": "deepseek-flash",
+    "api_key": "set",
+    "thinking": false,
+    "streaming": false,
+    "sdk_auto_retries": 0,
+    "network_route": "direct"
+  },
+  "prompt_version": "main-2026-10-29.v9",
+  "sequence": "three repetitions of GET -> minimal POST -> main-tools POST; fresh client per request",
+  "attempts": [
+    {
+      "kind": "get_models",
+      "repetition": 1,
+      "started_at": "2026-10-29T03:29:14.356253+00:00",
+      "error_causes": [
+        "ConnectError: [SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1032)",
+        "ConnectError: [SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1032)"
+      ],
+      "usage": "not_applicable: unauthenticated GET",
+      "finished_at": "2026-10-29T03:29:19.561720+00:00",
+      "wall_seconds": 5.205
+    },
+    {
+      "kind": "post_minimal",
+      "repetition": 1,
+      "started_at": "2026-10-29T03:29:19.564419+00:00",
+      "content": "ok",
+      "tool_calls": [],
+      "finish_reason": "stop",
+      "model": "deepseek-flash",
+      "usage": {
+        "prompt_tokens": 8,
+        "completion_tokens": 1,
+        "total_tokens": 9,
+        "prompt_cache_hit_tokens": 0,
+        "prompt_cache_miss_tokens": 8,
+        "raw": {
+          "completion_tokens": 1,
+          "prompt_tokens": 8,
+          "total_tokens": 9,
+          "completion_tokens_details": null,
+          "prompt_tokens_details": {
+            "audio_tokens": null,
+            "cache_write_tokens": null,
+            "cached_tokens": 0
+          },
+          "prompt_cache_hit_tokens": 0,
+          "prompt_cache_miss_tokens": 8
+        }
+      },
+      "error": null,
+      "mock": false,
+      "elapsed_ms": 1775,
+      "raw_id": "513f0d59-ddde-4fc1-83da-fadf10a38353",
+      "http_requests": [
+        {
+          "method": "POST",
+          "url": "https://api.deepseek.com/chat/completions",
+          "body_bytes": 128,
+          "body_sha256": "17b2919751863bf8057a7beb87652b8ed189baef363f7d5d975ab80475a05baf"
+        }
+      ],
+      "finished_at": "2026-10-29T03:29:21.353658+00:00",
+      "wall_seconds": 1.789
+    },
+    {
+      "kind": "post_main_tools",
+      "repetition": 1,
+      "started_at": "2026-10-29T03:29:21.354346+00:00",
+      "content": "我先查看当前任务的资料缺口：需要了解产品能力和品牌规则，才能判断下一步该做什么。",
+      "tool_calls": [
+        {
+          "id": "call_00_3IQnCa5z9EuLZbAfGEo25555",
+          "name": "search_materials",
+          "arguments": "{\"query\": \"帧剪 产品能力 校园社团 短视频 剪辑功能\", \"mode\": \"basic\"}"
+        }
+      ],
+      "finish_reason": "tool_calls",
+      "model": "deepseek-flash",
+      "usage": {
+        "prompt_tokens": 4414,
+        "completion_tokens": 85,
+        "total_tokens": 4499,
+        "prompt_cache_hit_tokens": 256,
+        "prompt_cache_miss_tokens": 4158,
+        "raw": {
+          "completion_tokens": 85,
+          "prompt_tokens": 4414,
+          "total_tokens": 4499,
+          "completion_tokens_details": null,
+          "prompt_tokens_details": {
+            "audio_tokens": null,
+            "cache_write_tokens": null,
+            "cached_tokens": 256
+          },
+          "prompt_cache_hit_tokens": 256,
+          "prompt_cache_miss_tokens": 4158
+        }
+      },
+      "error": null,
+      "mock": false,
+      "elapsed_ms": 1240,
+      "raw_id": "b4b5a064-d950-4a46-87b5-2fa69a03719b",
+      "http_requests": [
+        {
+          "method": "POST",
+          "url": "https://api.deepseek.com/chat/completions",
+          "body_bytes": 16510,
+          "body_sha256": "1246597219edca9eea18538004649b733d87e2ca3c17ea8721efe4e371a5c87e"
+        }
+      ],
+      "finished_at": "2026-10-29T03:29:22.607339+00:00",
+      "wall_seconds": 1.253
+    },
+    {
+      "kind": "get_models",
+      "repetition": 2,
+      "started_at": "2026-10-29T03:29:22.608127+00:00",
+      "http_status": 401,
+      "usage": "not_applicable: unauthenticated GET",
+      "finished_at": "2026-10-29T03:29:22.822350+00:00",
+      "wall_seconds": 0.214
+    },
+    {
+      "kind": "post_minimal",
+      "repetition": 2,
+      "started_at": "2026-10-29T03:29:22.823025+00:00",
+      "content": "ok",
+      "tool_calls": [],
+      "finish_reason": "stop",
+      "model": "deepseek-flash",
+      "usage": {
+        "prompt_tokens": 8,
+        "completion_tokens": 1,
+        "total_tokens": 9,
+        "prompt_cache_hit_tokens": 0,
+        "prompt_cache_miss_tokens": 8,
+        "raw": {
+          "completion_tokens": 1,
+          "prompt_tokens": 8,
+          "total_tokens": 9,
+          "completion_tokens_details": null,
+          "prompt_tokens_details": {
+            "audio_tokens": null,
+            "cache_write_tokens": null,
+            "cached_tokens": 0
+          },
+          "prompt_cache_hit_tokens": 0,
+          "prompt_cache_miss_tokens": 8
+        }
+      },
+      "error": null,
+      "mock": false,
+      "elapsed_ms": 777,
+      "raw_id": "26d29cb8-5770-4c93-815a-3448d00a4403",
+      "http_requests": [
+        {
+          "method": "POST",
+          "url": "https://api.deepseek.com/chat/completions",
+          "body_bytes": 128,
+          "body_sha256": "17b2919751863bf8057a7beb87652b8ed189baef363f7d5d975ab80475a05baf"
+        }
+      ],
+      "finished_at": "2026-10-29T03:29:23.611935+00:00",
+      "wall_seconds": 0.789
+    },
+    {
+      "kind": "post_main_tools",
+      "repetition": 2,
+      "started_at": "2026-10-29T03:29:23.612627+00:00",
+      "content": "我先查看当前任务状态和已有材料。",
+      "tool_calls": [
+        {
+          "id": "call_00_VhuKwmkYUphcXCF4kZH89235",
+          "name": "search_materials",
+          "arguments": "{\"query\": \"帧剪 校园社团招新 产品能力 品牌规则\", \"mode\": \"basic\"}"
+        }
+      ],
+      "finish_reason": "tool_calls",
+      "model": "deepseek-flash",
+      "usage": {
+        "prompt_tokens": 4414,
+        "completion_tokens": 74,
+        "total_tokens": 4488,
+        "prompt_cache_hit_tokens": 4224,
+        "prompt_cache_miss_tokens": 190,
+        "raw": {
+          "completion_tokens": 74,
+          "prompt_tokens": 4414,
+          "total_tokens": 4488,
+          "completion_tokens_details": null,
+          "prompt_tokens_details": {
+            "audio_tokens": null,
+            "cache_write_tokens": null,
+            "cached_tokens": 4224
+          },
+          "prompt_cache_hit_tokens": 4224,
+          "prompt_cache_miss_tokens": 190
+        }
+      },
+      "error": null,
+      "mock": false,
+      "elapsed_ms": 1461,
+      "raw_id": "32ca07ff-5fc3-4533-8180-f5eb5c94c54a",
+      "http_requests": [
+        {
+          "method": "POST",
+          "url": "https://api.deepseek.com/chat/completions",
+          "body_bytes": 16510,
+          "body_sha256": "1246597219edca9eea18538004649b733d87e2ca3c17ea8721efe4e371a5c87e"
+        }
+      ],
+      "finished_at": "2026-10-29T03:29:25.086881+00:00",
+      "wall_seconds": 1.474
+    },
+    {
+      "kind": "get_models",
+      "repetition": 3,
+      "started_at": "2026-10-29T03:29:25.087696+00:00",
+      "http_status": 401,
+      "usage": "not_applicable: unauthenticated GET",
+      "finished_at": "2026-10-29T03:29:25.524556+00:00",
+      "wall_seconds": 0.437
+    },
+    {
+      "kind": "post_minimal",
+      "repetition": 3,
+      "started_at": "2026-10-29T03:29:25.525319+00:00",
+      "content": "ok",
+      "tool_calls": [],
+      "finish_reason": "stop",
+      "model": "deepseek-flash",
+      "usage": {
+        "prompt_tokens": 8,
+        "completion_tokens": 1,
+        "total_tokens": 9,
+        "prompt_cache_hit_tokens": 0,
+        "prompt_cache_miss_tokens": 8,
+        "raw": {
+          "completion_tokens": 1,
+          "prompt_tokens": 8,
+          "total_tokens": 9,
+          "completion_tokens_details": null,
+          "prompt_tokens_details": {
+            "audio_tokens": null,
+            "cache_write_tokens": null,
+            "cached_tokens": 0
+          },
+          "prompt_cache_hit_tokens": 0,
+          "prompt_cache_miss_tokens": 8
+        }
+      },
+      "error": null,
+      "mock": false,
+      "elapsed_ms": 1045,
+      "raw_id": "241ef57d-7fc6-431b-94dc-8da8cc93b76e",
+      "http_requests": [
+        {
+          "method": "POST",
+          "url": "https://api.deepseek.com/chat/completions",
+          "body_bytes": 128,
+          "body_sha256": "17b2919751863bf8057a7beb87652b8ed189baef363f7d5d975ab80475a05baf"
+        }
+      ],
+      "finished_at": "2026-10-29T03:29:26.585457+00:00",
+      "wall_seconds": 1.06
+    },
+    {
+      "kind": "post_main_tools",
+      "repetition": 3,
+      "started_at": "2026-10-29T03:29:26.586352+00:00",
+      "content": "我先查一下本任务资料中与「帧剪」产品能力和校园社团招新相关的信息，确认简报阶段有什么可引用的事实。",
+      "tool_calls": [
+        {
+          "id": "call_00_bF4LLf0xQ0DZ8qNCciWy5205",
+          "name": "search_materials",
+          "arguments": "{\"query\": \"帧剪 产品能力 校园社团招新 短视频剪辑\", \"mode\": \"basic\"}"
+        }
+      ],
+      "finish_reason": "tool_calls",
+      "model": "deepseek-flash",
+      "usage": {
+        "prompt_tokens": 4414,
+        "completion_tokens": 94,
+        "total_tokens": 4508,
+        "prompt_cache_hit_tokens": 4224,
+        "prompt_cache_miss_tokens": 190,
+        "raw": {
+          "completion_tokens": 94,
+          "prompt_tokens": 4414,
+          "total_tokens": 4508,
+          "completion_tokens_details": null,
+          "prompt_tokens_details": {
+            "audio_tokens": null,
+            "cache_write_tokens": null,
+            "cached_tokens": 4224
+          },
+          "prompt_cache_hit_tokens": 4224,
+          "prompt_cache_miss_tokens": 190
+        }
+      },
+      "error": null,
+      "mock": false,
+      "elapsed_ms": 1238,
+      "raw_id": "34246120-30e2-4c22-b31c-7436403dc7d0",
+      "http_requests": [
+        {
+          "method": "POST",
+          "url": "https://api.deepseek.com/chat/completions",
+          "body_bytes": 16510,
+          "body_sha256": "1246597219edca9eea18538004649b733d87e2ca3c17ea8721efe4e371a5c87e"
+        }
+      ],
+      "finished_at": "2026-10-29T03:29:27.836112+00:00",
+      "wall_seconds": 1.25
+    }
+  ]
+}

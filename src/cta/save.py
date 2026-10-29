@@ -375,9 +375,9 @@ def save_task(config: Config, task_id: str) -> dict:
                 status="success",
                 meta={"output_id": output["output_id"], "save_id": save["save_id"], "files": len(checked)},
             )
-            conn.commit()
             final_task = conn.execute("SELECT * FROM tasks WHERE id = ?", (task_id,)).fetchone()
             final_save = latest_save(conn, task_id)
+            crash("save_before_report")
             report_file = build_report_file(conn, config, final_task, output, review, final_save)
             trace_file = build_trace_file(conn, config, final_task)
             checked = checked + [report_file, trace_file]
@@ -385,7 +385,6 @@ def save_task(config: Config, task_id: str) -> dict:
                 "UPDATE saves SET files_json = ? WHERE id = ?",
                 (json.dumps(checked, ensure_ascii=False), save["save_id"]),
             )
-            conn.commit()
             ok, verified = verify_records(checked)
             if not ok:
                 raise OSError("交付文件复核失败")

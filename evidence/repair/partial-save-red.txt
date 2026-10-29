@@ -1,0 +1,20 @@
+F                                                                        [100%]
+================================== FAILURES ===================================
+_ test_interruption_before_report_cannot_commit_partial_delivery_as_complete __
+
+cli_env = WindowsPath('C:/Users/10167/AppData/Local/Temp/pytest-of-10167/pytest-242/test_interruption_before_repor0')
+model_script = <function model_script.<locals>.write at 0x00000272C7611DA0>
+
+    def test_interruption_before_report_cannot_commit_partial_delivery_as_complete(cli_env, model_script):
+        task = _draft_ready(model_script, _review_item(REVIEW_PASS))
+        cli_json("review", task["task_id"])
+        crashed = run_cli_process("save", task["task_id"], data_dir=cli_env / "data",
+                                  extra_env={"CTA_FAULT_CRASH": "save_before_report"})
+        assert crashed.returncode == 70
+        inspected = cli_json("inspect", task["task_id"])
+>       assert inspected["status"] != "complete"
+E       AssertionError: assert 'complete' != 'complete'
+
+tests\test_save_reconcile.py:138: AssertionError
+=========================== short test summary info ===========================
+FAILED tests/test_save_reconcile.py::test_interruption_before_report_cannot_commit_partial_delivery_as_complete

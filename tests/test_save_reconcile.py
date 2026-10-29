@@ -126,3 +126,15 @@ def test_resume_first_reconciles_unknown_save_without_new_model_or_business_atte
     assert len(after["attempts"]) == len(before["attempts"])
     assert len(after["llm_requests"]) == len(before["llm_requests"])
     assert after["resources"]["sim_spent_cents"] == before["resources"]["sim_spent_cents"]
+
+
+def test_interruption_before_report_cannot_commit_partial_delivery_as_complete(cli_env, model_script):
+    task = _draft_ready(model_script, _review_item(REVIEW_PASS))
+    cli_json("review", task["task_id"])
+    crashed = run_cli_process("save", task["task_id"], data_dir=cli_env / "data",
+                              extra_env={"CTA_FAULT_CRASH": "save_before_report"})
+    assert crashed.returncode == 70
+    inspected = cli_json("inspect", task["task_id"])
+    assert inspected["status"] != "complete"
+    assert inspected["save"]["verified"] is False
+    assert inspected["attempts"][-1]["status"] != "success"

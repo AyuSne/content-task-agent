@@ -23,6 +23,8 @@ def main() -> int:
     parser.add_argument("--case", choices=("normal", "budget", "recovery", "insufficient"), required=True)
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--fault", default="generation_after_start")
+    parser.add_argument("--resume-attempts", type=int, default=0,
+                        help="显式执行有限次CLI续跑，仅用于已记录的模型连接失败；不重置任务限额")
     args = parser.parse_args()
     target = args.output.resolve()
     target.mkdir(parents=True, exist_ok=False)
@@ -79,6 +81,11 @@ def main() -> int:
     if args.case == "recovery":
         cli("03-before-resume", "inspect", task_id)
         result = cli("04-resume", "resume", task_id)
+    for index in range(args.resume_attempts):
+        if result is None or result.get("run", {}).get("stop_reason") != "model_error":
+            break
+        cli(f"retry-{index + 1}-before", "inspect", task_id)
+        result = cli(f"retry-{index + 1}-resume", "resume", task_id)
     inspected = cli("05-inspect", "inspect", task_id)
     cli("06-export", "export", task_id)
     manifest.update({"finished_at_unix": time.time(), "status": inspected["status"],
