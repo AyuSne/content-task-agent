@@ -32,6 +32,17 @@ def test_reconcile_does_not_turn_explicit_failure_into_free_success(cli_env, mod
     assert after["save"]["status"] == "failed"
 
 
+def test_export_repair_keeps_resource_infeasible_task_incomplete(cli_env, model_script):
+    task, saved = _complete_task(model_script, cli_env)
+    updated = cli_json("update", task["task_id"], "--budget", "2")
+    assert updated["status"] == "incomplete"
+    campaign = next(item for item in saved["save"]["files"] if item["path"].endswith("campaign-v1.json"))
+    Path(campaign["path"]).unlink()
+    reconciled = cli_json("reconcile", task["task_id"])
+    assert reconciled["status"] == "incomplete"
+    assert reconciled["resources"]["sim_spent_cents"] == 230
+
+
 def test_export_repair_restores_missing_file_without_new_attempt(cli_env, model_script):
     task, saved = _complete_task(model_script, cli_env)
     report = next(item for item in saved["save"]["files"] if item["path"].endswith("execution-report.md"))

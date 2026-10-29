@@ -197,6 +197,16 @@ def review_task(config: Config, task_id: str) -> dict:
                 "deliverable": "campaign_plan",
                 "deadline_applies_to": "完成并核实保存活动方案；后续成片制作、音乐采购和发布另列执行排期。",
             },
+            "resource_evidence": {
+                "budget_nature": "方案准备的模拟工具费用；不是音乐采购、拍摄或投放预算",
+                "pricing_version": price.version,
+                "modes": [mode.as_dict() for mode in price.modes.values()],
+                "spent_cents": task_spent(conn, task["id"]),
+                "strategy_estimates": [
+                    json.loads(row["detail_json"])
+                    for row in conn.execute("SELECT detail_json FROM estimates WHERE task_id = ? ORDER BY rowid", (task["id"],))
+                ],
+            },
             "program_checks": _program_checks(output),
             "reviewed_version": output["version"],
             "review_history": review_history,

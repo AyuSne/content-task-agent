@@ -102,6 +102,7 @@ class Config:
             "thinking": False,
             "streaming": False,
             "sdk_auto_retries": 0,
+            "network_route": "direct",
         }
 
     def redact(self, text: str) -> str:
