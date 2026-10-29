@@ -27,7 +27,8 @@ def main() -> int:
     target = args.output.resolve()
     target.mkdir(parents=True, exist_ok=False)
     env = dict(os.environ, PYTHONUTF8="1", PYTHONIOENCODING="utf-8")
-    for key in ("CTA_MODEL_SCRIPT", "CTA_FAULT_CRASH", "CTA_FAIL_SEARCH", "CTA_FAIL_SAVE"):
+    for key in ("CTA_MODEL_SCRIPT", "CTA_FAULT_CRASH", "CTA_FAIL_SEARCH", "CTA_FAIL_SAVE",
+                "HTTP_PROXY", "HTTPS_PROXY", "ALL_PROXY", "http_proxy", "https_proxy", "all_proxy"):
         env.pop(key, None)
     inputs = {
         "topic": "帧剪校园社团招新短视频推广",
