@@ -8,7 +8,7 @@ from conftest import REPO_ROOT, run_cli_process
 
 def test_resume_uses_original_tool_order_after_external_code_update(cli_env, tmp_path):
     runtime = tmp_path / "runtime"
-    for name in ("src", "fixtures", "knowledge"):
+    for name in ("src", "fixtures", "knowledge", ".agents/skills"):
         shutil.copytree(REPO_ROOT / name, runtime / name)
     shutil.copy2(REPO_ROOT / "pyproject.toml", runtime / "pyproject.toml")
     from cta.prompts import TOOL_DEFINITIONS
