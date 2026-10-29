@@ -9,6 +9,7 @@ from __future__ import annotations
 import json
 from datetime import datetime
 
+from cta.campaign import campaign_brief
 from cta.config import Config, utc_now_iso
 from cta.db import open_store, transaction
 from cta.evaluation import evaluate, review_report_status
@@ -22,7 +23,6 @@ from cta.repository import (
     count_purpose_requests,
     create_review,
     finish_attempt,
-    latest_brief,
     latest_output,
     latest_review,
     record_llm_request,
@@ -30,7 +30,7 @@ from cta.repository import (
     start_llm_request,
     task_spent,
 )
-from cta.service import TaskNotFound, TaskService
+from cta.service import TaskNotFound, TaskService, output_reuse_basis
 
 
 class ReviewError(Exception):
@@ -131,6 +131,8 @@ def review_task(config: Config, task_id: str) -> dict:
         output = latest_output(conn, task["id"])
         if output is None:
             raise ReviewError("当前任务还没有可核验的完整方案草稿。", "no_output")
+        if output["input_version"] != task["input_version"] and output_reuse_basis(conn, task, output) is None:
+            raise ReviewError("方案不适用于当前输入版本，请先形成新方案。", "input_changed")
         catalog = load_task_catalog(conn, task, config.project_root)
         existing = latest_review(conn, task["id"])
         if existing is not None and existing["output_id"] == output["output_id"] and existing["status"] == "complete":
@@ -169,16 +171,16 @@ def review_task(config: Config, task_id: str) -> dict:
         ).fetchone()
         conn.commit()
 
-        brief = latest_brief(conn, task["id"])
+        brief = campaign_brief(conn, task["id"], output)
         used_material_ids = {
             item["material_id"]
-            for item in output["content"].get("evidence", []) + output["content"].get("materials", [])
+            for item in output["content"].get("evidence", []) + output["content"].get("materials", []) + output["content"].get("script", {}).get("evidence", [])
             if item.get("material_id")
         }
         if brief is not None:
             used_material_ids.update(
                 item["material_id"]
-                for item in brief["content"].get("product_facts", []) + brief["content"].get("sources", [])
+                for item in brief.get("product_facts", []) + brief.get("sources", [])
             )
         input_row = conn.execute(
             "SELECT * FROM task_inputs WHERE task_id = ? AND version = ?", (task["id"], task["input_version"])
@@ -192,7 +194,7 @@ def review_task(config: Config, task_id: str) -> dict:
                 "budget_cents": input_row["budget_cents"],
                 "deadline": input_row["deadline"],
             },
-            "brief": brief["content"] if brief else None,
+            "brief": brief,
             "campaign": output["content"],
             "evidence": [catalog.get(mid).as_dict() for mid in sorted(used_material_ids)],
             "delivery_scope": {

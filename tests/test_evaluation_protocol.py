@@ -4,7 +4,7 @@ import json
 
 import pytest
 from conftest import cli_json
-from test_campaign_draft import CAMPAIGN, _brief_then_draft_script, _create, _run_until_draft
+from test_campaign_draft import CAMPAIGN
 from test_review_save import REVIEW_PASS
 
 
@@ -16,9 +16,9 @@ def _entry(entry, cli_env, model_script, capsys, invalid):
     """Observe only public CLI results and persisted/exported messages."""
     report = _item("report_review", REVIEW_PASS)
     if entry == "production":
-        model_script([*_brief_then_draft_script(), invalid, report])
-        task = _create()
-        _run_until_draft(task["task_id"])
+        from test_campaign_delivery_new import _new_draft_ready
+
+        task = _new_draft_ready(model_script, [invalid, report])
         result = cli_json("review", task["task_id"])
         messages = cli_json("inspect", task["task_id"])["reviewer_messages"]
         return messages, result["review"]["readbacks_used"], result["review"]["requests_used"]
