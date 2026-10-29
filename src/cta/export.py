@@ -28,7 +28,7 @@ def sha256_file(path: Path) -> str:
 def _write_atomic(path: Path, content: str) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     temp = path.with_suffix(path.suffix + ".tmp")
-    temp.write_text(content, encoding="utf-8")
+    temp.write_text(content, encoding="utf-8", newline="")
     temp.replace(path)
 
 
@@ -335,6 +335,7 @@ def trace_events(conn, task) -> list[dict]:
 
 def campaign_export_markdown(output: dict, task, *, verified: bool = False) -> str:
     body = output["content_md"] or campaign_markdown(output["content"])
+    body = body.replace("\r\n", "\n").replace("\r", "\n")
     notice = VERIFIED_NOTICE if verified else DRAFT_NOTICE
     body = body.replace(DRAFT_NOTICE, notice).replace(VERIFIED_NOTICE, notice)
     metadata = {

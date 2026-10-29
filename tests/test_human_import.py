@@ -53,6 +53,23 @@ def test_edited_markdown_forms_pending_review_version_and_can_complete(cli_env, 
     assert saved["save"]["output_version"] == 2
 
 
+def test_crlf_operator_input_is_preserved_and_export_has_stable_line_endings(cli_env, model_script):
+    task = _draft_with_review_script(model_script)
+    path, text = _exported_markdown(task["task_id"])
+    edited = text.replace("把招新现场剪成你的节奏", "人工稿换行核对").replace("\r\n", "\n")
+    source = edited.replace("\n", "\r\n").encode("utf-8")
+    path.write_bytes(source)
+    code, _ = _import(task["task_id"], path)
+    assert code == 0
+    assert path.read_bytes() == source
+    cli_json("review", task["task_id"])
+    saved = cli_json("save", task["task_id"])
+    exported = next(Path(item["path"]) for item in saved["save"]["files"] if item["path"].endswith("campaign-v2.md"))
+    assert b"\r" not in exported.read_bytes()
+    first = cli_json("reconcile", task["task_id"])["save"]
+    assert cli_json("reconcile", task["task_id"])["save"] == first
+
+
 def test_missing_required_section_is_rejected_and_keeps_base(cli_env, model_script):
     task = _draft_with_review_script(model_script)
     path, text = _exported_markdown(task["task_id"])

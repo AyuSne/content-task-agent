@@ -1,0 +1,27 @@
+F                                                                        [100%]
+================================== FAILURES ===================================
+__ test_crlf_operator_input_is_preserved_and_export_has_stable_line_endings ___
+
+cli_env = WindowsPath('C:/Users/10167/AppData/Local/Temp/pytest-of-10167/pytest-270/test_crlf_operator_input_is_pr0')
+model_script = <function model_script.<locals>.write at 0x000001460647DE40>
+
+    def test_crlf_operator_input_is_preserved_and_export_has_stable_line_endings(cli_env, model_script):
+        task = _draft_with_review_script(model_script)
+        path, text = _exported_markdown(task["task_id"])
+        edited = text.replace("把招新现场剪成你的节奏", "人工稿换行核对").replace("\r\n", "\n")
+        source = edited.replace("\n", "\r\n").encode("utf-8")
+        path.write_bytes(source)
+        code, _ = _import(task["task_id"], path)
+        assert code == 0
+        assert path.read_bytes() == source
+        cli_json("review", task["task_id"])
+        saved = cli_json("save", task["task_id"])
+        exported = next(Path(item["path"]) for item in saved["save"]["files"] if item["path"].endswith("campaign-v2.md"))
+>       assert b"\r" not in exported.read_bytes()
+E       assert b'\r' not in b'# \xe4\xba\xba\xe5\xb7\xa5\xe7\xa8\xbf\xe6\x8d\xa2\xe8\xa1\x8c\xe6\xa0\xb8\xe5\xaf\xb9\r\r\n\r\r\n> \xe6\x9c\xac\xe7... cta:{"task_id": "t_c91b31000f41", "output_id": "o_ae088caf8ea8789e", "output_version": 2, "input_version": 1} -->\r\n'
+E        +  where b'# \xe4\xba\xba\xe5\xb7\xa5\xe7\xa8\xbf\xe6\x8d\xa2\xe8\xa1\x8c\xe6\xa0\xb8\xe5\xaf\xb9\r\r\n\r\r\n> \xe6\x9c\xac\xe7... cta:{"task_id": "t_c91b31000f41", "output_id": "o_ae088caf8ea8789e", "output_version": 2, "input_version": 1} -->\r\n' = read_bytes()
+E        +    where read_bytes = WindowsPath('C:/Users/10167/AppData/Local/Temp/pytest-of-10167/pytest-270/test_crlf_operator_input_is_pr0/data/mock/exports/t_c91b31000f41/campaign-v2.md').read_bytes
+
+tests\test_human_import.py:68: AssertionError
+=========================== short test summary info ===========================
+FAILED tests/test_human_import.py::test_crlf_operator_input_is_preserved_and_export_has_stable_line_endings
