@@ -65,9 +65,9 @@ def save_preconditions(conn, task, output: dict) -> dict | None:
     if review["output_id"] != output["output_id"]:
         return {"code": "review_stale", "message": "最近一次核验不适用于当前产物版本。"}
     dispositions = {
-        row["finding_id"]: row["decision"]
+        row["finding_id"]: row["decision"] if row["evidence_json"] and json.loads(row["evidence_json"]) else None
         for row in conn.execute(
-            "SELECT finding_id, decision FROM dispositions WHERE review_id = ?", (review["review_id"],)
+            "SELECT finding_id, decision, evidence_json FROM dispositions WHERE review_id = ?", (review["review_id"],)
         )
     }
     must_fix = [item for item in review["findings"] if item["severity"] == "must_fix"]

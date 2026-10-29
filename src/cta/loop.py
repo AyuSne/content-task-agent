@@ -412,6 +412,7 @@ def _ensure_base_context(conn, task, config: Config) -> None:
             "deadline": input_row["deadline"],
             "audience": input_row["audience"],
             "requirements": json.loads(input_row["requirements_json"]),
+            "raw_input": json.loads(input_row["raw_json"]),
             "sim_start": task["sim_start"],
             "max_rounds": task["max_rounds"],
         }
@@ -497,7 +498,8 @@ def _ensure_phase_context(conn, task, config: Config) -> None:
                 dispositions = []
                 if review is not None:
                     dispositions = [
-                        {"finding_id": row["finding_id"], "decision": row["decision"], "reason": row["reason"]}
+                        {"finding_id": row["finding_id"], "decision": row["decision"], "reason": row["reason"],
+                         "evidence": json.loads(row["evidence_json"]) if row["evidence_json"] else []}
                         for row in conn.execute(
                             "SELECT * FROM dispositions WHERE review_id = ? ORDER BY id", (review["review_id"],)
                         )
@@ -537,6 +539,7 @@ def _ensure_phase_context(conn, task, config: Config) -> None:
                             "budget_cents": input_row["budget_cents"],
                             "deadline": input_row["deadline"],
                             "requirements": json.loads(input_row["requirements_json"]),
+                            "raw_input": json.loads(input_row["raw_json"]),
                             "instruction": "按新输入重新形成简报，并复核受影响的内容与评审；旧简报/旧稿不自动通过。",
                         },
                         ensure_ascii=False,
@@ -668,9 +671,9 @@ def _handle_response(
         # These helpers perform only local writes. Their effects and exact
         # return value must commit together before a missing receipt is possible.
         with transaction(conn):
-            if call.name in ("record_disposition", "record_dispositions"):
-                disposition = _record_disposition if call.name == "record_disposition" else _record_dispositions
-                result = disposition(conn, task, parsed)
+            if call.name == "record_dispositions":
+                from cta.dispositions import record_dispositions
+                result = record_dispositions(conn, task, parsed, catalog)
                 result["delivery_options"] = _delivery_options(conn, task)
             else:
                 result = _execute_business_tool(conn, task, call.name, parsed, price, catalog, config)
@@ -1227,60 +1230,6 @@ def _request_clarification(conn, task, parsed: dict) -> tuple[dict, bool]:
             ),
         )
     return {"ok": True, "questions": normalized, "message": "问题已保存，任务等待用户补充。"}, True
-
-
-def _record_disposition(conn, task, parsed: dict) -> dict:
-    result = _record_dispositions(conn, task, {"decisions": [parsed]})
-    if result["ok"]:
-        result.update({key: result["dispositions"][0][key] for key in ("finding_id", "decision")})
-    return result
-
-
-def _record_dispositions(conn, task, parsed: dict) -> dict:
-    decisions = parsed.get("decisions")
-    if set(parsed) != {"decisions"} or not isinstance(decisions, list) or not decisions:
-        return {"ok": False, "error": "invalid_arguments", "message": "只接受非空 decisions 数组。"}
-    if len(decisions) > MAX_DISPOSITIONS:
-        return {"ok": False, "error": "invalid_arguments", "message": f"单次最多 {MAX_DISPOSITIONS} 条处置。"}
-    review = latest_review(conn, task["id"])
-    output = latest_output(conn, task["id"])
-    if review is None or review["status"] != "complete" or output is None or review["output_id"] != output["output_id"]:
-        return {"ok": False, "error": "review_required", "message": "当前产物没有可处置的完整核验。"}
-    if len(decisions) > len(review["findings"]):
-        return {"ok": False, "error": "invalid_arguments", "message": "处置数量不能超过本审意见数量。"}
-    finding_ids = {item["finding_id"] for item in review["findings"]}
-    normalized = []
-    seen = set()
-    for item in decisions:
-        if not isinstance(item, dict) or set(item) != {"finding_id", "decision", "reason"}:
-            return {"ok": False, "error": "invalid_arguments", "message": "每项只接受 finding_id、decision、reason。"}
-        finding_id, decision, reason = item["finding_id"], item["decision"], item["reason"]
-        if not isinstance(finding_id, str) or not finding_id.strip() or finding_id in seen:
-            return {"ok": False, "error": "invalid_arguments", "message": "finding_id 必须非空且批次内唯一。"}
-        if finding_id not in finding_ids:
-            return {"ok": False, "error": "finding_not_found", "message": f"核验 {review['review_id']} 中没有意见 {finding_id}。"}
-        if decision not in ("accepted", "rejected", "needs_evidence"):
-            return {"ok": False, "error": "invalid_arguments", "message": "decision 必须是 accepted/rejected/needs_evidence。"}
-        if not isinstance(reason, str) or not reason.strip():
-            return {"ok": False, "error": "invalid_arguments", "message": "每项 reason 必须非空。"}
-        seen.add(finding_id)
-        normalized.append({"finding_id": finding_id, "decision": decision, "reason": reason.strip()})
-    conn.executemany(
-        """
-        INSERT INTO dispositions (review_id, finding_id, decision, reason, created_at)
-        VALUES (?, ?, ?, ?, ?)
-        ON CONFLICT(review_id, finding_id) DO UPDATE SET decision = excluded.decision,
-            reason = excluded.reason, created_at = excluded.created_at
-        """,
-        [(review["review_id"], item["finding_id"], item["decision"], item["reason"], utc_now_iso())
-         for item in normalized],
-    )
-    return {
-        "ok": True,
-        "review_id": review["review_id"],
-        "dispositions": normalized,
-        "message": "处置已记录。accepted 必须返修后重新提交；rejected 需保留依据。",
-    }
 
 
 def _stop_incomplete(conn, task, parsed: dict) -> tuple[dict, bool]:

@@ -545,13 +545,16 @@ class TaskService:
             ]
             view["dispositions"] = [
                 {
+                    "review_id": row["review_id"],
+                    "campaign_ref": {"id": row["output_id"], "version": row["output_version"]},
                     "finding_id": row["finding_id"],
                     "decision": row["decision"],
                     "reason": row["reason"],
+                    "evidence": json.loads(row["evidence_json"]) if row["evidence_json"] else [],
                     "created_at": row["created_at"],
                 }
                 for row in conn.execute(
-                    "SELECT * FROM dispositions WHERE review_id IN (SELECT id FROM reviews WHERE task_id = ?) ORDER BY id",
+                    "SELECT dispositions.*, reviews.output_id, reviews.output_version FROM dispositions JOIN reviews ON reviews.id = dispositions.review_id WHERE reviews.task_id = ? ORDER BY dispositions.id",
                     (task_id,),
                 )
             ]
