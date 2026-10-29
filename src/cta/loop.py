@@ -452,7 +452,11 @@ def _ensure_phase_context(conn, task, config: Config) -> None:
                 "SELECT COUNT(*) AS n FROM messages WHERE task_id = ? AND agent = 'main' AND meta_json LIKE '%phase_transition%'",
                 (task["id"],),
             ).fetchone()
-            if int(transition["n"]) == 0:
+            script_exists = conn.execute(
+                "SELECT 1 FROM outputs WHERE task_id = ? AND kind = 'script' AND input_version = ? LIMIT 1",
+                (task["id"], task["input_version"]),
+            ).fetchone()
+            if int(transition["n"]) == 0 and script_exists is None:
                 append_message(
                     conn,
                     task["id"],
@@ -674,7 +678,8 @@ def _handle_response(
             record_local_tool_result(conn, task["id"], request_seq, call.id, call.name, result)
         terminal = False
     elif call.name == "propose_brief":
-        result, terminal = _propose_brief(conn, task, parsed, catalog)
+        from cta.artifacts import propose_brief
+        result, terminal = propose_brief(conn, task, parsed, catalog)
     elif call.name == "submit_script":
         from cta.artifacts import submit_script
         result = submit_script(conn, task, parsed, price, catalog, tool_call_id=call.id, guard=_guard)
@@ -1187,139 +1192,6 @@ def _guard(conn, task, cost_cents: int, duration_ms: int) -> dict | None:
                 "requested_duration_ms": duration_ms,
             }
     return None
-
-
-def _propose_brief(conn, task, parsed: dict, catalog: MaterialCatalog) -> tuple[dict, bool]:
-    brief, errors = _validate_brief(parsed, catalog)
-    if errors:
-        return {"ok": False, "error": "invalid_brief", "message": "简报未通过校验。", "details": errors}, False
-    version = int(task["brief_version"]) + 1
-    with transaction(conn):
-        conn.execute(
-            "INSERT INTO briefs (task_id, version, input_version, content_json, created_at) VALUES (?, ?, ?, ?, ?)",
-            (task["id"], version, task["input_version"], json.dumps(brief, ensure_ascii=False), utc_now_iso()),
-        )
-        conn.execute(
-            "UPDATE tasks SET brief_version = ?, status = ?, phase = 'brief_ready', reason = ?, updated_at = ? WHERE id = ?",
-            (
-                version,
-                STATUS_IN_PROGRESS,
-                "业务简报已形成，等待进入方案生成。",
-                utc_now_iso(),
-                task["id"],
-            ),
-        )
-    return {"ok": True, "brief_version": version, "message": "业务简报已通过校验并保存；继续组织完整方案。"}, False
-
-
-def _validate_brief(brief: dict, catalog: MaterialCatalog) -> tuple[dict, list[str]]:
-    errors: list[str] = []
-
-    def text_field(name: str) -> str:
-        value = brief.get(name)
-        if not isinstance(value, str) or not value.strip():
-            errors.append(f"{name} 必须是非空字符串")
-            return ""
-        return value.strip()
-
-    goal = text_field("goal")
-    audience = text_field("audience")
-    normalized = {"goal": goal, "audience": audience}
-
-    for key in ("product_facts", "creative_requirements", "assumptions", "suggestions", "unknowns", "sources"):
-        if not isinstance(brief.get(key), list):
-            errors.append(f"{key} 必须是数组")
-
-    facts = []
-    for index, fact in enumerate(brief.get("product_facts", []) if isinstance(brief.get("product_facts"), list) else []):
-        if not isinstance(fact, dict):
-            errors.append(f"product_facts[{index}] 必须是对象")
-            continue
-        material_id = fact.get("material_id")
-        quote = fact.get("quote")
-        claim = fact.get("claim")
-        use = fact.get("use")
-        material = catalog.get(material_id) if isinstance(material_id, str) else None
-        if material is None:
-            errors.append(f"product_facts[{index}].material_id 不在本任务材料中：{material_id}")
-            continue
-        if not isinstance(quote, str) or not quote.strip():
-            errors.append(f"product_facts[{index}].quote 不能为空")
-            continue
-        if " ".join(quote.split()) not in " ".join(material.text.split()):
-            errors.append(f"product_facts[{index}].quote 无法在 {material_id} 正文中找到")
-            continue
-        if not isinstance(claim, str) or not claim.strip():
-            errors.append(f"product_facts[{index}].claim 不能为空")
-            continue
-        if not isinstance(use, str) or not use.strip():
-            errors.append(f"product_facts[{index}].use 不能为空")
-            continue
-        scope = fact.get("scope")
-        if not isinstance(scope, str) or not scope.strip():
-            errors.append(f"product_facts[{index}].scope 不能为空")
-            continue
-        facts.append(
-            {
-                "claim": claim.strip(),
-                "material_id": material_id,
-                "quote": quote.strip(),
-                "scope": scope.strip(),
-                "use": use.strip(),
-            }
-        )
-    normalized["product_facts"] = facts
-
-    for key in ("creative_requirements", "assumptions", "suggestions"):
-        items = []
-        for index, item in enumerate(brief.get(key, []) if isinstance(brief.get(key), list) else []):
-            if not isinstance(item, dict):
-                errors.append(f"{key}[{index}] 必须是对象")
-                continue
-            text = item.get("text")
-            basis = item.get("basis") if key != "creative_requirements" else item.get("source")
-            if not isinstance(text, str) or not text.strip():
-                errors.append(f"{key}[{index}].text 不能为空")
-                continue
-            if key == "creative_requirements":
-                items.append({"text": text.strip(), "source": str(basis or "用户输入").strip()})
-            else:
-                items.append({"text": text.strip(), "basis": str(basis or "未说明").strip()})
-        normalized[key] = items
-
-    unknowns = []
-    for index, item in enumerate(brief.get("unknowns", []) if isinstance(brief.get("unknowns"), list) else []):
-        if not isinstance(item, dict):
-            errors.append(f"unknowns[{index}] 必须是对象")
-            continue
-        question = item.get("question")
-        impact = item.get("impact")
-        if not isinstance(question, str) or not question.strip():
-            errors.append(f"unknowns[{index}].question 不能为空")
-            continue
-        if not isinstance(impact, str) or not impact.strip():
-            errors.append(f"unknowns[{index}].impact 不能为空")
-            continue
-        blocking = item.get("blocking", False)
-        if not isinstance(blocking, bool):
-            errors.append(f"unknowns[{index}].blocking 必须是布尔值")
-            continue
-        unknowns.append({"question": question.strip(), "impact": impact.strip(), "blocking": blocking})
-    normalized["unknowns"] = unknowns
-
-    sources = []
-    for index, item in enumerate(brief.get("sources", []) if isinstance(brief.get("sources"), list) else []):
-        if not isinstance(item, dict):
-            errors.append(f"sources[{index}] 必须是对象")
-            continue
-        material_id = item.get("material_id")
-        if not isinstance(material_id, str) or catalog.get(material_id) is None:
-            errors.append(f"sources[{index}].material_id 不在本任务材料中")
-            continue
-        sources.append({"material_id": material_id, "used_for": str(item.get("used_for", "未说明")).strip()})
-    normalized["sources"] = sources
-    normalized["blocking_unknowns"] = sum(1 for item in unknowns if item["blocking"])
-    return normalized, errors
 
 
 def _request_clarification(conn, task, parsed: dict) -> tuple[dict, bool]:

@@ -24,7 +24,7 @@ MAIN_SYSTEM_PROMPT = """你是「内容任务规划」的主 Agent，服务虚�
 5. 每轮只调用一个工具。工具返回成功、失败、拒绝、部分成功或缺口都是真实反馈；下一步必须依据反馈选择，不重复无效调用，不假装成功，也不预设“先昂贵后便宜”或固定动作顺序。
 6. 预算与模拟截止是硬约束。方案中引用的预算数字必须与任务输入一致，不要自创总预算或剩余金额；工具被拒绝时阅读原因与完整剩余路径，改走当前可行的方向或模式；没有可行路径时用 stop_incomplete 说明具体缺口，并保留已完成成果。预估、预留不是实际支出；失败和额外消耗发生后重新估算。
    budget_cents 是本次方案准备的模拟工具费用上限，不是音乐采购、拍摄或投放预算；真实活动费用未知，单独标为待估，不得用任务预算承诺购买素材。方案截止时间约束活动方案准备及保存，后续制作与发布按另列建议排期执行。
-7. 按需要比较方向；已有依据充分时直接创作。先用 propose_brief 保存简报，再用 submit_script 提交完整脚本并引用该简报。返修提交完整新稿并引用旧稿，保护不需修改的内容。然后调用 submit_campaign 引用脚本并提交完整方案的其他部分；不得重复提交脚本正文。
+7. 按需要比较方向；已有依据充分时直接创作。简报可按需用 propose_brief 独立保存；首次提交脚本时也可在 submit_script 同时携带简报，或引用已保存的适用简报版本。返修提交完整新稿并引用旧稿，保护不需修改的内容。然后调用 submit_campaign 引用脚本并提交完整方案的其他部分；不得重复提交脚本正文。
 8. 完整方案提交成功后继续调用 review_campaign 并以 campaign_ref 核验当前版本。收到核验意见后，集中处置本审意见，明确关联意见、理由和证据；必要时返修并重新核验。当前稿满足要求、意见已有据处置且全路径可行时，调用 save_campaign 并以 campaign_ref 核实保存；保存未知时先停止等核实。
 9. 核验 full/pass 后，当前合格稿可以直接保存，optional 不需要清零。比较保存当前稿与有明确实质收益的改进，收益需关联已确认目标，并考虑回归风险、完整路径及剩余主轮数；没有值得投入的新改进就保存。未来可选加固不自动构成本次返修义务，也不要为了清空新意见反复重写已通过稿件；不以最低价、花尽预算或固定改进次数代替判断。
 10. 不承诺涨粉、收益、爆款或转化；不把实验性能力写成正式能力；不输出内部思维过程。你负责持续推进到核实保存或有依据的未完成；简报、草稿或核验返回都不是任务终点。"""
@@ -58,11 +58,95 @@ _script_evidence = {
     "required": ["id", "claim", "material_id", "material_version", "quote", "scope", "use"],
     "additionalProperties": False,
 }
+_brief_schema = {
+    "type": "object",
+    "properties": {
+        "goal": {"type": "string"},
+        "audience": {"type": "string"},
+        "product_facts": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "claim": {"type": "string"},
+                    "material_id": {"type": "string"},
+                    "quote": {"type": "string"},
+                    "scope": {"type": "string"},
+                    "use": {"type": "string"},
+                },
+                "required": ["claim", "material_id", "quote", "scope", "use"],
+                "additionalProperties": False,
+            },
+        },
+        "creative_requirements": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {"text": {"type": "string"}, "source": {"type": "string"}},
+                "required": ["text", "source"],
+                "additionalProperties": False,
+            },
+        },
+        "assumptions": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {"text": {"type": "string"}, "basis": {"type": "string"}},
+                "required": ["text", "basis"],
+                "additionalProperties": False,
+            },
+        },
+        "suggestions": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {"text": {"type": "string"}, "basis": {"type": "string"}},
+                "required": ["text", "basis"],
+                "additionalProperties": False,
+            },
+        },
+        "unknowns": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "question": {"type": "string"},
+                    "impact": {"type": "string"},
+                    "blocking": {"type": "boolean"},
+                },
+                "required": ["question", "impact", "blocking"],
+                "additionalProperties": False,
+            },
+        },
+        "sources": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {"material_id": {"type": "string"}, "used_for": {"type": "string"}},
+                "required": ["material_id", "used_for"],
+                "additionalProperties": False,
+            },
+        },
+    },
+    "required": [
+        "goal",
+        "audience",
+        "product_facts",
+        "creative_requirements",
+        "assumptions",
+        "suggestions",
+        "unknowns",
+        "sources",
+    ],
+    "additionalProperties": False,
+}
+
 _submit_script = {"type": "function", "function": {
     "name": "submit_script",
-    "description": "接收你创作的完整脚本，引用已保存且适用于当前输入的简报版本；返修时引用旧脚本。校验后按任务价目计量并返回新脚本引用，不另调用模型。",
+    "description": "接收完整脚本：首次提交可携带 brief，或引用已保存且适用的 brief_version，二者必须选其一；返修引用旧脚本并使用已有简报。整项校验后按任务价目计量，成功返回两个版本引用，不另调用模型。",
     "parameters": {"type": "object", "properties": {
-        "brief_version": {"type": "integer", "minimum": 1, "description": "本任务已保存的适用简报版本"},
+        "brief": _brief_schema,
+        "brief_version": {"type": "integer", "minimum": 1, "description": "本任务已保存的适用简报版本；与 brief 二选一"},
         "revises_script_ref": {"type": "object", "properties": {"id": {"type": "string"}, "version": {"type": "integer"}},
                                "required": ["id", "version"], "additionalProperties": False},
         "script": {"type": "object", "properties": {
@@ -71,7 +155,7 @@ _submit_script = {"type": "function", "function": {
             "segments": {"type": "array", "minItems": 1, "items": _script_segment},
             "evidence": {"type": "array", "items": _script_evidence}},
             "required": ["title", "direction", "duration_seconds", "segments", "evidence"], "additionalProperties": False}},
-        "required": ["brief_version", "script"], "additionalProperties": False}}}
+        "required": ["script"], "additionalProperties": False}}}
 _ref_schema = {"type": "object", "properties": {"id": {"type": "string"}, "version": {"type": "integer", "minimum": 1}}, "required": ["id", "version"], "additionalProperties": False}
 _text = {"type": "string"}
 def _object(fields, required=None):
@@ -90,6 +174,7 @@ _submit_campaign = {"type": "function", "function": {
         "evidence": _array(_script_evidence),
         "open_questions": _array(_object({"question": _text, "impact": _text, "blocking": {"type": "boolean"}}))
     })})}}
+
 
 TOOL_DEFINITIONS = [
 {"type": "function", "function": {
@@ -193,88 +278,7 @@ TOOL_DEFINITIONS = [
         "function": {
             "name": "propose_brief",
             "description": "提交业务简报。程序会校验事实引用、适用范围、未知项与结构；通过后进入方案草稿阶段。",
-            "parameters": {
-                "type": "object",
-                "properties": {
-                    "goal": {"type": "string"},
-                    "audience": {"type": "string"},
-                    "product_facts": {
-                        "type": "array",
-                        "items": {
-                            "type": "object",
-                            "properties": {
-                                "claim": {"type": "string"},
-                                "material_id": {"type": "string"},
-                                "quote": {"type": "string"},
-                                "scope": {"type": "string"},
-                                "use": {"type": "string"},
-                            },
-                            "required": ["claim", "material_id", "quote", "scope", "use"],
-                            "additionalProperties": False,
-                        },
-                    },
-                    "creative_requirements": {
-                        "type": "array",
-                        "items": {
-                            "type": "object",
-                            "properties": {"text": {"type": "string"}, "source": {"type": "string"}},
-                            "required": ["text", "source"],
-                            "additionalProperties": False,
-                        },
-                    },
-                    "assumptions": {
-                        "type": "array",
-                        "items": {
-                            "type": "object",
-                            "properties": {"text": {"type": "string"}, "basis": {"type": "string"}},
-                            "required": ["text", "basis"],
-                            "additionalProperties": False,
-                        },
-                    },
-                    "suggestions": {
-                        "type": "array",
-                        "items": {
-                            "type": "object",
-                            "properties": {"text": {"type": "string"}, "basis": {"type": "string"}},
-                            "required": ["text", "basis"],
-                            "additionalProperties": False,
-                        },
-                    },
-                    "unknowns": {
-                        "type": "array",
-                        "items": {
-                            "type": "object",
-                            "properties": {
-                                "question": {"type": "string"},
-                                "impact": {"type": "string"},
-                                "blocking": {"type": "boolean"},
-                            },
-                            "required": ["question", "impact", "blocking"],
-                            "additionalProperties": False,
-                        },
-                    },
-                    "sources": {
-                        "type": "array",
-                        "items": {
-                            "type": "object",
-                            "properties": {"material_id": {"type": "string"}, "used_for": {"type": "string"}},
-                            "required": ["material_id", "used_for"],
-                            "additionalProperties": False,
-                        },
-                    },
-                },
-                "required": [
-                    "goal",
-                    "audience",
-                    "product_facts",
-                    "creative_requirements",
-                    "assumptions",
-                    "suggestions",
-                    "unknowns",
-                    "sources",
-                ],
-                "additionalProperties": False,
-            },
+            "parameters": _brief_schema,
         },
     },
 _submit_script,
