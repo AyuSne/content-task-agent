@@ -1,6 +1,6 @@
 # Progress — content-task-agent
 
-**下一步（当前实施）**：集成分支 `integration-content-agent-redesign` 已验收 01、03、07；02 基础已集成，最后一项待 05 恢复核验路径。04、05 正在独立 worktree 并行实施。以工单依赖为准，按实际验收结果推进，未通过不标完成。
+**下一步（当前实施）**：集成分支 `integration-content-agent-redesign` 已验收 01–05、07；06 正在独立 worktree 实施。以工单依赖为准，按实际验收结果推进，未通过不标完成。
 
 **此前交接**：用户准备在新会话采用[夜间实施启动提示词](../../.scratch/content-agent-redesign/overnight-start-prompt.md)，从[11张工单](../../.scratch/content-agent-redesign/README.md)的01、02、07前沿推进implement-spec；实施授权及AGENTS入口选择随新会话采用该提示词生效，本轮只准备提示词，产品和正式setup尚未改动。
 
