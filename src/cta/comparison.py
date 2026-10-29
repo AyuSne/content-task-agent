@@ -277,6 +277,7 @@ def run_experiment(config: Config, case: dict, method: str, output_dir: Path, *,
                     "reason": "对照固定控制流程停止：" + json.dumps(error, ensure_ascii=False),
                     "gaps": [{"gap": str(error.get("error")), "impact": "本实验不动态返修或自动重试"}],
                 })
+                conn.commit()
     inspected = TaskService(config).inspect(task_id)
     exported = (export_task(config, task_id) if inspected["outputs"]
                 else {"task_id": task_id, "verified": False, "error": "no_output"})

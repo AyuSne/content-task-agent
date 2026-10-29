@@ -194,6 +194,10 @@ def main(argv: list[str] | None = None) -> int:
                 _emit({"error": "legacy_protocol", "task_id": args.task_id,
                        "message": "旧任务使用旧业务协议；请用固定代码 836aa827d835e54a8e9385c18e7a3ff05ed3e600 及原采用资料恢复。"}, args.format)
                 return 4
+            incompatible = current["versions"]["incompatibility"]
+            if incompatible is not None:
+                _emit({**incompatible, "task_id": args.task_id}, args.format)
+                return 4
         if args.command == "create":
             raw = RawInput.from_args(
                 topic=args.topic,

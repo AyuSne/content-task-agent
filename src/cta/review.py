@@ -125,7 +125,7 @@ def _review_history(conn, task_id: str) -> tuple[list[dict], list[dict]]:
     return history, unresolved
 
 
-def review_task(config: Config, task_id: str) -> dict:
+def review_task(config: Config, task_id: str, *, tool_call_id: str | None = None, request_seq: int | None = None) -> dict:
     with open_store(config.db_path) as conn:
         task = _task(conn, task_id)
         price = load_price_table(config.project_root, version=task["pricing_version"])
@@ -153,7 +153,7 @@ def review_task(config: Config, task_id: str) -> dict:
             cost_cents=spec.cost_cents,
             duration_ms=spec.duration_ms,
             pricing_version=price.version,
-            meta={"output_id": output["output_id"], "output_version": output["version"]},
+            meta={"output_id": output["output_id"], "output_version": output["version"], "tool_call_id": tool_call_id, "request_seq": request_seq},
         )
         conn.commit()
 

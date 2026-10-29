@@ -11,7 +11,7 @@ from cta.config import utc_now_iso
 
 LOCAL_TOOL_NAMES = frozenset({
     "read_skill", "record_dispositions",
-    "estimate_cost", "update_plan", "submit_campaign",
+    "estimate_cost", "update_plan", "submit_campaign", "read_material", "propose_brief", "request_clarification", "stop_incomplete",
 })
 
 
@@ -111,15 +111,18 @@ def find_pending_tool_calls(conn: sqlite3.Connection, task_id: str, agent: str =
     The request sequence identifies exact local result receipts. The timestamp
     remains available for older action-specific recovery records.
     """
-    rows = read_messages(conn, task_id, agent)
-    answered = {row["tool_call_id"] for row in rows if row["role"] == "tool" and row["tool_call_id"]}
     pending = []
-    for row in rows:
+    for row in read_messages(conn, task_id, agent):
         if row["role"] == "assistant" and row["tool_calls_json"]:
-            for call in json.loads(row["tool_calls_json"]):
-                if call["id"] not in answered:
-                    pending.append({**call, "requested_at": row["created_at"], "request_seq": row["seq"]})
+            pending.extend({**call, "requested_at": row["created_at"], "request_seq": row["seq"]}
+                           for call in json.loads(row["tool_calls_json"]))
+        elif row["role"] == "tool" and row["tool_call_id"]:
+            for index, call in enumerate(pending):
+                if call["id"] == row["tool_call_id"]:
+                    pending.pop(index)
+                    break
     return pending
+
 
 
 def start_attempt(
@@ -365,6 +368,15 @@ def latest_review(conn: sqlite3.Connection, task_id: str) -> dict | None:
     row = conn.execute(
         "SELECT * FROM reviews WHERE task_id = ? ORDER BY rowid DESC LIMIT 1", (task_id,)
     ).fetchone()
+    return _review_view(row)
+
+
+def review_for_attempt(conn: sqlite3.Connection, task_id: str, attempt_id: str) -> dict | None:
+    row = conn.execute("SELECT * FROM reviews WHERE task_id = ? AND attempt_id = ?", (task_id, attempt_id)).fetchone()
+    return _review_view(row)
+
+
+def _review_view(row) -> dict | None:
     if row is None:
         return None
     return {
@@ -431,6 +443,15 @@ def create_review(
 
 def latest_save(conn: sqlite3.Connection, task_id: str) -> dict | None:
     row = conn.execute("SELECT * FROM saves WHERE task_id = ? ORDER BY rowid DESC LIMIT 1", (task_id,)).fetchone()
+    return _save_view(row)
+
+
+def save_for_attempt(conn: sqlite3.Connection, task_id: str, attempt_id: str) -> dict | None:
+    row = conn.execute("SELECT * FROM saves WHERE task_id = ? AND attempt_id = ?", (task_id, attempt_id)).fetchone()
+    return _save_view(row)
+
+
+def _save_view(row) -> dict | None:
     if row is None:
         return None
     return {

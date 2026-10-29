@@ -13,8 +13,8 @@ from cta.config import Config, to_utc_iso, utc_now_iso
 from cta.db import open_store, transaction
 from cta.identity import Intake, RawInput, dedupe_key, normalize
 from cta.materials import load_catalog, load_task_catalog, store_task_catalog
+from cta.protocol import incompatibility
 from cta.pricing import load_price_table
-from cta.prompts import PROMPT_VERSION
 from cta.repository import (
     append_message,
     append_snapshot,
@@ -674,6 +674,11 @@ class TaskService:
             "SELECT * FROM task_inputs WHERE task_id = ? AND version = ?",
             (task["id"], task["input_version"]),
         ).fetchone()
+        prompt_row = conn.execute(
+            "SELECT meta_json FROM messages WHERE task_id = ? AND agent = 'main' AND role = 'system' ORDER BY seq LIMIT 1",
+            (task["id"],),
+        ).fetchone()
+        prompt_version = None if prompt_row is None else json.loads(prompt_row["meta_json"]).get("prompt_version")
         spent = task_spent(conn, task["id"])
         brief = latest_brief(conn, task["id"])
         output = latest_output(conn, task["id"])
@@ -718,8 +723,9 @@ class TaskService:
             "model_config": self.config.model_config_public(),
             "versions": {
                 "protocol": task["protocol_version"],
+                "incompatibility": incompatibility(conn, task["id"]),
                 "app": __version__,
-                "prompt": PROMPT_VERSION,
+                "prompt": prompt_version,
                 "materials": task["materials_version"],
                 "pricing": task["pricing_version"],
                 "strategy": strategy["table_version"],

@@ -24,6 +24,8 @@ from cta.repository import (
     latest_review,
     latest_save,
     local_tool_result,
+    review_for_attempt,
+    save_for_attempt,
     pending_todos,
     task_llm_usage,
     task_spent,
@@ -180,7 +182,8 @@ def _attempt_for(conn, task_id: str, call: dict, kind: str):
             meta = json.loads(row["meta_json"] or "{}")
         except json.JSONDecodeError:
             meta = {}
-        if meta.get("tool_call_id") == call["id"]:
+        if (row["kind"] == kind and meta.get("tool_call_id") == call["id"]
+                and meta.get("request_seq") == call["request_seq"]):
             return row
     return None
 
@@ -193,56 +196,75 @@ def _recover_call(conn, task, call: dict, catalog: MaterialCatalog, config: Conf
 
     if name == "search_materials":
         return _recover_search(conn, task, call, parsed, catalog)
-    if name == "read_material":
-        material_id = parsed.get("material_id")
-        if not isinstance(material_id, str) or not material_id:
-            return _outcome({"ok": False, "error": "invalid_arguments", "message": "material_id 必须是非空字符串。"}, category="interrupted")
-        result = {**catalog.read(material_id), "recovered": True}
-        return _outcome(result, category="recovered" if result.get("ok") else "interrupted")
     if name in LOCAL_TOOL_NAMES:
         return _recover_local_action(conn, task, call)
-    if name == "propose_brief":
-        return _recover_brief(conn, task, call)
-    if name == "request_clarification":
-        return _recover_clarification(conn, task, call)
-    if name == "stop_incomplete":
-        return _recover_stop(conn, task, call)
     if name == "submit_script":
         return _recover_script(conn, task, call)
-    if name == "review_campaign":
-        output = latest_output(conn, task["id"])
-        review = latest_review(conn, task["id"])
-        if output is not None and review is not None and review["output_id"] == output["output_id"]:
-            return _outcome({"ok": True, "review": review, "recovered": True}, category="recovered")
-        return _outcome({
-            "ok": False, "error": "review_interrupted", "recovered": True,
-            "message": "上次核验没有完整权威结果；保留已发生消耗，仅可重新执行该有界步骤。",
-        }, category="interrupted")
-    if name == "save_campaign":
+    if name in {"review_campaign", "save_campaign"}:
+        receipt = local_tool_result(conn, task["id"], call)
+        if receipt is not None:
+            if name == "save_campaign" and receipt.get("ok") and receipt.get("save"):
+                from cta.export import verify_records
+                saved = receipt["save"]
+                ref = parsed.get("campaign_ref")
+                if not isinstance(ref, dict) or saved["output_id"] != ref.get("id") or saved["output_version"] != ref.get("version"):
+                    return _outcome({"ok": False, "error": "target_mismatch", "recovered": True,
+                                     "message": "保存回执与本次调用目标不一致，不能声明成功。"}, category="interrupted")
+                valid, checked = verify_records(saved["files"])
+                if not valid:
+                    from cta.save import invalidate_export_verification
+                    invalidate_export_verification(conn, task["id"], saved["save_id"],
+                                                   "交付文件与保存回执不一致；保留外部修改，需明确导入或修复。")
+                    return _outcome({"ok": False, "error": "save_unknown", "save": {**saved, "verified": False,
+                                      "status": "unknown", "files": checked}, "recovered": True,
+                                     "message": "交付文件不一致，未覆盖外部修改。"}, category="interrupted")
+            return _outcome({**receipt, "recovered": True}, category="recovered")
+        attempt = _attempt_for(conn, task["id"], call, name)
+        if attempt is None:
+            return _outcome({"ok": False, "error": "review_interrupted" if name == "review_campaign" else "save_interrupted",
+                             "recovered": True, "no_charge": True,
+                             "message": "调用在业务启动前中断，未找到本次结果；未执行或收费。"}, category="interrupted")
+        meta = json.loads(attempt["meta_json"])
+        ref = parsed.get("campaign_ref")
+        if not isinstance(ref, dict) or ref.get("id") != meta.get("output_id") or ref.get("version") != meta.get("output_version"):
+            return _outcome({"ok": False, "error": "target_mismatch", "recovered": True,
+                             "message": "本次尝试与调用目标不一致，无法确认结果。"}, category="interrupted")
+        if name == "review_campaign":
+            review = review_for_attempt(conn, task["id"], attempt["id"])
+            if review is not None and review["attempt_id"] == attempt["id"] and review["output_id"] == ref["id"] and review["output_version"] == ref["version"]:
+                result = {"ok": review["status"] == "complete", "review": review, "recovered": True}
+                if not result["ok"]:
+                    result.update(error="review_incomplete", message="核验未完成，不能作为通过依据。")
+                return _outcome(result, category="recovered", attempt_id=attempt["id"])
+            if attempt["status"] == "failed":
+                return _outcome({"ok": False, "error": "review_failed", "recovered": True,
+                                 "attempt_id": attempt["id"], "message": attempt["error"] or "核验明确失败，保留消耗。"},
+                                category="recovered", attempt_id=attempt["id"])
+            return _outcome({"ok": False, "error": "review_interrupted", "recovered": True,
+                             "message": "核验已启动但本次没有完整结果，保留消耗。"}, category="interrupted", attempt_id=attempt["id"])
+        save = save_for_attempt(conn, task["id"], attempt["id"])
+        if save is None or save["attempt_id"] != attempt["id"] or save["output_id"] != ref["id"] or save["output_version"] != ref["version"]:
+            return _outcome({"ok": False, "error": "save_interrupted", "recovered": True,
+                             "message": "保存已启动但没有匹配本次尝试的保存记录；保留消耗。"}, category="interrupted", attempt_id=attempt["id"])
+        if save["status"] == "failed":
+            return _outcome({"ok": False, "error": "save_failed", "save": save, "recovered": True}, category="recovered", attempt_id=attempt["id"])
+        current = latest_save(conn, task["id"])
+        current_output = latest_output(conn, task["id"])
+        if (current is None or current["save_id"] != save["save_id"] or current_output is None
+                or current_output["output_id"] != ref["id"] or current_output["version"] != ref["version"]):
+            return _outcome({"ok": False, "error": "save_unknown", "save": save, "recovered": True,
+                             "message": "本次保存目标不再是当前目标；不核实其他版本或重放。"},
+                            category="interrupted", attempt_id=attempt["id"])
         from cta.save import reconcile_task
-
-        save = latest_save(conn, task["id"])
-        if save is not None and save["status"] == "failed":
-            return _outcome({
-                "ok": False, "error": "save_failed", "save": save, "recovered": True,
-                "message": "保存已明确失败；保留原尝试与消耗，重试须由主 Agent 决定。",
-            }, category="recovered")
-        if save is not None:
-            try:
-                document = reconcile_task(config, task["id"])
-            except OSError:
-                document = {"save": save}
+        try:
+            document = reconcile_task(config, task["id"])
             saved = document.get("save")
-            if saved is not None and saved["verified"]:
-                return _outcome({"ok": True, "save": saved, "recovered": True}, category="recovered")
-            return _outcome({
-                "ok": False, "error": "save_unknown", "save": saved, "recovered": True,
-                "message": "保存结果未核实，保持未知；不能盲目重放。",
-            }, category="interrupted")
-        return _outcome({
-            "ok": False, "error": "save_interrupted", "recovered": True, "no_charge": True,
-            "message": "保存开始前中断，没有保存记录；由主 Agent 决定下一步。",
-        }, category="interrupted")
+        except OSError:
+            saved = save
+        if saved and saved["save_id"] == save["save_id"] and saved["verified"]:
+            return _outcome({"ok": True, "save": saved, "recovered": True}, category="recovered", attempt_id=attempt["id"])
+        return _outcome({"ok": False, "error": "save_unknown", "save": saved, "recovered": True,
+                         "message": "本次保存未核实，保持未知；不能盲目重放。"}, category="interrupted", attempt_id=attempt["id"])
     return _outcome(
         {"ok": False, "error": "unknown_tool", "message": f"未知工具：{name}；本轮未执行任何业务动作。", "recovered": True},
         category="interrupted",
@@ -259,13 +281,19 @@ def _recover_script(conn, task, call):
                           (task["id"], attempt["id"])).fetchone()
     if output is not None:
         content = json.loads(output["content_json"])
+        brief = conn.execute("SELECT input_version FROM briefs WHERE task_id = ? AND version = ?",
+                             (task["id"], content["brief_version"])).fetchone()
+        if attempt["status"] != "success" or brief is None or brief["input_version"] != output["input_version"]:
+            return _outcome({"ok": False, "error": "script_result_unknown", "started": True, "charged": True,
+                             "attempt_id": attempt["id"], "recovered": True,
+                             "message": "脚本、简报或尝试状态无法共同核实；保留消耗，不声明成功。"},
+                            category="interrupted", attempt_id=attempt["id"])
         result = {"ok": True, "script_ref": {"id": output["id"], "version": output["version"]},
                   "brief_version": content["brief_version"], "attempt_id": attempt["id"], "started": True,
                   "consumption": {"cost_cents": attempt["cost_cents"], "duration_ms": attempt["duration_ms"],
                                   "pricing_version": task["pricing_version"]}, "recovered": True,
                   "message": "已核实原脚本版本，未重新执行或收费。"}
-        return _outcome(result, category="recovered", attempt_id=attempt["id"],
-                        attempt_status="success" if attempt["status"] == "running" else None)
+        return _outcome(result, category="recovered", attempt_id=attempt["id"])
     return _outcome({"ok": False, "error": "script_interrupted", "started": True, "charged": True,
                      "attempt_id": attempt["id"], "recovered": True,
                      "consumption": {"cost_cents": attempt["cost_cents"], "duration_ms": attempt["duration_ms"],
@@ -309,87 +337,18 @@ def _recover_search(conn, task, call: dict, parsed: dict, catalog: MaterialCatal
             },
             category="interrupted",
         )
-    if attempt["status"] == "failed":
-        return _outcome(
-            {
-                "ok": False,
-                "error": "tool_failed",
-                "message": f"检索执行失败：{attempt['error'] or '未知错误'}",
-                "attempt_id": attempt["id"],
-                "recovered": True,
-            },
-            category="interrupted",
-            attempt_id=attempt["id"],
-        )
-    query = parsed.get("query")
-    mode = parsed.get("mode", "basic")
-    result = catalog.search(query, mode) if isinstance(query, str) and query.strip() else {
-        "ok": False,
-        "error": "invalid_arguments",
-        "message": "query 必须是非空字符串。",
-    }
-    result = {
-        **result,
-        "attempt_id": attempt["id"],
-        "cost_cents": attempt["cost_cents"],
-        "duration_ms": attempt["duration_ms"],
-        "recovered": True,
-        "recovered_from": "attempt",
-    }
-    status = "success" if attempt["status"] == "running" else None
-    return _outcome(result, category="recovered", attempt_id=attempt["id"], attempt_status=status)
+    meta = json.loads(attempt["meta_json"])
+    result = meta.get("result")
+    if result is not None:
+        return _outcome({**result, "recovered": True}, category="recovered", attempt_id=attempt["id"])
+    return _outcome({"ok": False, "error": "search_interrupted", "recovered": True,
+                     "attempt_id": attempt["id"], "cost_cents": attempt["cost_cents"],
+                     "duration_ms": attempt["duration_ms"],
+                     "message": "检索已启动但没有本次结果，保留消耗，不重放。"},
+                    category="interrupted", attempt_id=attempt["id"],
+                    attempt_status="interrupted" if attempt["status"] == "running" else None,
+                    attempt_error="启动后中断，未发现可核实的检索结果")
 
-
-def _recover_brief(conn, task, call: dict) -> dict:
-    brief = latest_brief(conn, task["id"])
-    if brief is not None and brief["created_at"] >= call.get("requested_at", ""):
-        return _outcome(
-            {
-                "ok": True,
-                "brief_version": brief["version"],
-                "message": "恢复核实：简报已写入权威记录；本调用无需重放。",
-                "recovered": True,
-            },
-            category="recovered",
-        )
-    return _outcome(
-        {
-            "ok": False,
-            "error": "interrupted",
-            "message": "上一次进程在简报写入前中断，未形成简报；请重新提交简报。",
-            "recovered": True,
-            "no_charge": True,
-        },
-        category="interrupted",
-    )
-
-
-def _recover_clarification(conn, task, call: dict) -> dict:
-    row = conn.execute(
-        "SELECT * FROM clarifications WHERE task_id = ? ORDER BY id DESC LIMIT 1", (task["id"],)
-    ).fetchone()
-    if row is not None and row["created_at"] >= call.get("requested_at", ""):
-        return _outcome(
-            {"ok": True, "questions": json.loads(row["questions_json"]), "message": "恢复核实：澄清问题已保存。", "recovered": True},
-            category="recovered",
-        )
-    return _outcome(
-        {"ok": False, "error": "interrupted", "message": "上一次进程在澄清问题保存前中断；请重新提出。", "recovered": True},
-        category="interrupted",
-    )
-
-
-def _recover_stop(conn, task, call: dict) -> dict:
-    row = conn.execute("SELECT * FROM tasks WHERE id = ?", (task["id"],)).fetchone()
-    if row["status"] == "incomplete" and row["phase"] == "stopped" and row["updated_at"] >= call.get("requested_at", ""):
-        return _outcome(
-            {"ok": True, "message": "恢复核实：任务停止状态已写入。", "recovered": True},
-            category="recovered",
-        )
-    return _outcome(
-        {"ok": False, "error": "interrupted", "message": "上一次进程在停止动作写入前中断；请重新决定是否停止。", "recovered": True},
-        category="interrupted",
-    )
 
 
 def _detect_unknown_save(conn, task, config: Config) -> dict | None:
@@ -401,13 +360,16 @@ def _detect_unknown_save(conn, task, config: Config) -> dict | None:
         return None
     from cta.save import reconcile_task
 
-    try:
-        document = reconcile_task(config, task["id"])
-        if document.get("save", {}).get("verified"):
-            return None
-    except OSError:
-        # Expected external file access failures preserve the unknown record.
-        pass
+    from cta.export import verify_records
+    files_match = not save["files"] or verify_records(save["files"])[0]
+    if files_match:
+        try:
+            document = reconcile_task(config, task["id"])
+            if document.get("save", {}).get("verified"):
+                return None
+        except OSError:
+            # Expected external file access failures preserve the unknown record.
+            pass
     if save["status"] != "unknown":
         with transaction(conn):
             conn.execute(

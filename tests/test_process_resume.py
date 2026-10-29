@@ -1,4 +1,4 @@
-"""Ticket 05: explicit cross-process resume after main-loop and generation interruption.
+"""Explicit cross-process resume after main-loop and business action interruption.
 
 Seam: CLI in real separate processes against a real on-disk SQLite database.
 Faults are injected only at system boundaries (model script, test-only env).
@@ -152,210 +152,14 @@ def test_resume_reuses_completed_search_attempt_without_double_charge(cli_env, m
     assert recovered["duration_ms"] == 2000
 
 
-def _generation_script():
-    return [
-        _tool("search_materials", {"query": "自动卡点", "mode": "basic"}),
-        _brief_tool(),
-        _tool("generate_script", {"strategy": "user_scenario", "generation_mode": "generate_direct"}),
-        _tool("generate_script", {"strategy": "user_scenario", "generation_mode": "generate_direct"}),
-        _campaign_tool(),
-        _generation_item(),
-    ]
 
 
-def test_interrupted_generation_retries_only_the_bounded_step_with_a_new_attempt(cli_env, model_script):
-    task = _create()
-    script = model_script(_generation_script())
-    data_dir = cli_env / "data"
-
-    first = _process_json("run", task["task_id"], data_dir=data_dir, script=script)
-    assert first["progress"]["phase"] == "brief_ready"
-
-    crashed = _run_process("run", task["task_id"], data_dir=data_dir, script=script, crash="generation_after_start")
-    assert crashed.returncode == 70, crashed.stderr
-
-    before = _process_json("inspect", task["task_id"], data_dir=data_dir, script=script)
-    assert [attempt["kind"] for attempt in before["attempts"]] == ["search_materials", "generate_script"]
-    assert before["attempts"][-1]["status"] == "running"
-    assert before["generator_messages_count"] == 0
-    assert before["resources"]["sim_spent_cents"] == 140
-    assert before["outputs"] == []
-
-    resumed = _process_json("resume", task["task_id"], data_dir=data_dir, script=script)
-    assert resumed["progress"]["phase"] == "draft_ready"
-    assert resumed["progress"]["used_rounds"] == 5
-    assert resumed["resources"]["sim_spent_cents"] == 260
-    recovery = resumed["run"]["recovery"]
-    assert [item["tool"] for item in recovery["interrupted_calls"]] == ["generate_script"]
-    assert recovery["reused"]["brief_version"] == 1
-    assert recovery["reused"]["search_results"] == 1
-
-    after = _process_json("inspect", task["task_id"], data_dir=data_dir, script=script)
-    assert [attempt["kind"] for attempt in after["attempts"]] == ["search_materials", "generate_script", "generate_script"]
-    assert [attempt["status"] for attempt in after["attempts"]] == ["success", "interrupted", "success"]
-    assert [row["amount_cents"] for row in after["ledger"]] == [20, 120, 120]
-    generation_requests = [row for row in after["llm_requests"] if row["purpose"] == "script_generation"]
-    assert len(generation_requests) == 1
-    assert after["generator_messages_count"] == 3
-    assert [output["version"] for output in after["outputs"]] == [1]
-    assert len([item for item in after["messages"] if item["name"] == "search_materials"]) == 1
 
 
-def test_complete_generation_candidate_is_recovered_without_regeneration(cli_env, model_script):
-    task = _create()
-    script = model_script(_generation_script())
-    data_dir = cli_env / "data"
-    first = _process_json("run", task["task_id"], data_dir=data_dir, script=script)
-    assert first["progress"]["phase"] == "brief_ready"
-
-    crashed = _run_process("run", task["task_id"], data_dir=data_dir, script=script, crash="generation_after_response")
-    assert crashed.returncode == 70, crashed.stderr
-
-    before = _process_json("inspect", task["task_id"], data_dir=data_dir, script=script)
-    assert before["attempts"][-1]["status"] == "running"
-    assert before["generator_messages_count"] == 3
-    generation_request = next(row for row in before["llm_requests"] if row["purpose"] == "script_generation")
-    attempt_before = before["attempts"][-1]
-
-    # The resume model script has no second generate_script action: recovery must
-    # supply the missing result and the loop must go straight to the campaign.
-    resume_script = model_script(
-        [
-            _tool("search_materials", {"query": "自动卡点", "mode": "basic"}),
-            _brief_tool(),
-            _tool("generate_script", {"strategy": "user_scenario", "generation_mode": "generate_direct"}),
-            _campaign_tool(),
-            _generation_item(),
-        ]
-    )
-    resumed = _process_json("resume", task["task_id"], data_dir=data_dir, script=resume_script)
-    assert resumed["progress"]["phase"] == "draft_ready"
-    assert resumed["progress"]["used_rounds"] == 4
-    assert resumed["resources"]["sim_spent_cents"] == 140
-    assert [item["tool"] for item in resumed["run"]["recovery"]["recovered_calls"]] == ["generate_script"]
-
-    after = _process_json("inspect", task["task_id"], data_dir=data_dir, script=resume_script)
-    assert len(after["attempts"]) == 2
-    recovered_attempt = after["attempts"][-1]
-    assert recovered_attempt["id"] == attempt_before["id"]
-    assert recovered_attempt["status"] == "success"
-    assert recovered_attempt["cost_cents"] == attempt_before["cost_cents"]
-    assert recovered_attempt["sim_start_ms"] == attempt_before["sim_start_ms"]
-    assert recovered_attempt["sim_end_ms"] == attempt_before["sim_end_ms"]
-    assert recovered_attempt["real_started_at"] == attempt_before["real_started_at"]
-    assert after["attempts"][-1]["status"] == "success"
-    generation_requests = [row for row in after["llm_requests"] if row["purpose"] == "script_generation"]
-    assert len(generation_requests) == 1
-    assert generation_requests[0]["id"] == generation_request["id"]
-    assert after["generator_messages_count"] == 3
-    assert [output["version"] for output in after["outputs"]] == [1]
 
 
-def test_incomplete_generation_output_stays_traceable_and_is_not_used_as_a_draft(cli_env, model_script):
-    import copy
-
-    from test_campaign_draft import SCRIPT_CANDIDATE
-
-    task = _create()
-    bad_candidate = copy.deepcopy(SCRIPT_CANDIDATE)
-    bad_candidate["claims"][0]["quote"] = "材料里没有这句话"
-    script = model_script(
-        [
-            _tool("search_materials", {"query": "自动卡点", "mode": "basic"}),
-            _brief_tool(),
-            _tool("generate_script", {"strategy": "user_scenario", "generation_mode": "generate_direct"}),
-            _generation_item(bad_candidate),
-        ]
-    )
-    data_dir = cli_env / "data"
-    first = _process_json("run", task["task_id"], data_dir=data_dir, script=script)
-    assert first["progress"]["phase"] == "brief_ready"
-
-    crashed = _run_process("run", task["task_id"], data_dir=data_dir, script=script, crash="generation_after_response")
-    assert crashed.returncode == 70, crashed.stderr
-
-    resume_script = model_script(
-        [
-            _tool("search_materials", {"query": "自动卡点", "mode": "basic"}),
-            _brief_tool(),
-            _tool("generate_script", {"strategy": "user_scenario", "generation_mode": "generate_direct"}),
-            _tool("generate_script", {"strategy": "user_scenario", "generation_mode": "generate_direct"}),
-            _campaign_tool(),
-            _generation_item(bad_candidate),
-            _generation_item(),
-        ]
-    )
-    resumed = _process_json("resume", task["task_id"], data_dir=data_dir, script=resume_script)
-    assert resumed["progress"]["phase"] == "draft_ready"
-    assert [item["tool"] for item in resumed["run"]["recovery"]["interrupted_calls"]] == ["generate_script"]
-
-    after = _process_json("inspect", task["task_id"], data_dir=data_dir, script=resume_script)
-    assert [attempt["status"] for attempt in after["attempts"]] == ["success", "interrupted", "success"]
-    assert after["generator_messages_count"] == 6
-    first_response = next(
-        message
-        for message in after["generator_messages"]
-        if message["role"] == "assistant" and message["candidate"] == 1
-    )
-    assert "材料里没有这句话" in first_response["content"]
-    assert [output["version"] for output in after["outputs"]] == [1]
-    requests = [row for row in after["llm_requests"] if row["purpose"] == "script_generation"]
-    assert len(requests) == 2
 
 
-def test_pause_freezes_sim_clock_and_explicit_resume_continues_saved_progress(cli_env, model_script):
-    task = _create()
-    script = model_script(
-        [
-            _tool("search_materials", {"query": "自动卡点", "mode": "basic"}),
-            _brief_tool(),
-            _tool("generate_script", {"strategy": "user_scenario", "generation_mode": "generate_direct"}),
-            _campaign_tool(),
-            _generation_item(),
-        ]
-    )
-    data_dir = cli_env / "data"
-    first = _process_json("run", task["task_id"], data_dir=data_dir, script=script)
-    assert first["progress"]["phase"] == "brief_ready"
-    assert first["progress"]["sim_elapsed_ms"] == 2000
-    assert first["progress"]["used_rounds"] == 2
-    assert first["resources"]["sim_spent_cents"] == 20
-
-    paused = cli_json("pause", task["task_id"])
-    assert paused["progress"]["paused"] is True
-    assert paused["progress"]["sim_elapsed_ms"] == 2000
-    assert paused["progress"]["used_rounds"] == 2
-    assert paused["resources"]["sim_spent_cents"] == 20
-    paused_inspect = cli_json("inspect", task["task_id"])
-    paused_messages = len(paused_inspect["messages"])
-    paused_requests = len(paused_inspect["llm_requests"])
-    paused_attempts = len(paused_inspect["attempts"])
-    plan_before = paused_inspect["todos"]
-
-    still_paused = _process_json("run", task["task_id"], data_dir=data_dir, script=script)
-    assert still_paused["run"]["stop_reason"] == "paused"
-    assert still_paused["progress"]["paused"] is True
-    assert still_paused["progress"]["sim_elapsed_ms"] == 2000
-    assert still_paused["progress"]["used_rounds"] == 2
-    assert still_paused["resources"]["sim_spent_cents"] == 20
-    after_paused_run = cli_json("inspect", task["task_id"])
-    assert len(after_paused_run["messages"]) == paused_messages
-    assert len(after_paused_run["llm_requests"]) == paused_requests
-    assert len(after_paused_run["attempts"]) == paused_attempts
-
-    resumed = _process_json("resume", task["task_id"], data_dir=data_dir, script=script)
-    assert resumed["progress"]["paused"] is False
-    assert resumed["progress"]["phase"] == "draft_ready"
-    assert resumed["progress"]["sim_elapsed_ms"] == 10000
-    assert resumed["progress"]["used_rounds"] == 4
-    assert resumed["resources"]["sim_spent_cents"] == 140
-    assert resumed["resources"]["remaining_cents"] == 1000 - 140
-    assert resumed["input"]["version"] == 1
-    assert resumed["input"]["budget"] == "10.00"
-    assert resumed["input"]["deadline"] == "2026-10-30T04:00:00+00:00"
-    # No plan was proposed in this script; phase progress must not fabricate one.
-    assert plan_before == []
-    assert resumed["todos"] == []
 
 
 def test_resume_after_round_cap_does_not_grant_new_rounds_or_charge(cli_env, model_script):
@@ -456,38 +260,6 @@ def test_resume_after_model_request_error_does_not_hide_retry(cli_env, model_scr
     assert after["messages"][: len(before["messages"])] == before["messages"]
 
 
-def test_resume_recovers_campaign_effect_written_before_tool_receipt(cli_env, model_script):
-    task = _create()
-    script = model_script(_brief_then_draft_script())
-    data_dir = cli_env / "data"
-    first = _process_json("run", task["task_id"], data_dir=data_dir, script=script)
-    assert first["progress"]["phase"] == "brief_ready"
-
-    crashed = _run_process("run", task["task_id"], data_dir=data_dir, script=script, crash="after_campaign_effect")
-    assert crashed.returncode == 70, crashed.stderr
-
-    before = _process_json("inspect", task["task_id"], data_dir=data_dir, script=script)
-    assert before["progress"]["phase"] == "draft_ready"
-    assert [output["version"] for output in before["outputs"]] == [1]
-    pending = _pending_call(before)
-    assert pending is not None
-    assert pending["function"]["name"] == "propose_campaign"
-    assert len(before["attempts"]) == 2
-
-    resumed = _process_json("resume", task["task_id"], data_dir=data_dir, script=script)
-    assert resumed["run"]["stop_reason"] == "injected_round_cap"
-    assert resumed["progress"]["phase"] == "draft_ready"
-    assert resumed["resources"]["sim_spent_cents"] == 140
-    assert [item["tool"] for item in resumed["run"]["recovery"]["recovered_calls"]] == ["propose_campaign"]
-
-    after = _process_json("inspect", task["task_id"], data_dir=data_dir, script=script)
-    assert [output["version"] for output in after["outputs"]] == [1]
-    assert len(after["attempts"]) == 2
-    result = json.loads(_tool_result(after, pending["id"])["content"])
-    assert result["ok"] is True
-    assert result["recovered"] is True
-    assert result["output_version"] == 1
-    assert CAMPAIGN["activity"]["theme"] in after["outputs"][0]["content_md"]
 
 
 REVIEW_PASS = {
@@ -499,103 +271,12 @@ REVIEW_PASS = {
 }
 
 
-def _review_item():
-    return {"channel": "review", "type": "tool", "name": "report_review", "arguments": REVIEW_PASS}
 
 
-def _reviewed_task(cli_env, model_script):
-    task = _create()
-    script = model_script(_brief_then_draft_script() + [_review_item()])
-    _run_until_draft(task["task_id"])
-    reviewed = cli_json("review", task["task_id"])
-    assert reviewed["progress"]["phase"] == "reviewed"
-    assert reviewed["review"]["verdict"] == "pass"
-    assert reviewed["resources"]["sim_spent_cents"] == 220
-    return task, script
 
 
-def test_resume_keeps_unknown_save_and_never_replays_it(cli_env, model_script):
-    task, script = _reviewed_task(cli_env, model_script)
-    data_dir = cli_env / "data"
-
-    crashed = _run_process("save", task["task_id"], data_dir=data_dir, script=script, crash="save_after_record")
-    assert crashed.returncode == 70, crashed.stderr
-
-    before = cli_json("inspect", task["task_id"])
-    assert before["save"]["status"] == "unknown"
-    assert before["save"]["verified"] is False
-    assert before["attempts"][-1]["kind"] == "save_campaign"
-    assert before["attempts"][-1]["status"] == "running"
-    assert before["resources"]["sim_spent_cents"] == 230
-    assert before["progress"]["sim_elapsed_ms"] == 17000
-    save_attempts = len([item for item in before["attempts"] if item["kind"] == "save_campaign"])
-    requests_before = len(before["llm_requests"])
-
-    # An actual external filesystem obstacle makes this result unverifiable.
-    # With no obstacle, resume must first reconstruct and verify local exports.
-    target_dir = data_dir / "mock" / "exports" / task["task_id"]
-    target_dir.write_text("external file blocks the export directory", encoding="utf-8")
-
-    resumed = _process_json("resume", task["task_id"], data_dir=data_dir, script=script)
-    assert resumed["status"] == "incomplete"
-    assert resumed["progress"]["phase"] == "save_unknown"
-    assert "保存结果未知" in resumed["reason"]
-    assert resumed["save"]["status"] == "unknown"
-    assert resumed["save"]["verified"] is False
-    assert resumed["resources"]["sim_spent_cents"] == 230
-    assert resumed["progress"]["sim_elapsed_ms"] == 17000
-    assert resumed["run"]["recovery"]["save_unknown"]["status"] == "unknown"
-
-    after = cli_json("inspect", task["task_id"])
-    assert len([item for item in after["attempts"] if item["kind"] == "save_campaign"]) == save_attempts
-    assert after["attempts"][-1]["status"] == "interrupted"
-    assert len(after["llm_requests"]) == requests_before
-
-    code, out, _err = run_cli("save", task["task_id"])
-    assert code == 4
-    blocked = json.loads(out)
-    assert blocked["save_error"]["code"] == "save_unknown"
-    assert blocked["status"] == "incomplete"
-    again = cli_json("inspect", task["task_id"])
-    assert len([item for item in again["attempts"] if item["kind"] == "save_campaign"]) == save_attempts
-    assert again["resources"]["sim_spent_cents"] == 230
-
-    resumed_again = _process_json("resume", task["task_id"], data_dir=data_dir, script=script)
-    assert resumed_again["progress"]["phase"] == "save_unknown"
-    assert resumed_again["run"]["recovery"]["save_unknown"]["status"] == "unknown"
-    final = cli_json("inspect", task["task_id"])
-    assert len([item for item in final["attempts"] if item["kind"] == "save_campaign"]) == save_attempts
 
 
-def test_resume_reuses_completed_review_and_continues_to_save(cli_env, model_script):
-    task, script = _reviewed_task(cli_env, model_script)
-    data_dir = cli_env / "data"
-    before = cli_json("inspect", task["task_id"])
-    review_id = before["reviews"][0]["review_id"]
-    messages_before = len(before["messages"])
-    requests_before = len(before["llm_requests"])
-    attempts_before = len(before["attempts"])
-    items = json.loads(script.read_text(encoding="utf-8"))
-    script.write_text(json.dumps(items + [_tool("save_campaign", {})], ensure_ascii=False), encoding="utf-8")
-
-    resumed = _process_json("resume", task["task_id"], data_dir=data_dir, script=script)
-    assert resumed["progress"]["phase"] == "complete"
-    assert resumed["status"] == "complete"
-    assert resumed["review"]["review_id"] == review_id
-    assert resumed["resources"]["sim_spent_cents"] == 230
-    assert resumed["run"]["recovery"]["reused"]["review"]["review_id"] == review_id
-    after = cli_json("inspect", task["task_id"])
-    assert len(after["llm_requests"]) == requests_before + 1
-    assert len(after["attempts"]) == attempts_before + 1
-    assert len(after["reviews"]) == len(before["reviews"]) == 1
-    assert len(after["messages"]) > messages_before
-    assert after["messages"][:messages_before] == before["messages"]
-
-    saved = _process_json("save", task["task_id"], data_dir=data_dir, script=script)
-    assert saved["status"] == "complete"
-    assert saved["save"]["verified"] is True
-    assert saved["review"]["review_id"] == review_id
-    assert saved["resources"]["sim_spent_cents"] == 230
 
 
 def _copy_runtime_inputs(tmp_path):
@@ -616,51 +297,77 @@ def _copy_runtime_inputs(tmp_path):
     return material_path, knowledge_dir
 
 
-def test_resume_uses_saved_material_and_knowledge_bodies_after_external_change(cli_env, model_script, monkeypatch):
-    material_path, knowledge_dir = _copy_runtime_inputs(cli_env)
-    monkeypatch.setenv("CTA_MATERIALS_PATH", str(material_path))
-    monkeypatch.setenv("CTA_KNOWLEDGE_DIR", str(knowledge_dir))
 
-    task = _create()
-    script = model_script(_generation_script())
-    data_dir = cli_env / "data"
-    first = _process_json("run", task["task_id"], data_dir=data_dir, script=script)
-    assert first["progress"]["phase"] == "brief_ready"
 
-    crashed = _run_process("run", task["task_id"], data_dir=data_dir, script=script, crash="generation_after_start")
+def test_resume_recovers_exact_campaign_snapshot_without_new_attempt(cli_env, model_script):
+    from test_campaign_delivery_new import _script_ready, _campaign
+    task, prefix, script_ref = _script_ready(model_script)
+    path = model_script(prefix + [_tool('submit_campaign', {'script_ref': script_ref, 'campaign': _campaign()})])
+    crashed = _run_process('resume', task['task_id'], '--max-rounds', '1', data_dir=cli_env / 'data',
+                           script=path, crash='after_tool_effect')
     assert crashed.returncode == 70, crashed.stderr
-    before = cli_json("inspect", task["task_id"])
-    knowledge_before = before["knowledge"][0]
-    materials_before = {item["material_id"]: item for item in before["material_snapshots"]}
-    assert materials_before["M-001"]["version"] == "2026-10-29.v1"
-    messages_before = before["messages"]
+    before = cli_json('inspect', task['task_id'])
+    pending = _pending_call(before)
+    assert pending['function']['name'] == 'submit_campaign'
+    resumed = _run_process('resume', task['task_id'], '--max-rounds', '0', data_dir=cli_env / 'data', script=path)
+    assert resumed.returncode == 0, resumed.stderr
+    after = cli_json('inspect', task['task_id'])
+    result = json.loads(_tool_result(after, pending['id'])['content'])
+    assert result['ok'] and result['recovered']
+    campaign = next(o for o in after['outputs'] if o['kind'] == 'campaign')
+    assert result['campaign_ref'] == {'id': campaign['output_id'], 'version': campaign['version']}
+    assert campaign['content']['script_ref'] == script_ref
+    assert after['outputs'] == before['outputs'] and after['attempts'] == before['attempts']
+    assert after['resources']['sim_spent_cents'] == before['resources']['sim_spent_cents']
 
-    payload = json.loads(material_path.read_text(encoding="utf-8"))
-    for material in payload["materials"]:
-        if material["id"] == "M-001":
-            material["text"] = material["text"].replace("旧资料标记AAA", "新资料标记BBB")
-    material_path.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
-    manifest = json.loads((knowledge_dir / "manifest.json").read_text(encoding="utf-8"))
-    creation = next(item for item in manifest["docs"] if item["id"] == "campaign-creation")
-    doc_path = knowledge_dir / creation["path"]
-    doc_path.write_text(
-        doc_path.read_text(encoding="utf-8").replace("旧知识标记OLDK", "新知识标记NEWK"),
-        encoding="utf-8",
-    )
 
-    resumed = _process_json("resume", task["task_id"], data_dir=data_dir, script=script)
-    assert resumed["progress"]["phase"] == "draft_ready"
-    assert [item["tool"] for item in resumed["run"]["recovery"]["interrupted_calls"]] == ["generate_script"]
+def test_resume_keeps_unverifiable_save_unknown_without_replay(cli_env, model_script):
+    from test_campaign_delivery_new import _new_draft_ready
+    from test_review_save import REVIEW_PASS, _review_item
+    task = _new_draft_ready(model_script, _review_item(REVIEW_PASS))
+    cli_json('review', task['task_id'])
+    crashed = run_cli_process('save', task['task_id'], data_dir=cli_env / 'data',
+                              extra_env={'CTA_FAULT_CRASH': 'save_after_record'})
+    assert crashed.returncode == 70
+    before = cli_json('inspect', task['task_id'])
+    assert before['save']['status'] == 'unknown' and not before['save']['verified']
+    target_dir = cli_env / 'data' / 'mock' / 'exports' / task['task_id']
+    target_dir.write_text('external file blocks the export directory', encoding='utf-8')
+    result = cli_json('resume', task['task_id'], '--max-rounds', '0')
+    assert result['status'] == 'incomplete' and result['save']['status'] == 'unknown'
+    assert not result['save']['verified'] and result['run']['recovery']['save_unknown']
+    after = cli_json('inspect', task['task_id'])
+    assert len(after['attempts']) == len(before['attempts'])
+    assert after['resources']['sim_spent_cents'] == before['resources']['sim_spent_cents']
+    assert after['progress']['sim_elapsed_ms'] == before['progress']['sim_elapsed_ms']
+    assert len(after['llm_requests']) == len(before['llm_requests'])
+    code, out, _ = run_cli('save', task['task_id'])
+    assert code == 4 and json.loads(out)['save_error']['code'] == 'save_unknown'
+    assert target_dir.read_text(encoding='utf-8') == 'external file blocks the export directory'
 
-    after = cli_json("inspect", task["task_id"])
-    assert after["messages"][: len(messages_before)] == messages_before
-    assert after["knowledge"][0] == knowledge_before
-    assert {item["material_id"]: item for item in after["material_snapshots"]}["M-001"] == materials_before["M-001"]
-    generation_text = " ".join(
-        message["content"] or "" for message in after["generator_messages"] if message["role"] != "assistant"
-    )
-    assert "旧知识标记OLDK" in generation_text
-    assert "旧资料标记AAA" in generation_text
-    assert "新知识标记NEWK" not in generation_text
-    assert "新资料标记BBB" not in generation_text
-    assert after["knowledge"][0]["chars"] == knowledge_before["chars"]
+
+def test_resume_reuses_completed_review_and_saves_same_campaign(cli_env, model_script):
+    from test_campaign_delivery_new import _new_draft_ready
+    from test_review_save import REVIEW_PASS, _review_item
+    task = _new_draft_ready(model_script, _review_item(REVIEW_PASS))
+    reviewed = cli_json('review', task['task_id'])
+    before = cli_json('inspect', task['task_id'])
+    review_id = reviewed['review']['review_id']
+    output = next(item for item in before['outputs'] if item['kind'] == 'campaign')
+    ref = {'id': output['output_id'], 'version': output['version']}
+    path = model_script.path if hasattr(model_script, 'path') else None
+    # The fixture exposes the script path through the environment.
+    import os
+    from pathlib import Path
+    path = Path(os.environ['CTA_MODEL_SCRIPT'])
+    items = json.loads(path.read_text(encoding='utf-8'))
+    model_script(items + [_tool('save_campaign', {'campaign_ref': ref})])
+    result = cli_json('resume', task['task_id'], '--max-rounds', '1')
+    assert result['status'] == 'complete' and result['save']['verified']
+    assert result['review']['review_id'] == review_id
+    assert result['run']['recovery']['reused']['review']['review_id'] == review_id
+    after = cli_json('inspect', task['task_id'])
+    assert len(after['reviews']) == len(before['reviews']) == 1
+    assert len(after['attempts']) == len(before['attempts']) + 1
+    assert after['messages'][:len(before['messages'])] == before['messages']
+    assert after['resources']['sim_spent_cents'] == before['resources']['sim_spent_cents'] + 10

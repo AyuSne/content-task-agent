@@ -275,7 +275,7 @@ def reconcile_task(config: Config, task_id: str, *, refresh_exports: bool = Fals
         return document
 
 
-def save_task(config: Config, task_id: str) -> dict:
+def save_task(config: Config, task_id: str, *, tool_call_id: str | None = None, request_seq: int | None = None) -> dict:
     from cta.service import TaskNotFound, TaskService
 
     with open_store(config.db_path) as conn:
@@ -335,9 +335,10 @@ def save_task(config: Config, task_id: str) -> dict:
             cost_cents=spec.cost_cents,
             duration_ms=spec.duration_ms,
             pricing_version=price.version,
-            meta={"output_id": output["output_id"], "output_version": output["version"]},
+            meta={"output_id": output["output_id"], "output_version": output["version"], "tool_call_id": tool_call_id, "request_seq": request_seq},
         )
         conn.commit()
+        crash("save_after_start")
 
         review = latest_review(conn, task_id)
         verified_at = utc_now_iso()
