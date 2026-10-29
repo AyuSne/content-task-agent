@@ -2,6 +2,8 @@
 
 先读本文；当前断点见[进度](progress/PROGRESS.md)，最新运行与207项回归见[新鲜eval报告](delivery/11-fresh-eval.md)，历史实现及对照见[修复验收快照](delivery/10-repair-acceptance.md)。题面映射和仓库内评审入口见[需求](delivery/01-requirements-analysis.md)；父项目正式规格及GLOSSARY用于追溯设计与术语。
 
+讨论或调整 Skill 组织、工具加载、上下文管理或脚本生成分工时，先读[设计改进讨论](design-improvements.md)，区分已确认方向、未决取舍与本文的当前实现。
+
 ## 小interface与深implementation
 
 - CLI是公开任务seam，`run/resume`承担完整自主交付，`TaskService`提供创建、查询、显式更新及采用。测试由这些公开行为和导出进入；模型、文件和进程故障在外部交互处注入。
