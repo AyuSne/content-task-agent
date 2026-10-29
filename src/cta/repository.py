@@ -10,7 +10,8 @@ from datetime import UTC, datetime
 from cta.config import utc_now_iso
 
 LOCAL_TOOL_NAMES = frozenset({
-    "record_disposition", "record_dispositions", "compare_strategies", "choose_strategy", "estimate_cost", "update_plan",
+    "read_skill", "record_disposition", "record_dispositions", "compare_strategies", "choose_strategy",
+    "estimate_cost", "update_plan",
 })
 
 

@@ -156,6 +156,13 @@ CREATE TABLE IF NOT EXISTS knowledge_loads (
     UNIQUE(task_id, agent, knowledge_id)
 );
 
+CREATE TABLE IF NOT EXISTS skill_bundles (
+    task_id TEXT NOT NULL REFERENCES tasks(id) ON DELETE CASCADE,
+    name TEXT NOT NULL,
+    bundle_json TEXT NOT NULL,
+    PRIMARY KEY (task_id, name)
+);
+
 CREATE TABLE IF NOT EXISTS material_snapshots (
     task_id TEXT NOT NULL REFERENCES tasks(id) ON DELETE CASCADE,
     material_id TEXT NOT NULL,

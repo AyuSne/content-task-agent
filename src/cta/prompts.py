@@ -220,6 +220,14 @@ def _campaign_schema() -> dict:
 
 
 TOOL_DEFINITIONS = [
+    {"type": "function", "function": {
+        "name": "read_skill",
+        "description": "读取本任务采用的 Skill 正文或条件引用；不会执行附带脚本。",
+        "parameters": {"type": "object", "properties": {
+            "name": {"type": "string", "description": "Skill 目录中的名称"},
+            "resource": {"type": "string", "description": "可选的 Skill 内相对引用路径；省略读取 SKILL.md"},
+        }, "required": ["name"], "additionalProperties": False},
+    }},
     {
         "type": "function",
         "function": {

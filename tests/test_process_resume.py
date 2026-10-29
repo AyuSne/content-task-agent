@@ -402,7 +402,7 @@ def test_model_unavailable_preserves_progress_and_explicit_resume_retries(cli_en
     assert first["progress"]["sim_elapsed_ms"] == 0
     assert first["resources"]["sim_spent_cents"] == 0
     inspected = cli_json("inspect", task["task_id"])
-    assert [message["role"] for message in inspected["messages"]] == ["system", "system", "user", "user", "user"]
+    assert [message["role"] for message in inspected["messages"]] == ["system", "system", "system", "user", "user", "user"]
     assert any(message["content"].startswith("[适用费用能力概览]") for message in inspected["messages"])
     assert inspected["messages"][-1]["content"].startswith("[状态快照]")
     assert inspected["llm_requests"] == []
