@@ -1,5 +1,7 @@
 import json
 
+import pytest
+
 from conftest import cli_json, run_cli_process
 from test_campaign_delivery_new import _script_ready, _campaign, _result
 from test_campaign_draft import _tool
@@ -127,7 +129,8 @@ def test_save_after_record_is_reconciled_for_this_call_without_recharge(cli_env,
 
 
 
-def test_incomplete_review_after_effect_preserves_failure_not_success(cli_env, model_script):
+@pytest.mark.parametrize("fault", ["after_review_effect", "after_business_result_before_receipt"])
+def test_incomplete_review_after_effect_preserves_failure_not_success(cli_env, model_script, fault):
     task, prefix, script_ref = _script_ready(model_script)
     prefix += [_tool('submit_campaign', {'script_ref': script_ref, 'campaign': _campaign()})]
     model_script(prefix)
@@ -136,7 +139,7 @@ def test_incomplete_review_after_effect_preserves_failure_not_success(cli_env, m
     report = {'verdict': 'incomplete', 'completeness': 'partial', 'summary': '缺资料', 'findings': [], 'evidence_gaps': ['缺资料']}
     path = model_script(prefix + [_tool('review_campaign', {'campaign_ref': ref}), _review_item(report)])
     crashed = run_cli_process('resume', task['task_id'], '--max-rounds', '1', data_dir=cli_env / 'data',
-                              extra_env={'CTA_MODEL_SCRIPT': str(path), 'CTA_FAULT_CRASH': 'after_review_effect'})
+                              extra_env={'CTA_MODEL_SCRIPT': str(path), 'CTA_FAULT_CRASH': fault})
     assert crashed.returncode == 70
     before = cli_json('inspect', task['task_id'])
     resumed = run_cli_process('resume', task['task_id'], '--max-rounds', '0', data_dir=cli_env / 'data',
@@ -150,7 +153,8 @@ def test_incomplete_review_after_effect_preserves_failure_not_success(cli_env, m
     assert after['resources']['sim_spent_cents'] == before['resources']['sim_spent_cents']
 
 
-def test_save_completed_before_missing_receipt_is_reused_and_verified(cli_env, model_script):
+@pytest.mark.parametrize("fault", ["after_save_effect", "after_business_result_before_receipt"])
+def test_save_completed_before_missing_receipt_is_reused_and_verified(cli_env, model_script, fault):
     task, prefix, script_ref = _script_ready(model_script)
     prefix += [_tool('submit_campaign', {'script_ref': script_ref, 'campaign': _campaign()})]
     model_script(prefix)
@@ -161,7 +165,7 @@ def test_save_completed_before_missing_receipt_is_reused_and_verified(cli_env, m
     cli_json('resume', task['task_id'], '--max-rounds', '1')
     path = model_script(prefix + [_tool('save_campaign', {'campaign_ref': ref})])
     crashed = run_cli_process('resume', task['task_id'], '--max-rounds', '1', data_dir=cli_env / 'data',
-                              extra_env={'CTA_MODEL_SCRIPT': str(path), 'CTA_FAULT_CRASH': 'after_save_effect'})
+                              extra_env={'CTA_MODEL_SCRIPT': str(path), 'CTA_FAULT_CRASH': fault})
     assert crashed.returncode == 70
     before = cli_json('inspect', task['task_id'])
     assert before['save']['verified'] and before['save']['output_id'] == ref['id']
@@ -296,3 +300,74 @@ def test_pause_and_resume_keeps_clock_plan_and_adopted_inputs(cli_env, model_scr
     assert after['scripts'][0]['content']['script'] == SCRIPT
     assert after['progress']['used_rounds'] == 6 and after['resources']['sim_spent_cents'] == 140
     assert after['messages'][:len(before['messages'])] == before['messages']
+
+
+def test_reused_tool_id_is_paired_with_its_own_request_sequence(cli_env, model_script):
+    task = cli_json('create', '--topic', '调用配对', '--budget', '10', '--deadline', '2026-10-30')
+    first = {'name': 'search_materials', 'id': 'repeat-id', 'arguments': {'query': '自动卡点'}}
+    path = model_script([first, first])
+    cli_json('run', task['task_id'], '--max-rounds', '1')
+    crashed = run_cli_process('resume', task['task_id'], '--max-rounds', '1', data_dir=cli_env / 'data',
+                              extra_env={'CTA_MODEL_SCRIPT': str(path), 'CTA_FAULT_CRASH': 'after_tool_request'})
+    assert crashed.returncode == 70
+    before = cli_json('inspect', task['task_id'])
+    resumed = run_cli_process('resume', task['task_id'], '--max-rounds', '0', data_dir=cli_env / 'data',
+                              extra_env={'CTA_MODEL_SCRIPT': str(path)})
+    assert resumed.returncode == 0, resumed.stderr
+    after = cli_json('inspect', task['task_id'])
+    results = _result(after, 'search_materials')
+    assert len(results) == 2 and results[0]['ok'] and not results[1]['ok']
+    assert results[1]['error'] == 'interrupted' and results[1]['recovered']
+    assert len(after['attempts']) == len(before['attempts']) == 1
+
+
+def test_save_started_before_record_keeps_charge_and_reports_no_verified_result(cli_env, model_script):
+    task, prefix, script_ref = _script_ready(model_script)
+    prefix += [_tool('submit_campaign', {'script_ref': script_ref, 'campaign': _campaign()})]
+    model_script(prefix)
+    cli_json('resume', task['task_id'], '--max-rounds', '1')
+    ref = _result(cli_json('inspect', task['task_id']), 'submit_campaign')[0]['campaign_ref']
+    prefix += [_tool('review_campaign', {'campaign_ref': ref}), _review_item(REVIEW_PASS)]
+    model_script(prefix)
+    cli_json('resume', task['task_id'], '--max-rounds', '1')
+    path = model_script(prefix + [_tool('save_campaign', {'campaign_ref': ref})])
+    crashed = run_cli_process('resume', task['task_id'], '--max-rounds', '1', data_dir=cli_env / 'data',
+                              extra_env={'CTA_MODEL_SCRIPT': str(path), 'CTA_FAULT_CRASH': 'save_after_start'})
+    assert crashed.returncode == 70
+    before = cli_json('inspect', task['task_id'])
+    assert before['save'] is None and before['attempts'][-1]['status'] == 'running'
+    resumed = run_cli_process('resume', task['task_id'], '--max-rounds', '0', data_dir=cli_env / 'data',
+                              extra_env={'CTA_MODEL_SCRIPT': str(path)})
+    assert resumed.returncode == 0, resumed.stderr
+    after = cli_json('inspect', task['task_id'])
+    result = _result(after, 'save_campaign')[-1]
+    assert not result['ok'] and result['error'] == 'save_interrupted' and result['recovered']
+    assert after['attempts'][-1]['status'] == 'interrupted' and after['save'] is None
+    assert len(after['attempts']) == len(before['attempts'])
+    assert after['resources']['sim_spent_cents'] == before['resources']['sim_spent_cents']
+
+
+def test_save_failure_with_missing_receipt_remains_failure(cli_env, model_script):
+    task, prefix, script_ref = _script_ready(model_script)
+    prefix += [_tool('submit_campaign', {'script_ref': script_ref, 'campaign': _campaign()})]
+    model_script(prefix)
+    cli_json('resume', task['task_id'], '--max-rounds', '1')
+    ref = _result(cli_json('inspect', task['task_id']), 'submit_campaign')[0]['campaign_ref']
+    prefix += [_tool('review_campaign', {'campaign_ref': ref}), _review_item(REVIEW_PASS)]
+    model_script(prefix)
+    cli_json('resume', task['task_id'], '--max-rounds', '1')
+    path = model_script(prefix + [_tool('save_campaign', {'campaign_ref': ref})])
+    crashed = run_cli_process('resume', task['task_id'], '--max-rounds', '1', data_dir=cli_env / 'data',
+                              extra_env={'CTA_MODEL_SCRIPT': str(path), 'CTA_FAULT_CRASH': 'after_save_effect', 'CTA_FAIL_SAVE': '1'})
+    assert crashed.returncode == 70
+    before = cli_json('inspect', task['task_id'])
+    assert before['save']['status'] == 'failed' and not before['save']['verified']
+    resumed = run_cli_process('resume', task['task_id'], '--max-rounds', '0', data_dir=cli_env / 'data',
+                              extra_env={'CTA_MODEL_SCRIPT': str(path)})
+    assert resumed.returncode == 0, resumed.stderr
+    after = cli_json('inspect', task['task_id'])
+    result = _result(after, 'save_campaign')[-1]
+    assert not result['ok'] and result['error'] == 'save_failed' and result['recovered']
+    assert result['save']['save_id'] == before['save']['save_id'] and after['status'] != 'complete'
+    assert len(after['attempts']) == len(before['attempts'])
+    assert after['resources']['sim_spent_cents'] == before['resources']['sim_spent_cents']

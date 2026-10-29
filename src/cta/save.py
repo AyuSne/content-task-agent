@@ -338,6 +338,7 @@ def save_task(config: Config, task_id: str, *, tool_call_id: str | None = None, 
             meta={"output_id": output["output_id"], "output_version": output["version"], "tool_call_id": tool_call_id, "request_seq": request_seq},
         )
         conn.commit()
+        crash("save_after_start")
 
         review = latest_review(conn, task_id)
         verified_at = utc_now_iso()

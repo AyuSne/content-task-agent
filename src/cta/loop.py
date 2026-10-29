@@ -742,6 +742,7 @@ def _handle_response(
         terminal = False
 
     if call.name in {"review_campaign", "save_campaign"}:
+        crash("after_business_result_before_receipt")
         with transaction(conn):
             record_local_tool_result(conn, task["id"], request_seq, call.id, call.name, result)
 

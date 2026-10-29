@@ -24,6 +24,8 @@ from cta.repository import (
     latest_review,
     latest_save,
     local_tool_result,
+    review_for_attempt,
+    save_for_attempt,
     pending_todos,
     task_llm_usage,
     task_spent,
@@ -204,6 +206,10 @@ def _recover_call(conn, task, call: dict, catalog: MaterialCatalog, config: Conf
             if name == "save_campaign" and receipt.get("ok") and receipt.get("save"):
                 from cta.export import verify_records
                 saved = receipt["save"]
+                ref = parsed.get("campaign_ref")
+                if not isinstance(ref, dict) or saved["output_id"] != ref.get("id") or saved["output_version"] != ref.get("version"):
+                    return _outcome({"ok": False, "error": "target_mismatch", "recovered": True,
+                                     "message": "保存回执与本次调用目标不一致，不能声明成功。"}, category="interrupted")
                 valid, checked = verify_records(saved["files"])
                 if not valid:
                     from cta.save import invalidate_export_verification
@@ -224,20 +230,31 @@ def _recover_call(conn, task, call: dict, catalog: MaterialCatalog, config: Conf
             return _outcome({"ok": False, "error": "target_mismatch", "recovered": True,
                              "message": "本次尝试与调用目标不一致，无法确认结果。"}, category="interrupted")
         if name == "review_campaign":
-            review = latest_review(conn, task["id"])
+            review = review_for_attempt(conn, task["id"], attempt["id"])
             if review is not None and review["attempt_id"] == attempt["id"] and review["output_id"] == ref["id"] and review["output_version"] == ref["version"]:
                 result = {"ok": review["status"] == "complete", "review": review, "recovered": True}
                 if not result["ok"]:
                     result.update(error="review_incomplete", message="核验未完成，不能作为通过依据。")
                 return _outcome(result, category="recovered", attempt_id=attempt["id"])
+            if attempt["status"] == "failed":
+                return _outcome({"ok": False, "error": "review_failed", "recovered": True,
+                                 "attempt_id": attempt["id"], "message": attempt["error"] or "核验明确失败，保留消耗。"},
+                                category="recovered", attempt_id=attempt["id"])
             return _outcome({"ok": False, "error": "review_interrupted", "recovered": True,
                              "message": "核验已启动但本次没有完整结果，保留消耗。"}, category="interrupted", attempt_id=attempt["id"])
-        save = latest_save(conn, task["id"])
+        save = save_for_attempt(conn, task["id"], attempt["id"])
         if save is None or save["attempt_id"] != attempt["id"] or save["output_id"] != ref["id"] or save["output_version"] != ref["version"]:
             return _outcome({"ok": False, "error": "save_interrupted", "recovered": True,
                              "message": "保存已启动但没有匹配本次尝试的保存记录；保留消耗。"}, category="interrupted", attempt_id=attempt["id"])
         if save["status"] == "failed":
             return _outcome({"ok": False, "error": "save_failed", "save": save, "recovered": True}, category="recovered", attempt_id=attempt["id"])
+        current = latest_save(conn, task["id"])
+        current_output = latest_output(conn, task["id"])
+        if (current is None or current["save_id"] != save["save_id"] or current_output is None
+                or current_output["output_id"] != ref["id"] or current_output["version"] != ref["version"]):
+            return _outcome({"ok": False, "error": "save_unknown", "save": save, "recovered": True,
+                             "message": "本次保存目标不再是当前目标；不核实其他版本或重放。"},
+                            category="interrupted", attempt_id=attempt["id"])
         from cta.save import reconcile_task
         try:
             document = reconcile_task(config, task["id"])
