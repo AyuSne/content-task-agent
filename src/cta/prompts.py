@@ -7,8 +7,9 @@ The script-generation prompt belongs to an isolated internal call.
 
 from __future__ import annotations
 
-PROMPT_VERSION = "main-2026-10-29.v9"
+PROMPT_VERSION = "main-2026-10-29.v10"
 GENERATION_PROMPT_VERSION = "script-generation-2026-10-29.v2"
+MAX_DISPOSITIONS = 64
 
 MAIN_SYSTEM_PROMPT = """你是「内容任务规划」的主 Agent，服务虚构视频剪辑 App「帧剪」的短视频推广活动。
 
@@ -23,7 +24,7 @@ MAIN_SYSTEM_PROMPT = """你是「内容任务规划」的主 Agent，服务虚�
 6. 预算与模拟截止是硬约束。方案中引用的预算数字必须与任务输入一致，不要自创总预算或剩余金额；工具被拒绝时阅读原因与完整剩余路径，改走当前可行的方向或模式；没有可行路径时用 stop_incomplete 说明具体缺口，并保留已完成成果。预估、预留不是实际支出；失败和额外消耗发生后重新估算。
    budget_cents 是本次方案准备的模拟工具费用上限，不是音乐采购、拍摄或投放预算；真实活动费用未知，单独标为待估，不得用任务预算承诺购买素材。方案截止时间约束活动方案准备及保存，后续制作与发布按另列建议排期执行。
 7. 简报完整后调用 propose_brief。简报保存后进入方案阶段：先用 compare_strategies 按实际反馈比较创作方向的表达目标、资料需求与完整剩余路径，再用 choose_strategy 记录方向、检索/生成模式与理由；不可行时改用返回的可行替代。随后调用 generate_script 获得独立生成的脚本候选，最后由你整合活动安排、脚本、素材用途、制作步骤与证据，调用 propose_campaign。脚本候选不能替代你的整体整合。propose_campaign 被拒绝时按返回的 error/details 逐项修正并立即重新提交，不要用重复检索或估算代替修正。
-8. 完整方案提交成功后继续调用 review_campaign 核验当前版本。收到核验意见后逐条处置：用 record_disposition 记录 accepted / rejected / needs_evidence 及理由。accepted 必须返修后重新提交完整方案并再次调用 review_campaign；脚本修改经 generate_script，其他修改由你整合。rejected 必须引用原始要求或证据，不能只凭偏好。当前稿满足要求、意见已有据处置且全路径可行时，调用 save_campaign 核实保存；保存明确失败后依据反馈决定重试或停止，保存未知时先停止等核实。
+8. 完整方案提交成功后继续调用 review_campaign 核验当前版本。收到核验意见后，优先一轮调用 record_dispositions 集中处置本审意见；decisions 中每条分别记录 finding_id、accepted / rejected / needs_evidence 及独立理由。accepted 必须返修后重新提交完整方案并再次调用 review_campaign；脚本修改经 generate_script，其他修改由你整合。rejected 必须引用原始要求或证据，不能只凭偏好。当前稿满足要求、意见已有据处置且全路径可行时，调用 save_campaign 核实保存；保存明确失败后依据反馈决定重试或停止，保存未知时先停止等核实。
 9. 达到可交付要求后仍可比较有明确预期收益的改进：说明改善目标、预期收益和完整路径理由；不以最低价、花尽预算或固定改进次数代替判断。
 10. 不承诺涨粉、收益、爆款或转化；不把实验性能力写成正式能力；不输出内部思维过程。你负责持续推进到核实保存或有依据的未完成；简报、草稿或核验返回都不是任务终点。"""
 
@@ -43,6 +44,19 @@ SCRIPT_GENERATION_SYSTEM_PROMPT = """你是「帧剪」活动脚本生成子调�
  "claims":[{"id":"E1","claim":"对外主张","material_id":"M-001","quote":"原文片段","scope":"适用范围"}],
  "open_questions":[{"question":"待确认","impact":"影响","blocking":false}]}
 """
+
+
+def _disposition_schema() -> dict:
+    return {
+        "type": "object",
+        "properties": {
+            "finding_id": {"type": "string"},
+            "decision": {"type": "string", "enum": ["accepted", "rejected", "needs_evidence"]},
+            "reason": {"type": "string"},
+        },
+        "required": ["finding_id", "decision", "reason"],
+        "additionalProperties": False,
+    }
 
 
 def _campaign_schema() -> dict:
@@ -473,14 +487,21 @@ TOOL_DEFINITIONS = [
         "function": {
             "name": "record_disposition",
             "description": "逐条处置核验意见：accepted 需返修，rejected 需有原始要求/证据依据，needs_evidence 保持待查证。",
+            "parameters": _disposition_schema(),
+        },
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "record_dispositions",
+            "description": "一轮集中处置当前完整核验的意见。每条有独立ID、decision和依据；任一非法或重复ID时整批拒绝，不部分写入；不计模拟费用。",
             "parameters": {
                 "type": "object",
                 "properties": {
-                    "finding_id": {"type": "string"},
-                    "decision": {"type": "string", "enum": ["accepted", "rejected", "needs_evidence"]},
-                    "reason": {"type": "string"},
+                    "decisions": {"type": "array", "minItems": 1, "maxItems": MAX_DISPOSITIONS,
+                                  "items": _disposition_schema()},
                 },
-                "required": ["finding_id", "decision", "reason"],
+                "required": ["decisions"],
                 "additionalProperties": False,
             },
         },

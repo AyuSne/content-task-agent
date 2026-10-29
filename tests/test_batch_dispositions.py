@@ -1,0 +1,82 @@
+"""The main CLI handles one complete review's independent decisions atomically."""
+
+import copy
+import json
+
+import pytest
+from conftest import cli_json
+from test_campaign_draft import _brief_then_draft_script, _campaign_tool, _create, _run_until_draft, _tool
+from test_review_save import REVIEW_FAIL, _review_item
+
+
+def _prepare(model_script, decisions):
+    review = copy.deepcopy(REVIEW_FAIL)
+    review["findings"].append({
+        **review["findings"][0], "finding_id": "F2", "severity": "optional",
+        "issue": "可选表达建议。", "suggestion": "资源允许时考虑开场变化。",
+    })
+    model_script([
+        *_brief_then_draft_script(), _review_item(review),
+        _tool("record_dispositions", {"decisions": decisions}),
+    ])
+    task_id = _create()["task_id"]
+    _run_until_draft(task_id)
+    reviewed = cli_json("review", task_id)
+    return task_id, reviewed
+
+
+def _decisions():
+    return [
+        {"finding_id": "F1", "decision": "accepted", "reason": "M-001不支持该能力，须收窄字幕。"},
+        {"finding_id": "F2", "decision": "rejected", "reason": "该建议为可选风格，当前开场已符合原要求，避免无益改动。"},
+    ]
+
+
+def test_main_records_two_independent_review_decisions_in_one_action(cli_env, model_script):
+    task_id, before = _prepare(model_script, _decisions())
+    after = cli_json("run", task_id, "--max-rounds", "1")
+    inspected = cli_json("inspect", task_id)
+    assert {item["finding_id"]: item["decision"] for item in inspected["dispositions"]} == {
+        "F1": "accepted", "F2": "rejected",
+    }
+    result = json.loads(next(message["content"] for message in inspected["messages"]
+                             if message.get("name") == "record_dispositions" and message["role"] == "tool"))
+    assert result["ok"] is True
+    assert result["review_id"] == before["review"]["review_id"]
+    assert [item["reason"] for item in result["dispositions"]] == [item["reason"] for item in _decisions()]
+    assert after["progress"]["used_rounds"] == before["progress"]["used_rounds"] + 1
+    assert after["resources"]["sim_spent_cents"] == before["resources"]["sim_spent_cents"]
+
+
+@pytest.mark.parametrize("bad_item", [
+    {"finding_id": "F999", "decision": "accepted", "reason": "不存在的意见"},
+    {"finding_id": "F1", "decision": "rejected", "reason": "重复ID"},
+    {"finding_id": "F2", "decision": "invalid", "reason": "非法处置"},
+    {"finding_id": "F2", "decision": "accepted", "reason": " "},
+])
+def test_one_invalid_decision_rejects_whole_batch_without_writes_or_simulated_cost(cli_env, model_script, bad_item):
+    task_id, before = _prepare(model_script, [_decisions()[0], bad_item])
+    after = cli_json("run", task_id, "--max-rounds", "1")
+    inspected = cli_json("inspect", task_id)
+    assert inspected["dispositions"] == []
+    result = json.loads(next(message["content"] for message in inspected["messages"]
+                             if message.get("name") == "record_dispositions" and message["role"] == "tool"))
+    assert result["ok"] is False
+    assert result["error"] in ("invalid_arguments", "finding_not_found")
+    assert after["resources"]["sim_spent_cents"] == before["resources"]["sim_spent_cents"]
+
+
+def test_batch_requires_a_complete_review_of_the_current_output(cli_env, model_script):
+    task_id, before = _prepare(model_script, _decisions())
+    model_script([
+        *_brief_then_draft_script(),
+        _campaign_tool(), _tool("record_dispositions", {"decisions": _decisions()}),
+    ])
+    cli_json("run", task_id, "--max-rounds", "1")
+    after = cli_json("run", task_id, "--max-rounds", "1")
+    inspected = cli_json("inspect", task_id)
+    assert inspected["dispositions"] == []
+    result = json.loads(next(message["content"] for message in inspected["messages"]
+                             if message.get("name") == "record_dispositions" and message["role"] == "tool"))
+    assert result["error"] == "review_required"
+    assert after["resources"]["sim_spent_cents"] == before["resources"]["sim_spent_cents"]

@@ -22,6 +22,7 @@ from cta.pricing import PriceTable, load_price_table
 from cta.prompts import (
     GENERATION_PROMPT_VERSION,
     MAIN_SYSTEM_PROMPT,
+    MAX_DISPOSITIONS,
     PROMPT_VERSION,
     SCRIPT_GENERATION_SYSTEM_PROMPT,
     TOOL_DEFINITIONS,
@@ -633,6 +634,9 @@ def _handle_response(
         result, terminal = _request_clarification(conn, task, parsed)
     elif call.name == "record_disposition":
         result = _record_disposition(conn, task, parsed)
+        terminal = False
+    elif call.name == "record_dispositions":
+        result = _record_dispositions(conn, task, parsed)
         terminal = False
     elif call.name == "review_campaign":
         try:
@@ -1929,36 +1933,56 @@ def _request_clarification(conn, task, parsed: dict) -> tuple[dict, bool]:
 
 
 def _record_disposition(conn, task, parsed: dict) -> dict:
-    finding_id = parsed.get("finding_id")
-    decision = parsed.get("decision")
-    reason = parsed.get("reason")
-    if not isinstance(finding_id, str) or not finding_id:
-        return {"ok": False, "error": "invalid_arguments", "message": "finding_id 必须是非空字符串。"}
-    if decision not in ("accepted", "rejected", "needs_evidence"):
-        return {"ok": False, "error": "invalid_arguments", "message": "decision 必须是 accepted/rejected/needs_evidence。"}
-    if not isinstance(reason, str) or not reason.strip():
-        return {"ok": False, "error": "invalid_arguments", "message": "reason 不能为空。"}
+    result = _record_dispositions(conn, task, {"decisions": [parsed]})
+    if result["ok"]:
+        result.update({key: result["dispositions"][0][key] for key in ("finding_id", "decision")})
+    return result
+
+
+def _record_dispositions(conn, task, parsed: dict) -> dict:
+    decisions = parsed.get("decisions")
+    if set(parsed) != {"decisions"} or not isinstance(decisions, list) or not decisions:
+        return {"ok": False, "error": "invalid_arguments", "message": "只接受非空 decisions 数组。"}
+    if len(decisions) > MAX_DISPOSITIONS:
+        return {"ok": False, "error": "invalid_arguments", "message": f"单次最多 {MAX_DISPOSITIONS} 条处置。"}
     review = latest_review(conn, task["id"])
-    if review is None or review["status"] != "complete":
-        return {"ok": False, "error": "review_required", "message": "没有可处置的已完成核验。"}
-    finding = next((item for item in review["findings"] if item["finding_id"] == finding_id), None)
-    if finding is None:
-        return {"ok": False, "error": "finding_not_found", "message": f"核验 {review['review_id']} 中没有意见 {finding_id}。"}
+    output = latest_output(conn, task["id"])
+    if review is None or review["status"] != "complete" or output is None or review["output_id"] != output["output_id"]:
+        return {"ok": False, "error": "review_required", "message": "当前产物没有可处置的完整核验。"}
+    if len(decisions) > len(review["findings"]):
+        return {"ok": False, "error": "invalid_arguments", "message": "处置数量不能超过本审意见数量。"}
+    finding_ids = {item["finding_id"] for item in review["findings"]}
+    normalized = []
+    seen = set()
+    for item in decisions:
+        if not isinstance(item, dict) or set(item) != {"finding_id", "decision", "reason"}:
+            return {"ok": False, "error": "invalid_arguments", "message": "每项只接受 finding_id、decision、reason。"}
+        finding_id, decision, reason = item["finding_id"], item["decision"], item["reason"]
+        if not isinstance(finding_id, str) or not finding_id.strip() or finding_id in seen:
+            return {"ok": False, "error": "invalid_arguments", "message": "finding_id 必须非空且批次内唯一。"}
+        if finding_id not in finding_ids:
+            return {"ok": False, "error": "finding_not_found", "message": f"核验 {review['review_id']} 中没有意见 {finding_id}。"}
+        if decision not in ("accepted", "rejected", "needs_evidence"):
+            return {"ok": False, "error": "invalid_arguments", "message": "decision 必须是 accepted/rejected/needs_evidence。"}
+        if not isinstance(reason, str) or not reason.strip():
+            return {"ok": False, "error": "invalid_arguments", "message": "每项 reason 必须非空。"}
+        seen.add(finding_id)
+        normalized.append({"finding_id": finding_id, "decision": decision, "reason": reason.strip()})
     with transaction(conn):
-        conn.execute(
+        conn.executemany(
             """
             INSERT INTO dispositions (review_id, finding_id, decision, reason, created_at)
             VALUES (?, ?, ?, ?, ?)
             ON CONFLICT(review_id, finding_id) DO UPDATE SET decision = excluded.decision,
                 reason = excluded.reason, created_at = excluded.created_at
             """,
-            (review["review_id"], finding_id, decision, reason.strip(), utc_now_iso()),
+            [(review["review_id"], item["finding_id"], item["decision"], item["reason"], utc_now_iso())
+             for item in normalized],
         )
     return {
         "ok": True,
         "review_id": review["review_id"],
-        "finding_id": finding_id,
-        "decision": decision,
+        "dispositions": normalized,
         "message": "处置已记录。accepted 必须返修后重新提交；rejected 需保留依据。",
     }
 

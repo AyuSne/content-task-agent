@@ -1,0 +1,134 @@
+[
+  {
+    "source": "examples/repair-live/normal-initial-12/08-inspect-direct.json",
+    "task_id": "t_4b3bf5575a10",
+    "status": "incomplete",
+    "used_rounds": 11,
+    "configured_limit": 12,
+    "output_versions": 1,
+    "main_actions": {
+      "search_materials": 2,
+      "propose_brief": 1,
+      "compare_strategies": 1,
+      "choose_strategy": 1,
+      "generate_script": 1,
+      "propose_campaign": 2,
+      "review_campaign": 1
+    },
+    "reviews": [
+      {
+        "version": 1,
+        "verdict": "fail",
+        "findings_count": 7
+      }
+    ]
+  },
+  {
+    "source": "examples/repair-live/normal-final-03/05-inspect.json",
+    "task_id": "t_09ba79c7c389",
+    "status": "incomplete",
+    "used_rounds": 24,
+    "configured_limit": 24,
+    "output_versions": 3,
+    "main_actions": {
+      "search_materials": 2,
+      "propose_brief": 1,
+      "compare_strategies": 1,
+      "choose_strategy": 1,
+      "generate_script": 1,
+      "propose_campaign": 5,
+      "review_campaign": 3,
+      "record_disposition": 9,
+      "stop_incomplete": 1
+    },
+    "reviews": [
+      {
+        "version": 1,
+        "verdict": "fail",
+        "findings_count": 4
+      },
+      {
+        "version": 2,
+        "verdict": "fail",
+        "findings_count": 4
+      },
+      {
+        "version": 3,
+        "verdict": "fail",
+        "findings_count": 5
+      }
+    ]
+  },
+  {
+    "source": "examples/repair-live/normal-final-04/05-inspect.json",
+    "task_id": "t_683625d6acf7",
+    "status": "incomplete",
+    "used_rounds": 24,
+    "configured_limit": 24,
+    "output_versions": 2,
+    "main_actions": {
+      "search_materials": 2,
+      "propose_brief": 3,
+      "read_material": 1,
+      "compare_strategies": 1,
+      "choose_strategy": 1,
+      "generate_script": 2,
+      "propose_campaign": 2,
+      "review_campaign": 2,
+      "record_disposition": 10
+    },
+    "reviews": [
+      {
+        "version": 1,
+        "verdict": "fail",
+        "findings_count": 6
+      },
+      {
+        "version": 2,
+        "verdict": "fail",
+        "findings_count": 4
+      }
+    ]
+  },
+  {
+    "source": "examples/repair-live/normal-final-05/05-inspect.json",
+    "task_id": "t_e11b0737cb2b",
+    "status": "incomplete",
+    "used_rounds": 24,
+    "configured_limit": 24,
+    "output_versions": 3,
+    "main_actions": {
+      "search_materials": 3,
+      "propose_brief": 2,
+      "read_material": 1,
+      "compare_strategies": 1,
+      "choose_strategy": 1,
+      "generate_script": 3,
+      "propose_campaign": 3,
+      "review_campaign": 4,
+      "record_disposition": 7
+    },
+    "reviews": [
+      {
+        "version": 1,
+        "verdict": "fail",
+        "findings_count": 2
+      },
+      {
+        "version": 2,
+        "verdict": null,
+        "findings_count": 0
+      },
+      {
+        "version": 2,
+        "verdict": "fail",
+        "findings_count": 4
+      },
+      {
+        "version": 3,
+        "verdict": "fail",
+        "findings_count": 5
+      }
+    ]
+  }
+]
