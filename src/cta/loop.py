@@ -84,7 +84,6 @@ def _input_row(conn, task):
 
 
 def run_task(config: Config, task_id: str, *, max_rounds: int | None = None, explicit_resume: bool = False) -> dict:
-    price = load_price_table(config.project_root)
     catalog = load_catalog(config.project_root)
     run_info = {
         "rounds_used": 0,
@@ -96,6 +95,7 @@ def run_task(config: Config, task_id: str, *, max_rounds: int | None = None, exp
 
     with open_store(config.db_path) as conn:
         task = _task(conn, task_id)
+        price = load_price_table(config.project_root, version=task["pricing_version"])
         strategy_table = load_strategy_table(config.project_root, version=task["strategy_version"])
         if task["status"] == STATUS_NEEDS_INPUT and not _has_messages(conn, task_id):
             run_info["stop_reason"] = "needs_input"
@@ -392,6 +392,9 @@ def _ensure_base_context(conn, task, config: Config) -> None:
             f"[工作知识] {stored['knowledge_id']} {stored['version']} sha256:{stored['sha256']}\n\n{stored['content']}",
             meta={"kind": "knowledge", "knowledge_id": stored["knowledge_id"], "version": stored["version"]},
         )
+        price = load_price_table(config.project_root, version=task["pricing_version"])
+        append_message(conn, task["id"], "user", "[适用费用能力概览] " + json.dumps(price.overview(), ensure_ascii=False),
+                       meta={"kind": "pricing_overview", "version": price.version})
         input_row = _input_row(conn, task)
         task_input = {
             "task_id": task["id"],
@@ -865,26 +868,23 @@ def _resource_state(conn, task) -> ResourceState:
 
 
 def _estimate(conn, task, parsed: dict, price: PriceTable) -> dict:
-    if "search_mode" not in parsed or "generation_mode" not in parsed:
-        return {"ok": False, "error": "invalid_arguments", "message": "search_mode 与 generation_mode 都是必填参数。"}
-    search_mode = parsed.get("search_mode")
-    generation_mode = parsed.get("generation_mode")
-    include_revision = parsed.get("include_revision", False)
-    search_queries = parsed.get("search_queries", 1)
-    if not isinstance(include_revision, bool):
-        return {"ok": False, "error": "invalid_arguments", "message": "include_revision 必须是布尔值。"}
-    if not isinstance(search_queries, int) or isinstance(search_queries, bool) or not 0 <= search_queries <= 6:
-        return {"ok": False, "error": "invalid_arguments", "message": "search_queries 必须是 0 到 6 的整数。"}
-    if search_mode not in ("search_basic", "search_extended"):
-        return {"ok": False, "error": "invalid_arguments", "message": "search_mode 无效。"}
-    if generation_mode not in ("generate_direct", "generate_multi"):
-        return {"ok": False, "error": "invalid_arguments", "message": "generation_mode 无效。"}
-    estimate = price.estimate(
-        search_mode,
-        generation_mode,
-        search_queries=search_queries,
-        include_revision=include_revision,
-    )
+    actions = parsed.get("actions")
+    if not isinstance(actions, list) or not actions or not all(isinstance(action, str) for action in actions):
+        return {"ok": False, "error": "invalid_arguments", "message": "actions 必须是非空动作名称列表。"}
+    unknown = [action for action in actions if action not in price.modes]
+    if unknown:
+        return {"ok": False, "error": "invalid_arguments", "message": f"未知费用动作：{unknown}"}
+    output = latest_output(conn, task["id"])
+    review = latest_review(conn, task["id"])
+    reviewed = output is not None and review is not None and review["output_id"] == output["output_id"] and review["status"] == "complete"
+    required = ["save"]
+    if not reviewed or "revision" in actions:
+        required.insert(0, "review")
+    missing = [action for action in required if action not in actions]
+    if missing:
+        return {"ok": False, "error": "missing_delivery_actions", "missing_actions": missing,
+                "message": "请将尚需的核验和保存加入动作清单；调整清单不会锁定实际执行顺序。"}
+    estimate = price.estimate_actions(actions)
     input_row = _input_row(conn, task)
     spent = task_spent(conn, task["id"])
     remaining = None if input_row["budget_cents"] is None else input_row["budget_cents"] - spent
@@ -910,10 +910,10 @@ def _estimate(conn, task, parsed: dict, price: PriceTable) -> dict:
         task_id=task["id"],
         kind="cost_estimate",
         direction=None,
-        search_mode=search_mode,
-        generation_mode=generation_mode,
-        search_queries=search_queries,
-        include_revision=include_revision,
+        search_mode=None,
+        generation_mode=None,
+        search_queries=None,
+        include_revision="revision" in actions,
         strategy_version=task["strategy_version"],
         pricing_version=price.version,
         total_cost_cents=estimate["total_cost_cents"],

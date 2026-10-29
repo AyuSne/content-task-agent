@@ -267,21 +267,14 @@ TOOL_DEFINITIONS = [
         "type": "function",
         "function": {
             "name": "estimate_cost",
-            "description": "按版本化费用表估算完整剩余交付路径的模拟费用与耗时（含检索、生成、核验、保存，可选返修）。估算不是实际支出。",
+            "description": "按任务采用费用表估算已知剩余动作的模拟费用和耗时；包含必要核验、保存及已选返修。估算不计费，清单不锁定执行顺序。",
             "parameters": {
                 "type": "object",
                 "properties": {
-                    "search_mode": {"type": "string", "enum": ["search_basic", "search_extended"]},
-                    "generation_mode": {"type": "string", "enum": ["generate_direct", "generate_multi"]},
-                    "search_queries": {
-                        "type": "integer",
-                        "minimum": 0,
-                        "maximum": 6,
-                        "description": "已知仍需执行的检索次数，默认 1；已完成的检索不重复计入剩余路径",
-                    },
-                    "include_revision": {"type": "boolean", "description": "是否把一次返修及其后复核纳入剩余路径"},
+                    "actions": {"type": "array", "minItems": 1, "items": {"type": "string"},
+                                "description": "剩余动作清单，每次动作填一个费用能力概览中的 mode 名称；重复动作重复列出。"},
                 },
-                "required": ["search_mode", "generation_mode"],
+                "required": ["actions"],
                 "additionalProperties": False,
             },
         },

@@ -280,12 +280,12 @@ def reconcile_task(config: Config, task_id: str, *, refresh_exports: bool = Fals
 def save_task(config: Config, task_id: str) -> dict:
     from cta.service import TaskNotFound, TaskService
 
-    price = load_price_table(config.project_root)
-    spec = price.mode("save")
     with open_store(config.db_path) as conn:
         task = conn.execute("SELECT * FROM tasks WHERE id = ?", (task_id,)).fetchone()
         if task is None:
             raise TaskNotFound(task_id)
+        price = load_price_table(config.project_root, version=task["pricing_version"])
+        spec = price.mode("save")
         output = latest_output(conn, task_id)
         if output is None:
             raise SaveBlocked("no_output", "任务还没有可保存的完整方案草稿。")
