@@ -40,7 +40,7 @@ uv run cta --mode real resume $task.task_id
 
 预算单位为元，只约束合成费用表计量的方案准备工具费；制作、采购与投放费用另列。示例截止属于模拟业务时钟，默认起点为2026-10-29北京时间00:00；暂停不推进模拟时间。
 
-`run` 持续到核实保存、澄清或可信停止；核验和保存由主模型选择。`resume` 先核实未完成/未知动作，再恢复原消息、资料、知识、账本和轮数。新任务默认24轮，每轮一个动作，失败/非法响应也计数；旧任务保留原12轮，重启不获取额度。`CTA_MAX_ROUNDS` 只决定新任务初值。
+`run` 持续到核实保存、澄清或可信停止；核验和保存由主模型选择。`resume` 先核实未完成/未知动作，再恢复原消息、资料、知识、账本和轮数。新任务默认24轮，每轮一个动作，失败/非法响应也计数；已有任务沿用创建时上限，历史12轮任务仍为12轮，重启不获取额度。`CTA_MAX_ROUNDS` 只决定新任务初值。
 
 新任务默认采用通用策略表 `2026-10-29.v2`。`CTA_STRATEGY_VERSION` 只选择新任务初始策略版本；已有任务的查询、比较与执行沿用已记录版本，旧v1资料保留。
 
@@ -66,19 +66,25 @@ uv run cta export <task_id> --repair
 
 ## 证据与复现
 
-- [验收报告与12组场景](docs/delivery/10-repair-acceptance.md)
-- [机器汇总](examples/acceptance-summary.json)：合格交付、正确停止、早期失败分列
-- [真实核心样例](examples/repair-live/) / [人工稿](examples/repair-human/import-01/)
-- [六对真实校准](examples/repair-calibration/knowledge2/result.json)
-- [三方式实际对照](examples/repair-comparison/normal-01/suite.json) / [回读对照](examples/repair-comparison/readback-01/result.json)
+- [题面要求与证据映射](docs/delivery/01-requirements-analysis.md) / [完整证据索引](docs/delivery/06-evidence-index.md)
+- [最新eval报告](docs/delivery/11-fresh-eval.md) / [机器汇总](examples/eval-2026-10-29/summary.json)：11个场景按完成、正确停止和待补充分列
+- [207项测试及静态检查输出](examples/eval-2026-10-29/validation-results/README.md)：运行代码63ec7c8，本地锁定依赖环境；历史60249d6干净环境204项另有记录
+- [最新人工稿](examples/eval-2026-10-29/human-import/) / [重复执行、文件修复和资源更新](examples/eval-2026-10-29/operations-v2/)
+- [原6对评审重新运行](examples/eval-2026-10-29/reviewer-baseline.json) / [新增3对修正后结果](examples/eval-2026-10-29/reviewer-holdout-v2.json)：合计18份有效样例，原错误标签与失败保留
+- [历史修复验收及12组场景](docs/delivery/10-repair-acceptance.md) / [历史19任务汇总](examples/acceptance-summary.json)
+- [历史三方式对照](examples/repair-comparison/normal-01/suite.json) / [历史回读对照](examples/repair-comparison/readback-01/result.json)
+
+历史独立Standards/Spec复查截至60249d6；63ec7c8的策略修复经主控回归及真实复测，审查范围见[独立评审记录](docs/delivery/07-final-review.md)。个人贡献、AI使用及可核实时间口径见[投入说明](docs/delivery/09-ai-usage.md)。
 
 ```powershell
 uv run python scripts/verify_saved_artifacts.py
+uv run python scripts/verify_saved_artifacts.py --root examples/eval-2026-10-29/live
+uv run python scripts/verify_saved_artifacts.py --root examples/eval-2026-10-29/post-fix
 uv run cta --mode real calibrate --output <new-result.json>
 uv run python -m cta.comparison --mode real --method all --case fixtures/comparison/campaign-2026-10-29.v1.json --output <new-experiment-directory>
 ```
 
-第一条离线核对89个存档导出的原始字节，不依赖原D盘路径。后两条会真实调用模型，保留全部结果；不保证托管模型内部实现或随机输出不变。
+前三条分别离线核对历史89个、初始新集合35个和复测10个当前导出文件的原始字节，不依赖原D盘路径。后两条会真实调用模型并保留结果；托管模型可能返回不同内容。
 
 真实/Mock使用独立数据库与导出目录，默认 `.cta-runs/<mode>/`；`--data-dir` / `CTA_DATA_DIR` 可指定根目录。本题合成资料与费用表在 `fixtures/`，两类工作知识在 `knowledge/`。实际用量和金额未知项分列；模拟按时不证明真实墙钟按时。
 

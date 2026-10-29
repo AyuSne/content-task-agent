@@ -1,6 +1,6 @@
 # 运行、复现与保存
 
-环境、离线与真实CLI命令以[README](../../README.md)为入口；验收事实以[修复报告](10-repair-acceptance.md)为准。
+环境、离线与真实CLI命令以[README](../../README.md)为入口；最新验收事实见[新鲜eval报告](11-fresh-eval.md)，历史真实集合与对照见[修复验收快照](10-repair-acceptance.md)。
 
 1. `uv sync --locked` 安装锁定依赖，`.env.example`说明本地配置。真实SDK显式直连，不指定7890；非思考、非流式、自动重试0，TLS验证开启。
 2. `create`只创建或复用身份，`run`持续自主推进；未完成执行必须显式`resume`。重启先核实未知或缺回执，再继续原预算、模拟时钟和已用轮数。
@@ -8,7 +8,9 @@
 4. 编辑导出Markdown后`import-draft --file`，再`resume`。新稿待核验；过期基稿给冲突，不自动合并。改变目标/受众/要求用`update`。
 5. `reconcile`核实保存；文件需修复时从权威版本重建。明确保存失败由主Agent决定新尝试，另计费；查询/重建不重复业务写入。`export`发现已核实文件变化时保留用户文件并降级为未知，`export --repair`才显式重建。
 
-新任务默认24轮、每轮一个动作；旧任务保留12，续跑不获取新额度。更改`CTA_MAX_ROUNDS`不会改变已创建任务的上限。初值修改依据见[记录](../../evidence/repair/runtime-24.md)。
+新任务默认24轮、每轮一个动作；已有任务沿用记录的上限，历史12轮任务仍为12轮，续跑不获取新额度。更改`CTA_MAX_ROUNDS`不会改变已创建任务的上限。初值修改依据见[记录](../../evidence/repair/runtime-24.md)。
+
+新任务默认采用通用策略v2，`CTA_STRATEGY_VERSION`只选择新任务初始版本；已建任务查询、比较和执行均使用自身记录的版本。旧v1表仍在仓库，恢复旧任务时有相应正文可读。
 
 默认数据在`.cta-runs/<mode>/tasks.db`与`exports/`，可通过`--data-dir`指定。SQLite是权威来源；交付为活动方案、执行报告、JSON与JSONL Trace。无方案时只导出报告/Trace和已有简报，不宣称交付完成。
 

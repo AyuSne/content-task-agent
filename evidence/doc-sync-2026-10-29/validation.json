@@ -1,0 +1,58 @@
+{
+  "kind": "Documentation consistency checks; existing results were not rerun",
+  "documents": [
+    "README.md",
+    "docs/architecture.md",
+    "docs/delivery/01-requirements-analysis.md",
+    "docs/delivery/02-architecture.md",
+    "docs/delivery/03-design.md",
+    "docs/delivery/04-testing.md",
+    "docs/delivery/05-operations.md",
+    "docs/delivery/06-evidence-index.md",
+    "docs/delivery/07-final-review.md",
+    "docs/delivery/08-retro.md",
+    "docs/delivery/09-ai-usage.md",
+    "docs/delivery/10-repair-acceptance.md",
+    "docs/progress/PROGRESS.md",
+    "docs/progress/09-2026-10-29.md",
+    "examples/eval-2026-10-29/validation-results/README.md"
+  ],
+  "local_link_count": 159,
+  "missing_targets": [],
+  "unbalanced_fences": [],
+  "archive_hash_checks": [
+    {
+      "check": "pytest",
+      "matches": true
+    },
+    {
+      "check": "collection",
+      "matches": true
+    },
+    {
+      "check": "ruff",
+      "matches": true
+    },
+    {
+      "check": "compileall",
+      "matches": true
+    }
+  ],
+  "archived_test_count": 207,
+  "documented_usage_totals": {
+    "evaluated_tasks": 30,
+    "requests": 528,
+    "unknown_usage_requests": 23,
+    "prompt_tokens": 10601007,
+    "completion_tokens": 490681
+  },
+  "effective_review_samples": {
+    "problem_samples": 9.0,
+    "good_samples": 9.0,
+    "detected": 9.0
+  },
+  "runtime_unchanged_from": "63ec7c8dbf005d23d8f5aa1d6eb2226288f8e29d",
+  "runtime_unchanged": true,
+  "whitespace_clean": true,
+  "passed": true
+}

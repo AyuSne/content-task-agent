@@ -1,6 +1,6 @@
 # 实现架构（后续Agent入口）
 
-先读本文；验收事实见[修复报告](delivery/10-repair-acceptance.md)，当前断点只见[进度](progress/PROGRESS.md)。正式规格在父项目 `.scratch/content-task-agent-build/spec.md`；术语以父GLOSSARY为准。
+先读本文；当前断点见[进度](progress/PROGRESS.md)，最新运行与207项回归见[新鲜eval报告](delivery/11-fresh-eval.md)，历史实现及对照见[修复验收快照](delivery/10-repair-acceptance.md)。题面映射和仓库内评审入口见[需求](delivery/01-requirements-analysis.md)；父项目正式规格及GLOSSARY用于追溯设计与术语。
 
 ## 小interface与深implementation
 
@@ -9,6 +9,7 @@
 - `evaluation.evaluate`集中核验请求协议、权限、报告与上限；生产`review.py`负责本任务材料、尝试与持久状态，校准负责标签统计，对照负责实验条件。调用方通过实际读取和记录callback接入。
 - `save.py`集中保存资格及核实。`save_preconditions`同时供资源重估使用；业务保存、新尝试收费、纯导出修复分别表达。导出由`export.py`从同一权威生成。
 - `materials.py`/`knowledge.py`管理版本化正文；service显式采用时追加旧/新完整记录并更新当前投影。importer使用任务冻结资料。
+- `strategy.py`集中创作方向及完整路径估算。默认通用v2表用于新任务，既有任务查询、比较和执行均读取其已记录版本；CLI回归见`test_strategy_task_scope.py`。原v1表保留供历史任务使用。
 - `db.py`/`repository.py`保存输入、消息、产物、核验、处置、尝试、账本和保存事实。schema8增加精确本地回执；schema7引入旧任务12轮的持久上限，新任务默认24。
 
 ## 执行与事实

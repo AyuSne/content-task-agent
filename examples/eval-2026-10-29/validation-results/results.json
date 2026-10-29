@@ -1,0 +1,41 @@
+{
+  "runtime_commit": "63ec7c8dbf005d23d8f5aa1d6eb2226288f8e29d",
+  "evidence_delivery_commit": "207f0704a2b6f0bd1d7c2aa5c2b0fc0d8f6b6a83",
+  "record_kind": "Archive of already completed checks, copied without rerunning",
+  "results": [
+    {
+      "check": "pytest",
+      "command": "uv run --no-sync pytest -q -o faulthandler_timeout=60",
+      "exit_code": 0,
+      "stdout": "pytest-207.txt",
+      "source": "evidence/eval-2026-10-29/tests-final-corrected.txt",
+      "sha256": "13465bb081db8ae3f79e36b002e0280c3e1510f336778f277fa267d0e924a244",
+      "test_count": 207
+    },
+    {
+      "check": "collection",
+      "command": "uv run --no-sync pytest --collect-only -q -o addopts=",
+      "exit_code": 0,
+      "stdout": "collected-207.txt",
+      "source": "evidence/eval-2026-10-29/collected-final.txt",
+      "sha256": "6d4578e19695db332c3a067974d1900523e04f0647e21defba2f14338f93fcd9",
+      "test_count": 207
+    },
+    {
+      "check": "ruff",
+      "command": "uv run --no-sync ruff check src tests scripts",
+      "exit_code": 0,
+      "stdout": "ruff.txt",
+      "source": "evidence/eval-2026-10-29/ruff-final.txt",
+      "sha256": "a4443afdcfb6d7363adb285762515ccf7cf50473b1a05c20c1a50f6bed4d26b0"
+    },
+    {
+      "check": "compileall",
+      "command": "uv run --no-sync python -m compileall -q src scripts",
+      "exit_code": 0,
+      "stdout": "compileall.txt",
+      "source": "evidence/eval-2026-10-29/compileall-final.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ]
+}
