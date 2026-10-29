@@ -41,3 +41,5 @@
 2026-10-30 补充验证：`PYTHONPATH=src python -m pytest -p no:cacheprovider --basetemp .scratch/test-04-final2 tests/test_joint_brief_script.py tests/test_direct_script.py tests/test_brief_loop.py tests/test_protocol_freeze.py -q` 共 46 项通过；对修改文件的 Ruff 检查通过。共享简报校验拒绝缺失来源、依据、素材用途或未知项阻塞标识，两个入口均有 CLI 验证，不再把这些缺失静默补成事实。联合成功后避免提示重复提交脚本。仍需在工单 05 完成后解决 03 留下的两项方案路径测试，并依本记录处理本地动作恢复的 21 项旧协议测试；这些失败不属于以上 46 项通过。
 
 2026-10-30 同步 05 集成分支 `bfa35bf`，在冲突中同时保留联合简报提交和引用脚本的完整方案/核验/保存提示；联合回归 63 项通过（04、03、05、简报、协议冻结、价目及标准 Skill），另新增联合提交后引用脚本形成完整方案的 CLI 组合场景 1 项通过。当前仅为本工作分支验证，工单关闭及最终合并由集成合并者核实。
+
+2026-10-30 最新同步 `a6bfac4` 后，联合提交与完整方案 CLI 测试共 26 项通过。核对模型工具定义含 `brief` 和 `submit_campaign`、系统提示同时允许联合简报及明确方案引用，创作 Skill 版本为 `2026-10-30.v4`，旧 v3 已归档。尚未进行真实模型请求。
