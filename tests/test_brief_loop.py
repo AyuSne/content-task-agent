@@ -324,10 +324,11 @@ def test_stop_incomplete_preserves_state(cli_env, model_script):
 
 def test_round_cap_stops_incomplete(cli_env, model_script):
     task = _create()
-    model_script([{"type": "text", "content": f"第 {i} 轮没有动作"} for i in range(12)])
+    limit = task["progress"]["max_rounds"]
+    model_script([{"type": "text", "content": f"第 {i} 轮没有动作"} for i in range(limit)])
     doc = run_scripted_stage("run", task["task_id"])
     assert doc["status"] == "incomplete"
-    assert doc["progress"]["used_rounds"] == 12
+    assert doc["progress"]["used_rounds"] == limit
     assert "轮数上限" in doc["reason"]
 
 

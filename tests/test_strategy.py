@@ -718,10 +718,11 @@ def test_partial_generation_success_keeps_valid_candidate_and_cost(cli_env, mode
 
 def test_round_cap_records_limit_gap_and_keeps_spend(cli_env, model_script):
     task = _create()
-    model_script([{"type": "text", "content": f"第 {index} 轮没有动作"} for index in range(12)])
+    limit = task["progress"]["max_rounds"]
+    model_script([{"type": "text", "content": f"第 {index} 轮没有动作"} for index in range(limit)])
     doc = run_scripted_stage("run", task["task_id"])
     assert doc["status"] == "incomplete"
-    assert doc["progress"]["used_rounds"] == 12
+    assert doc["progress"]["used_rounds"] == limit
     inspected = cli_json("inspect", task["task_id"])
     assert inspected["stops"][0]["kind"] == "max_rounds"
     assert inspected["stops"][0]["gaps"][0]["gap"].startswith("达到主循环轮数上限")

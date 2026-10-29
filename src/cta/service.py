@@ -39,7 +39,7 @@ STATUS_NEEDS_INPUT = "needs_input"
 STATUS_IN_PROGRESS = "in_progress"
 STATUS_INCOMPLETE = "incomplete"
 STATUS_COMPLETE = "complete"
-MAX_ROUNDS = int(os.environ.get("CTA_MAX_ROUNDS", "12"))
+MAX_ROUNDS = int(os.environ.get("CTA_MAX_ROUNDS", "24"))
 
 
 class TaskNotFound(Exception):

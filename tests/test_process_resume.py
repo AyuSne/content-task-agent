@@ -366,34 +366,35 @@ def test_pause_freezes_sim_clock_and_explicit_resume_continues_saved_progress(cl
 
 def test_resume_after_round_cap_does_not_grant_new_rounds_or_charge(cli_env, model_script):
     task = _create()
+    limit = task["progress"]["max_rounds"]
     script = model_script(
-        [{"type": "text", "content": f"第 {index} 轮没有动作"} for index in range(12)]
+        [{"type": "text", "content": f"第 {index} 轮没有动作"} for index in range(limit)]
         + [_tool("search_materials", {"query": "自动卡点", "mode": "basic"})]
     )
     data_dir = cli_env / "data"
     first = _process_json("run", task["task_id"], data_dir=data_dir, script=script)
     assert first["status"] == "incomplete"
-    assert first["progress"]["used_rounds"] == 12
+    assert first["progress"]["used_rounds"] == limit
     assert first["progress"]["phase"] == "stopped"
     assert first["progress"]["sim_elapsed_ms"] == 0
     assert first["resources"]["sim_spent_cents"] == 0
     assert "轮数上限" in first["reason"]
     before = cli_json("inspect", task["task_id"])
-    assert len(before["llm_requests"]) == 12
+    assert len(before["llm_requests"]) == limit
 
     resumed = _process_json("resume", task["task_id"], data_dir=data_dir, script=script)
     assert resumed["status"] == "incomplete"
     assert resumed["run"]["stop_reason"] == "max_rounds"
-    assert resumed["progress"]["used_rounds"] == 12
+    assert resumed["progress"]["used_rounds"] == limit
     assert resumed["progress"]["sim_elapsed_ms"] == 0
     assert resumed["resources"]["sim_spent_cents"] == 0
     assert "新额度" in resumed["reason"]
     after = cli_json("inspect", task["task_id"])
-    assert len(after["llm_requests"]) == 12
+    assert len(after["llm_requests"]) == limit
     assert len(after["attempts"]) == 0
     assert len(after["messages"]) == len(before["messages"]) + 2
     assert after["recoveries"][-1]["summary"]["prior_status"] == "incomplete"
-    assert after["recoveries"][-1]["summary"]["used_rounds"] == 12
+    assert after["recoveries"][-1]["summary"]["used_rounds"] == limit
 
 
 def test_model_unavailable_preserves_progress_and_explicit_resume_retries(cli_env, model_script, monkeypatch):
