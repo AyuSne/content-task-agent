@@ -775,6 +775,7 @@ def snapshot_state(conn: sqlite3.Connection, task_id: str) -> dict:
         else {"save_id": save["save_id"], "status": save["status"], "verified": save["verified"]},
         "sim_elapsed_ms": task["sim_elapsed_ms"],
         "used_rounds": task["used_rounds"],
+        "max_rounds": task["max_rounds"],
         "spent_cents": task_spent(conn, task_id),
         "brief_goal": (brief or {}).get("content", {}).get("goal"),
         "open_questions": [] if questions is None else json.loads(questions["questions_json"]),
