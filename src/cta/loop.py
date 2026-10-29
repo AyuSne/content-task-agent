@@ -168,8 +168,7 @@ def run_task(config: Config, task_id: str, *, max_rounds: int | None = None, exp
                 return _document(config, task_id, run_info)
 
         if task["status"] == STATUS_COMPLETE:
-            if recovery_has_events(report) or explicit_resume:
-                reconcile_task(config, task_id, refresh_exports=True)
+            reconcile_task(config, task_id, refresh_exports=True)
             run_info["stop_reason"] = "already_complete"
             return _document(config, task_id, run_info)
         if task["used_rounds"] >= task["max_rounds"]:
@@ -302,7 +301,9 @@ def _resume_phase(conn, task_id: str) -> str:
     output = latest_output(conn, task_id)
     if output is not None:
         review = latest_review(conn, task_id)
-        return "reviewed" if review is not None and review["status"] == "complete" else "draft_ready"
+        return "reviewed" if (
+            review is not None and review["status"] == "complete" and review["output_id"] == output["output_id"]
+        ) else "draft_ready"
     brief = latest_brief(conn, task_id)
     return "brief_ready" if brief is not None else "created"
 
@@ -651,7 +652,11 @@ def _handle_response(
             tool_call_id=call.id,
             name=call.name,
             attempt_id=result.get("attempt_id"),
-            meta={"kind": "tool_result"},
+            meta={
+                "kind": "tool_result",
+                **({"review_id": result["review"]["review_id"]}
+                   if call.name == "review_campaign" and result.get("review") else {}),
+            },
         )
         if terminal:
             append_snapshot(conn, task["id"], snapshot_state(conn, task["id"]))

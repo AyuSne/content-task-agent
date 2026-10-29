@@ -2,7 +2,7 @@
 
 import json
 
-from conftest import cli_json, run_cli
+from conftest import cli_json, run_cli, run_scripted_stage
 from test_campaign_draft import _brief_tool, _create
 from test_review_save import REVIEW_PASS, _draft_ready, _review_item
 
@@ -54,7 +54,7 @@ def test_semantic_update_can_rebuild_brief_v2(cli_env, model_script):
     code, _updated = _update(task["task_id"], "--topic", "研究生社团招新")
     assert code == 0
     model_script([_brief_tool()])
-    document = cli_json("run", task["task_id"])
+    document = run_scripted_stage("run", task["task_id"])
     assert document["progress"]["phase"] == "brief_ready"
     assert document["brief"]["version"] == 1
     assert document["input"]["version"] == 2

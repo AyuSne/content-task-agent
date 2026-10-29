@@ -1,0 +1,11 @@
+F                                                                        [100%]
+================================== FAILURES ===================================
+____ test_failed_save_feedback_and_explicit_retry_keep_one_business_record ____
+tests\test_autonomous_delivery.py:159: in test_failed_save_feedback_and_explicit_retry_keep_one_business_record
+    assert resumed["save"]["save_id"] == save_id
+E   AssertionError: assert 's_5eeb65149f075b85' == 's_e99509f705ab6250'
+E     
+E     - s_e99509f705ab6250
+E     + s_5eeb65149f075b85
+=========================== short test summary info ===========================
+FAILED tests/test_autonomous_delivery.py::test_failed_save_feedback_and_explicit_retry_keep_one_business_record

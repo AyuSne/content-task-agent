@@ -131,3 +131,34 @@ def test_save_after_effect_crash_recovers_main_tool_receipt_without_new_attempt(
     receipt = [message for message in after["messages"] if message.get("name") == "save_campaign" and message["role"] == "tool"]
     assert len(receipt) == 1
     assert json.loads(receipt[0]["content"])["recovered"] is True
+
+
+def test_failed_save_feedback_and_explicit_retry_keep_one_business_record(cli_env, model_script, monkeypatch):
+    task = _create()
+    script = model_script([
+        *_brief_then_draft_script(),
+        _tool("review_campaign", {}), _review_item(REVIEW_PASS), _tool("save_campaign", {}),
+        _tool("stop_incomplete", {"reason": "保存明确失败，保留成果，待文件环境修复后显式续跑。"}),
+        _tool("save_campaign", {}),
+    ])
+    monkeypatch.setenv("CTA_FAIL_SAVE", "1")
+    failed = cli_json("run", task["task_id"])
+    assert failed["status"] == "incomplete"
+    assert failed["save"]["status"] == "failed"
+    save_id = failed["save"]["save_id"]
+    assert failed["resources"]["sim_spent_cents"] == 230
+    monkeypatch.delenv("CTA_FAIL_SAVE")
+
+    process = run_cli_process(
+        "resume", task["task_id"], data_dir=cli_env / "data", extra_env={"CTA_MODEL_SCRIPT": str(script)},
+    )
+    assert process.returncode == 0, process.stderr
+    resumed = json.loads(process.stdout)
+
+    assert resumed["status"] == "complete"
+    assert resumed["save"]["save_id"] == save_id
+    assert resumed["resources"]["sim_spent_cents"] == 240
+    facts = cli_json("inspect", task["task_id"])
+    assert len(facts["saves"]) == 1
+    attempts = [attempt for attempt in facts["attempts"] if attempt["kind"] == "save_campaign"]
+    assert [attempt["status"] for attempt in attempts] == ["failed", "success"]

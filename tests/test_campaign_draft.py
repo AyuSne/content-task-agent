@@ -7,7 +7,7 @@ model boundary in offline tests); the main loop integrates the full campaign.
 import copy
 import json
 
-from conftest import VALID, cli_json
+from conftest import VALID, cli_json, run_scripted_stage
 
 BRIEF = {
     "goal": "让大学生在社团招新季了解帧剪的自动卡点",
@@ -186,9 +186,9 @@ def _brief_then_draft_script(generation_item=None, campaign_item=None):
 
 
 def _run_until_draft(task_id):
-    first = cli_json("run", task_id)
+    first = run_scripted_stage("run", task_id)
     assert first["progress"]["phase"] == "brief_ready"
-    return cli_json("run", task_id)
+    return run_scripted_stage("run", task_id)
 
 
 def test_complete_draft_uses_isolated_generation_and_full_campaign(cli_env, model_script):
@@ -311,9 +311,11 @@ def test_script_claim_without_supported_quote_fails_generation(cli_env, model_sc
     assert inspected["attempts"][-1]["status"] == "failed"
 
 
-def test_rerun_after_draft_does_not_duplicate_or_recharge(cli_env, model_script):
+def test_run_after_draft_finishes_without_regenerating_or_recharging_draft(cli_env, model_script):
+    from test_review_save import REVIEW_PASS, _review_item
+
     task = _create()
-    model_script(_brief_then_draft_script())
+    model_script([*_brief_then_draft_script(), _tool("review_campaign", {}), _review_item(REVIEW_PASS), _tool("save_campaign", {})])
     first_draft = _run_until_draft(task["task_id"])
     inspected = cli_json("inspect", task["task_id"])
     messages = len(inspected["messages"])
@@ -321,10 +323,11 @@ def test_rerun_after_draft_does_not_duplicate_or_recharge(cli_env, model_script)
 
     again = cli_json("run", task["task_id"])
     second = cli_json("inspect", task["task_id"])
-    assert again["run"]["stop_reason"] == "draft_ready"
+    assert again["status"] == "complete"
     assert again["progress"]["current_output"]["version"] == first_draft["progress"]["current_output"]["version"] == 1
-    assert again["resources"]["sim_spent_cents"] == first_draft["resources"]["sim_spent_cents"] == 140
-    assert len(second["messages"]) == messages
+    assert first_draft["resources"]["sim_spent_cents"] == 140
+    assert again["resources"]["sim_spent_cents"] == 230
+    assert len(second["messages"]) > messages
     assert second["generator_messages_count"] == generator_messages
     assert len(second["outputs"]) == 1
 

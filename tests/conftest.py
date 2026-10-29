@@ -51,6 +51,37 @@ def cli_json(*args):
     return json.loads(out)
 
 
+def scripted_stage_rounds(script_path, used_rounds):
+    """Pause a legacy stage fixture at its next submitted brief/campaign.
+
+    The real runner now owns the whole task. Stage-focused tests use its public
+    per-invocation cap to inspect a finite prefix without an artificial model
+    outage after the scripted prefix. This never changes the task's limit.
+    """
+    items = json.loads(Path(script_path).read_text(encoding="utf-8"))
+    remaining = [item for item in items if item.get("channel", "main") == "main"][used_rounds:]
+    submission = None
+    cap = None
+    for index, item in enumerate(remaining):
+        if submission is not None and item.get("name") != submission:
+            break
+        if item.get("name") in ("propose_brief", "propose_campaign"):
+            if submission is None:
+                submission = item["name"]
+            if item["name"] != submission:
+                break
+            cap = index + 1
+    return len(remaining) if cap is None else cap
+
+
+def run_scripted_stage(command, task_id, *args):
+    if "--max-rounds" in args:
+        return cli_json(command, task_id, *args)
+    status = cli_json("status", task_id)
+    cap = scripted_stage_rounds(os.environ["CTA_MODEL_SCRIPT"], status["progress"]["used_rounds"])
+    return cli_json(command, task_id, *args, "--max-rounds", str(cap))
+
+
 def run_cli_process(*args, data_dir, extra_env=None):
     env = dict(os.environ)
     env["CTA_DATA_DIR"] = str(data_dir)

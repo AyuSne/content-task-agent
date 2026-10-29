@@ -7,7 +7,7 @@ comparison, reservations, accounting and stop facts are real product behaviour.
 import json
 from pathlib import Path
 
-from conftest import cli_json
+from conftest import cli_json, run_scripted_stage
 from test_campaign_draft import BRIEF, CAMPAIGN, _campaign_tool, _create, _generation_item
 
 
@@ -27,7 +27,7 @@ def test_compare_strategies_returns_versioned_full_paths_without_charge(cli_env,
             _tool("stop_incomplete", {"reason": "仅比较策略，暂不生成。"}),
         ]
     )
-    doc = cli_json("run", task["task_id"])
+    doc = run_scripted_stage("run", task["task_id"])
     assert doc["status"] == "incomplete"
     assert doc["resources"]["sim_spent_cents"] == 20
 
@@ -122,7 +122,7 @@ def test_choose_strategy_rejects_infeasible_path_then_records_feasible_alternati
             _tool("stop_incomplete", {"reason": "仅验证策略选择与预留，不生成。"}),
         ]
     )
-    doc = cli_json("run", task["task_id"])
+    doc = run_scripted_stage("run", task["task_id"])
     assert doc["status"] == "incomplete"
     assert doc["resources"]["sim_spent_cents"] == 20
 
@@ -188,7 +188,7 @@ def test_choose_improvement_requires_expected_benefit_and_records_reservation(cl
             _tool("stop_incomplete", {"reason": "仅验证改进选择的记录。"}),
         ]
     )
-    cli_json("run", task["task_id"])
+    run_scripted_stage("run", task["task_id"])
     inspected = cli_json("inspect", task["task_id"])
     choices = [
         json.loads(message["content"])
@@ -223,7 +223,7 @@ def test_stop_incomplete_records_concrete_gaps_and_preserves_success(cli_env, mo
             ),
         ]
     )
-    doc = cli_json("run", task["task_id"])
+    doc = run_scripted_stage("run", task["task_id"])
     assert doc["status"] == "incomplete"
     assert "预算无法覆盖" in doc["reason"]
     stop_gaps = [gap for gap in doc["gaps"] if gap["source"] == "stop"]
@@ -267,7 +267,7 @@ def test_resources_separate_incurred_estimated_reserved_and_unknown_vs_not_appli
             _tool("stop_incomplete", {"reason": "仅核对资源口径。"}),
         ]
     )
-    cli_json("run", task["task_id"])
+    run_scripted_stage("run", task["task_id"])
     doc = cli_json("status", task["task_id"])
     fees = doc["resources"]["simulated_tool_fee"]
     assert fees["incurred_cents"] == 20
@@ -319,9 +319,9 @@ def test_improvement_after_workable_baseline_keeps_both_successful_attempts(cli_
             _review_item(REVIEW_PASS),
         ]
     )
-    first = cli_json("run", task["task_id"])
+    first = run_scripted_stage("run", task["task_id"])
     assert first["progress"]["phase"] == "brief_ready"
-    draft = cli_json("run", task["task_id"])
+    draft = run_scripted_stage("run", task["task_id"])
     assert draft["progress"]["phase"] == "draft_ready"
     assert draft["resources"]["sim_spent_cents"] == 20 + 120 + 300
 
@@ -397,9 +397,9 @@ def test_budget_feedback_chooses_feasible_alternative_and_completes(cli_env, mod
             _review_item(REVIEW_PASS),
         ]
     )
-    first = cli_json("run", task["task_id"])
+    first = run_scripted_stage("run", task["task_id"])
     assert first["progress"]["phase"] == "brief_ready"
-    draft = cli_json("run", task["task_id"])
+    draft = run_scripted_stage("run", task["task_id"])
     assert draft["progress"]["phase"] == "draft_ready"
     cli_json("review", task["task_id"])
     saved = cli_json("save", task["task_id"])
@@ -494,7 +494,7 @@ def test_no_feasible_path_stops_with_gap_and_records_no_selection(cli_env, model
             ),
         ]
     )
-    doc = cli_json("run", task["task_id"])
+    doc = run_scripted_stage("run", task["task_id"])
     assert doc["status"] == "incomplete"
     assert doc["resources"]["sim_spent_cents"] == 20
     assert any(gap["source"] == "stop" for gap in doc["gaps"])
@@ -535,7 +535,7 @@ def test_budget_and_deadline_feasibility_are_reported_separately(cli_env, model_
         ]
     )
     for task in (short_deadline, small_budget):
-        doc = cli_json("run", task["task_id"])
+        doc = run_scripted_stage("run", task["task_id"])
         assert doc["status"] == "incomplete"
 
     deadline_doc = cli_json("inspect", short_deadline["task_id"])
@@ -571,10 +571,10 @@ def test_search_failure_is_preserved_and_model_rechecks(cli_env, model_script, m
             _tool("stop_incomplete", {"reason": "已完成补查与简报，按计划停止。", "gaps": [{"gap": "未生成方案", "impact": "本样例仅验证检索失败处理"}]}),
         ]
     )
-    doc = cli_json("run", task["task_id"])
+    doc = run_scripted_stage("run", task["task_id"])
     assert doc["progress"]["phase"] == "brief_ready"
     assert doc["brief"]["version"] == 1
-    doc = cli_json("run", task["task_id"])
+    doc = run_scripted_stage("run", task["task_id"])
     assert doc["status"] == "incomplete"
     assert doc["resources"]["sim_spent_cents"] == 40
 
@@ -637,9 +637,9 @@ def test_generation_failure_reestimate_and_alternative_then_complete(cli_env, mo
             _review_item(REVIEW_PASS),
         ]
     )
-    first = cli_json("run", task["task_id"])
+    first = run_scripted_stage("run", task["task_id"])
     assert first["progress"]["phase"] == "brief_ready"
-    draft = cli_json("run", task["task_id"])
+    draft = run_scripted_stage("run", task["task_id"])
     assert draft["progress"]["phase"] == "draft_ready"
     assert draft["resources"]["sim_spent_cents"] == 20 + 300 + 120
 
@@ -690,9 +690,9 @@ def test_partial_generation_success_keeps_valid_candidate_and_cost(cli_env, mode
             _review_item(REVIEW_PASS),
         ]
     )
-    first = cli_json("run", task["task_id"])
+    first = run_scripted_stage("run", task["task_id"])
     assert first["progress"]["phase"] == "brief_ready"
-    draft = cli_json("run", task["task_id"])
+    draft = run_scripted_stage("run", task["task_id"])
     assert draft["progress"]["phase"] == "draft_ready"
 
     inspected = cli_json("inspect", task["task_id"])
@@ -719,7 +719,7 @@ def test_partial_generation_success_keeps_valid_candidate_and_cost(cli_env, mode
 def test_round_cap_records_limit_gap_and_keeps_spend(cli_env, model_script):
     task = _create()
     model_script([{"type": "text", "content": f"第 {index} 轮没有动作"} for index in range(12)])
-    doc = cli_json("run", task["task_id"])
+    doc = run_scripted_stage("run", task["task_id"])
     assert doc["status"] == "incomplete"
     assert doc["progress"]["used_rounds"] == 12
     inspected = cli_json("inspect", task["task_id"])

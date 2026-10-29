@@ -6,7 +6,7 @@ tool results, messages, money and time are real product behaviour.
 
 import json
 
-from conftest import VALID, cli_json, run_cli_process
+from conftest import VALID, cli_json, run_cli_process, run_scripted_stage
 
 BRIEF = {
     "goal": "让大学生在社团招新季了解帧剪的自动卡点",
@@ -65,7 +65,7 @@ def test_scripted_main_loop_produces_valid_brief_with_evidence_and_accounting(cl
             _brief_tool(),
         ]
     )
-    doc = cli_json("run", task["task_id"])
+    doc = run_scripted_stage("run", task["task_id"])
 
     assert doc["status"] == "in_progress"
     assert doc["progress"]["phase"] == "brief_ready"
@@ -108,7 +108,7 @@ def test_multiple_tool_calls_are_all_rejected_and_counted(cli_env, model_script)
             _brief_tool(),
         ]
     )
-    doc = cli_json("run", task["task_id"])
+    doc = run_scripted_stage("run", task["task_id"])
     assert doc["progress"]["used_rounds"] == 2
     assert doc["progress"]["phase"] == "brief_ready"
     assert doc["resources"]["sim_spent_cents"] == 0
@@ -123,12 +123,12 @@ def test_unknown_and_invalid_tools_do_not_execute_business_actions(cli_env, mode
     task = _create()
     model_script(
         [
-            _tool("save_campaign", {"path": "x"}),
+            _tool("publish_campaign", {"path": "x"}),
             _tool("search_materials", "not-json"),
             _brief_tool(),
         ]
     )
-    doc = cli_json("run", task["task_id"])
+    doc = run_scripted_stage("run", task["task_id"])
     assert doc["progress"]["used_rounds"] == 3
     assert doc["progress"]["phase"] == "brief_ready"
     assert doc["resources"]["sim_spent_cents"] == 0
@@ -146,7 +146,7 @@ def test_truncated_response_rejects_calls_and_asks_for_one_complete_action(cli_e
             _brief_tool(),
         ]
     )
-    doc = cli_json("run", task["task_id"])
+    doc = run_scripted_stage("run", task["task_id"])
     assert doc["progress"]["phase"] == "brief_ready"
     assert doc["progress"]["used_rounds"] == 2
     assert doc["resources"]["sim_spent_cents"] == 0
@@ -157,7 +157,7 @@ def test_truncated_response_rejects_calls_and_asks_for_one_complete_action(cli_e
 def test_text_without_tool_call_is_feedback_not_a_business_action(cli_env, model_script):
     task = _create()
     model_script([{"type": "text", "content": "我还需要更多信息。"}, _brief_tool()])
-    doc = cli_json("run", task["task_id"])
+    doc = run_scripted_stage("run", task["task_id"])
     assert doc["progress"]["used_rounds"] == 2
     assert doc["resources"]["sim_spent_cents"] == 0
     inspected = cli_json("inspect", task["task_id"])
@@ -167,7 +167,7 @@ def test_text_without_tool_call_is_feedback_not_a_business_action(cli_env, model
 def test_model_error_stops_incomplete_and_keeps_progress(cli_env, model_script):
     task = _create()
     model_script([{"type": "error", "message": "upstream 503"}])
-    doc = cli_json("run", task["task_id"])
+    doc = run_scripted_stage("run", task["task_id"])
     assert doc["status"] == "incomplete"
     assert doc["progress"]["phase"] == "stopped"
     assert "503" in doc["reason"]
@@ -192,7 +192,7 @@ def test_estimate_covers_full_remaining_path_without_charging(cli_env, model_scr
             _brief_tool(),
         ]
     )
-    doc = cli_json("run", task["task_id"])
+    doc = run_scripted_stage("run", task["task_id"])
     assert doc["progress"]["phase"] == "brief_ready"
     assert doc["resources"]["sim_spent_cents"] == 0
     inspected = cli_json("inspect", task["task_id"])
@@ -216,7 +216,7 @@ def test_budget_guard_rejects_before_attempt_and_model_continues(cli_env, model_
             _brief_tool(),
         ]
     )
-    doc = cli_json("run", task["task_id"])
+    doc = run_scripted_stage("run", task["task_id"])
     assert doc["progress"]["phase"] == "brief_ready"
     assert doc["resources"]["sim_spent_cents"] == 0
     inspected = cli_json("inspect", task["task_id"])
@@ -229,7 +229,7 @@ def test_budget_guard_rejects_before_attempt_and_model_continues(cli_env, model_
 def test_deadline_guard_rejects_long_search(cli_env, model_script):
     task = _create(deadline="2026-10-29T00:00:01+08:00")
     model_script([_tool("search_materials", {"query": "自动卡点"}), _brief_tool()])
-    doc = cli_json("run", task["task_id"])
+    doc = run_scripted_stage("run", task["task_id"])
     assert doc["progress"]["phase"] == "brief_ready"
     inspected = cli_json("inspect", task["task_id"])
     assert inspected["attempts"] == []
@@ -245,7 +245,7 @@ def test_material_with_only_an_id_returns_a_gap_and_brief_stays_cautious(cli_env
             _brief_tool(unknowns=[{"question": "白皮书正文未纳入，是否补充？", "impact": "影响能力表述", "blocking": False}]),
         ]
     )
-    doc = cli_json("run", task["task_id"])
+    doc = run_scripted_stage("run", task["task_id"])
     assert doc["progress"]["phase"] == "brief_ready"
     inspected = cli_json("inspect", task["task_id"])
     tool_messages = [m for m in inspected["messages"] if m["role"] == "tool"]
@@ -261,7 +261,7 @@ def test_material_instructions_do_not_authorize_completion(cli_env, model_script
             _brief_tool(),
         ]
     )
-    doc = cli_json("run", task["task_id"])
+    doc = run_scripted_stage("run", task["task_id"])
     assert doc["progress"]["phase"] == "brief_ready"
     assert doc["status"] != "complete"
     assert doc["progress"]["save"] is None
@@ -277,7 +277,7 @@ def test_brief_validation_rejects_unverifiable_quote_then_accepts_valid_one(cli_
     bad = _brief_tool()
     bad["arguments"]["product_facts"][0]["quote"] = "这句话不存在于材料里"
     model_script([bad, _brief_tool()])
-    doc = cli_json("run", task["task_id"])
+    doc = run_scripted_stage("run", task["task_id"])
     assert doc["progress"]["phase"] == "brief_ready"
     assert doc["progress"]["used_rounds"] == 2
     assert doc["brief"]["version"] == 1
@@ -299,7 +299,7 @@ def test_clarification_stops_for_user_and_rerun_does_not_execute(cli_env, model_
             )
         ]
     )
-    doc = cli_json("run", task["task_id"])
+    doc = run_scripted_stage("run", task["task_id"])
     assert doc["status"] == "needs_input"
     assert doc["progress"]["phase"] == "awaiting_clarification"
     assert "关键阻塞 1" in doc["reason"]
@@ -307,7 +307,7 @@ def test_clarification_stops_for_user_and_rerun_does_not_execute(cli_env, model_
     assert inspected["clarifications"][0]["questions"][0]["blocking"] is True
 
     before = len(inspected["messages"])
-    again = cli_json("run", task["task_id"])
+    again = run_scripted_stage("run", task["task_id"])
     assert again["status"] == "needs_input"
     assert again["run"]["stop_reason"] == "needs_input"
     assert len(cli_json("inspect", task["task_id"])["messages"]) == before
@@ -316,7 +316,7 @@ def test_clarification_stops_for_user_and_rerun_does_not_execute(cli_env, model_
 def test_stop_incomplete_preserves_state(cli_env, model_script):
     task = _create()
     model_script([_tool("stop_incomplete", {"reason": "现有资料无法支持核心卖点，且预算不足以补查。"})])
-    doc = cli_json("run", task["task_id"])
+    doc = run_scripted_stage("run", task["task_id"])
     assert doc["status"] == "incomplete"
     assert doc["progress"]["phase"] == "stopped"
     assert "现有资料" in doc["reason"]
@@ -325,7 +325,7 @@ def test_stop_incomplete_preserves_state(cli_env, model_script):
 def test_round_cap_stops_incomplete(cli_env, model_script):
     task = _create()
     model_script([{"type": "text", "content": f"第 {i} 轮没有动作"} for i in range(12)])
-    doc = cli_json("run", task["task_id"])
+    doc = run_scripted_stage("run", task["task_id"])
     assert doc["status"] == "incomplete"
     assert doc["progress"]["used_rounds"] == 12
     assert "轮数上限" in doc["reason"]
@@ -334,7 +334,7 @@ def test_round_cap_stops_incomplete(cli_env, model_script):
 def test_brief_is_not_reprocessed_or_recharged_on_resume(cli_env, model_script):
     task = _create()
     model_script([_tool("search_materials", {"query": "自动卡点"}), _brief_tool(), {"type": "text", "content": "不应被调用"}])
-    first = cli_json("run", task["task_id"])
+    first = run_scripted_stage("run", task["task_id"])
     inspected = cli_json("inspect", task["task_id"])
     message_count = len(inspected["messages"])
     knowledge_count = len(inspected["knowledge"])
@@ -372,7 +372,7 @@ def test_cross_process_resume_continues_from_persisted_round(cli_env, model_scri
     assert first_doc["brief"] is None
 
     second = run_cli_process(
-        "run", task["task_id"],
+        "run", task["task_id"], "--max-rounds", "1",
         data_dir=data_dir, extra_env={"CTA_MODEL_SCRIPT": str(script)},
     )
     assert second.returncode == 0, second.stderr

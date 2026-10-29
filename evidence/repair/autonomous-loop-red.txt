@@ -1,0 +1,12 @@
+Baseline: 9d00fc9 (before autonomous loop repair)
+Command (worktree PYTHONPATH=src, shared locked Python environment):
+D:/AAA小影科技/content-task-agent/.venv/Scripts/python.exe -m pytest tests/test_autonomous_delivery.py -q
+
+Observed before implementation:
+FAILED tests/test_autonomous_delivery.py::test_one_run_delivers_reviewed_campaign_without_operator_review_or_save
+assert doc["status"] == "complete"
+E AssertionError: assert 'in_progress' == 'complete'
+
+The first run stopped after the business brief, before generation/review/save.
+The regression now verifies one run, six main rounds, verified version-1 save,
+230 simulated cents, complete tool-call/result pairing and final exported trace.

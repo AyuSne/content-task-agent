@@ -7,7 +7,7 @@ Faults are injected only at system boundaries (model script, test-only env).
 import json
 import shutil
 
-from conftest import REPO_ROOT, cli_json, run_cli, run_cli_process
+from conftest import REPO_ROOT, cli_json, run_cli, run_cli_process, scripted_stage_rounds
 from test_campaign_draft import (
     CAMPAIGN,
     _brief_then_draft_script,
@@ -28,6 +28,10 @@ def _run_process(*args, data_dir, script, crash=None):
 
 
 def _process_json(*args, data_dir, script, crash=None):
+    if args[0] in ("run", "resume") and "--max-rounds" not in args:
+        status = _process_json("status", args[1], data_dir=data_dir, script=script)
+        cap = scripted_stage_rounds(script, status["progress"]["used_rounds"])
+        args = (*args, "--max-rounds", str(cap))
     result = _run_process(*args, data_dir=data_dir, script=script, crash=crash)
     assert result.returncode == 0, f"stdout={result.stdout} stderr={result.stderr}"
     return json.loads(result.stdout)
@@ -475,7 +479,7 @@ def test_resume_recovers_campaign_effect_written_before_tool_receipt(cli_env, mo
     assert len(before["attempts"]) == 2
 
     resumed = _process_json("resume", task["task_id"], data_dir=data_dir, script=script)
-    assert resumed["run"]["stop_reason"] == "draft_ready"
+    assert resumed["run"]["stop_reason"] == "injected_round_cap"
     assert resumed["progress"]["phase"] == "draft_ready"
     assert resumed["resources"]["sim_spent_cents"] == 140
     assert [item["tool"] for item in resumed["run"]["recovery"]["recovered_calls"]] == ["propose_campaign"]
@@ -562,7 +566,7 @@ def test_resume_keeps_unknown_save_and_never_replays_it(cli_env, model_script):
     assert len([item for item in final["attempts"] if item["kind"] == "save_campaign"]) == save_attempts
 
 
-def test_resume_reuses_completed_review_and_does_not_repeat_model_requests(cli_env, model_script):
+def test_resume_reuses_completed_review_and_continues_to_save(cli_env, model_script):
     task, script = _reviewed_task(cli_env, model_script)
     data_dir = cli_env / "data"
     before = cli_json("inspect", task["task_id"])
@@ -570,17 +574,19 @@ def test_resume_reuses_completed_review_and_does_not_repeat_model_requests(cli_e
     messages_before = len(before["messages"])
     requests_before = len(before["llm_requests"])
     attempts_before = len(before["attempts"])
+    items = json.loads(script.read_text(encoding="utf-8"))
+    script.write_text(json.dumps(items + [_tool("save_campaign", {})], ensure_ascii=False), encoding="utf-8")
 
     resumed = _process_json("resume", task["task_id"], data_dir=data_dir, script=script)
-    assert resumed["run"]["stop_reason"] == "reviewed"
-    assert resumed["progress"]["phase"] == "reviewed"
-    assert resumed["status"] == "in_progress"
+    assert resumed["progress"]["phase"] == "complete"
+    assert resumed["status"] == "complete"
     assert resumed["review"]["review_id"] == review_id
-    assert resumed["resources"]["sim_spent_cents"] == 220
+    assert resumed["resources"]["sim_spent_cents"] == 230
     assert resumed["run"]["recovery"]["reused"]["review"]["review_id"] == review_id
     after = cli_json("inspect", task["task_id"])
-    assert len(after["llm_requests"]) == requests_before
-    assert len(after["attempts"]) == attempts_before
+    assert len(after["llm_requests"]) == requests_before + 1
+    assert len(after["attempts"]) == attempts_before + 1
+    assert len(after["reviews"]) == len(before["reviews"]) == 1
     assert len(after["messages"]) > messages_before
     assert after["messages"][:messages_before] == before["messages"]
 

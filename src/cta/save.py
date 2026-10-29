@@ -307,16 +307,28 @@ def save_task(config: Config, task_id: str) -> dict:
                 "updated_at": verified_at,
             }
         )
-        save = create_save(
-            conn,
-            task_id=task_id,
-            output_id=output["output_id"],
-            output_version=output["version"],
-            attempt_id=attempt_id,
-            status="unknown",
-            files=[],
-            verified=False,
-        )
+        if existing is not None:
+            # A failed business save may be retried with a new charged attempt;
+            # the version's save identity stays stable and failure history
+            # remains in the original attempt/ledger.
+            conn.execute(
+                "UPDATE saves SET attempt_id = ?, status = 'unknown', files_json = '[]', "
+                "verified = 0, verified_at = NULL, error = NULL WHERE id = ?",
+                (attempt_id, existing["save_id"]),
+            )
+            save = {**existing, "attempt_id": attempt_id, "status": "unknown", "files": [],
+                    "verified": False, "verified_at": None, "error": None}
+        else:
+            save = create_save(
+                conn,
+                task_id=task_id,
+                output_id=output["output_id"],
+                output_version=output["version"],
+                attempt_id=attempt_id,
+                status="unknown",
+                files=[],
+                verified=False,
+            )
         conn.commit()
         if os.environ.get("CTA_FAULT_SAVE_AFTER_RECORD"):
             raise SystemExit(70)

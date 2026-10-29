@@ -48,7 +48,7 @@ def test_malformed_scope_type_is_rejected_without_crashing(cli_env, model_script
     brief = json.loads(json.dumps(BRIEF))
     brief["product_facts"][0]["scope"] = 123
     model_script([_tool("propose_brief", brief), _brief_tool()])
-    code, out, _err = run_cli("run", task["task_id"])
+    code, out, _err = run_cli("run", task["task_id"], "--max-rounds", "2")
     assert code == 0
     document = json.loads(out)
     assert document["progress"]["phase"] == "brief_ready"

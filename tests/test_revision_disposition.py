@@ -2,7 +2,7 @@
 
 import json
 
-from conftest import cli_json, run_cli
+from conftest import cli_json, run_cli, run_scripted_stage
 from test_campaign_draft import (
     _brief_then_draft_script,
     _campaign_tool,
@@ -73,7 +73,7 @@ def test_accepted_finding_drives_revision_and_re_review_then_save(cli_env, model
     _run_until_draft(task["task_id"])
     cli_json("review", task["task_id"])
 
-    revised = cli_json("run", task["task_id"])
+    revised = run_scripted_stage("run", task["task_id"])
     assert revised["progress"]["phase"] == "draft_ready"
     assert revised["progress"]["current_output"]["version"] == 2
     assert revised["resources"]["sim_spent_cents"] == 140 + 80 + 120
@@ -122,7 +122,7 @@ def test_accepted_without_revision_blocks_save(cli_env, model_script):
     task = _create()
     _run_until_draft(task["task_id"])
     cli_json("review", task["task_id"])
-    cli_json("run", task["task_id"])
+    run_scripted_stage("run", task["task_id"])
 
     code, out, _err = run_cli("save", task["task_id"])
     document = json.loads(out)
@@ -141,7 +141,7 @@ def test_disposition_for_unknown_finding_is_rejected(cli_env, model_script):
     task = _create()
     _run_until_draft(task["task_id"])
     cli_json("review", task["task_id"])
-    cli_json("run", task["task_id"])
+    run_scripted_stage("run", task["task_id"])
     inspected = cli_json("inspect", task["task_id"])
     rejection = next(
         json.loads(message["content"])
