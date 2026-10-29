@@ -1,0 +1,29 @@
+Resolved 24 packages in 4ms
+   Building content-task-agent @ file:///D:/AAA%E5%B0%8F%E5%BD%B1%E7%A7%91%E6%8A%80/content-task-agent
+      Built content-task-agent @ file:///D:/AAA%E5%B0%8F%E5%BD%B1%E7%A7%91%E6%8A%80/content-task-agent
+Prepared 1 package in 3.97s
+Installed 24 packages in 1.13s
+ + annotated-types==0.8.0
+ + anyio==4.15.1
+ + certifi==2026.10.23
+ + colorama==0.4.6
+ + content-task-agent==0.1.0 (from file:///D:/AAA%E5%B0%8F%E5%BD%B1%E7%A7%91%E6%8A%80/content-task-agent)
+ + distro==1.9.0
+ + h11==0.16.0
+ + httpcore==1.0.9
+ + httpx==0.28.1
+ + idna==3.20
+ + iniconfig==2.3.1
+ + jiter==0.18.0
+ + openai==2.54.0
+ + packaging==26.3
+ + pluggy==1.7.0
+ + pydantic==2.14.1
+ + pydantic-core==2.50.1
+ + pygments==2.21.0
+ + pytest==9.2.0
+ + ruff==0.17.3
+ + sniffio==1.3.1
+ + tqdm==4.70.1
+ + typing-extensions==4.16.0
+ + typing-inspection==0.4.4
