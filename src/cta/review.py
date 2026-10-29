@@ -95,7 +95,8 @@ def _review_history(conn, task_id: str) -> tuple[list[dict], list[dict]]:
         (task_id,),
     ):
         dispositions = {
-            item["finding_id"]: {"decision": item["decision"], "reason": item["reason"]}
+            item["finding_id"]: {"decision": item["decision"], "reason": item["reason"],
+                                 "evidence": json.loads(item["evidence_json"]) if item["evidence_json"] else []}
             for item in conn.execute("SELECT * FROM dispositions WHERE review_id = ?", (row["id"],))
         }
         findings = [
@@ -119,7 +120,7 @@ def _review_history(conn, task_id: str) -> tuple[list[dict], list[dict]]:
             {**finding, "review_id": row["id"], "input_version": row["input_version"]}
             for finding in findings
             if finding["severity"] in ("must_fix", "needs_evidence")
-            and (finding["disposition"] is None or finding["disposition"]["decision"] != "rejected")
+            and (finding["disposition"] is None or finding["disposition"]["decision"] != "rejected" or not finding["disposition"]["evidence"])
         )
     return history, unresolved
 

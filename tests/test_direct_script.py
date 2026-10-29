@@ -20,7 +20,7 @@ def test_direct_script_is_saved_and_charged_without_generator(cli_env, model_scr
     model_script([{'name': 'propose_brief', 'arguments': BRIEF, 'expected_tool_names': [
                       'read_skill', 'update_plan', 'review_campaign', 'save_campaign', 'search_materials',
                       'read_material', 'estimate_cost', 'propose_brief', 'submit_script', 'submit_campaign',
-                      'request_clarification', 'record_disposition', 'record_dispositions', 'stop_incomplete']},
+                      'request_clarification', 'record_dispositions', 'stop_incomplete']},
                   {'name': 'submit_script', 'arguments': {'brief_version': 1, 'script': SCRIPT}}])
     cli_json('run', task['task_id'], '--max-rounds', '2')
     view = cli_json('inspect', task['task_id'])

@@ -207,6 +207,16 @@ def execution_report_markdown(
                 f"- [{finding['severity']}] {finding['finding_id']} @ {finding['location']}：{finding['issue']}"
                 f"；建议：{finding['suggestion']}；依据：{finding['evidence']}"
             )
+    lines += ["", "## 评审处置", ""]
+    rows = conn.execute("""SELECT dispositions.*, reviews.output_id, reviews.output_version FROM dispositions
+                           JOIN reviews ON reviews.id = dispositions.review_id
+                           WHERE reviews.task_id = ? ORDER BY dispositions.id""", (task["id"],)).fetchall()
+    if not rows:
+        lines.append("- 尚无处置记录。")
+    for row in rows:
+        evidence = json.loads(row["evidence_json"]) if row["evidence_json"] else []
+        lines.append(f"- 评审 {row['review_id']}，方案 {row['output_id']} v{row['output_version']}，意见 {row['finding_id']}：{row['decision']}；理由：{row['reason']}；依据：{json.dumps(evidence, ensure_ascii=False)}")
+    lines.append("- 定位依据仅确认原文存在，语义是否支持处置仍须判断。")
     lines += ["", "## 保存与导出", ""]
     if save is None:
         lines.append("- 尚未核实保存。")

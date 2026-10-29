@@ -13,7 +13,7 @@ from pathlib import Path
 
 from cta import __version__
 
-SCHEMA_VERSION = 8
+SCHEMA_VERSION = 9
 
 SCHEMA = """
 CREATE TABLE IF NOT EXISTS meta (
@@ -244,6 +244,7 @@ CREATE TABLE IF NOT EXISTS dispositions (
     finding_id TEXT NOT NULL,
     decision TEXT NOT NULL,
     reason TEXT NOT NULL,
+    evidence_json TEXT,
     created_at TEXT NOT NULL,
     UNIQUE(review_id, finding_id)
 );
@@ -351,6 +352,9 @@ def _ensure_columns(conn: sqlite3.Connection) -> None:
     for name, definition in additions.items():
         if name not in columns:
             conn.execute(f"ALTER TABLE tasks ADD COLUMN {name} {definition}")
+    disposition_columns = {row["name"] for row in conn.execute("PRAGMA table_info(dispositions)")}
+    if "evidence_json" not in disposition_columns:
+        conn.execute("ALTER TABLE dispositions ADD COLUMN evidence_json TEXT")
     brief_columns = {row["name"] for row in conn.execute("PRAGMA table_info(briefs)")}
     if "input_version" not in brief_columns:
         conn.execute("ALTER TABLE briefs ADD COLUMN input_version INTEGER NOT NULL DEFAULT 0")

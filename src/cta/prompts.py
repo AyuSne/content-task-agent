@@ -25,21 +25,29 @@ MAIN_SYSTEM_PROMPT = """你是「内容任务规划」的主 Agent，服务虚�
 6. 预算与模拟截止是硬约束。方案中引用的预算数字必须与任务输入一致，不要自创总预算或剩余金额；工具被拒绝时阅读原因与完整剩余路径，改走当前可行的方向或模式；没有可行路径时用 stop_incomplete 说明具体缺口，并保留已完成成果。预估、预留不是实际支出；失败和额外消耗发生后重新估算。
    budget_cents 是本次方案准备的模拟工具费用上限，不是音乐采购、拍摄或投放预算；真实活动费用未知，单独标为待估，不得用任务预算承诺购买素材。方案截止时间约束活动方案准备及保存，后续制作与发布按另列建议排期执行。
 7. 按需要比较方向；已有依据充分时直接创作。先用 propose_brief 保存简报，再用 submit_script 提交完整脚本并引用该简报。返修提交完整新稿并引用旧稿，保护不需修改的内容。然后调用 submit_campaign 引用脚本并提交完整方案的其他部分；不得重复提交脚本正文。
-8. 完整方案提交成功后继续调用 review_campaign 并以 campaign_ref 核验当前版本。收到核验意见后，集中处置本审意见，明确关联意见、理由和证据；必要时返修并重新核验。当前稿满足要求、意见已有据处置且全路径可行时，调用 save_campaign 并以 campaign_ref 核实保存；保存未知时先停止等核实。
+8. 完整方案提交成功后继续调用 review_campaign 并以 campaign_ref 核验当前版本。收到核验意见后，用 record_dispositions 明确引用本次 review_id 和 campaign_ref，逐项给出决定与理由；驳回还须定位原始要求或材料，判断语义是否支持。采纳的关键问题须返修并重新核验。当前稿满足要求、意见已有据处置且全路径可行时，调用 save_campaign 并以 campaign_ref 核实保存；保存未知时先停止等核实。
 9. 核验 full/pass 后，当前合格稿可以直接保存，optional 不需要清零。比较保存当前稿与有明确实质收益的改进，收益需关联已确认目标，并考虑回归风险、完整路径及剩余主轮数；没有值得投入的新改进就保存。未来可选加固不自动构成本次返修义务，也不要为了清空新意见反复重写已通过稿件；不以最低价、花尽预算或固定改进次数代替判断。
 10. 不承诺涨粉、收益、爆款或转化；不把实验性能力写成正式能力；不输出内部思维过程。你负责持续推进到核实保存或有依据的未完成；简报、草稿或核验返回都不是任务终点。"""
 
 def _disposition_schema() -> dict:
-    return {
-        "type": "object",
-        "properties": {
-            "finding_id": {"type": "string"},
-            "decision": {"type": "string", "enum": ["accepted", "rejected", "needs_evidence"]},
-            "reason": {"type": "string"},
-        },
-        "required": ["finding_id", "decision", "reason"],
-        "additionalProperties": False,
-    }
+    requirement = {"type": "object", "properties": {
+        "kind": {"type": "string", "enum": ["requirement"]},
+        "input_version": {"type": "integer", "minimum": 1},
+        "field_path": {"type": "string", "description": "如 requirements[0]、topic 或 audience"},
+        "quote": {"type": "string", "description": "所指定输入字段的原文片段"}},
+        "required": ["kind", "input_version", "field_path", "quote"], "additionalProperties": False}
+    material = {"type": "object", "properties": {
+        "kind": {"type": "string", "enum": ["material"]}, "material_id": {"type": "string"},
+        "material_version": {"type": "string"}, "quote": {"type": "string"},
+        "scope": {"type": "string", "description": "采用材料适用范围的原文片段"}},
+        "required": ["kind", "material_id", "material_version", "quote", "scope"], "additionalProperties": False}
+    return {"type": "object", "properties": {
+        "finding_id": {"type": "string"},
+        "decision": {"type": "string", "enum": ["accepted", "rejected", "needs_evidence"]},
+        "reason": {"type": "string"},
+        "evidence": {"type": "array", "description": "驳回必须至少一条可定位原始要求或材料；定位本身不证明语义成立。",
+                     "items": {"oneOf": [requirement, material]}}},
+        "required": ["finding_id", "decision", "reason"], "additionalProperties": False}
 
 
 _script_segment = {
@@ -309,23 +317,17 @@ _submit_campaign,
 {
         "type": "function",
         "function": {
-            "name": "record_disposition",
-            "description": "逐条处置核验意见：accepted 需返修，rejected 需有原始要求/证据依据，needs_evidence 保持待查证。",
-            "parameters": _disposition_schema(),
-        },
-    },
-{
-        "type": "function",
-        "function": {
             "name": "record_dispositions",
-            "description": "一轮集中处置当前完整核验的意见。每条有独立ID、decision和依据；任一非法或重复ID时整批拒绝，不部分写入；不计模拟费用。",
+            "description": "按 review_id 和 campaign_ref 集中处置该方案最新完整核验意见；单条也用单元素数组。驳回需给可定位的原始要求或材料依据，语义由你判断；任一项无效时整批拒绝，不计模拟费用。",
             "parameters": {
                 "type": "object",
                 "properties": {
+                    "review_id": {"type": "string", "description": "实际返回的当前完整核验 ID"},
+                    "campaign_ref": _ref_schema,
                     "decisions": {"type": "array", "minItems": 1, "maxItems": MAX_DISPOSITIONS,
                                   "items": _disposition_schema()},
                 },
-                "required": ["decisions"],
+                "required": ["review_id", "campaign_ref", "decisions"],
                 "additionalProperties": False,
             },
         },
