@@ -15,7 +15,7 @@ from datetime import UTC, datetime, timedelta
 from cta.config import Config, utc_now_iso
 from cta.db import open_store, transaction
 from cta.faults import crash
-from cta.knowledge import load_doc
+from cta.knowledge import freeze_bundles, read_skill, task_bundles
 from cta.materials import MaterialCatalog, load_catalog, load_task_catalog
 from cta.model import ModelResponse, create_client
 from cta.pricing import PriceTable, load_price_table
@@ -373,17 +373,25 @@ def _ensure_base_context(conn, task, config: Config) -> None:
             meta={"kind": "system", "prompt_version": PROMPT_VERSION,
                   "tool_protocol": _protocol_definition()},
         )
-        doc = load_doc("campaign-creation", config.project_root)
+        freeze_bundles(conn, task["id"], config.project_root)
+        bundles = task_bundles(conn, task["id"])
+        doc = next(item for item in bundles if item["name"] == "campaign-creation")
+        directory = [{"name": item["name"], "description": item["description"],
+                      "version": item["version"], "loaded": item["name"] == "campaign-creation"}
+                     for item in bundles]
+        append_message(conn, task["id"], "system",
+                       "[Skill目录] 已预装的 Skill 标识 loaded=true；其他 Skill 可按需读取。\n"
+                       + json.dumps(directory, ensure_ascii=False), meta={"kind": "skill_directory"})
         conn.execute(
             """
             INSERT OR IGNORE INTO knowledge_loads (task_id, agent, knowledge_id, version, sha256, content, loaded_at)
             VALUES (?, 'main', ?, ?, ?, ?, ?)
             """,
-            (task["id"], doc.knowledge_id, doc.version, doc.sha256, doc.content, utc_now_iso()),
+            (task["id"], doc["knowledge_id"], doc["version"], doc["sha256"], doc["content"], utc_now_iso()),
         )
         stored = conn.execute(
             "SELECT * FROM knowledge_loads WHERE task_id = ? AND agent = 'main' AND knowledge_id = ?",
-            (task["id"], doc.knowledge_id),
+            (task["id"], doc["knowledge_id"]),
         ).fetchone()
         append_message(
             conn,
@@ -762,6 +770,8 @@ def _execute_business_tool(
     *,
     tool_call_id: str | None = None,
 ) -> dict:
+    if name == "read_skill":
+        return read_skill(conn, task["id"], parsed)
     if name == "search_materials":
         return _search(conn, task, parsed, price, catalog, tool_call_id=tool_call_id)
     if name == "read_material":

@@ -12,7 +12,7 @@ from datetime import datetime
 from cta.config import Config, utc_now_iso
 from cta.db import open_store, transaction
 from cta.evaluation import evaluate, review_report_status
-from cta.knowledge import load_doc
+from cta.knowledge import freeze_bundles, task_bundles
 from cta.materials import load_task_catalog
 from cta.model import create_client
 from cta.pricing import load_price_table
@@ -154,17 +154,18 @@ def review_task(config: Config, task_id: str) -> dict:
         )
         conn.commit()
 
-        doc = load_doc("content-review", config.project_root)
+        freeze_bundles(conn, task["id"], config.project_root)
+        doc = next(item for item in task_bundles(conn, task["id"]) if item["name"] == "content-review")
         conn.execute(
             """
             INSERT OR IGNORE INTO knowledge_loads (task_id, agent, knowledge_id, version, sha256, content, loaded_at)
             VALUES (?, 'reviewer', ?, ?, ?, ?, ?)
             """,
-            (task["id"], doc.knowledge_id, doc.version, doc.sha256, doc.content, utc_now_iso()),
+            (task["id"], doc["knowledge_id"], doc["version"], doc["sha256"], doc["content"], utc_now_iso()),
         )
         stored = conn.execute(
             "SELECT * FROM knowledge_loads WHERE task_id = ? AND agent = 'reviewer' AND knowledge_id = ?",
-            (task["id"], doc.knowledge_id),
+            (task["id"], doc["knowledge_id"]),
         ).fetchone()
         conn.commit()
 
@@ -223,7 +224,7 @@ def review_task(config: Config, task_id: str) -> dict:
             {"role": "system", "content": REVIEW_SYSTEM_PROMPT},
             {
                 "role": "system",
-                "content": f"[核验工作知识] {stored['knowledge_id']} {stored['version']} sha256:{stored['sha256']}\n\n{stored['content']}",
+                "content": f"[核验工作知识] {stored['knowledge_id']} {stored['version']} sha256:{stored['sha256']}\n\n{stored['content']}\n\n[Skill目录] {stored['knowledge_id']} 已预装；独立核验仅使用此方法正文。",
             },
             {"role": "user", "content": "[待核验方案] " + json.dumps(payload, ensure_ascii=False)},
         ]

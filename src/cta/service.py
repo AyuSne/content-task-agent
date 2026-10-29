@@ -283,11 +283,14 @@ class TaskService:
         }
 
     def adopt_knowledge(self, task_id: str, knowledge_id: str, version: str | None) -> dict:
-        from cta.knowledge import load_doc
+        from cta.knowledge import freeze_bundles, load_doc, snapshot_bundle, store_bundle, task_bundles
 
         doc = load_doc(knowledge_id, self.config.project_root, version=version)
+        bundle = snapshot_bundle(self.config.project_root, knowledge_id, version)
         with open_store(self.config.db_path) as conn, transaction(conn):
             task = self._require_task(conn, task_id)
+            freeze_bundles(conn, task_id, self.config.project_root)
+            previous_bundle = next((item for item in task_bundles(conn, task_id) if item["name"] == knowledge_id), None)
             previous_loads = [dict(row) for row in conn.execute(
                 "SELECT * FROM knowledge_loads WHERE task_id = ? AND knowledge_id = ? ORDER BY id",
                 (task_id, doc.knowledge_id),
@@ -299,7 +302,9 @@ class TaskService:
                 "previous": previous,
                 "previous_loads": previous_loads,
                 "current": {**doc.as_dict(), "content": doc.content},
+                "previous_bundle": previous_bundle, "current_bundle": bundle,
             }
+            store_bundle(conn, task_id, bundle)
             agents = {row["agent"] for row in previous_loads} | {"main"}
             if doc.knowledge_id == "content-review":
                 agents.add("reviewer")
@@ -409,6 +414,28 @@ class TaskService:
             view["briefs"] = [
                 {"version": row["version"], "content": json.loads(row["content_json"]), "created_at": row["created_at"]}
                 for row in conn.execute("SELECT * FROM briefs WHERE task_id = ? ORDER BY version", (task_id,))
+            ]
+            from cta.knowledge import task_bundles
+
+            successful_reads = [json.loads(row["content"]) for row in conn.execute(
+                "SELECT content FROM messages WHERE task_id = ? AND agent = 'main' AND role = 'tool' AND name = 'read_skill' ORDER BY seq",
+                (task_id,),
+            )]
+            preloads = list(conn.execute(
+                "SELECT agent, content, meta_json FROM messages WHERE task_id = ? AND role = 'system' ORDER BY seq",
+                (task_id,),
+            ))
+            view["skill_catalog"] = [
+                {"name": bundle["name"], "description": bundle["description"], "version": bundle["version"],
+                 "source": bundle["path"], "sha256": bundle["sha256"],
+                 "preloaded_by": [row["agent"] for row in preloads
+                                  if ((json.loads(row["meta_json"]).get("kind") == "knowledge"
+                                       and json.loads(row["meta_json"]).get("knowledge_id") == bundle["name"])
+                                      or (row["agent"] == "reviewer" and row["content"].startswith(
+                                          "[核验工作知识] " + bundle["name"] + " ")))],
+                 "read_by_main": [result["resource"] for result in successful_reads
+                                  if result.get("ok") and result.get("name") == bundle["name"]]}
+                for bundle in task_bundles(conn, task_id)
             ]
             view["knowledge"] = [
                 {

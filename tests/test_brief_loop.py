@@ -91,7 +91,7 @@ def test_scripted_main_loop_produces_valid_brief_with_evidence_and_accounting(cl
     assert inspected["resources"]["real_requests"] == 0
 
     roles = [message["role"] for message in inspected["messages"]]
-    assert roles[:4] == ["system", "system", "user", "user"]
+    assert roles[:5] == ["system", "system", "system", "user", "user"]
     tool_messages = [message for message in inspected["messages"] if message["role"] == "tool"]
     assert [message["name"] for message in tool_messages] == ["search_materials", "read_material", "propose_brief"]
     assert json.loads(tool_messages[0]["content"])["ok"] is True

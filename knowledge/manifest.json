@@ -1,17 +1,19 @@
 {
-  "version": "2026-10-29.v2",
+  "version": "2026-10-30.v2",
   "docs": [
     {
       "id": "campaign-creation",
       "title": "活动方案创作工作知识",
-      "version": "2026-10-29.v2",
-      "path": "campaign-creation/2026-10-29.v2.md"
+      "version": "2026-10-30.v2",
+      "path": "skills/campaign-creation/SKILL.md",
+      "description": "为短视频推广活动准备有依据、可继续制作的活动方案时使用。"
     },
     {
       "id": "content-review",
       "title": "内容核验工作知识",
-      "version": "2026-10-29.v2",
-      "path": "content-review/2026-10-29.v2.md"
+      "version": "2026-10-30.v2",
+      "path": "skills/content-review/SKILL.md",
+      "description": "独立核验完整活动方案的要求、证据、一致性与制作可用性时使用。"
     }
   ]
 }
