@@ -10,7 +10,7 @@ from datetime import UTC, datetime
 from cta.config import utc_now_iso
 
 LOCAL_TOOL_NAMES = frozenset({
-    "read_skill", "record_disposition", "record_dispositions", "compare_strategies", "choose_strategy",
+    "read_skill", "record_disposition", "record_dispositions",
     "estimate_cost", "update_plan",
 })
 
@@ -273,7 +273,7 @@ def latest_brief(conn: sqlite3.Connection, task_id: str) -> dict | None:
     ).fetchone()
     if row is None:
         return None
-    return {"version": row["version"], "content": json.loads(row["content_json"]), "created_at": row["created_at"]}
+    return {"version": row["version"], "input_version": row["input_version"], "content": json.loads(row["content_json"]), "created_at": row["created_at"]}
 
 
 def latest_output(conn: sqlite3.Connection, task_id: str, kind: str = "campaign") -> dict | None:
@@ -329,7 +329,8 @@ def create_output(
             utc_now_iso(),
         ),
     )
-    conn.execute("UPDATE tasks SET current_output_id = ? WHERE id = ?", (output_id, task_id))
+    if kind == "campaign":
+        conn.execute("UPDATE tasks SET current_output_id = ? WHERE id = ?", (output_id, task_id))
     return {"output_id": output_id, "version": version, "status": "draft"}
 
 

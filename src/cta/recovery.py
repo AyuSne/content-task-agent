@@ -29,9 +29,6 @@ from cta.repository import (
     task_spent,
 )
 
-ATTEMPT_KINDS = {"search_materials": "search_materials", "generate_script": "generate_script"}
-
-
 def recover_task(conn, task, config: Config, *, explicit: bool) -> dict:
     report = {
         "explicit_resume": explicit,
@@ -184,15 +181,6 @@ def _attempt_for(conn, task_id: str, call: dict, kind: str):
             meta = {}
         if meta.get("tool_call_id") == call["id"]:
             return row
-    # Databases written before tool_call_id was persisted can still be recovered
-    # when exactly one matching attempt was left running.
-    for row in reversed(rows):
-        try:
-            meta = json.loads(row["meta_json"] or "{}")
-        except json.JSONDecodeError:
-            meta = {}
-        if row["kind"] == kind and row["status"] == "running" and not meta.get("tool_call_id"):
-            return row
     return None
 
 
@@ -214,14 +202,12 @@ def _recover_call(conn, task, call: dict, catalog: MaterialCatalog, config: Conf
         return _recover_local_action(conn, task, call)
     if name == "propose_brief":
         return _recover_brief(conn, task, call)
-    if name == "propose_campaign":
-        return _recover_campaign(conn, task, call)
     if name == "request_clarification":
         return _recover_clarification(conn, task, call)
     if name == "stop_incomplete":
         return _recover_stop(conn, task, call)
-    if name == "generate_script":
-        return _recover_generation(conn, task, call, parsed, catalog)
+    if name == "submit_script":
+        return _recover_script(conn, task, call)
     if name == "review_campaign":
         output = latest_output(conn, task["id"])
         review = latest_review(conn, task["id"])
@@ -260,6 +246,31 @@ def _recover_call(conn, task, call: dict, catalog: MaterialCatalog, config: Conf
         {"ok": False, "error": "unknown_tool", "message": f"未知工具：{name}；本轮未执行任何业务动作。", "recovered": True},
         category="interrupted",
     )
+
+
+def _recover_script(conn, task, call):
+    attempt = _attempt_for(conn, task["id"], call, "submit_script")
+    if attempt is None:
+        return _outcome({"ok": False, "error": "script_interrupted", "started": False, "charged": False,
+                         "message": "提交在业务启动前中断，未收费；可根据当前状态重新提交。", "recovered": True},
+                        category="interrupted")
+    output = conn.execute("SELECT * FROM outputs WHERE task_id = ? AND kind = 'script' AND attempt_id = ?",
+                          (task["id"], attempt["id"])).fetchone()
+    if output is not None:
+        content = json.loads(output["content_json"])
+        result = {"ok": True, "script_ref": {"id": output["id"], "version": output["version"]},
+                  "brief_version": content["brief_version"], "attempt_id": attempt["id"], "started": True,
+                  "consumption": {"cost_cents": attempt["cost_cents"], "duration_ms": attempt["duration_ms"],
+                                  "pricing_version": task["pricing_version"]}, "recovered": True,
+                  "message": "已核实原脚本版本，未重新执行或收费。"}
+        return _outcome(result, category="recovered", attempt_id=attempt["id"],
+                        attempt_status="success" if attempt["status"] == "running" else None)
+    return _outcome({"ok": False, "error": "script_interrupted", "started": True, "charged": True,
+                     "attempt_id": attempt["id"], "recovered": True,
+                     "message": "已启动但没有可核实脚本版本；保留消耗，新的提交为新尝试。"},
+                    category="interrupted", attempt_id=attempt["id"],
+                    attempt_status="interrupted" if attempt["status"] == "running" else None,
+                    attempt_error="启动后中断，未发现可核实脚本版本")
 
 
 def _outcome(result: dict, *, category: str, attempt_id=None, attempt_status=None, attempt_error=None) -> dict:
@@ -350,31 +361,6 @@ def _recover_brief(conn, task, call: dict) -> dict:
     )
 
 
-def _recover_campaign(conn, task, call: dict) -> dict:
-    output = latest_output(conn, task["id"])
-    if output is not None and output["created_at"] >= call.get("requested_at", ""):
-        return _outcome(
-            {
-                "ok": True,
-                "output_id": output["output_id"],
-                "output_version": output["version"],
-                "message": "恢复核实：完整方案草稿版本已写入权威记录；本调用无需重放。",
-                "recovered": True,
-            },
-            category="recovered",
-        )
-    return _outcome(
-        {
-            "ok": False,
-            "error": "interrupted",
-            "message": "上一次进程在方案写入前中断，未形成新草稿；请重新提交完整方案。",
-            "recovered": True,
-            "no_charge": True,
-        },
-        category="interrupted",
-    )
-
-
 def _recover_clarification(conn, task, call: dict) -> dict:
     row = conn.execute(
         "SELECT * FROM clarifications WHERE task_id = ? ORDER BY id DESC LIMIT 1", (task["id"],)
@@ -400,100 +386,6 @@ def _recover_stop(conn, task, call: dict) -> dict:
     return _outcome(
         {"ok": False, "error": "interrupted", "message": "上一次进程在停止动作写入前中断；请重新决定是否停止。", "recovered": True},
         category="interrupted",
-    )
-
-
-def _recover_generation(conn, task, call: dict, parsed: dict, catalog: MaterialCatalog) -> dict:
-    from cta.loop import _strip_json_fences, _validate_script
-
-    attempt = _attempt_for(conn, task["id"], call, "generate_script")
-    if attempt is None:
-        return _outcome(
-            {
-                "ok": False,
-                "error": "generation_interrupted",
-                "message": "上一次进程在生成开始前中断，未产生费用；可重新执行该有界步骤。",
-                "retry": True,
-                "recovered": True,
-                "no_charge": True,
-            },
-            category="interrupted",
-        )
-    if attempt["status"] == "failed":
-        return _outcome(
-            {
-                "ok": False,
-                "error": "generation_failed",
-                "message": f"上一次生成执行失败：{attempt['error'] or '未知错误'}",
-                "attempt_id": attempt["id"],
-                "retry": True,
-                "recovered": True,
-            },
-            category="interrupted",
-            attempt_id=attempt["id"],
-        )
-
-    meta = json.loads(attempt["meta_json"] or "{}")
-    strategy = meta.get("strategy") or parsed.get("strategy")
-    rows = conn.execute(
-        "SELECT * FROM messages WHERE task_id = ? AND agent = 'generator' AND attempt_id = ? ORDER BY seq",
-        (task["id"], attempt["id"]),
-    ).fetchall()
-    candidates = []
-    errors = []
-    responses = 0
-    for row in rows:
-        try:
-            message_meta = json.loads(row["meta_json"] or "{}")
-        except json.JSONDecodeError:
-            message_meta = {}
-        if row["role"] != "assistant" or message_meta.get("kind") != "generation_response":
-            continue
-        responses += 1
-        try:
-            candidate = json.loads(_strip_json_fences(row["content"] or ""))
-        except json.JSONDecodeError:
-            errors.append(f"候选 {message_meta.get('candidate', responses)} 输出不是合法 JSON")
-            continue
-        normalized, candidate_errors = _validate_script(candidate, strategy, catalog)
-        if candidate_errors:
-            errors.extend(candidate_errors[:3])
-            continue
-        candidates.append(normalized)
-
-    if candidates:
-        best = max(candidates, key=lambda item: len(item.get("segments", [])))
-        result = {
-            "ok": True,
-            "strategy": strategy,
-            "script": best,
-            "attempt_id": attempt["id"],
-            "cost_cents": attempt["cost_cents"],
-            "internal_requests": meta.get("internal_requests") or responses,
-            "candidate_count": len(candidates),
-            "recovered": True,
-            "message": "恢复核实：已保存的生成候选完整有效，直接复用；未重新调用生成模型。",
-        }
-        status = "success" if attempt["status"] == "running" else None
-        return _outcome(result, category="recovered", attempt_id=attempt["id"], attempt_status=status)
-
-    result = {
-        "ok": False,
-        "error": "generation_interrupted",
-        "message": "上一次生成未得到完整有效结果；保留原尝试与消耗，只重新执行生成这一有界步骤。",
-        "details": errors[:6] or ["没有可核实的完整候选"],
-        "attempt_id": attempt["id"],
-        "traceable_outputs": responses,
-        "retry": True,
-        "recovered": True,
-    }
-    status = "interrupted" if attempt["status"] in ("running", "success") else None
-    return _outcome(
-        result,
-        category="interrupted",
-        attempt_id=attempt["id"],
-        attempt_status=status,
-        attempt_error="恢复时未能从已保存记录核实完整有效候选",
     )
 
 

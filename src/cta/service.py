@@ -33,7 +33,7 @@ from cta.repository import (
     task_llm_usage,
     task_spent,
 )
-from cta.strategy import ResourceState, compare_strategies, load_strategy_table
+from cta.strategy import load_strategy_table
 
 STATUS_NEEDS_INPUT = "needs_input"
 STATUS_IN_PROGRESS = "in_progress"
@@ -82,6 +82,9 @@ class TaskService:
 
             task_id = "t_" + secrets.token_hex(6)
             catalog = load_catalog(self.config.project_root)
+            price = load_price_table(self.config.project_root)
+            if "submit_script" not in price.modes:
+                raise ValueError(f"费用表 {price.version} 不支持新协议的 submit_script；请采用包含该动作的费用表。")
             status = STATUS_IN_PROGRESS if intake.valid else STATUS_NEEDS_INPUT
             reason = "已创建，尚未开始执行；当前没有已生成产物。" if intake.valid else intake.failure_summary()
             conn.execute(
@@ -89,8 +92,8 @@ class TaskService:
                 INSERT INTO tasks (id, mode, fingerprint, dedupe_key, status, reason,
                                    input_version, current_output_id, created_at, updated_at,
                                    sim_elapsed_ms, sim_start, used_rounds, paused,
-                                   materials_version, pricing_version, strategy_version, max_rounds)
-                VALUES (?, ?, ?, ?, ?, ?, 1, NULL, ?, ?, 0, ?, 0, 0, ?, ?, ?, ?)
+                                   materials_version, pricing_version, strategy_version, max_rounds, protocol_version)
+                VALUES (?, ?, ?, ?, ?, ?, 1, NULL, ?, ?, 0, ?, 0, 0, ?, ?, ?, ?, 'direct-script-v1')
                 """,
                 (
                     task_id,
@@ -103,7 +106,7 @@ class TaskService:
                     now,
                     self.config.sim_start.isoformat(),
                     catalog.version,
-                    load_price_table(self.config.project_root).version,
+                    price.version,
                     load_strategy_table(self.config.project_root).version,
                     MAX_ROUNDS,
                 ),
@@ -262,9 +265,7 @@ class TaskService:
         elif content_applicable and (review is None or review["status"] != "complete"):
             modes = ["review", "save"]
         else:
-            selection = latest_strategy_selection(conn, task["id"])
-            generation = "generate_direct" if selection is None else selection["generation_mode"]
-            modes = (["search_basic"] if latest_brief(conn, task["id"]) is None else []) + [generation, "review", "save"]
+            modes = (["search_basic"] if latest_brief(conn, task["id"]) is None else []) + ["submit_script", "review", "save"]
         lines = [price.mode(mode).as_dict() for mode in modes]
         cost = sum(line["cost_cents"] for line in lines)
         duration = sum(line["duration_ms"] for line in lines)
@@ -412,7 +413,7 @@ class TaskService:
             task = self._require_task(conn, task_id)
             view = self._view(conn, task, duplicate=False)
             view["briefs"] = [
-                {"version": row["version"], "content": json.loads(row["content_json"]), "created_at": row["created_at"]}
+                {"version": row["version"], "input_version": row["input_version"], "content": json.loads(row["content_json"]), "created_at": row["created_at"]}
                 for row in conn.execute("SELECT * FROM briefs WHERE task_id = ? ORDER BY version", (task_id,))
             ]
             from cta.knowledge import task_bundles
@@ -497,6 +498,7 @@ class TaskService:
                 }
                 for row in conn.execute("SELECT * FROM outputs WHERE task_id = ? ORDER BY version", (task_id,))
             ]
+            view["scripts"] = [output for output in view["outputs"] if output["kind"] == "script"]
             generator_count = conn.execute(
                 "SELECT COUNT(*) AS n FROM messages WHERE task_id = ? AND agent = 'generator'", (task_id,)
             ).fetchone()
@@ -711,6 +713,7 @@ class TaskService:
             "pricing_overview": load_price_table(self.config.project_root, version=task["pricing_version"]).overview(),
             "model_config": self.config.model_config_public(),
             "versions": {
+                "protocol": task["protocol_version"],
                 "app": __version__,
                 "prompt": PROMPT_VERSION,
                 "materials": task["materials_version"],
@@ -730,44 +733,6 @@ class TaskService:
             "selection_count": len(selections),
             "mode_table_version": task["pricing_version"],
         }
-
-    def strategy_comparison(
-        self,
-        task_id: str,
-        *,
-        search_mode: str = "search_basic",
-        generation_mode: str = "generate_direct",
-        search_queries: int | None = None,
-        include_revision: bool = False,
-        directions: list[str] | None = None,
-    ) -> dict:
-        """Read-only strategy comparison for the operator view; never executes or charges."""
-        with open_store(self.config.db_path) as conn:
-            task = self._require_task(conn, task_id)
-            price = load_price_table(self.config.project_root, version=task["pricing_version"])
-            table = load_strategy_table(self.config.project_root, version=task["strategy_version"])
-            input_row = conn.execute(
-                "SELECT * FROM task_inputs WHERE task_id = ? AND version = ?",
-                (task["id"], task["input_version"]),
-            ).fetchone()
-            deadline = None if input_row["deadline"] is None else datetime.fromisoformat(input_row["deadline"])
-            state = ResourceState(
-                incurred_cents=task_spent(conn, task["id"]),
-                budget_cents=input_row["budget_cents"],
-                sim_start=datetime.fromisoformat(task["sim_start"]),
-                sim_elapsed_ms=task["sim_elapsed_ms"],
-                deadline=deadline,
-            )
-            return compare_strategies(
-                table,
-                price,
-                state,
-                directions=directions,
-                search_mode=search_mode,
-                generation_mode=generation_mode,
-                search_queries=search_queries,
-                include_revision=include_revision,
-            )
 
     @staticmethod
     def _gaps(conn, task, brief: dict | None) -> list[dict]:

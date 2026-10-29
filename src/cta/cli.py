@@ -65,24 +65,6 @@ def build_parser() -> argparse.ArgumentParser:
     reconcile = sub.add_parser("reconcile", parents=[common], help="核实保存记录与文件；必要时从权威产物修复")
     reconcile.add_argument("task_id")
 
-    strategies = sub.add_parser(
-        "strategies", parents=[common], help="只读查看版本化创作方向与完整剩余路径比较（不计费）"
-    )
-    strategies.add_argument("task_id")
-    strategies.add_argument(
-        "--search-mode", choices=("search_basic", "search_extended"), default="search_basic"
-    )
-    strategies.add_argument(
-        "--generation-mode", choices=("generate_direct", "generate_multi"), default="generate_direct"
-    )
-    strategies.add_argument("--search-queries", type=int, default=None)
-    strategies.add_argument("--include-revision", action="store_true")
-    strategies.add_argument(
-        "--direction",
-        action="append",
-        choices=("functional_demo", "user_scenario", "tutorial"),
-        default=[],
-    )
     calibrate = sub.add_parser("calibrate", parents=[common], help="运行六对正反样例的评估器校准")
     calibrate.add_argument("--pairs", default=None, help="校准样例 JSON 路径")
     calibrate.add_argument("--output", default=None, help="结果 JSON 输出路径")
@@ -205,6 +187,13 @@ def main(argv: list[str] | None = None) -> int:
 
     service = TaskService(config)
     try:
+        if args.command in {"update", "adopt-knowledge", "adopt-material", "import-draft", "run", "resume",
+                            "pause", "review", "save", "reconcile", "export"}:
+            current = service.status(args.task_id)
+            if current["versions"]["protocol"] != "direct-script-v1":
+                _emit({"error": "legacy_protocol", "task_id": args.task_id,
+                       "message": "旧任务使用旧业务协议；请用固定代码 836aa827d835e54a8e9385c18e7a3ff05ed3e600 及原采用资料恢复。"}, args.format)
+                return 4
         if args.command == "create":
             raw = RawInput.from_args(
                 topic=args.topic,
@@ -235,19 +224,9 @@ def main(argv: list[str] | None = None) -> int:
         elif args.command == "adopt-material":
             document = service.adopt_material_version(args.task_id, args.version)
         elif args.command == "import-draft":
-            from cta.importer import ImportDraftError, import_draft
-
-            try:
-                document = import_draft(config, args.task_id, args.file)
-            except ImportDraftError as exc:
-                document = {
-                    "error": exc.code,
-                    "task_id": args.task_id,
-                    "message": exc.message,
-                    "details": exc.details,
-                }
-                _emit(document, args.format)
-                return 4
+            _emit({"error": "protocol_not_ready", "task_id": args.task_id,
+                   "message": "新协议的人工稿导入尚未接通；旧任务请使用固定旧代码。"}, args.format)
+            return 4
         elif args.command == "run":
             from cta.loop import run_task
 
@@ -280,15 +259,6 @@ def main(argv: list[str] | None = None) -> int:
             from cta.export import export_task
 
             document = export_task(config, args.task_id, repair=args.repair)
-        elif args.command == "strategies":
-            document = service.strategy_comparison(
-                args.task_id,
-                search_mode=args.search_mode,
-                generation_mode=args.generation_mode,
-                search_queries=args.search_queries,
-                include_revision=args.include_revision,
-                directions=args.direction or None,
-            )
         elif args.command == "calibrate":
             from cta.calibration import run_calibration
 
