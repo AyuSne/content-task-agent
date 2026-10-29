@@ -1,0 +1,30 @@
+F                                                                        [100%]
+================================== FAILURES ===================================
+___ test_save_reuses_existing_result_after_resource_feasibility_is_restored ___
+
+cli_env = WindowsPath('C:/Users/10167/AppData/Local/Temp/pytest-of-10167/pytest-256/test_save_reuses_existing_resu0')
+model_script = <function model_script.<locals>.write at 0x00000278465E2020>
+
+    def test_save_reuses_existing_result_after_resource_feasibility_is_restored(cli_env, model_script):
+        task, saved = _complete_task(model_script, cli_env)
+        cli_json("update", task["task_id"], "--budget", "2")
+        cli_json("update", task["task_id"], "--budget", "10")
+        code, restored = _save(task["task_id"])
+        assert code == 0
+        assert restored["status"] == "complete"
+        assert restored["save"]["save_id"] == saved["save"]["save_id"]
+        assert restored["resources"]["sim_spent_cents"] == 230
+        report = next(item for item in restored["save"]["files"] if item["path"].endswith("execution-report.md"))
+        assert "任务版本：3" in Path(report["path"]).read_text(encoding="utf-8")
+        trace = next(item for item in restored["save"]["files"] if item["path"].endswith("trace.jsonl"))
+        events = [json.loads(line) for line in Path(trace["path"]).read_text(encoding="utf-8").splitlines()]
+        save_event = next(event for event in events if event["event"] == "save")
+>       assert save_event["status"] == "verified"
+E       AssertionError: assert 'unknown' == 'verified'
+E         
+E         - verified
+E         + unknown
+
+tests\test_save_reconcile.py:60: AssertionError
+=========================== short test summary info ===========================
+FAILED tests/test_save_reconcile.py::test_save_reuses_existing_result_after_resource_feasibility_is_restored

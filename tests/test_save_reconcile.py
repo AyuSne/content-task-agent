@@ -54,6 +54,11 @@ def test_save_reuses_existing_result_after_resource_feasibility_is_restored(cli_
     assert restored["resources"]["sim_spent_cents"] == 230
     report = next(item for item in restored["save"]["files"] if item["path"].endswith("execution-report.md"))
     assert "任务版本：3" in Path(report["path"]).read_text(encoding="utf-8")
+    trace = next(item for item in restored["save"]["files"] if item["path"].endswith("trace.jsonl"))
+    events = [json.loads(line) for line in Path(trace["path"]).read_text(encoding="utf-8").splitlines()]
+    save_event = next(event for event in events if event["event"] == "save")
+    assert save_event["status"] == "verified"
+    assert save_event["verified"] is True
 
 
 def test_unrepairable_verified_file_becomes_unknown_and_incomplete(cli_env, model_script):

@@ -150,6 +150,15 @@ def _repair_files(conn, config: Config, task, output: dict, review: dict | None,
             conn, config, final_task, output, review, virtual, include_report=False, include_trace=False
         )
         report = build_report_file(conn, config, final_task, output, review, virtual)
+        conn.execute(
+            "UPDATE saves SET status = 'verified', verified = 1, verified_at = ?, error = NULL WHERE id = ?",
+            (verified_at, save["save_id"]),
+        )
+        if should_complete:
+            conn.execute(
+                "UPDATE tasks SET status = 'complete', phase = 'complete', reason = ?, updated_at = ?, paused = 0 WHERE id = ?",
+                (final_task["reason"], verified_at, task["id"]),
+            )
         trace = build_trace_file(conn, config, final_task)
         ok, checked = verify_records(base + [report, trace])
         if not ok:
@@ -158,15 +167,8 @@ def _repair_files(conn, config: Config, task, output: dict, review: dict | None,
         ok, checked = False, save["files"]
         error = config.redact(str(exc))[:800]
     if ok:
-        conn.execute(
-            "UPDATE saves SET status = 'verified', verified = 1, verified_at = ?, files_json = ?, error = NULL WHERE id = ?",
-            (verified_at, json.dumps(checked, ensure_ascii=False), save["save_id"]),
-        )
-        if should_complete:
-            conn.execute(
-                "UPDATE tasks SET status = 'complete', phase = 'complete', reason = ?, updated_at = ?, paused = 0 WHERE id = ?",
-                (final_task["reason"], verified_at, task["id"]),
-            )
+        conn.execute("UPDATE saves SET files_json = ? WHERE id = ?",
+                     (json.dumps(checked, ensure_ascii=False), save["save_id"]))
     else:
         conn.rollback()
         conn.execute(
