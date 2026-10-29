@@ -16,7 +16,7 @@ from pathlib import Path
 from cta.config import find_project_root
 from cta.pricing import PriceTable
 
-DEFAULT_STRATEGY_VERSION = "2026-10-29.v1"
+DEFAULT_STRATEGY_VERSION = "2026-10-29.v2"
 DIRECTIONS = ("functional_demo", "user_scenario", "tutorial")
 SEARCH_MODES = ("search_basic", "search_extended")
 GENERATION_MODES = ("generate_direct", "generate_multi")
@@ -274,9 +274,9 @@ def compare_strategies(
     }
 
 
-def load_strategy_table(project_root: Path | None = None) -> StrategyTable:
+def load_strategy_table(project_root: Path | None = None, *, version: str | None = None) -> StrategyTable:
     root = project_root or find_project_root()
-    version = os.environ.get("CTA_STRATEGY_VERSION") or DEFAULT_STRATEGY_VERSION
+    version = version or os.environ.get("CTA_STRATEGY_VERSION") or DEFAULT_STRATEGY_VERSION
     path = root / "fixtures" / "strategy" / f"{version}.json"
     payload = json.loads(path.read_text(encoding="utf-8"))
     if payload["version"] != version:

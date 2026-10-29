@@ -86,7 +86,6 @@ def _input_row(conn, task):
 def run_task(config: Config, task_id: str, *, max_rounds: int | None = None, explicit_resume: bool = False) -> dict:
     price = load_price_table(config.project_root)
     catalog = load_catalog(config.project_root)
-    strategy_table = load_strategy_table(config.project_root)
     run_info = {
         "rounds_used": 0,
         "stop_reason": None,
@@ -97,6 +96,7 @@ def run_task(config: Config, task_id: str, *, max_rounds: int | None = None, exp
 
     with open_store(config.db_path) as conn:
         task = _task(conn, task_id)
+        strategy_table = load_strategy_table(config.project_root, version=task["strategy_version"])
         if task["status"] == STATUS_NEEDS_INPUT and not _has_messages(conn, task_id):
             run_info["stop_reason"] = "needs_input"
             return _document(config, task_id, run_info)

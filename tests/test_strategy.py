@@ -40,7 +40,7 @@ def test_compare_strategies_returns_versioned_full_paths_without_charge(cli_env,
         )
     )
     assert result["ok"] is True
-    assert result["strategy_version"] == "2026-10-29.v1"
+    assert result["strategy_version"] == "2026-10-29.v2"
     assert result["pricing_version"] == "2026-10-29.v1"
     assert result["incurred_cents"] == 20
     assert result["remaining_budget_cents"] == 980
@@ -83,7 +83,7 @@ def test_strategies_cli_view_is_read_only_and_complete(cli_env):
     view = cli_json("strategies", task["task_id"])
     after = cli_json("status", task["task_id"])
 
-    assert view["strategy_version"] == "2026-10-29.v1"
+    assert view["strategy_version"] == "2026-10-29.v2"
     assert view["pricing_version"] == "2026-10-29.v1"
     assert view["incurred_cents"] == 0
     assert len(view["directions"]) == 3
@@ -91,7 +91,7 @@ def test_strategies_cli_view_is_read_only_and_complete(cli_env):
 
     assert before["progress"]["used_rounds"] == after["progress"]["used_rounds"] == 0
     assert before["resources"]["sim_spent_cents"] == after["resources"]["sim_spent_cents"] == 0
-    assert before["versions"]["strategy"] == "2026-10-29.v1"
+    assert before["versions"]["strategy"] == "2026-10-29.v2"
 
 
 def test_choose_strategy_rejects_infeasible_path_then_records_feasible_alternative(cli_env, model_script):

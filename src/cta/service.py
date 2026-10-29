@@ -689,7 +689,7 @@ class TaskService:
         }
 
     def _strategy_view(self, conn, task) -> dict:
-        table = load_strategy_table(self.config.project_root)
+        table = load_strategy_table(self.config.project_root, version=task["strategy_version"])
         selections = list_strategy_selections(conn, task["id"])
         return {
             "table_version": task["strategy_version"] or table.version,
@@ -711,9 +711,9 @@ class TaskService:
     ) -> dict:
         """Read-only strategy comparison for the operator view; never executes or charges."""
         price = load_price_table(self.config.project_root)
-        table = load_strategy_table(self.config.project_root)
         with open_store(self.config.db_path) as conn:
             task = self._require_task(conn, task_id)
+            table = load_strategy_table(self.config.project_root, version=task["strategy_version"])
             input_row = conn.execute(
                 "SELECT * FROM task_inputs WHERE task_id = ? AND version = ?",
                 (task["id"], task["input_version"]),

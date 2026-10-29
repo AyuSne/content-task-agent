@@ -1,13 +1,17 @@
 """Verify archived export hashes without the original absolute paths or SQLite files."""
 
+import argparse
 import hashlib
 import json
 from pathlib import Path
 
 
 def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--root", type=Path, default=Path("examples/repair-live"))
+    args = parser.parse_args()
     failures, files = [], 0
-    for metadata in Path("examples/repair-live").glob("*/audit-export.json"):
+    for metadata in args.root.glob("*/audit-export.json"):
         record = json.loads(metadata.read_text(encoding="utf-8"))
         root = metadata.parent / "data" / "real" / "exports" / record["task_id"]
         for item in record["files"]:
