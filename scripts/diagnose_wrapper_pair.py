@@ -9,6 +9,8 @@ import time
 from dataclasses import asdict
 from pathlib import Path
 
+from openai import OpenAIError
+
 from cta.config import load_config
 from cta.model import DeepSeekClient
 from cta.prompts import TOOL_DEFINITIONS
@@ -35,12 +37,12 @@ def main():
         client = DeepSeekClient(config)
         row = {"arm": arm, "tls_events": [], "usage": None, "error": None}
 
-        def trace(event, info):
+        def trace(event, info, row=row):
             if event.startswith("connection."):
                 row["tls_events"].append({"event": event, "error": config.redact(str(info.get("exception", "")))})
 
-        def record(request):
-            request.extensions["trace"] = trace
+        def record(request, row=row, tracer=trace):
+            request.extensions["trace"] = tracer
             row["body_sha256"] = hashlib.sha256(request.content).hexdigest()
             row["body_bytes"] = len(request.content)
 
@@ -59,7 +61,7 @@ def main():
                             "tools": [call.function.name for call in raw.choices[0].message.tool_calls or []]})
             else:
                 row.update(asdict(client.complete(messages, TOOL_DEFINITIONS, cursor=0)))
-        except Exception as exc:  # external diagnostic boundary; records every actual attempt
+        except OpenAIError as exc:
             chain = []
             while exc is not None:
                 chain.append(config.redact(f"{type(exc).__name__}: {exc}"))
