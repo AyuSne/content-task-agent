@@ -29,6 +29,7 @@ from cta.repository import (
     task_spent,
 )
 
+
 def recover_task(conn, task, config: Config, *, explicit: bool) -> dict:
     report = {
         "explicit_resume": explicit,
@@ -267,6 +268,8 @@ def _recover_script(conn, task, call):
                         attempt_status="success" if attempt["status"] == "running" else None)
     return _outcome({"ok": False, "error": "script_interrupted", "started": True, "charged": True,
                      "attempt_id": attempt["id"], "recovered": True,
+                     "consumption": {"cost_cents": attempt["cost_cents"], "duration_ms": attempt["duration_ms"],
+                                     "pricing_version": task["pricing_version"]},
                      "message": "已启动但没有可核实脚本版本；保留消耗，新的提交为新尝试。"},
                     category="interrupted", attempt_id=attempt["id"],
                     attempt_status="interrupted" if attempt["status"] == "running" else None,

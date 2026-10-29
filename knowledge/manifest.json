@@ -1,10 +1,10 @@
 {
-  "version": "2026-10-30.v3",
+  "version": "2026-10-30.v4",
   "docs": [
     {
       "id": "campaign-creation",
       "title": "活动方案创作工作知识",
-      "version": "2026-10-30.v3",
+      "version": "2026-10-30.v4",
       "path": "../.agents/skills/campaign-creation/SKILL.md",
       "description": "为短视频推广活动准备有依据、可继续制作的活动方案时使用。"
     },
