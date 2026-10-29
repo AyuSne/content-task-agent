@@ -41,6 +41,10 @@ def test_one_run_delivers_reviewed_campaign_without_operator_review_or_save(cli_
     assert doc["save"]["verified"] is True
     assert doc["resources"]["sim_spent_cents"] == 230
     assert doc["progress"]["used_rounds"] == 6
+    markdown = next(item for item in doc["save"]["files"] if item["path"].endswith("campaign-v1.md"))
+    delivered = Path(markdown["path"]).read_text(encoding="utf-8")
+    assert "本版本已完成内容核验与保存核实" in delivered
+    assert "尚未完成内容核验与保存核实" not in delivered
     facts = cli_json("inspect", task["task_id"])
     assert [attempt["kind"] for attempt in facts["attempts"]] == [
         "search_materials", "generate_script", "review_campaign", "save_campaign",

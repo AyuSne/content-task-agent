@@ -15,6 +15,7 @@ from cta.export import (
     build_files,
     build_report_file,
     build_trace_file,
+    campaign_export_markdown,
     execution_report_markdown,
     trace_text,
     verify_records,
@@ -217,7 +218,9 @@ def _reconcile_existing(conn, config: Config, task, output: dict, review: dict |
             report = config.exports_dir / task["id"] / "execution-report.md"
             trace = config.exports_dir / task["id"] / "trace.jsonl"
             current = (report.read_text(encoding="utf-8") == execution_report_markdown(conn, task, output, review, save)
-                       and trace.read_text(encoding="utf-8") == trace_text(conn, task)) if ok else False
+                       and trace.read_text(encoding="utf-8") == trace_text(conn, task)
+                       and (config.exports_dir / task["id"] / f"campaign-v{output['version']}.md").read_text(encoding="utf-8")
+                       == campaign_export_markdown(output, task, verified=True)) if ok else False
         except OSError:
             ok, current = False, False
         if ok and current and task["status"] == "complete":

@@ -7,7 +7,7 @@ import json
 from pathlib import Path
 
 from cta.config import Config
-from cta.render import campaign_markdown
+from cta.render import DRAFT_NOTICE, VERIFIED_NOTICE, campaign_markdown
 from cta.repository import (
     latest_brief,
     latest_estimate,
@@ -333,8 +333,10 @@ def trace_events(conn, task) -> list[dict]:
     return events
 
 
-def campaign_export_markdown(output: dict, task) -> str:
+def campaign_export_markdown(output: dict, task, *, verified: bool = False) -> str:
     body = output["content_md"] or campaign_markdown(output["content"])
+    notice = VERIFIED_NOTICE if verified else DRAFT_NOTICE
+    body = body.replace(DRAFT_NOTICE, notice).replace(VERIFIED_NOTICE, notice)
     metadata = {
         "task_id": task["id"],
         "output_id": output["output_id"],
@@ -362,7 +364,8 @@ def build_files(
     campaign = output["content"]
     version = output["version"]
     files = [
-        (task_dir / f"campaign-v{version}.md", campaign_export_markdown(output, task)),
+        (task_dir / f"campaign-v{version}.md", campaign_export_markdown(
+            output, task, verified=bool(save and save["verified"] and save["output_id"] == output["output_id"]))),
         (task_dir / f"campaign-v{version}.json", json.dumps(campaign, ensure_ascii=False, indent=2) + "\n"),
     ]
     if include_report:

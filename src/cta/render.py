@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+DRAFT_NOTICE = "> 草稿：尚未完成内容核验与保存核实，不能视为最终交付。"
+VERIFIED_NOTICE = "> 本版本已完成内容核验与保存核实；后续制作素材仍按下文状态处理。"
 
 def campaign_markdown(campaign: dict) -> str:
     strategy = campaign.get("strategy", {})
@@ -10,7 +12,7 @@ def campaign_markdown(campaign: dict) -> str:
     lines = [
         f"# {activity.get('theme', '内容活动方案')}",
         "",
-        "> 草稿：尚未完成内容核验与保存核实，不能视为最终交付。",
+        DRAFT_NOTICE,
         "",
         "## 活动概述",
         "",
