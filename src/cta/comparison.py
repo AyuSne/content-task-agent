@@ -112,12 +112,12 @@ class Experiment:
                     channel="comparison",
                 )
             except Exception as exc:  # noqa: BLE001 - actual external model attempt, retained with unknown usage
-                response = ModelResponse(error=self.config.redact(f"{type(exc).__name__}: {exc}"))
+                response = ModelResponse(error=self.config.redact(f"{type(exc).__name__}: {exc}"), mock=self.config.mode == "mock")
             finished = datetime.now(UTC)
             with transaction(conn):
                 record_llm_request(
                     conn, task_id=self.task_id, purpose="comparison", response=response,
-                    started_at=started, finished_at=finished, mock=response.mock, attempt_id=attempt_id,
+                    started_at=started, finished_at=finished, mock=self.config.mode == "mock", attempt_id=attempt_id,
                     meta={"experiment": VERSION, "expected_action": name},
                 )
             self.trace.append({
@@ -177,6 +177,7 @@ class Experiment:
         evaluation = evaluate(
             messages, self.client, catalog.read, output_version=output["version"],
             max_requests=spec.max_requests, max_readbacks=spec.max_readbacks, channel="review", redact=self.config.redact,
+            execution_mock=self.config.mode == "mock",
         )
         finished = datetime.now(UTC)
         self.trace.append({"controller": "external_assessment", "messages": evaluation.messages,

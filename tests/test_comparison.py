@@ -44,6 +44,15 @@ def test_oneshot_uses_model_output_and_records_independent_assessment(cli_env, m
     assert (output / "request-trace.json").is_file()
 
 
+def test_mock_comparison_exception_never_becomes_real_api_usage(cli_env, model_script, capsys):
+    model_script([{"channel": "comparison"}])
+    _, report, _ = _run(cli_env, capsys, "oneshot")
+    inspected = cli_json("inspect", report["task_id"])
+    assert inspected["mode"] == "mock"
+    assert inspected["resources"]["real_model_usage"]["real_requests"] == 0
+    assert inspected["resources"]["real_model_usage"]["mock_requests"] == 1
+
+
 def test_oneshot_generation_fits_its_own_budget_and_clock_while_assessment_is_separate(cli_env, model_script, capsys):
     model_script([
         {"channel": "comparison", "name": "propose_campaign", "arguments": CAMPAIGN,

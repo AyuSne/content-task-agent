@@ -42,6 +42,7 @@ def _evaluate(config: Config, client, catalog, knowledge: str, pair: dict, campa
         messages, client, catalog.read, output_version=1,
         max_requests=limits.max_requests, max_readbacks=limits.max_readbacks,
         cursor=state["requests"], channel="review", redact=config.redact,
+        execution_mock=config.mode == "mock",
     )
     state["requests"] += evaluation.requests
     return evaluation

@@ -143,6 +143,7 @@ def evaluate(
     on_message: Callable[[dict], None] | None = None,
     redact: Callable[[str], str] = str,
     protocol_corrections: bool = True,
+    execution_mock: bool | None = None,
 ) -> Evaluation:
     """Run finite read/report actions, recording every actual external attempt.
 
@@ -171,12 +172,13 @@ def evaluate(
         try:
             response = client.complete(history, tools, cursor=cursor + index, channel=channel)
         except Exception as exc:  # noqa: BLE001 - only the external model interaction is converted
-            response = ModelResponse(error=redact(f"{type(exc).__name__}: {exc}")[:800])
+            response = ModelResponse(error=redact(f"{type(exc).__name__}: {exc}")[:800], mock=bool(execution_mock))
         finished = datetime.now(UTC)
         record = {
             "request": index + 1, "started_at": started.isoformat(), "finished_at": finished.isoformat(),
             "messages": list(history), "tools": tools,
-            "model": response.model, "response_id": response.raw_id, "mock": response.mock,
+            "model": response.model, "response_id": response.raw_id,
+            "mock": response.mock if execution_mock is None else execution_mock,
             "usage": response.usage, "elapsed_ms": response.elapsed_ms, "error": response.error,
             "request_config": response.request_config,
             "finish_reason": response.finish_reason, "content": response.content,

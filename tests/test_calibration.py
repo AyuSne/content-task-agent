@@ -142,3 +142,12 @@ def test_calibration_does_not_leak_labels_into_evaluator_payload(cli_env, model_
     assert "P1-unsupported-capability" not in combined
     assert '"variant"' not in combined
     assert "label_source" not in combined
+
+
+def test_mock_calibration_adapter_exceptions_keep_mock_provenance(cli_env, model_script, tmp_path):
+    model_script([{"channel": "review"} for _ in range(12)])
+    code, out, err = run_cli("calibrate", "--output", str(tmp_path / "errors.json"))
+    assert code == 0, err
+    result = json.loads(out)
+    assert result["metrics"]["incomplete_reviews"] == 12
+    assert all(request["mock"] for sample in result["results"] for request in sample["request_records"])

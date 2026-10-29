@@ -52,6 +52,7 @@ def run_readback_comparison(config: Config, case: dict, output_dir: Path) -> dic
                 max_requests=max_requests, max_readbacks=max_readbacks,
                 cursor=cursor, channel="comparison_review", redact=config.redact,
                 protocol_corrections=False,
+                execution_mock=config.mode == "mock",
             )
             cursor += evaluation.requests
             for record in evaluation.request_records:

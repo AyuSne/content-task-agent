@@ -274,6 +274,7 @@ def review_task(config: Config, task_id: str) -> dict:
             max_requests=max_requests, max_readbacks=max_readbacks,
             cursor=count_purpose_requests(conn, task["id"], "review"), channel="review",
             on_request=record_request, on_request_started=start_request, on_message=record_message, redact=config.redact,
+            execution_mock=config.mode == "mock",
         )
         report = evaluation.report
         requests_used, readbacks_used, errors = evaluation.requests, evaluation.readbacks, evaluation.errors
