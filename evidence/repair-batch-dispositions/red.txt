@@ -1,0 +1,23 @@
+F                                                                        [100%]
+================================== FAILURES ===================================
+______ test_main_records_two_independent_review_decisions_in_one_action _______
+
+cli_env = WindowsPath('C:/Users/10167/AppData/Local/Temp/pytest-of-10167/pytest-248/test_main_records_two_independ0')
+model_script = <function model_script.<locals>.write at 0x000002BE4489CF40>
+
+    def test_main_records_two_independent_review_decisions_in_one_action(cli_env, model_script):
+        task_id, before = _prepare(model_script, _decisions())
+        after = cli_json("run", task_id, "--max-rounds", "1")
+        inspected = cli_json("inspect", task_id)
+>       assert {item["finding_id"]: item["decision"] for item in inspected["dispositions"]} == {
+            "F1": "accepted", "F2": "rejected",
+        }
+E       AssertionError: assert {} == {'F1': 'accep...': 'rejected'}
+E         
+E         Right contains 2 more items:
+E         {'F1': 'accepted', 'F2': 'rejected'}
+E         Use -v to get more diff
+
+tests\test_batch_dispositions.py:39: AssertionError
+=========================== short test summary info ===========================
+FAILED tests/test_batch_dispositions.py::test_main_records_two_independent_review_decisions_in_one_action
