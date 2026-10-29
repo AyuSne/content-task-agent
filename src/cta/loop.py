@@ -412,6 +412,7 @@ def _ensure_base_context(conn, task, config: Config) -> None:
             "deadline": input_row["deadline"],
             "audience": input_row["audience"],
             "requirements": json.loads(input_row["requirements_json"]),
+            "raw_input": json.loads(input_row["raw_json"]),
             "sim_start": task["sim_start"],
             "max_rounds": task["max_rounds"],
         }
@@ -538,6 +539,7 @@ def _ensure_phase_context(conn, task, config: Config) -> None:
                             "budget_cents": input_row["budget_cents"],
                             "deadline": input_row["deadline"],
                             "requirements": json.loads(input_row["requirements_json"]),
+                            "raw_input": json.loads(input_row["raw_json"]),
                             "instruction": "按新输入重新形成简报，并复核受影响的内容与评审；旧简报/旧稿不自动通过。",
                         },
                         ensure_ascii=False,

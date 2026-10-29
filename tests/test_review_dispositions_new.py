@@ -122,6 +122,12 @@ def test_accepted_finding_blocks_save_until_new_complete_script_campaign_and_rev
     assert len(view['reviews']) == 2 and view['saves'][-1]['output_version'] == new_campaign['version']
     assert view['scripts'][0]['content']['script'] == SCRIPT
     assert view['scripts'][1]['content']['script'] == revised
+    from pathlib import Path
+    saved = _result(view, 'save_campaign')[-1]['save']
+    report_path = next(f['path'] for f in saved['files'] if f['path'].endswith('execution-report.md'))
+    report_text = Path(report_path).read_text(encoding='utf-8')
+    assert REVIEW_FAIL['findings'][0]['issue'] in report_text and REVIEW_PASS_V2['summary'] in report_text
+    assert '确实需要修正' in report_text
 
 
 def test_optional_finding_does_not_require_rewrite_or_disposition(cli_env, model_script):
@@ -199,3 +205,23 @@ def test_disposition_recovery_uses_exact_receipt_without_replay(cli_env, model_s
     calls = [call['id'] for m in after['messages'] if m['role'] == 'assistant' for call in m['tool_calls']]
     results = [m['tool_call_id'] for m in after['messages'] if m['role'] == 'tool']
     assert calls == results
+
+
+def test_original_requirement_quote_can_locate_raw_deadline(cli_env, model_script):
+    task, prefix, script_ref = _script_ready(model_script)
+    prefix += [_tool('submit_campaign', {'script_ref': script_ref, 'campaign': _campaign()})]
+    model_script(prefix + [_review_item(REVIEW_FAIL)])
+    cli_json('resume', task['task_id'], '--max-rounds', '1')
+    view = cli_json('inspect', task['task_id'])
+    campaign_ref = _result(view, 'submit_campaign')[0]['campaign_ref']
+    review_id = cli_json('review', task['task_id'])['review']['review_id']
+    raw = view['input_versions'][0]['raw']
+    view = cli_json('inspect', task['task_id'])
+    main_input = next(m['content'] for m in view['messages'] if '[任务输入]' in (m['content'] or ''))
+    review_input = next(m['content'] for m in view['reviewer_messages'] if '[待核验方案]' in (m['content'] or ''))
+    assert raw['deadline'] in main_input and raw['deadline'] in review_input
+    evidence = {'kind': 'requirement', 'input_version': 1, 'field_path': 'deadline', 'quote': raw['deadline']}
+    model_script(prefix + [_tool('record_dispositions', {'review_id': review_id, 'campaign_ref': campaign_ref,
+        'decisions': [{'finding_id': 'F1', 'decision': 'rejected', 'reason': '按原始截止取舍', 'evidence': [evidence]}]})])
+    cli_json('resume', task['task_id'], '--max-rounds', '1')
+    assert _result(cli_json('inspect', task['task_id']), 'record_dispositions')[0]['ok'] is True

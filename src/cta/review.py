@@ -194,7 +194,12 @@ def review_task(config: Config, task_id: str) -> dict:
                 "requirements": json.loads(input_row["requirements_json"]),
                 "budget_cents": input_row["budget_cents"],
                 "deadline": input_row["deadline"],
+                "input_version": input_row["version"],
+                "raw_input": json.loads(input_row["raw_json"]),
             },
+            "reviewed_input": {"input_version": output["input_version"], "raw_input": json.loads(conn.execute(
+                "SELECT raw_json FROM task_inputs WHERE task_id = ? AND version = ?",
+                (task["id"], output["input_version"])).fetchone()["raw_json"])},
             "brief": brief,
             "campaign": output["content"],
             "evidence": [catalog.get(mid).as_dict() for mid in sorted(used_material_ids)],

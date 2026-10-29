@@ -24,13 +24,14 @@ def _locate_evidence(conn, task, output, evidence, catalog):
         field = evidence['field_path']
         if not isinstance(field, str):
             return 'field_path 无效'
+        raw = json.loads(row['raw_json'])
         match = re.fullmatch(r'requirements\[(\d+)\]', field)
         if match:
-            requirements = json.loads(row['requirements_json'])
+            requirements = raw['requirements']
             index = int(match.group(1))
             text = requirements[index] if index < len(requirements) else None
-        elif field in ('topic', 'audience'):
-            text = row[field]
+        elif field in ('topic', 'audience', 'budget', 'deadline'):
+            text = raw[field]
         else:
             return 'field_path 不是可定位的输入字段'
         if not isinstance(text, str) or quote not in text:

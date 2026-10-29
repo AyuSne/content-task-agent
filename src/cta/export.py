@@ -194,15 +194,16 @@ def execution_report_markdown(
             calls = [item.get("function", {}).get("name", "?") for item in json.loads(row["tool_calls_json"])]
             lines.append(f"- {row['created_at']}｜调用工具：{', '.join(calls)}")
     lines += ["", "## 内容核验", ""]
-    if review is None:
+    reviews = conn.execute("SELECT * FROM reviews WHERE task_id = ? ORDER BY rowid", (task["id"],)).fetchall()
+    if not reviews:
         lines.append("- 尚未核验。")
-    else:
+    for row in reviews:
         lines.append(
-            f"- 被审版本 v{review['output_version']}；结论 {review['verdict']}；完整性 {review['completeness']}；"
-            f"请求 {review['requests_used']} 次；回读 {review['readbacks_used']} 次"
+            f"- 评审 `{row['id']}`；被审版本 v{row['output_version']}；结论 {row['verdict']}；"
+            f"完整性 {row['completeness']}；请求 {row['requests_used']} 次；回读 {row['readbacks_used']} 次"
         )
-        lines.append(f"- 摘要：{review['summary']}")
-        for finding in review["findings"]:
+        lines.append(f"- 摘要：{row['summary']}")
+        for finding in json.loads(row["findings_json"]):
             lines.append(
                 f"- [{finding['severity']}] {finding['finding_id']} @ {finding['location']}：{finding['issue']}"
                 f"；建议：{finding['suggestion']}；依据：{finding['evidence']}"

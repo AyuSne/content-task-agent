@@ -7,7 +7,7 @@ The main agent submits complete scripts directly through the tool interface.
 
 from __future__ import annotations
 
-PROMPT_VERSION = "main-2026-10-30.joint-brief-v1"
+PROMPT_VERSION = "main-2026-10-30.dispositions-v1"
 MAX_DISPOSITIONS = 64
 
 MAIN_SYSTEM_PROMPT = """你是「内容任务规划」的主 Agent，服务虚构视频剪辑 App「帧剪」的短视频推广活动。
@@ -33,7 +33,7 @@ def _disposition_schema() -> dict:
     requirement = {"type": "object", "properties": {
         "kind": {"type": "string", "enum": ["requirement"]},
         "input_version": {"type": "integer", "minimum": 1},
-        "field_path": {"type": "string", "description": "如 requirements[0]、topic 或 audience"},
+        "field_path": {"type": "string", "description": "如 requirements[0]、topic、audience、budget 或 deadline（定位原始输入）"},
         "quote": {"type": "string", "description": "所指定输入字段的原文片段"}},
         "required": ["kind", "input_version", "field_path", "quote"], "additionalProperties": False}
     material = {"type": "object", "properties": {
