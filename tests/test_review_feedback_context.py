@@ -5,20 +5,14 @@ import json
 
 from conftest import cli_json
 from test_campaign_draft import (
-    _brief_then_draft_script,
-    _campaign_tool,
-    _create,
-    _generation_item,
-    _run_until_draft,
     _tool,
 )
 from test_revision_disposition import REVIEW_FAIL, REVIEW_PASS_V2, _review_item
 
 
 def test_review_receives_existing_evidence_for_brief_and_campaign(cli_env, model_script):
-    model_script(_brief_then_draft_script() + [_review_item(REVIEW_PASS_V2)])
-    task_id = _create()["task_id"]
-    _run_until_draft(task_id)
+    from test_campaign_delivery_new import _new_draft_ready
+    task_id = _new_draft_ready(model_script, _review_item(REVIEW_PASS_V2))["task_id"]
     cli_json("review", task_id)
     inspected = cli_json("inspect", task_id)
     payload = next(
@@ -39,19 +33,25 @@ def test_re_review_receives_original_findings_dispositions_and_applicable_versio
         **failed["findings"][0], "finding_id": "F2", "severity": "needs_evidence",
         "issue": "音乐授权尚未核对。",
     })
-    script = _brief_then_draft_script() + [
-        _review_item(failed),
-        _tool("record_disposition", {"finding_id": "F1", "decision": "accepted", "reason": "按事实材料返修"}),
-        _tool("generate_script", {"strategy": "user_scenario", "generation_mode": "generate_direct"}),
-        _generation_item(),
-        _campaign_tool(),
-        _review_item(REVIEW_PASS_V2),
-    ]
-    model_script(script)
-    task_id = _create()["task_id"]
-    _run_until_draft(task_id)
-    original = cli_json("review", task_id)["review"]
-    cli_json("run", task_id)
+    from test_campaign_delivery_new import _campaign
+    from test_direct_script import SCRIPT
+    from test_review_dispositions_new import _reviewed
+
+    task_id, prefix, script_ref, campaign_ref, review_id = _reviewed(model_script, failed)
+    original = cli_json("inspect", task_id)["reviews"][-1]
+    decision = _tool("record_dispositions", {"review_id": review_id, "campaign_ref": campaign_ref,
+        "decisions": [{"finding_id": "F1", "decision": "accepted", "reason": "按事实材料返修"}]})
+    revised_script = copy.deepcopy(SCRIPT)
+    revised_script["segments"][0]["voiceover"] = "先选择片段，再对齐节拍。"
+    prefix += [decision, _tool("submit_script", {"brief_version": 1, "script": revised_script,
+                                                   "revises_script_ref": script_ref})]
+    model_script(prefix)
+    cli_json("resume", task_id, "--max-rounds", "2")
+    script = cli_json("inspect", task_id)["scripts"][-1]
+    new_ref = {"id": script["output_id"], "version": script["version"]}
+    prefix += [_tool("submit_campaign", {"script_ref": new_ref, "campaign": _campaign()})]
+    model_script(prefix + [_review_item(failed), _review_item(REVIEW_PASS_V2)])
+    cli_json("resume", task_id, "--max-rounds", "1")
     revised = cli_json("review", task_id)["review"]
     assert revised["output_version"] == 2
 
