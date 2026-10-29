@@ -2,14 +2,7 @@
 
 import json
 
-from conftest import cli_json, run_cli, run_scripted_stage
-from test_campaign_draft import (
-    _brief_then_draft_script,
-    _campaign_tool,
-    _create,
-    _generation_item,
-    _run_until_draft,
-)
+from conftest import cli_json, run_cli
 
 REVIEW_FAIL = {
     "verdict": "fail",
@@ -47,151 +40,105 @@ def _tool(name, arguments, **extra):
     return {"type": "tool", "name": name, "arguments": arguments, **extra}
 
 
-def _draft_with_review_failure(model_script):
-    script = _brief_then_draft_script()
-    script.append(_review_item(REVIEW_FAIL))
-    model_script(script)
-    task = _create()
-    _run_until_draft(task["task_id"])
-    reviewed = cli_json("review", task["task_id"])
-    assert reviewed["review"]["verdict"] == "fail"
-    return task
-
-
 def test_accepted_finding_drives_revision_and_re_review_then_save(cli_env, model_script):
-    script = _brief_then_draft_script()
-    script += [
-        _review_item(REVIEW_FAIL),
-        _tool("record_disposition", {"finding_id": "F1", "decision": "accepted", "reason": "确实超出证据范围"}),
-        _tool("generate_script", {"strategy": "user_scenario", "generation_mode": "generate_direct"}),
-        _generation_item(),
-        _campaign_tool(),
-        _review_item(REVIEW_PASS_V2),
-    ]
-    model_script(script)
-    task = _create()
-    _run_until_draft(task["task_id"])
-    cli_json("review", task["task_id"])
+    from copy import deepcopy
 
-    revised = run_scripted_stage("run", task["task_id"])
-    assert revised["progress"]["phase"] == "draft_ready"
-    assert revised["progress"]["current_output"]["version"] == 2
-    assert revised["resources"]["sim_spent_cents"] == 140 + 80 + 120
-    inspected = cli_json("inspect", task["task_id"])
-    assert [output["version"] for output in inspected["outputs"]] == [1, 2]
+    from test_campaign_delivery_new import _campaign
+    from test_direct_script import SCRIPT
+    from test_review_dispositions_new import _reviewed
+
+    task_id, prefix, script_ref, campaign_ref, review_id = _reviewed(model_script)
+    decision = {"review_id": review_id, "campaign_ref": campaign_ref, "decisions": [
+        {"finding_id": "F1", "decision": "accepted", "reason": "确实超出证据范围"}]}
+    revised = deepcopy(SCRIPT)
+    revised["segments"][0]["voiceover"] = "先选择片段，再对齐节拍。"
+    prefix += [_tool("record_dispositions", decision), _tool("submit_script", {
+        "brief_version": 1, "script": revised, "revises_script_ref": script_ref})]
+    model_script(prefix)
+    cli_json("resume", task_id, "--max-rounds", "2")
+    inspected = cli_json("inspect", task_id)
+    new_script = inspected["scripts"][-1]
+    new_ref = {"id": new_script["output_id"], "version": new_script["version"]}
+    prefix += [_tool("submit_campaign", {"script_ref": new_ref, "campaign": _campaign()})]
+    model_script(prefix + [_review_item(REVIEW_FAIL), _review_item(REVIEW_PASS_V2)])
+    cli_json("resume", task_id, "--max-rounds", "1")
+    inspected = cli_json("inspect", task_id)
+    campaigns = [output for output in inspected["outputs"] if output["kind"] == "campaign"]
+    assert [output["version"] for output in campaigns] == [1, 2]
     assert inspected["dispositions"][0]["decision"] == "accepted"
-
-    re_reviewed = cli_json("review", task["task_id"])
+    assert inspected["scripts"][0]["content"]["script"] == SCRIPT
+    assert inspected["scripts"][1]["content"]["script"] == revised
+    assert inspected["resources"]["sim_spent_cents"] == 120 + 80 + 120
+    re_reviewed = cli_json("review", task_id)
     assert re_reviewed["review"]["verdict"] == "pass"
     assert re_reviewed["review"]["output_version"] == 2
-    saved = cli_json("save", task["task_id"])
+    saved = cli_json("save", task_id)
     assert saved["status"] == "complete"
     assert saved["save"]["output_version"] == 2
 
 
 def test_rejected_false_positive_allows_save_with_reason(cli_env, model_script):
-    script = _brief_then_draft_script()
-    script += [
-        _review_item(REVIEW_FAIL),
-        _tool(
-            "record_disposition",
-            {"finding_id": "F1", "decision": "rejected", "reason": "M-001 原文明确支持，评审误报"},
-        ),
-    ]
-    model_script(script)
-    task = _create()
-    _run_until_draft(task["task_id"])
-    cli_json("review", task["task_id"])
-
-    run_cli("run", task["task_id"])
-    inspected = cli_json("inspect", task["task_id"])
+    from test_review_dispositions_new import _reviewed
+    task_id, prefix, _, campaign_ref, review_id = _reviewed(model_script)
+    evidence = {"kind": "material", "material_id": "M-001", "material_version": "2026-10-29.v1",
+                "quote": "把用户选中的视频片段对齐到节拍点", "scope": "iOS/Android 4.2 及以上"}
+    model_script(prefix + [_tool("record_dispositions", {"review_id": review_id, "campaign_ref": campaign_ref,
+        "decisions": [{"finding_id": "F1", "decision": "rejected", "reason": "M-001 原文明确支持，评审误报", "evidence": [evidence]}]})])
+    cli_json("resume", task_id, "--max-rounds", "1")
+    inspected = cli_json("inspect", task_id)
     assert inspected["dispositions"][0]["decision"] == "rejected"
-    saved = cli_json("save", task["task_id"])
+    assert inspected["dispositions"][0]["evidence"] == [evidence]
+    saved = cli_json("save", task_id)
     assert saved["status"] == "complete"
     assert saved["save"]["output_version"] == 1
 
 
 def test_accepted_without_revision_blocks_save(cli_env, model_script):
-    script = _brief_then_draft_script()
-    script += [
-        _review_item(REVIEW_FAIL),
-        _tool("record_disposition", {"finding_id": "F1", "decision": "accepted", "reason": "需要返修"}),
-        _tool("stop_incomplete", {"reason": "本轮不继续返修"}),
-    ]
-    model_script(script)
-    task = _create()
-    _run_until_draft(task["task_id"])
-    cli_json("review", task["task_id"])
-    run_scripted_stage("run", task["task_id"])
-
-    code, out, _err = run_cli("save", task["task_id"])
+    from test_review_dispositions_new import _reviewed
+    task_id, prefix, _, campaign_ref, review_id = _reviewed(model_script)
+    model_script(prefix + [_tool("record_dispositions", {"review_id": review_id, "campaign_ref": campaign_ref,
+        "decisions": [{"finding_id": "F1", "decision": "accepted", "reason": "需要返修"}]})])
+    cli_json("resume", task_id, "--max-rounds", "1")
+    code, out, _err = run_cli("save", task_id)
     document = json.loads(out)
     assert code == 4
     assert document["save_error"]["code"] == "unresolved_must_fix"
 
 
 def test_disposition_for_unknown_finding_is_rejected(cli_env, model_script):
-    script = _brief_then_draft_script()
-    script += [
-        _review_item(REVIEW_FAIL),
-        _tool("record_disposition", {"finding_id": "F999", "decision": "rejected", "reason": "不存在"}),
-        _tool("stop_incomplete", {"reason": "结束"}),
-    ]
-    model_script(script)
-    task = _create()
-    _run_until_draft(task["task_id"])
-    cli_json("review", task["task_id"])
-    run_scripted_stage("run", task["task_id"])
-    inspected = cli_json("inspect", task["task_id"])
-    rejection = next(
-        json.loads(message["content"])
-        for message in inspected["messages"]
-        if message["role"] == "tool" and message["name"] == "record_disposition"
-    )
+    from test_campaign_delivery_new import _result
+    from test_review_dispositions_new import _reviewed
+    task_id, prefix, _, campaign_ref, review_id = _reviewed(model_script)
+    model_script(prefix + [_tool("record_dispositions", {"review_id": review_id, "campaign_ref": campaign_ref,
+        "decisions": [{"finding_id": "F999", "decision": "accepted", "reason": "不存在"}]})])
+    cli_json("resume", task_id, "--max-rounds", "1")
+    inspected = cli_json("inspect", task_id)
+    rejection = _result(inspected, "record_dispositions")[0]
     assert rejection["error"] == "finding_not_found"
     assert inspected["dispositions"] == []
 
 
 def test_review_readback_limit_stops_at_two_and_incomplete(cli_env, model_script):
-    script = _brief_then_draft_script()
-    script += [
-        {"channel": "review", "type": "tool", "name": "read_material", "arguments": {"material_id": "M-001"}},
-        {"channel": "review", "type": "tool", "name": "read_material", "arguments": {"material_id": "M-002"}},
-        {"channel": "review", "type": "tool", "name": "read_material", "arguments": {"material_id": "M-004"}},
-    ]
-    model_script(script)
-    task = _create()
-    _run_until_draft(task["task_id"])
+    from test_campaign_delivery_new import _new_draft_ready
+    reads = [{"channel": "review", "type": "tool", "name": "read_material", "arguments": {"material_id": mid}}
+             for mid in ("M-001", "M-002", "M-004")]
+    task = _new_draft_ready(model_script, reads)
     reviewed = cli_json("review", task["task_id"])
     assert reviewed["review"]["status"] == "incomplete"
     assert reviewed["review"]["readbacks_used"] == 2
     inspected = cli_json("inspect", task["task_id"])
-    rejected = [
-        json.loads(message["content"])
-        for message in inspected["reviewer_messages"]
-        if message["role"] == "tool"
-        and message["name"] == "read_material"
-        and "readback_limit" in (message["content"] or "")
-    ]
+    rejected = [json.loads(message["content"]) for message in inspected["reviewer_messages"]
+                if message["role"] == "tool" and message["name"] == "read_material"
+                and "readback_limit" in (message["content"] or "")]
     assert rejected
 
 
 def test_review_multi_call_is_rejected_then_single_report_continues(cli_env, model_script):
-    script = _brief_then_draft_script()
-    script += [
-        {
-            "channel": "review",
-            "type": "multi",
-            "calls": [
-                {"name": "read_material", "arguments": {"material_id": "M-001"}},
-                {"name": "read_material", "arguments": {"material_id": "M-002"}},
-            ],
-        },
-        _review_item(REVIEW_PASS_V2),
-    ]
-    model_script(script)
-    task = _create()
-    _run_until_draft(task["task_id"])
+    from test_campaign_delivery_new import _new_draft_ready
+    multi = {"channel": "review", "type": "multi", "calls": [
+        {"name": "read_material", "arguments": {"material_id": "M-001"}},
+        {"name": "read_material", "arguments": {"material_id": "M-002"}}]}
+    task = _new_draft_ready(model_script, [multi, _review_item(REVIEW_PASS_V2)])
     reviewed = cli_json("review", task["task_id"])
     assert reviewed["review"]["verdict"] == "pass"
     assert reviewed["review"]["requests_used"] == 2
