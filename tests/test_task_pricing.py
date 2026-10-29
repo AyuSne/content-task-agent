@@ -14,7 +14,7 @@ def test_existing_task_keeps_its_pricing_when_environment_default_changes(cli_en
     new_task = _create(topic="新版价目任务")
     assert new_task["pricing_overview"]["version"] == "test-direct-alternate"
     assert new_task["pricing_overview"]["modes"]["search_basic"]["cost_cents"] == 45
-    assert cli_json("status", task["task_id"])["versions"]["pricing"] == "2026-10-30.v1"
+    assert cli_json("status", task["task_id"])["versions"]["pricing"] == "2026-10-30.v2"
     assert cli_json("status", task["task_id"])["pricing_overview"]["modes"]["search_basic"]["cost_cents"] == 20
     model_script([
         _tool("estimate_cost", {"actions": ["search_basic", "submit_script", "review", "save"]}),
@@ -27,11 +27,11 @@ def test_existing_task_keeps_its_pricing_when_environment_default_changes(cli_en
     assert result["resources"]["sim_spent_cents"] == 140
     inspected = cli_json("inspect", task["task_id"])
     overview_message = next(m for m in inspected["messages"] if "[适用费用能力概览]" in (m["content"] or ""))
-    assert "2026-10-30.v1" in overview_message["content"]
+    assert "2026-10-30.v2" in overview_message["content"]
     assert "failure_rule" in overview_message["content"]
     estimate = json.loads(next(m["content"] for m in inspected["messages"] if m["name"] == "estimate_cost"))
     assert estimate["estimate"]["total_cost_cents"] == 230
-    assert estimate["estimate"]["version"] == "2026-10-30.v1"
+    assert estimate["estimate"]["version"] == "2026-10-30.v2"
     assert estimate["estimate"]["nature"] == "estimated"
     assert len(inspected["ledger"]) == 2
     assert inspected["ledger"][0]["amount_cents"] == 20

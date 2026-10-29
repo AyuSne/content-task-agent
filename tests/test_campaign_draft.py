@@ -191,182 +191,125 @@ def _run_until_draft(task_id):
     return run_scripted_stage("run", task_id)
 
 
-def test_complete_draft_uses_isolated_generation_and_full_campaign(cli_env, model_script):
-    task = _create()
-    model_script(_brief_then_draft_script())
-    doc = _run_until_draft(task["task_id"])
+def test_complete_draft_uses_main_context_and_full_campaign(cli_env, model_script):
+    from test_campaign_delivery_new import _new_draft_ready
+    from test_review_save import REVIEW_PASS, _review_item
 
+    task = _new_draft_ready(model_script, _review_item(REVIEW_PASS))
+    doc = cli_json("status", task["task_id"])
     assert doc["status"] == "in_progress"
     assert doc["progress"]["phase"] == "draft_ready"
     assert doc["progress"]["current_output"]["version"] == 1
     assert doc["progress"]["current_output"]["status"] == "draft"
-    assert doc["progress"]["current_output"]["strategy"] == "user_scenario"
     assert doc["plan"] == {"version": 0, "steps": []}
-    assert doc["resources"]["sim_spent_cents"] == 20 + 120
-    assert doc["artifacts"]["campaign_versions"] == 1
-
+    assert doc["resources"]["sim_spent_cents"] == 140
     inspected = cli_json("inspect", task["task_id"])
-    assert len(inspected["outputs"]) == 1
-    output = inspected["outputs"][0]
+    output = next(x for x in inspected["outputs"] if x["kind"] == "campaign")
     assert output["content"]["activity"]["theme"] == CAMPAIGN["activity"]["theme"]
     assert output["content"]["materials"][1]["status"] == "to_create"
     assert output["content"]["materials"][2]["status"] == "to_acquire"
-    assert output["content_md"].startswith("# 把招新现场剪成你的节奏")
-    assert inspected["generator_messages_count"] == 3
-    purposes = [row["purpose"] for row in inspected["llm_requests"]]
-    assert purposes.count("script_generation") == 1
-    assert all(row["mock"] == 1 for row in inspected["llm_requests"])
-    assert [attempt["kind"] for attempt in inspected["attempts"]] == ["search_materials", "generate_script"]
-    assert all(attempt["status"] == "success" for attempt in inspected["attempts"])
-
-    main_messages = " ".join(message["content"] or "" for message in inspected["messages"])
-    assert "[脚本生成请求]" not in main_messages
-    generator_knowledge = next(
-        row for row in inspected["llm_requests"] if row["purpose"] == "script_generation"
-    )
-    assert '"context": "isolated_generation"' in generator_knowledge["meta_json"]
-    assert "user_scenario" in generator_knowledge["meta_json"]
+    from pathlib import Path
+    exported = cli_json("export", task["task_id"])
+    markdown = next(item["path"] for item in exported["files"] if item["path"].endswith("campaign-v1.md"))
+    assert Path(markdown).read_text(encoding="utf-8").startswith("# 把招新现场剪成你的节奏")
+    assert inspected["generator_messages_count"] == 0
+    assert all(row["purpose"] != "script_generation" and row["mock"] == 1 for row in inspected["llm_requests"])
+    assert [a["kind"] for a in inspected["attempts"]] == ["search_materials", "submit_script"]
+    assert all(a["status"] == "success" for a in inspected["attempts"])
 
 
-def test_generation_failure_leaves_no_draft_and_keeps_cost(cli_env, model_script):
+def test_interrupted_script_attempt_keeps_charge_and_no_draft(cli_env, model_script):
+    from conftest import run_cli_process
+    from test_direct_script import SCRIPT
     task = _create()
-    model_script(
-        [
-            _tool("search_materials", {"query": "自动卡点"}),
-            _brief_tool(),
-            _tool("generate_script", {"strategy": "user_scenario", "generation_mode": "generate_direct"}),
-            _generation_item(type="error", message="generation upstream 500"),
-            _tool("stop_incomplete", {"reason": "脚本生成连续失败，无法形成完整草稿。"}),
-        ]
-    )
-    doc = _run_until_draft(task["task_id"])
-    assert doc["status"] == "incomplete"
-    assert doc["progress"]["phase"] == "stopped"
-    assert doc["resources"]["sim_spent_cents"] == 140
-    inspected = cli_json("inspect", task["task_id"])
-    assert inspected["outputs"] == []
-    assert inspected["attempts"][-1]["kind"] == "generate_script"
-    assert inspected["attempts"][-1]["status"] == "failed"
+    responses = [_tool("search_materials", {"query": "自动卡点"}), _brief_tool(),
+                 _tool("submit_script", {"brief_version": 1, "script": SCRIPT})]
+    path = model_script(responses)
+    crashed = run_cli_process("run", task["task_id"], data_dir=cli_env / "data",
+                              extra_env={"CTA_MODEL_SCRIPT": str(path), "CTA_FAULT_CRASH": "script_after_start"})
+    assert crashed.returncode == 70
+    resumed = run_cli_process("resume", task["task_id"], "--max-rounds", "0", data_dir=cli_env / "data",
+                              extra_env={"CTA_MODEL_SCRIPT": str(path)})
+    assert resumed.returncode == 0, resumed.stderr
+    view = cli_json("inspect", task["task_id"])
+    assert not view["outputs"] and view["resources"]["sim_spent_cents"] == 140
+    assert view["attempts"][-1]["kind"] == "submit_script" and view["attempts"][-1]["status"] == "interrupted"
 
 
-def test_full_path_guard_rejects_generation_that_cannot_be_reviewed(cli_env, model_script):
+def test_budget_guard_rejects_script_before_start(cli_env, model_script):
+    from test_direct_script import SCRIPT
     task = _create(budget="1.00")
-    model_script(
-        [
-            _tool("search_materials", {"query": "自动卡点"}),
-            _brief_tool(),
-            _tool("generate_script", {"strategy": "user_scenario", "generation_mode": "generate_direct"}),
-            _tool("stop_incomplete", {"reason": "预算不足以完成生成后的核验与保存。"}),
-        ]
-    )
-    doc = _run_until_draft(task["task_id"])
-    assert doc["status"] == "incomplete"
-    assert doc["resources"]["sim_spent_cents"] == 20
-    inspected = cli_json("inspect", task["task_id"])
-    rejection = next(
-        message for message in inspected["messages"]
-        if message["role"] == "tool" and message["name"] == "generate_script"
-    )
-    assert "full_path_infeasible" in rejection["content"]
-    assert len(inspected["attempts"]) == 1
+    model_script([_tool("search_materials", {"query": "自动卡点"}), _brief_tool(),
+                  _tool("submit_script", {"brief_version": 1, "script": SCRIPT}),
+                  _tool("stop_incomplete", {"reason": "预算不足"})])
+    doc = cli_json("run", task["task_id"], "--max-rounds", "4")
+    assert doc["status"] == "incomplete" and doc["resources"]["sim_spent_cents"] == 20
+    view = cli_json("inspect", task["task_id"])
+    rejection = next(json.loads(m["content"]) for m in view["messages"] if m["role"] == "tool" and m["name"] == "submit_script")
+    assert rejection["error"] == "budget_exceeded" and rejection["started"] is False
+    assert len(view["attempts"]) == 1 and not view["outputs"]
 
 
 def test_invalid_campaign_is_rejected_then_valid_one_is_saved(cli_env, model_script):
+    from test_campaign_delivery_new import _campaign, _result, _script_ready
+    task, prefix, ref = _script_ready(model_script)
+    bad = _campaign(); bad["evidence"][0]["quote"] = "不存在的原文"
+    model_script(prefix + [_tool("submit_campaign", {"script_ref": ref, "campaign": bad}),
+                           _tool("submit_campaign", {"script_ref": ref, "campaign": _campaign()})])
+    cli_json("resume", task["task_id"], "--max-rounds", "2")
+    view = cli_json("inspect", task["task_id"])
+    results = _result(view, "submit_campaign")
+    assert results[0]["error"] == "invalid_campaign" and "无法在材料正文中找到" in str(results[0])
+    assert results[1]["ok"] and len([x for x in view["outputs"] if x["kind"] == "campaign"]) == 1
+
+
+def test_script_claim_without_supported_quote_is_rejected_without_charge(cli_env, model_script):
+    from test_direct_script import SCRIPT
     task = _create()
-    bad = copy.deepcopy(CAMPAIGN)
-    bad["evidence"][0]["quote"] = "不存在的原文"
-    script = _brief_then_draft_script(campaign_item=_campaign_tool(bad))
-    script.append(_campaign_tool())
-    model_script(script)
-    doc = _run_until_draft(task["task_id"])
-    assert doc["progress"]["phase"] == "draft_ready"
-    inspected = cli_json("inspect", task["task_id"])
-    rejection = next(
-        message for message in inspected["messages"]
-        if message["role"] == "tool" and message["name"] == "propose_campaign"
-    )
-    assert "invalid_campaign" in rejection["content"]
-    assert "无法在材料正文中找到" in rejection["content"]
-    assert [output["version"] for output in inspected["outputs"]] == [1]
+    bad = copy.deepcopy(SCRIPT); bad["evidence"][0]["quote"] = "材料里没有这句话"
+    model_script([_tool("search_materials", {"query": "自动卡点"}), _brief_tool(),
+                  _tool("submit_script", {"brief_version": 1, "script": bad}),
+                  _tool("stop_incomplete", {"reason": "脚本事实无支持"})])
+    doc = cli_json("run", task["task_id"], "--max-rounds", "4")
+    view = cli_json("inspect", task["task_id"])
+    assert doc["status"] == "incomplete" and not view["outputs"]
+    assert len(view["attempts"]) == 1 and view["resources"]["sim_spent_cents"] == 20
+    rejection = next(json.loads(m["content"]) for m in view["messages"] if m["name"] == "submit_script")
+    assert rejection["error"] == "invalid_script" and rejection["started"] is False
 
 
-def test_script_claim_without_supported_quote_fails_generation(cli_env, model_script):
-    task = _create()
-    bad_candidate = copy.deepcopy(SCRIPT_CANDIDATE)
-    bad_candidate["claims"][0]["quote"] = "材料里没有这句话"
-    model_script(
-        [
-            _tool("search_materials", {"query": "自动卡点"}),
-            _brief_tool(),
-            _tool("generate_script", {"strategy": "user_scenario", "generation_mode": "generate_direct"}),
-            _generation_item(bad_candidate),
-            _tool("stop_incomplete", {"reason": "脚本事实无支持，无法继续。"}),
-        ]
-    )
-    doc = _run_until_draft(task["task_id"])
-    assert doc["status"] == "incomplete"
-    inspected = cli_json("inspect", task["task_id"])
-    assert inspected["outputs"] == []
-    assert inspected["attempts"][-1]["status"] == "failed"
-
-
-def test_run_after_draft_finishes_without_regenerating_or_recharging_draft(cli_env, model_script):
+def test_run_after_draft_completes_without_regenerating_or_recharging_script(cli_env, model_script):
+    from test_campaign_delivery_new import _new_draft_ready
     from test_review_save import REVIEW_PASS, _review_item
-
-    task = _create()
-    model_script([*_brief_then_draft_script(), _tool("review_campaign", {}), _review_item(REVIEW_PASS), _tool("save_campaign", {})])
-    first_draft = _run_until_draft(task["task_id"])
-    inspected = cli_json("inspect", task["task_id"])
-    messages = len(inspected["messages"])
-    generator_messages = inspected["generator_messages_count"]
-
-    again = cli_json("run", task["task_id"])
-    second = cli_json("inspect", task["task_id"])
-    assert again["status"] == "complete"
-    assert again["progress"]["current_output"]["version"] == first_draft["progress"]["current_output"]["version"] == 1
-    assert first_draft["resources"]["sim_spent_cents"] == 140
-    assert again["resources"]["sim_spent_cents"] == 230
-    assert len(second["messages"]) > messages
-    assert second["generator_messages_count"] == generator_messages
-    assert len(second["outputs"]) == 1
+    task = _new_draft_ready(model_script, _review_item(REVIEW_PASS))
+    before = cli_json("inspect", task["task_id"])
+    cli_json("review", task["task_id"])
+    result = cli_json("save", task["task_id"])
+    after = cli_json("inspect", task["task_id"])
+    assert result["status"] == "complete" and result["save"]["output_version"] == 1
+    assert before["resources"]["sim_spent_cents"] == 140 and result["resources"]["sim_spent_cents"] == 230
+    assert len(after["scripts"]) == len(before["scripts"]) == 1 and after["generator_messages_count"] == 0
 
 
-def test_multi_candidate_generation_uses_bounded_internal_requests(cli_env, model_script):
-    task = _create()
-    model_script(
-        [
-            _tool("search_materials", {"query": "自动卡点"}),
-            _brief_tool(),
-            _tool("generate_script", {"strategy": "user_scenario", "generation_mode": "generate_multi"}),
-            _generation_item(),
-            _generation_item(),
-            _generation_item(),
-            _campaign_tool(),
-        ]
-    )
-    doc = _run_until_draft(task["task_id"])
-    assert doc["progress"]["phase"] == "draft_ready"
-    assert doc["resources"]["sim_spent_cents"] == 20 + 300
-    inspected = cli_json("inspect", task["task_id"])
-    generation_requests = [row for row in inspected["llm_requests"] if row["purpose"] == "script_generation"]
-    assert len(generation_requests) == 3
-    assert inspected["attempts"][-1]["meta_json"].count("internal_requests") == 1
-    assert '"internal_requests": 3' in inspected["attempts"][-1]["meta_json"]
+def test_open_direction_needs_no_fixed_candidates_or_independent_generation(cli_env, model_script):
+    from test_campaign_delivery_new import _new_draft_ready
+    from test_review_save import REVIEW_PASS, _review_item
+    task = _new_draft_ready(model_script, _review_item(REVIEW_PASS))
+    view = cli_json("inspect", task["task_id"])
+    campaign = next(x for x in view["outputs"] if x["kind"] == "campaign")
+    assert campaign["content"]["strategy"]["name"] == "校园情境与教程结合"
+    assert len(view["scripts"]) == 1 and view["generator_messages_count"] == 0
+    assert len([a for a in view["attempts"] if a["kind"] == "submit_script"]) == 1
 
 
 def test_malformed_alternatives_are_rejected_without_crashing(cli_env, model_script):
-    task = _create()
-    campaign = copy.deepcopy(CAMPAIGN)
-    campaign["strategy"]["alternatives"] = ["tutorial"]
-    script = _brief_then_draft_script(campaign_item=_campaign_tool(campaign))
-    script.append(_campaign_tool())
-    model_script(script)
-    doc = _run_until_draft(task["task_id"])
-    assert doc["progress"]["phase"] == "draft_ready"
-    inspected = cli_json("inspect", task["task_id"])
-    rejection = next(
-        message for message in inspected["messages"]
-        if message["role"] == "tool" and message["name"] == "propose_campaign"
-    )
-    assert "invalid_campaign" in rejection["content"]
-    assert "alternatives[0]" in rejection["content"]
+    from test_campaign_delivery_new import _campaign, _result, _script_ready
+    task, prefix, ref = _script_ready(model_script)
+    campaign = _campaign(); campaign["strategy"]["alternatives"] = ["tutorial"]
+    model_script(prefix + [_tool("submit_campaign", {"script_ref": ref, "campaign": campaign}),
+                           _tool("submit_campaign", {"script_ref": ref, "campaign": _campaign()})])
+    cli_json("resume", task["task_id"], "--max-rounds", "2")
+    view = cli_json("inspect", task["task_id"])
+    rejected, accepted = _result(view, "submit_campaign")
+    assert rejected["error"] == "invalid_campaign" and "alternatives[0]" in str(rejected)
+    assert accepted["ok"] and len([x for x in view["outputs"] if x["kind"] == "campaign"]) == 1

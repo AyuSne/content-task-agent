@@ -65,6 +65,18 @@ def _error_message(config: Config, exc: Exception) -> str:
     return config.redact(" <- ".join(causes))[:800]
 
 
+def chat_request(model: str, messages: list[dict], tools: list[dict], *, json_mode: bool = False) -> dict:
+    """Build exactly the SDK arguments used by the DeepSeek adapter."""
+    request = {"model": model, "messages": messages, "stream": False,
+               "extra_body": {"thinking": {"type": "disabled"}}}
+    if tools:
+        request["tools"] = tools
+        request["tool_choice"] = "auto"
+    if json_mode:
+        request["response_format"] = {"type": "json_object"}
+    return request
+
+
 class DeepSeekClient:
     def __init__(self, config: Config):
         if not config.api_key:
@@ -84,17 +96,7 @@ class DeepSeekClient:
         self, messages: list[dict], tools: list[dict], *, cursor: int, channel: str = "main", json_mode: bool = False
     ) -> ModelResponse:
         started = time.time()
-        request = {
-            "model": self.config.model,
-            "messages": messages,
-            "stream": False,
-            "extra_body": {"thinking": {"type": "disabled"}},
-        }
-        if tools:
-            request["tools"] = tools
-            request["tool_choice"] = "auto"
-        if json_mode:
-            request["response_format"] = {"type": "json_object"}
+        request = chat_request(self.config.model, messages, tools, json_mode=json_mode)
         try:
             response = self.client.chat.completions.create(**request)
         except Exception as exc:  # noqa: BLE001 - boundary records the real error
@@ -229,6 +231,15 @@ class ScriptedClient:
             usage=item.get("usage"),
             mock=True,
         )
+
+
+def main_request_record(client: ModelClient, messages: list[dict], tools: list[dict], cursor: int, *, mock: bool) -> dict:
+    """Record the inputs actually passed to this adapter, without credential headers."""
+    if isinstance(client, DeepSeekClient):
+        arguments = chat_request(client.config.model, messages, tools)
+    else:
+        arguments = {"messages": messages, "tools": tools, "cursor": cursor}
+    return {"adapter": type(client).__name__, "mock": mock, **arguments}
 
 
 def create_client(config: Config) -> ModelClient:

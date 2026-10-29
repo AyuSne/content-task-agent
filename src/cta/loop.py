@@ -17,14 +17,14 @@ from cta.db import open_store, transaction
 from cta.faults import crash
 from cta.knowledge import freeze_bundles, read_skill, task_bundles
 from cta.materials import MaterialCatalog, load_catalog, load_task_catalog
-from cta.model import ModelResponse, create_client
+from cta.model import ModelResponse, create_client, main_request_record
 from cta.pricing import PriceTable, load_price_table
-from cta.protocol import HANDLER_VERSION, incompatibility
 from cta.prompts import (
     MAIN_SYSTEM_PROMPT,
     PROMPT_VERSION,
     TOOL_DEFINITIONS,
 )
+from cta.protocol import HANDLER_VERSION, incompatibility
 from cta.recovery import (
     append_recovery_fact,
     recover_task,
@@ -248,7 +248,9 @@ def run_task(config: Config, task_id: str, *, max_rounds: int | None = None, exp
                 conn, task_id=task_id, purpose=f"main_loop_round_{round_index + 1}", started_at=started,
                 request_config=config.model_config_public(), mock=config.mode == "mock",
                 meta={"prompt_version": protocol["prompt_version"], "round": round_index + 1,
-                      "tool_schema_sha256": protocol["sha256"]},
+                      "tool_schema_sha256": protocol["sha256"],
+                      "request": config.redact_data(main_request_record(
+                          client, messages, protocol["tools"], round_index, mock=config.mode == "mock"))},
             )
             try:
                 response = client.complete(messages, protocol["tools"], cursor=round_index)
@@ -883,8 +885,9 @@ def _search(
         except Exception as exc:  # noqa: BLE001 - business tool boundary
             result = {"ok": False, "error": "tool_failed", "message": f"检索执行失败：{exc}"}
     result.update(attempt_id=attempt_id, cost_cents=spec.cost_cents, duration_ms=spec.duration_ms)
-    finish_attempt(conn, attempt_id, status="success" if result.get("ok") else "failed",
-                   error=None if result.get("ok") else result["message"], meta={"result": result})
+    error = None if result["ok"] else (result["message"] if "error" in result else result["gap"])
+    finish_attempt(conn, attempt_id, status="success" if result["ok"] else "failed",
+                   error=error, meta={"result": result})
     conn.commit()
     return result
 

@@ -36,7 +36,7 @@ def test_action_estimates_compare_feasible_paths_without_spending_or_locking_ord
     result = cli_json("run", task["task_id"])
     facts = cli_json("inspect", task["task_id"])
     high, low = [x["estimate"] for x in _responses(facts, "estimate_cost")]
-    assert high["version"] == low["version"] == facts["versions"]["pricing"] == "2026-10-30.v1"
+    assert high["version"] == low["version"] == facts["versions"]["pricing"] == "2026-10-30.v2"
     assert high["total_cost_cents"] == 390 and high["affordable"] is False
     assert low["total_cost_cents"] == 230 and low["affordable"] is True
     assert high["within_deadline"] is True and low["within_deadline"] is True
@@ -74,7 +74,7 @@ def test_estimates_remain_separate_from_actual_cost_and_unknown_model_and_activi
     fresh = cli_json("status", task["task_id"])
     fees = fresh["resources"]["simulated_tool_fee"]
     assert fees["category"] == "simulated_tool_fee" and fees["unit"] == "CNY_cent"
-    assert fees["source"] == "pricing:2026-10-30.v1" and fees["incurred_cents"] == 0
+    assert fees["source"] == "pricing:2026-10-30.v2" and fees["incurred_cents"] == 0
     assert fees["estimated"] is None and fees["reserved"] is None
     assert fresh["resources"]["real_model_usage"]["amount"]["status"] == "unknown"
     assert fresh["resources"]["activity_costs"]["status"] == "not_applicable"

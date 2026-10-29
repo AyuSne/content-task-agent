@@ -56,7 +56,7 @@ uv run cta --mode real resume $task.task_id
 
 `run` 持续到核实保存、澄清或可信停止；核验和保存由主模型选择。`resume` 先核实未完成/未知动作，再恢复原消息、资料、知识、账本和轮数。新任务默认24轮，每轮一个动作，失败/非法响应也计数；已有任务沿用创建时上限，历史12轮任务仍为12轮，重启不获取额度。`CTA_MAX_ROUNDS` 只决定新任务初值。
 
-创作方向由主 Agent 根据任务选择，功能演示、用户情境、教程仅作参考；正式脚本提交与返修按任务采用的费用版本计量。新默认费用表为 `2026-10-30.v1`，已有旧费用版本保留原义。
+创作方向由主 Agent 根据任务选择，功能演示、用户情境、教程仅作参考；正式脚本提交与返修按任务采用的费用版本计量。新默认费用表为 `2026-10-30.v2`，返修条目不再显示旧独立生成调用的内部请求上限，已有旧费用版本保留原义。
 
 ## 查询、修改与导出
 
@@ -96,10 +96,11 @@ uv run python scripts/verify_saved_artifacts.py
 uv run python scripts/verify_saved_artifacts.py --root examples/eval-2026-10-29/live
 uv run python scripts/verify_saved_artifacts.py --root examples/eval-2026-10-29/post-fix
 uv run cta --mode real calibrate --output <new-result.json>
+# 旧三方式对照需在固定旧代码 836aa827d835e54a8e9385c18e7a3ff05ed3e600 的工作区运行
 uv run python -m cta.comparison --mode real --method all --case fixtures/comparison/campaign-2026-10-29.v1.json --output <new-experiment-directory>
 ```
 
-前三条分别离线核对历史89个、初始新集合35个和复测10个当前导出文件的原始字节，不依赖原D盘路径。后两条会真实调用模型并保留结果；托管模型可能返回不同内容。
+前三条分别离线核对历史89个、初始新集合35个和复测10个当前导出文件的原始字节，不依赖原D盘路径。校准和旧代码中的三方式对照会真实调用模型并保留结果；当前新代码明确拒绝旧三方式入口，历史断言保存在固定提交和 `tests/legacy/comparison-836aa827.py.txt`。有限回读对照 `--method readback` 保持可用；新旧同场景对照另见本轮验收。托管模型可能返回不同内容。
 
 真实/Mock使用独立数据库与导出目录，默认 `.cta-runs/<mode>/`；`--data-dir` / `CTA_DATA_DIR` 可指定根目录。本题合成资料与费用表在 `fixtures/`，两类工作知识在 `knowledge/`。实际用量和金额未知项分列；模拟按时不证明真实墙钟按时。
 

@@ -101,17 +101,18 @@ def test_resource_update_records_reuse_without_rewriting_origin_and_appends_new_
     updated = cli_json("update", task_id, "--budget", "20", "--deadline", "2026-10-31T12:00:00+08:00")
     assert updated["content_reuse"]["source_input_version"] == 1
     assert updated["content_reuse"]["input_version"] == 2
-    assert updated["content_reuse"]["output_id"] == before["outputs"][0]["output_id"]
+    prior_campaign = next(output for output in before["outputs"] if output["kind"] == "campaign")
+    assert updated["content_reuse"]["output_id"] == prior_campaign["output_id"]
     assert updated["content_reuse"]["review_id"] == reviewed["review"]["review_id"]
     assert updated["resource_reassessment"]["total_cost_cents"] == 10
     after = cli_json("inspect", task_id)
-    assert after["outputs"][0]["input_version"] == 1
+    assert next(output for output in after["outputs"] if output["kind"] == "campaign")["input_version"] == 1
     assert after["messages"][:len(before["messages"])] == before["messages"]
     message = next(json.loads(item["content"].removeprefix("[输入更新] "))
                    for item in reversed(after["messages"]) if (item["content"] or "").startswith("[输入更新] "))
     assert message["budget_cents"] == 2000
     assert message["deadline"] == "2026-10-31T04:00:00+00:00"
-    assert message["reuse"]["output_id"] == before["outputs"][0]["output_id"]
+    assert message["reuse"]["output_id"] == prior_campaign["output_id"]
     again = cli_json("update", task_id, "--budget", "21")
     assert again["content_reuse"]["source_input_version"] == 1
     assert again["content_reuse"]["input_version"] == 3
@@ -127,8 +128,9 @@ def test_resource_update_save_reuses_semantic_review_and_original_output(cli_env
     assert saved["status"] == "complete"
     assert saved["save"]["output_version"] == 1
     inspected = cli_json("inspect", task_id)
-    assert len(inspected["outputs"]) == 1
-    assert inspected["outputs"][0]["input_version"] == 1
+    campaigns = [output for output in inspected["outputs"] if output["kind"] == "campaign"]
+    assert len(campaigns) == 1
+    assert campaigns[0]["input_version"] == 1
     assert inspected["reviews"][0]["review_id"] == reviewed["review"]["review_id"]
     assert len(inspected["reviews"]) == 1
 
@@ -156,15 +158,24 @@ def test_resource_update_checks_remaining_save_cost_after_review(cli_env, model_
 
 
 def test_resource_reassessment_respects_evidence_based_rejection(cli_env, model_script):
-    from test_campaign_draft import _brief_then_draft_script, _tool
+    from test_campaign_draft import _tool
     from test_revision_disposition import REVIEW_FAIL
 
     task = _draft_ready(model_script, _review_item(REVIEW_FAIL))
-    cli_json("review", task["task_id"])
-    model_script(_brief_then_draft_script() + [_tool("record_disposition", {
-        "finding_id": "F1", "decision": "rejected", "reason": "M-001正文确实支持当前有限范围表述。",
-    })])
+    reviewed = cli_json("review", task["task_id"])
+    view = cli_json("inspect", task["task_id"])
+    campaign = next(output for output in view["outputs"] if output["kind"] == "campaign")
+    evidence = {"kind": "material", "material_id": "M-001", "material_version": "2026-10-29.v1",
+                "quote": "把用户选中的视频片段对齐到节拍点", "scope": "iOS/Android 4.2 及以上"}
+    decision = {"finding_id": "F1", "decision": "rejected", "reason": "M-001 支持当前有限范围表述。",
+                "evidence": [evidence]}
+    action = _tool("record_dispositions", {"review_id": reviewed["review"]["review_id"],
+                                           "campaign_ref": {"id": campaign["output_id"], "version": campaign["version"]},
+                                           "decisions": [decision]})
+    model_script([_tool("stop_incomplete", {"reason": "unused"})] * view["progress"]["used_rounds"] + [action])
     cli_json("run", task["task_id"], "--max-rounds", "1")
+    disposition = cli_json("inspect", task["task_id"])["dispositions"]
+    assert len(disposition) == 1 and disposition[0]["evidence"] == [evidence]
     updated = cli_json("update", task["task_id"], "--budget", "2.30")
     assert updated["resource_reassessment"]["projected_total_cents"] == 230
     assert updated["resource_reassessment"]["feasible"] is True

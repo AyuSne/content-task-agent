@@ -153,6 +153,6 @@ def campaign_brief(conn, task_id, output):
     ).fetchone()
     brief_version = json.loads(row["content_json"])["brief_version"]
     brief = conn.execute(
-        "SELECT content_json FROM briefs WHERE task_id = ? AND version = ?", (task_id, brief_version)
+        "SELECT version, content_json FROM briefs WHERE task_id = ? AND version = ?", (task_id, brief_version)
     ).fetchone()
-    return json.loads(brief["content_json"])
+    return {"version": brief["version"], "content": json.loads(brief["content_json"])}

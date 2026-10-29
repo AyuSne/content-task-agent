@@ -172,7 +172,7 @@ def review_task(config: Config, task_id: str, *, tool_call_id: str | None = None
         ).fetchone()
         conn.commit()
 
-        brief = campaign_brief(conn, task["id"], output)
+        brief = campaign_brief(conn, task["id"], output)["content"]
         used_material_ids = {
             item["material_id"]
             for item in output["content"].get("evidence", []) + output["content"].get("materials", []) + output["content"].get("script", {}).get("evidence", [])
