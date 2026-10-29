@@ -1,0 +1,132 @@
+F                                                                        [100%]
+================================== FAILURES ===================================
+___ test_readback_comparison_only_changes_read_permission_and_hides_labels ____
+
+self = ArgumentParser(prog='__main__.py', usage=None, description='真实一次性/固定流程/增强方案的可复现对照', formatter_class=<class 'argparse.HelpFormatter'>, conflict_handler='error', add_help=True)
+args = ['--method', 'readback', '--mode', 'mock', '--case', 'C:\\Users\\10167\\AppData\\Local\\Temp\\pytest-of-10167\\pytest-184\\test_readback_comparison_only_0\\readback.json', ...]
+namespace = Namespace(mode='mock', data_dir=None, method=None, case=None, output=None, order=1)
+intermixed = False
+
+    def _parse_known_args2(self, args, namespace, intermixed):
+        if args is None:
+            # args default to the system args
+            args = _sys.argv[1:]
+        else:
+            # make sure that args are mutable
+            args = list(args)
+    
+        # default Namespace built from parser defaults
+        if namespace is None:
+            namespace = Namespace()
+    
+        # add any action defaults that aren't present
+        for action in self._actions:
+            if action.dest is not SUPPRESS:
+                if not hasattr(namespace, action.dest):
+                    if action.default is not SUPPRESS:
+                        setattr(namespace, action.dest, action.default)
+    
+        # add any parser defaults that aren't present
+        for dest in self._defaults:
+            if not hasattr(namespace, dest):
+                setattr(namespace, dest, self._defaults[dest])
+    
+        # parse the arguments and exit if there are any errors
+        if self.exit_on_error:
+            try:
+>               namespace, args = self._parse_known_args(args, namespace, intermixed)
+                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+C:\Users\10167\AppData\Roaming\uv\python\cpython-3.13.11-windows-x86_64-none\Lib\argparse.py:1937: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+C:\Users\10167\AppData\Roaming\uv\python\cpython-3.13.11-windows-x86_64-none\Lib\argparse.py:2188: in _parse_known_args
+    start_index = consume_optional(start_index)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\10167\AppData\Roaming\uv\python\cpython-3.13.11-windows-x86_64-none\Lib\argparse.py:2112: in consume_optional
+    take_action(action, args, option_string)
+C:\Users\10167\AppData\Roaming\uv\python\cpython-3.13.11-windows-x86_64-none\Lib\argparse.py:1998: in take_action
+    argument_values = self._get_values(action, argument_strings)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\10167\AppData\Roaming\uv\python\cpython-3.13.11-windows-x86_64-none\Lib\argparse.py:2519: in _get_values
+    self._check_value(action, value)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = ArgumentParser(prog='__main__.py', usage=None, description='真实一次性/固定流程/增强方案的可复现对照', formatter_class=<class 'argparse.HelpFormatter'>, conflict_handler='error', add_help=True)
+action = _StoreAction(option_strings=['--method'], dest='method', nargs=None, const=None, default=None, type=None, choices=('oneshot', 'fixed', 'enhanced'), required=True, help=None, metavar=None, deprecated=False)
+value = 'readback'
+
+    def _check_value(self, action, value):
+        # converted value must be one of the choices (if specified)
+        choices = action.choices
+        if choices is not None:
+            if isinstance(choices, str):
+                choices = iter(choices)
+            if value not in choices:
+                args = {'value': str(value),
+                        'choices': ', '.join(map(str, action.choices))}
+                msg = _('invalid choice: %(value)r (choose from %(choices)s)')
+>               raise ArgumentError(action, msg % args)
+E               argparse.ArgumentError: argument --method: invalid choice: 'readback' (choose from oneshot, fixed, enhanced)
+
+C:\Users\10167\AppData\Roaming\uv\python\cpython-3.13.11-windows-x86_64-none\Lib\argparse.py:2578: ArgumentError
+
+During handling of the above exception, another exception occurred:
+
+cli_env = WindowsPath('C:/Users/10167/AppData/Local/Temp/pytest-of-10167/pytest-184/test_readback_comparison_only_0')
+model_script = <function model_script.<locals>.write at 0x0000020A7B4E4360>
+capsys = <_pytest.capture.CaptureFixture object at 0x0000020A7B3B38C0>
+
+    def test_readback_comparison_only_changes_read_permission_and_hides_labels(cli_env, model_script, capsys):
+        from cta.comparison import main
+    
+        case = {"version": "holdout-test", "pairs": [{
+            "id": "source-needed", "requirements": ["事实应有支持"],
+            "evidence": [{"material_id": "M-001"}], "material_ids": ["M-001"],
+            "campaign": CAMPAIGN, "expected": {"label": "holdout-answer-must-not-be-shown"},
+        }]}
+        case_path = cli_env / "readback.json"
+        case_path.write_text(json.dumps(case, ensure_ascii=False), encoding="utf-8")
+        model_script([
+            {"channel": "comparison_review", "name": "report_review", "arguments": REVIEW_PASS},
+            {"channel": "comparison_review", "name": "read_material", "arguments": {"material_id": "M-001"}},
+            {"channel": "comparison_review", "name": "report_review", "arguments": REVIEW_PASS},
+        ])
+        output = cli_env / "readbacks"
+>       assert main(["--method", "readback", "--mode", "mock", "--case", str(case_path), "--output", str(output)]) == 0
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\test_comparison.py:83: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+src\cta\comparison.py:255: in main
+    args = parser.parse_args(argv)
+           ^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\10167\AppData\Roaming\uv\python\cpython-3.13.11-windows-x86_64-none\Lib\argparse.py:1898: in parse_args
+    args, argv = self.parse_known_args(args, namespace)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\10167\AppData\Roaming\uv\python\cpython-3.13.11-windows-x86_64-none\Lib\argparse.py:1908: in parse_known_args
+    return self._parse_known_args2(args, namespace, intermixed=False)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\10167\AppData\Roaming\uv\python\cpython-3.13.11-windows-x86_64-none\Lib\argparse.py:1939: in _parse_known_args2
+    self.error(str(err))
+C:\Users\10167\AppData\Roaming\uv\python\cpython-3.13.11-windows-x86_64-none\Lib\argparse.py:2658: in error
+    self.exit(2, _('%(prog)s: error: %(message)s\n') % args)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = ArgumentParser(prog='__main__.py', usage=None, description='真实一次性/固定流程/增强方案的可复现对照', formatter_class=<class 'argparse.HelpFormatter'>, conflict_handler='error', add_help=True)
+status = 2
+message = "__main__.py: error: argument --method: invalid choice: 'readback' (choose from oneshot, fixed, enhanced)\n"
+
+    def exit(self, status=0, message=None):
+        if message:
+            self._print_message(message, _sys.stderr)
+>       _sys.exit(status)
+E       SystemExit: 2
+
+C:\Users\10167\AppData\Roaming\uv\python\cpython-3.13.11-windows-x86_64-none\Lib\argparse.py:2645: SystemExit
+---------------------------- Captured stderr call -----------------------------
+usage: __main__.py [-h] [--mode {mock,real}] [--data-dir DATA_DIR]
+                   --method {oneshot,fixed,enhanced} --case CASE
+                   --output OUTPUT [--order ORDER]
+__main__.py: error: argument --method: invalid choice: 'readback' (choose from oneshot, fixed, enhanced)
+=========================== short test summary info ===========================
+FAILED tests/test_comparison.py::test_readback_comparison_only_changes_read_permission_and_hides_labels
