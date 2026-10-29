@@ -175,6 +175,7 @@ def evaluate(
             "messages": list(history), "tools": tools,
             "model": response.model, "response_id": response.raw_id, "mock": response.mock,
             "usage": response.usage, "elapsed_ms": response.elapsed_ms, "error": response.error,
+            "request_config": response.request_config,
             "finish_reason": response.finish_reason, "content": response.content,
             "tool_calls": [call.as_openai() for call in response.tool_calls],
         }

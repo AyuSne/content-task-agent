@@ -203,7 +203,7 @@ def record_llm_request(
             task_id,
             attempt_id,
             purpose,
-            response.model,
+            (response.request_config or {}).get("model", response.model),
             status,
             usage.get("prompt_tokens"),
             usage.get("completion_tokens"),
@@ -214,9 +214,10 @@ def record_llm_request(
             started_at.isoformat(),
             finished_at.isoformat(),
             response.error,
-            response.model,
+            None if response.error else response.model,
             1 if mock else 0,
-            json.dumps(meta or {}, ensure_ascii=False),
+            json.dumps({**(meta or {}), **({"request_config": response.request_config} if response.request_config else {})},
+                       ensure_ascii=False),
         ),
     )
     return request_id

@@ -16,7 +16,7 @@ from typing import Protocol
 import httpx
 from openai import OpenAI
 
-from cta.config import Config
+from cta.config import MODEL_KEEPALIVE_SECONDS, Config
 
 
 @dataclass(frozen=True)
@@ -44,6 +44,7 @@ class ModelResponse:
     mock: bool = False
     elapsed_ms: int | None = None
     raw_id: str | None = None
+    request_config: dict | None = None
 
 
 class ModelUnavailable(Exception):
@@ -73,7 +74,8 @@ class DeepSeekClient:
         self.client = OpenAI(
             api_key=config.api_key,
             base_url=config.base_url,
-            http_client=httpx.Client(trust_env=False, timeout=timeout),
+            http_client=httpx.Client(trust_env=False, timeout=timeout,
+                                     limits=httpx.Limits(keepalive_expiry=MODEL_KEEPALIVE_SECONDS)),
             timeout=timeout,
             max_retries=0,
         )
@@ -101,6 +103,7 @@ class DeepSeekClient:
                 error=message,
                 model=self.config.model,
                 elapsed_ms=int((time.time() - started) * 1000),
+                request_config=self.config.model_config_public(),
             )
 
         choice = response.choices[0]
@@ -128,6 +131,7 @@ class DeepSeekClient:
             usage=usage,
             elapsed_ms=int((time.time() - started) * 1000),
             raw_id=response.id,
+            request_config=self.config.model_config_public(),
         )
 
 

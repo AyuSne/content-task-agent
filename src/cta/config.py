@@ -15,6 +15,7 @@ DEFAULT_MODE = "mock"
 MODES = ("mock", "real")
 DEFAULT_BASE_URL = "https://api.deepseek.com"
 DEFAULT_MODEL = "deepseek-flash"
+MODEL_KEEPALIVE_SECONDS = 180
 DEFAULT_SIM_START = "2026-10-29T00:00:00+08:00"
 CHINA_TZ = timezone(timedelta(hours=8))
 
@@ -103,6 +104,7 @@ class Config:
             "streaming": False,
             "sdk_auto_retries": 0,
             "network_route": "direct",
+            "keepalive_expiry_seconds": MODEL_KEEPALIVE_SECONDS,
         }
 
     def redact(self, text: str) -> str:
