@@ -196,7 +196,7 @@ def _reconcile_existing(conn, config: Config, task, output: dict, review: dict |
     return repaired
 
 
-def reconcile_task(config: Config, task_id: str) -> dict:
+def reconcile_task(config: Config, task_id: str, *, refresh_exports: bool = False) -> dict:
     from cta.service import TaskNotFound, TaskService
 
     with open_store(config.db_path) as conn:
@@ -221,7 +221,10 @@ def reconcile_task(config: Config, task_id: str) -> dict:
                 "save": save,
             }
         review = latest_review(conn, task_id)
-        repaired = _reconcile_existing(conn, config, task, output, review, save)
+        repaired = (
+            _repair_files(conn, config, task, output, review, save)
+            if refresh_exports else _reconcile_existing(conn, config, task, output, review, save)
+        )
         document = TaskService(config).status(task_id)
         document["reconcile"] = repaired
         document["save"] = latest_save(conn, task_id)
