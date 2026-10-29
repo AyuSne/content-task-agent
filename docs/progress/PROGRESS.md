@@ -1,8 +1,12 @@
 # Progress — content-task-agent
 
-**下一步**：用户准备在新会话采用[夜间实施启动提示词](../../.scratch/content-agent-redesign/overnight-start-prompt.md)，从[11张工单](../../.scratch/content-agent-redesign/README.md)的01、02、07前沿推进implement-spec；实施授权及AGENTS入口选择随新会话采用该提示词生效，本轮只准备提示词，产品和正式setup尚未改动。
+**下一步（当前实施）**：集成分支 `integration-content-agent-redesign` 已保存规格及历史快照 `f1467ac`；01、02、07 正在各自 worktree 实施。以工单依赖为准，按实际验收结果推进，未通过不标完成。
+
+**此前交接**：用户准备在新会话采用[夜间实施启动提示词](../../.scratch/content-agent-redesign/overnight-start-prompt.md)，从[11张工单](../../.scratch/content-agent-redesign/README.md)的01、02、07前沿推进implement-spec；实施授权及AGENTS入口选择随新会话采用该提示词生效，本轮只准备提示词，产品和正式setup尚未改动。
 
 ## 阶段
+
+- 34-2026-10-30 — 进入实施，保存规格和历史，建立集成分支并启动01、02、07 → [34-2026-10-30](34-2026-10-30.md)
 
 - 33-2026-10-30 — 准备新会话夜间implement-spec提示词，明确材料快照、并行集成、授权和验收，当前未启动实现 → [33-2026-10-30](33-2026-10-30.md)
 
