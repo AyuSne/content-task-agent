@@ -202,7 +202,7 @@ def record_llm_request(
     request_id: str | None = None,
 ) -> str:
     request_id = request_id or new_id("r_")
-    prior = conn.execute("SELECT meta_json FROM llm_requests WHERE id = ?", (request_id,)).fetchone()
+    prior = conn.execute("SELECT meta_json, mock FROM llm_requests WHERE id = ?", (request_id,)).fetchone()
     prior_meta = {} if prior is None else json.loads(prior["meta_json"])
     usage = response.usage or {}
     status = "error" if response.error else "success"
@@ -237,7 +237,7 @@ def record_llm_request(
             finished_at.isoformat(),
             response.error,
             None if response.error else response.model,
-            1 if mock else 0,
+            prior["mock"] if prior is not None else int(mock),
             json.dumps({**prior_meta, **(meta or {}), **({"request_config": response.request_config} if response.request_config else {})},
                        ensure_ascii=False),
         ),

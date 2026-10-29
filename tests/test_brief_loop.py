@@ -332,6 +332,16 @@ def test_round_cap_stops_incomplete(cli_env, model_script):
     assert "轮数上限" in doc["reason"]
 
 
+def test_mock_adapter_exception_never_counts_as_a_real_model_request(cli_env, model_script):
+    task = _create()
+    model_script([{}])
+    doc = run_scripted_stage("run", task["task_id"])
+    usage = doc["resources"]["real_model_usage"]
+    assert doc["mode"] == "mock"
+    assert usage["real_requests"] == 0
+    assert usage["mock_requests"] == 1
+
+
 def test_brief_is_not_reprocessed_or_recharged_on_resume(cli_env, model_script):
     task = _create()
     model_script([_tool("search_materials", {"query": "自动卡点"}), _brief_tool(), {"type": "text", "content": "不应被调用"}])
