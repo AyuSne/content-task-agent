@@ -1,0 +1,35 @@
+....................F..                                                  [100%]
+================================== FAILURES ===================================
+_____________ test_resume_keeps_unknown_save_and_never_replays_it _____________
+
+cli_env = WindowsPath('C:/Users/10167/AppData/Local/Temp/pytest-of-10167/pytest-215/test_resume_keeps_unknown_save0')
+model_script = <function model_script.<locals>.write at 0x000002369D071080>
+
+    def test_resume_keeps_unknown_save_and_never_replays_it(cli_env, model_script):
+        task, script = _reviewed_task(cli_env, model_script)
+        data_dir = cli_env / "data"
+    
+        crashed = _run_process("save", task["task_id"], data_dir=data_dir, script=script, crash="save_after_record")
+        assert crashed.returncode == 70, crashed.stderr
+    
+        before = cli_json("inspect", task["task_id"])
+        assert before["save"]["status"] == "unknown"
+        assert before["save"]["verified"] is False
+        assert before["attempts"][-1]["kind"] == "save_campaign"
+        assert before["attempts"][-1]["status"] == "running"
+        assert before["resources"]["sim_spent_cents"] == 230
+        assert before["progress"]["sim_elapsed_ms"] == 17000
+        save_attempts = len([item for item in before["attempts"] if item["kind"] == "save_campaign"])
+        requests_before = len(before["llm_requests"])
+    
+        resumed = _process_json("resume", task["task_id"], data_dir=data_dir, script=script)
+>       assert resumed["status"] == "incomplete"
+E       AssertionError: assert 'complete' == 'incomplete'
+E         
+E         - incomplete
+E         ? --
+E         + complete
+
+tests\test_process_resume.py:539: AssertionError
+=========================== short test summary info ===========================
+FAILED tests/test_process_resume.py::test_resume_keeps_unknown_save_and_never_replays_it

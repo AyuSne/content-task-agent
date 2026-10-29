@@ -1,0 +1,21 @@
+Using CPython 3.13.11
+Creating virtual environment at: D:/AAA小影科技/.scratch/content-task-agent-build/repro-final-a6c71c1/.venv
+Resolved 24 packages in 3ms
+   Building content-task-agent @ file:///D:/AAA%E5%B0%8F%E5%BD%B1%E7%A7%91%E6%8A%80/.scratch/content-task-agent-build/repro-final-a6c71c1
+  × Failed to build `content-task-agent @
+  │ file:///D:/AAA%E5%B0%8F%E5%BD%B1%E7%A7%91%E6%8A%80/.scratch/content-task-agent-build/repro-final-a6c71c1`
+  ├─▶ Failed to resolve requirements from `build-system.requires`
+  ├─▶ No solution found when resolving: `hatchling`, `editables~=0.3`
+  ╰─▶ Because editables was not found in the cache and you require
+      editables>=0.3,<1.dev0, we can conclude that your requirements are
+      unsatisfiable.
+
+      hint: `editables` was requested with a pre-release marker (e.g.,
+      editables>=0.3,<1.dev0), but build environments can't opt into
+      pre-releases automatically.  Add `editables>=0.3,<1.dev0` to
+      `build-system.requires`, `[tool.uv.extra-build-dependencies]`, or supply
+      it via `uv build --build-constraint`.
+
+      hint: Packages were unavailable because the network was disabled. When
+      the network is disabled, registry packages may only be read from the
+      cache.

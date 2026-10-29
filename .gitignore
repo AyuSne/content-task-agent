@@ -19,6 +19,7 @@ __pycache__/
 # uv cache kept inside the project
 .uv-cache/
 .uv-python/
+/.scratch/
 
 # disposable evidence databases / exports
 evidence/*/data-scripted/

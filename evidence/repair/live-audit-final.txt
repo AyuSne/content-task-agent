@@ -1,0 +1,92 @@
+[
+  {
+    "case": "budget-delivery-01",
+    "status": "complete",
+    "passed": true
+  },
+  {
+    "case": "budget-delivery-02",
+    "status": "complete",
+    "passed": true
+  },
+  {
+    "case": "budget-delivery-03",
+    "status": "incomplete",
+    "passed": true
+  },
+  {
+    "case": "budget-delivery-04",
+    "status": "complete",
+    "passed": true
+  },
+  {
+    "case": "insufficient-knowledge2-01",
+    "status": "needs_input",
+    "passed": true
+  },
+  {
+    "case": "normal-24-01",
+    "status": "incomplete",
+    "passed": true
+  },
+  {
+    "case": "normal-24-02",
+    "status": "incomplete",
+    "passed": true
+  },
+  {
+    "case": "normal-delivery-01",
+    "status": "complete",
+    "passed": true
+  },
+  {
+    "case": "normal-delivery-02",
+    "status": "complete",
+    "passed": true
+  },
+  {
+    "case": "normal-delivery-03",
+    "status": "complete",
+    "passed": true
+  },
+  {
+    "case": "normal-final-03",
+    "status": "incomplete",
+    "passed": true
+  },
+  {
+    "case": "normal-final-04",
+    "status": "incomplete",
+    "passed": true
+  },
+  {
+    "case": "normal-final-05",
+    "status": "incomplete",
+    "passed": true
+  },
+  {
+    "case": "normal-initial-12",
+    "status": "incomplete",
+    "passed": true
+  },
+  {
+    "case": "normal-knowledge2-01",
+    "status": "incomplete",
+    "passed": true
+  },
+  {
+    "case": "recovery-delivery-01",
+    "status": "complete",
+    "passed": true
+  },
+  {
+    "case": "recovery-delivery-02",
+    "status": "complete",
+    "passed": true
+  },
+  {
+    "case": "recovery-delivery-03",
+    "status": "complete",
+    "passed": true
+  }
+]
