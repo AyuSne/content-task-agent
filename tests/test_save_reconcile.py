@@ -74,6 +74,21 @@ def test_unrepairable_verified_file_becomes_unknown_and_incomplete(cli_env, mode
     assert reconciled["reconcile"]["error"]
 
 
+def test_export_detects_changed_file_without_overwriting_operator_edit(cli_env, model_script):
+    task, saved = _complete_task(model_script, cli_env)
+    markdown = next(item for item in saved["save"]["files"] if item["path"].endswith("campaign-v1.md"))
+    path = Path(markdown["path"])
+    path.write_text("operator edit not imported", encoding="utf-8")
+    checked = cli_json("export", task["task_id"])
+    assert checked["verified"] is False
+    assert checked["delivery_complete"] is False
+    assert path.read_text(encoding="utf-8") == "operator edit not imported"
+    status = cli_json("status", task["task_id"])
+    assert status["status"] == "incomplete"
+    assert status["save"]["status"] == "unknown"
+    assert status["resources"]["sim_spent_cents"] == 230
+
+
 def test_export_repair_restores_missing_file_without_new_attempt(cli_env, model_script):
     task, saved = _complete_task(model_script, cli_env)
     report = next(item for item in saved["save"]["files"] if item["path"].endswith("execution-report.md"))

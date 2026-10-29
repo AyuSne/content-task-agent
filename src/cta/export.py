@@ -35,7 +35,7 @@ def _write_atomic(path: Path, content: str) -> None:
 def execution_report_markdown(
     conn,
     task,
-    output: dict,
+    output: dict | None,
     review: dict | None,
     save: dict | None,
     attempt_status_overrides: dict[str, str] | None = None,
@@ -396,7 +396,7 @@ def build_files(
     return records
 
 
-def build_report_file(conn, config: Config, task, output: dict, review: dict | None, save: dict | None) -> dict:
+def build_report_file(conn, config: Config, task, output: dict | None, review: dict | None, save: dict | None) -> dict:
     path = config.exports_dir / task["id"] / "execution-report.md"
     _write_atomic(path, execution_report_markdown(conn, task, output, review, save))
     return record_file(path)
@@ -452,11 +452,16 @@ def export_task(config: Config, task_id: str) -> dict:
         save = latest_save(conn, task_id)
         if save is not None and save["verified"]:
             ok, checked = verify_records(save["files"])
+            if not ok:
+                from cta.save import invalidate_export_verification
+
+                invalidate_export_verification(conn, task_id, save["save_id"], "交付文件与保存记录不一致；需要显式修复或导入人工稿。")
             return {
                 "task_id": task_id,
                 "output_version": output["version"],
                 "save_id": save["save_id"],
                 "verified": ok,
+                "delivery_complete": bool(ok and task["status"] == "complete"),
                 "files": checked,
                 "repaired": False,
             }

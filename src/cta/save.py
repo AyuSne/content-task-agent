@@ -117,6 +117,14 @@ def _guard(conn, task, cost_cents: int, duration_ms: int) -> dict | None:
     return None
 
 
+def invalidate_export_verification(conn, task_id: str, save_id: str, reason: str) -> None:
+    conn.execute("UPDATE saves SET status = 'unknown', verified = 0, error = ? WHERE id = ?", (reason, save_id))
+    conn.execute(
+        "UPDATE tasks SET status = 'incomplete', phase = 'save_unknown', reason = ? WHERE id = ?", (reason, task_id),
+    )
+    conn.commit()
+
+
 def _repair_files(conn, config: Config, task, output: dict, review: dict | None, save: dict) -> dict:
     """Rebuild files from authoritative content and update the same save record.
 
@@ -124,12 +132,7 @@ def _repair_files(conn, config: Config, task, output: dict, review: dict | None,
     repair leaves the task uncompleted and the save unknown.
     """
     should_complete = save_preconditions(conn, task, output) is None and _guard(conn, task, 0, 0) is None
-    conn.execute("UPDATE saves SET status = 'unknown', verified = 0 WHERE id = ?", (save["save_id"],))
-    conn.execute(
-        "UPDATE tasks SET status = 'incomplete', phase = 'save_unknown', reason = ? WHERE id = ?",
-        ("正在核实当前版本与全部交付文件；核实完成前不声明完成。", task["id"]),
-    )
-    conn.commit()
+    invalidate_export_verification(conn, task["id"], save["save_id"], "正在核实当前版本与全部交付文件；核实完成前不声明完成。")
     verified_at = utc_now_iso()
     virtual = {**save, "verified": True, "status": "verified", "verified_at": verified_at}
     final_task = dict(conn.execute("SELECT * FROM tasks WHERE id = ?", (task["id"],)).fetchone())
