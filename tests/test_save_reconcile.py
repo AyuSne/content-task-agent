@@ -4,7 +4,8 @@ import json
 from pathlib import Path
 
 from conftest import cli_json, run_cli_process
-from test_review_save import REVIEW_PASS, _draft_ready, _review_item, _save
+from test_review_save import REVIEW_PASS, _review_item, _save
+from test_campaign_delivery_new import _new_draft_ready as _draft_ready
 
 
 def _complete_task(model_script, cli_env):
@@ -124,7 +125,7 @@ def test_reconcile_repairs_corrupted_export_from_authoritative_output(cli_env, m
     assert reconciled["reconcile"]["verified"] is True
     assert reconciled["reconcile"]["completed"] is False  # already complete
     restored = json.loads(Path(campaign_file["path"]).read_text(encoding="utf-8"))
-    output = cli_json("inspect", task["task_id"])["outputs"][-1]["content"]
+    output = next(item["content"] for item in cli_json("inspect", task["task_id"])["outputs"] if item["kind"] == "campaign")
     assert restored == output
     inspected = cli_json("inspect", task["task_id"])
     assert len(inspected["attempts"]) == attempts_before

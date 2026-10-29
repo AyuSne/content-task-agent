@@ -29,8 +29,7 @@ def propose_brief(conn, task, arguments, catalog):
     brief, errors = validate_brief(arguments, catalog)
     if errors:
         return {"ok": False, "error": "invalid_brief", "message": "简报未通过校验。", "details": errors}, False
-    with transaction(conn):
-        version = _store_brief(conn, task, brief)
+    version = _store_brief(conn, task, brief)
     return {"ok": True, "brief_version": version, "message": "业务简报已通过校验并保存；继续组织完整方案。"}, False
 
 
@@ -223,7 +222,7 @@ def _script_errors(script, catalog):
     return errors
 
 
-def submit_script(conn, task, arguments, price, catalog, *, tool_call_id, guard):
+def submit_script(conn, task, arguments, price, catalog, *, tool_call_id, request_seq, guard):
     errors = []
     if set(arguments) - {"brief", "brief_version", "script", "revises_script_ref"}:
         errors.append("包含未知参数")
@@ -272,7 +271,7 @@ def submit_script(conn, task, arguments, price, catalog, *, tool_call_id, guard)
     with transaction(conn):
         attempt_id = start_attempt(conn, task=task, kind="submit_script", mode=mode,
                                    cost_cents=spec.cost_cents, duration_ms=spec.duration_ms,
-                                   pricing_version=price.version, meta={"tool_call_id": tool_call_id})
+                                   pricing_version=price.version, meta={"tool_call_id": tool_call_id, "request_seq": request_seq})
     crash("script_after_start")
     with transaction(conn):
         if new_brief is not None:

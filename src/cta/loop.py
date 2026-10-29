@@ -19,6 +19,7 @@ from cta.knowledge import freeze_bundles, read_skill, task_bundles
 from cta.materials import MaterialCatalog, load_catalog, load_task_catalog
 from cta.model import ModelResponse, create_client
 from cta.pricing import PriceTable, load_price_table
+from cta.protocol import HANDLER_VERSION, incompatibility
 from cta.prompts import (
     MAIN_SYSTEM_PROMPT,
     MAX_DISPOSITIONS,
@@ -94,6 +95,12 @@ def run_task(config: Config, task_id: str, *, max_rounds: int | None = None, exp
             document = _document(config, task_id, run_info)
             document["reason"] = ("旧任务使用旧业务协议，请使用固定代码基线 "
                                   "836aa827d835e54a8e9385c18e7a3ff05ed3e600 和原采用资料恢复。")
+            return document
+        incompatible = incompatibility(conn, task_id)
+        if incompatible is not None:
+            run_info["stop_reason"] = incompatible["error"]
+            document = _document(config, task_id, run_info)
+            document.update(incompatible)
             return document
         price = load_price_table(config.project_root, version=task["pricing_version"])
         if task["status"] == STATUS_NEEDS_INPUT and not _has_messages(conn, task_id):
@@ -347,6 +354,7 @@ def _main_protocol(conn, task) -> dict:
 def _protocol_definition(prompt_version: str = PROMPT_VERSION) -> dict:
     return {
         "prompt_version": prompt_version,
+        "handler_version": HANDLER_VERSION,
         "tools": TOOL_DEFINITIONS,
         "sha256": hashlib.sha256(json.dumps(TOOL_DEFINITIONS, ensure_ascii=False).encode()).hexdigest(),
     }
@@ -671,7 +679,14 @@ def _handle_response(
         # These helpers perform only local writes. Their effects and exact
         # return value must commit together before a missing receipt is possible.
         with transaction(conn):
-            if call.name == "record_dispositions":
+            if call.name == "propose_brief":
+                from cta.artifacts import propose_brief
+                result, terminal = propose_brief(conn, task, parsed, catalog)
+            elif call.name == "request_clarification":
+                result, terminal = _request_clarification(conn, task, parsed)
+            elif call.name == "stop_incomplete":
+                result, terminal = _stop_incomplete(conn, task, parsed)
+            elif call.name == "record_dispositions":
                 from cta.dispositions import record_dispositions
                 result = record_dispositions(conn, task, parsed, catalog)
                 result["delivery_options"] = _delivery_options(conn, task)
@@ -679,22 +694,18 @@ def _handle_response(
                 result = _execute_business_tool(conn, task, call.name, parsed, price, catalog, config)
             crash("before_local_tool_receipt")
             record_local_tool_result(conn, task["id"], request_seq, call.id, call.name, result)
-        terminal = False
-    elif call.name == "propose_brief":
-        from cta.artifacts import propose_brief
-        result, terminal = propose_brief(conn, task, parsed, catalog)
+        if call.name not in {"propose_brief", "request_clarification", "stop_incomplete"}:
+            terminal = False
     elif call.name == "submit_script":
         from cta.artifacts import submit_script
-        result = submit_script(conn, task, parsed, price, catalog, tool_call_id=call.id, guard=_guard)
+        result = submit_script(conn, task, parsed, price, catalog, tool_call_id=call.id, request_seq=request_seq, guard=_guard)
         terminal = False
-    elif call.name == "request_clarification":
-        result, terminal = _request_clarification(conn, task, parsed)
     elif call.name == "review_campaign":
         target_error = _campaign_target_error(conn, task, parsed)
         try:
             if target_error:
                 raise ReviewError(target_error, "invalid_campaign_ref")
-            document = review_task(config, task["id"])
+            document = review_task(config, task["id"], tool_call_id=call.id, request_seq=request_seq)
             review = document["review"]
             result = {"ok": review["status"] == "complete", "review": review, "resources": document["resources"],
                       "delivery_options": _delivery_options(conn, task)}
@@ -708,7 +719,7 @@ def _handle_response(
         try:
             if target_error:
                 raise SaveBlocked("invalid_campaign_ref", target_error)
-            document = save_task(config, task["id"])
+            document = save_task(config, task["id"], tool_call_id=call.id, request_seq=request_seq)
             result = {
                 "ok": document["status"] == STATUS_COMPLETE,
                 "save": document.get("save"),
@@ -723,13 +734,15 @@ def _handle_response(
         except SaveBlocked as exc:
             result = {"ok": False, "error": exc.code, "message": exc.message}
             terminal = False
-    elif call.name == "stop_incomplete":
-        result, terminal = _stop_incomplete(conn, task, parsed)
     else:
         result = _execute_business_tool(
-            conn, task, call.name, parsed, price, catalog, config, tool_call_id=call.id
+            conn, task, call.name, parsed, price, catalog, config, tool_call_id=call.id, request_seq=request_seq
         )
         terminal = False
+
+    if call.name in {"review_campaign", "save_campaign"}:
+        with transaction(conn):
+            record_local_tool_result(conn, task["id"], request_seq, call.id, call.name, result)
 
     crash("after_tool_effect")
     if call.name == "review_campaign":
@@ -793,6 +806,7 @@ def _execute_business_tool(
     config: Config,
     *,
     tool_call_id: str | None = None,
+    request_seq: int | None = None,
 ) -> dict:
     if name == "submit_campaign":
         from cta.campaign import submit_campaign
@@ -802,7 +816,7 @@ def _execute_business_tool(
     if name == "update_plan":
         return update_plan(conn, task["id"], parsed)
     if name == "search_materials":
-        return _search(conn, task, parsed, price, catalog, tool_call_id=tool_call_id)
+        return _search(conn, task, parsed, price, catalog, tool_call_id=tool_call_id, request_seq=request_seq)
     if name == "read_material":
         material_id = parsed.get("material_id")
         if not isinstance(material_id, str) or not material_id:
@@ -832,6 +846,7 @@ def _search(
     catalog: MaterialCatalog,
     *,
     tool_call_id: str | None = None,
+    request_seq: int | None = None,
 ) -> dict:
     query = parsed.get("query")
     mode = parsed.get("mode", "basic")
@@ -852,39 +867,25 @@ def _search(
         cost_cents=spec.cost_cents,
         duration_ms=spec.duration_ms,
         pricing_version=price.version,
-        meta={"query": query, "mode": mode, "tool_call_id": tool_call_id},
+        meta={"query": query, "mode": mode, "tool_call_id": tool_call_id, "request_seq": request_seq},
     )
     conn.commit()
     crash("search_after_start")
     fail_first = _injected_search_failures()
     if fail_first and count_attempts(conn, task["id"], "search_materials", exclude_id=attempt_id) < fail_first:
-        finish_attempt(conn, attempt_id, status="failed", error="injected search failure (CTA_FAIL_SEARCH)")
-        conn.commit()
-        return {
-            "ok": False,
-            "error": "tool_failed",
-            "injected": True,
-            "message": "检索执行失败：injected search failure (CTA_FAIL_SEARCH)；本次尝试与消耗已保留。",
-            "attempt_id": attempt_id,
-            "cost_cents": spec.cost_cents,
-            "duration_ms": spec.duration_ms,
-        }
-    try:
-        result = catalog.search(query, mode)
-    except Exception as exc:  # noqa: BLE001 - business tool boundary
-        finish_attempt(conn, attempt_id, status="failed", error=str(exc)[:500])
-        conn.commit()
-        return {
-            "ok": False,
-            "error": "tool_failed",
-            "message": f"检索执行失败：{exc}",
-            "attempt_id": attempt_id,
-            "cost_cents": spec.cost_cents,
-            "duration_ms": spec.duration_ms,
-        }
-    finish_attempt(conn, attempt_id, status="success")
+        result = {"ok": False, "error": "tool_failed", "injected": True,
+                  "message": "检索执行失败：injected search failure (CTA_FAIL_SEARCH)；本次尝试与消耗已保留。"}
+    else:
+        try:
+            result = catalog.search(query, mode)
+        except Exception as exc:  # noqa: BLE001 - business tool boundary
+            result = {"ok": False, "error": "tool_failed", "message": f"检索执行失败：{exc}"}
+    result.update(attempt_id=attempt_id, cost_cents=spec.cost_cents, duration_ms=spec.duration_ms)
+    finish_attempt(conn, attempt_id, status="success" if result.get("ok") else "failed",
+                   error=None if result.get("ok") else result["message"], meta={"result": result})
     conn.commit()
-    return {**result, "attempt_id": attempt_id, "cost_cents": spec.cost_cents, "duration_ms": spec.duration_ms}
+    return result
+
 
 
 def _estimate(conn, task, parsed: dict, price: PriceTable) -> dict:
@@ -1215,20 +1216,19 @@ def _request_clarification(conn, task, parsed: dict) -> tuple[dict, bool]:
         if not isinstance(blocking, bool):
             return {"ok": False, "error": "invalid_arguments", "message": f"questions[{index}].blocking 必须是布尔值。"}, False
         normalized.append({"question": question.strip(), "impact": impact.strip(), "blocking": blocking})
-    with transaction(conn):
-        conn.execute(
-            "INSERT INTO clarifications (task_id, questions_json, created_at) VALUES (?, ?, ?)",
-            (task["id"], json.dumps(normalized, ensure_ascii=False), utc_now_iso()),
-        )
-        conn.execute(
-            "UPDATE tasks SET status = ?, phase = 'awaiting_clarification', reason = ?, updated_at = ? WHERE id = ?",
-            (
-                STATUS_NEEDS_INPUT,
-                f"需要用户澄清 {len(normalized)} 个问题（其中关键阻塞 {sum(1 for q in normalized if q['blocking'])} 个）。",
-                utc_now_iso(),
-                task["id"],
-            ),
-        )
+    conn.execute(
+        "INSERT INTO clarifications (task_id, questions_json, created_at) VALUES (?, ?, ?)",
+        (task["id"], json.dumps(normalized, ensure_ascii=False), utc_now_iso()),
+    )
+    conn.execute(
+        "UPDATE tasks SET status = ?, phase = 'awaiting_clarification', reason = ?, updated_at = ? WHERE id = ?",
+        (
+            STATUS_NEEDS_INPUT,
+            f"需要用户澄清 {len(normalized)} 个问题（其中关键阻塞 {sum(1 for q in normalized if q['blocking'])} 个）。",
+            utc_now_iso(),
+            task["id"],
+        ),
+    )
     return {"ok": True, "questions": normalized, "message": "问题已保存，任务等待用户补充。"}, True
 
 
@@ -1252,12 +1252,11 @@ def _stop_incomplete(conn, task, parsed: dict) -> tuple[dict, bool]:
         if not isinstance(impact, str):
             return {"ok": False, "error": "invalid_arguments", "message": f"gaps[{index}].impact 必须是字符串。"}, False
         gaps.append({"gap": gap.strip(), "impact": impact.strip()})
-    with transaction(conn):
-        conn.execute(
-            "UPDATE tasks SET status = ?, phase = 'stopped', reason = ?, updated_at = ? WHERE id = ?",
-            (STATUS_INCOMPLETE, reason.strip(), utc_now_iso(), task["id"]),
-        )
-        record_stop(conn, task_id=task["id"], kind="model_stop", reason=reason.strip(), gaps=gaps)
+    conn.execute(
+        "UPDATE tasks SET status = ?, phase = 'stopped', reason = ?, updated_at = ? WHERE id = ?",
+        (STATUS_INCOMPLETE, reason.strip(), utc_now_iso(), task["id"]),
+    )
+    record_stop(conn, task_id=task["id"], kind="model_stop", reason=reason.strip(), gaps=gaps)
     return {
         "ok": True,
         "gaps": gaps,
