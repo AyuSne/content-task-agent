@@ -23,6 +23,7 @@ def main() -> int:
     parser.add_argument("--case", choices=("normal", "budget", "recovery", "insufficient"), required=True)
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--fault", default="generation_after_start")
+    parser.add_argument("--budget", help="本次验收输入中的模拟工具预算")
     parser.add_argument("--resume-attempts", type=int, default=0,
                         help="显式执行有限次CLI续跑，仅用于已记录的模型连接失败；不重置任务限额")
     args = parser.parse_args()
@@ -34,7 +35,7 @@ def main() -> int:
         env.pop(key, None)
     inputs = {
         "topic": "帧剪校园社团招新短视频推广",
-        "budget": "2.70" if args.case == "budget" else "20",
+        "budget": args.budget or ("2.70" if args.case == "budget" else "20"),
         "deadline": "2026-10-30T12:00:00+08:00",
         "audience": "18-24岁大学生",
         "requirements": [
@@ -79,8 +80,15 @@ def main() -> int:
     manifest["task_id"] = task_id
     result = cli("02-run", "run", task_id, fault=args.fault if args.case == "recovery" else None)
     if args.case == "recovery":
-        cli("03-before-resume", "inspect", task_id)
-        result = cli("04-resume", "resume", task_id)
+        for index in range(args.resume_attempts):
+            if result is None or result.get("run", {}).get("stop_reason") != "model_error":
+                break
+            cli(f"pre-fault-{index + 1}-before", "inspect", task_id)
+            result = cli(f"pre-fault-{index + 1}-resume", "resume", task_id, fault=args.fault)
+        manifest["injected_crash_observed"] = manifest["commands"][-1]["exit_code"] == 70
+        if manifest["injected_crash_observed"]:
+            cli("03-before-resume", "inspect", task_id)
+            result = cli("04-resume", "resume", task_id)
     for index in range(args.resume_attempts):
         if result is None or result.get("run", {}).get("stop_reason") != "model_error":
             break
