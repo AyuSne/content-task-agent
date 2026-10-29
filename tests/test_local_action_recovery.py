@@ -54,6 +54,8 @@ raise SystemExit(main())
 def test_same_second_estimate_recovery_uses_only_this_request_result(cli_env, model_script, monkeypatch, point, tool):
     _fixed_clock(monkeypatch)
     arguments = {"search_mode": "search_basic", "generation_mode": "generate_direct", "search_queries": 0}
+    if tool == "estimate_cost":
+        arguments = {"actions": ["generate_direct", "review", "save"]}
     model_script([
         _tool(tool, arguments),
         _tool("search_materials", {"query": "自动卡点", "mode": "basic"}),
@@ -188,6 +190,8 @@ def _prepare(tool, model_script):
         cli_json("review", task_id)
     else:
         arguments = {"search_mode": "search_basic", "generation_mode": "generate_direct", "search_queries": 0}
+        if tool == "estimate_cost":
+            arguments = {"actions": ["generate_direct", "review", "save"]}
         if tool == "choose_strategy":
             arguments.update(direction="functional_demo", rationale="资料足够，采用功能演示。")
         script = model_script([_tool(tool, arguments)])

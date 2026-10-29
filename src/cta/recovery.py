@@ -575,7 +575,4 @@ def _reused_state(conn, task) -> dict:
 
 
 def _todos(conn, task) -> list[dict]:
-    output = latest_output(conn, task["id"])
-    review = latest_review(conn, task["id"])
-    save = latest_save(conn, task["id"])
-    return pending_todos(task, output, review, save)
+    return pending_todos(conn, task["id"])

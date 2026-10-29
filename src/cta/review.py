@@ -125,9 +125,9 @@ def _review_history(conn, task_id: str) -> tuple[list[dict], list[dict]]:
 
 
 def review_task(config: Config, task_id: str) -> dict:
-    price = load_price_table(config.project_root)
     with open_store(config.db_path) as conn:
         task = _task(conn, task_id)
+        price = load_price_table(config.project_root, version=task["pricing_version"])
         output = latest_output(conn, task["id"])
         if output is None:
             raise ReviewError("当前任务还没有可核验的完整方案草稿。", "no_output")

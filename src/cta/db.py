@@ -172,6 +172,14 @@ CREATE TABLE IF NOT EXISTS material_snapshots (
     PRIMARY KEY (task_id, material_id)
 );
 
+CREATE TABLE IF NOT EXISTS task_plans (
+    task_id TEXT NOT NULL REFERENCES tasks(id) ON DELETE CASCADE,
+    version INTEGER NOT NULL,
+    steps_json TEXT NOT NULL,
+    created_at TEXT NOT NULL,
+    PRIMARY KEY(task_id, version)
+);
+
 CREATE TABLE IF NOT EXISTS briefs (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     task_id TEXT NOT NULL REFERENCES tasks(id) ON DELETE CASCADE,

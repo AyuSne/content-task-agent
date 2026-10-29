@@ -201,8 +201,7 @@ def test_complete_draft_uses_isolated_generation_and_full_campaign(cli_env, mode
     assert doc["progress"]["current_output"]["version"] == 1
     assert doc["progress"]["current_output"]["status"] == "draft"
     assert doc["progress"]["current_output"]["strategy"] == "user_scenario"
-    assert doc["plan"]["steps"][1]["status"] == "done"
-    assert doc["plan"]["steps"][2]["status"] == "current"
+    assert doc["plan"] == {"version": 0, "steps": []}
     assert doc["resources"]["sim_spent_cents"] == 20 + 120
     assert doc["artifacts"]["campaign_versions"] == 1
 

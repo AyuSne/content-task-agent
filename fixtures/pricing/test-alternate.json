@@ -1,0 +1,65 @@
+{
+  "version": "test-alternate",
+  "currency": "CNY_cent",
+  "description": "测试用不同价目版本，不作为默认。",
+  "modes": {
+    "search_basic": {
+      "label": "基础资料检索",
+      "cost_cents": 45,
+      "duration_ms": 4000,
+      "max_internal_requests": 1,
+      "failure_rule": "启动即计量；失败或中断不退还，实际重试新增尝试"
+    },
+    "search_extended": {
+      "label": "扩展资料检索",
+      "cost_cents": 60,
+      "duration_ms": 6000,
+      "max_internal_requests": 3,
+      "failure_rule": "启动即计量；内部最多 3 次，失败不退还"
+    },
+    "generate_direct": {
+      "label": "直接生成",
+      "cost_cents": 120,
+      "duration_ms": 8000,
+      "max_internal_requests": 1,
+      "candidates": 1,
+      "failure_rule": "一次生成；失败或中断保留计量"
+    },
+    "generate_multi": {
+      "label": "多候选择优",
+      "cost_cents": 300,
+      "duration_ms": 20000,
+      "max_internal_requests": 3,
+      "candidates": 3,
+      "failure_rule": "最多 3 个候选；失败或中断保留计量"
+    },
+    "review": {
+      "label": "内容核验",
+      "cost_cents": 400,
+      "duration_ms": 6000,
+      "max_requests": 3,
+      "max_readbacks": 2,
+      "failure_rule": "最多 3 次模型请求、2 次回读；触顶/中断不退还"
+    },
+    "revision": {
+      "label": "返修",
+      "cost_cents": 120,
+      "duration_ms": 8000,
+      "max_internal_requests": 2,
+      "failure_rule": "启动即计量；失败不退还"
+    },
+    "save": {
+      "label": "方案保存",
+      "cost_cents": 100,
+      "duration_ms": 1000,
+      "max_internal_requests": 1,
+      "failure_rule": "启动即计量；保存失败另行核实"
+    }
+  },
+  "full_path": {
+    "search": "search_basic",
+    "generation": "generate_direct",
+    "review": "review",
+    "save": "save"
+  }
+}

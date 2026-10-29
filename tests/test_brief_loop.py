@@ -72,8 +72,7 @@ def test_scripted_main_loop_produces_valid_brief_with_evidence_and_accounting(cl
     assert doc["progress"]["used_rounds"] == 3
     assert doc["brief"]["version"] == 1
     assert doc["brief"]["content"]["goal"] == BRIEF["goal"]
-    assert doc["plan"]["steps"][0]["status"] == "done"
-    assert doc["plan"]["steps"][1]["status"] == "current"
+    assert doc["plan"] == {"version": 0, "steps": []}
     assert doc["gaps"] and doc["gaps"][0]["source"] == "brief"
     assert "Mock" in doc["mode_notice"]
     assert doc["resources"]["sim_spent_cents"] == 20
@@ -187,7 +186,7 @@ def test_estimate_covers_full_remaining_path_without_charging(cli_env, model_scr
         [
             _tool(
                 "estimate_cost",
-                {"search_mode": "search_basic", "generation_mode": "generate_direct", "include_revision": True},
+                {"actions": ["search_basic", "generate_direct", "review", "revision", "review", "save"]},
             ),
             _brief_tool(),
         ]
@@ -200,8 +199,8 @@ def test_estimate_covers_full_remaining_path_without_charging(cli_env, model_scr
         message for message in inspected["messages"] if message["role"] == "tool" and message["name"] == "estimate_cost"
     )
     estimate = json.loads(estimate_message["content"])["estimate"]
-    steps = [line["step"] for line in estimate["lines"]]
-    assert steps == ["search", "generation", "review", "revision", "re_review", "save"]
+    steps = [line["mode"] for line in estimate["lines"]]
+    assert steps == ["search_basic", "generate_direct", "review", "revision", "review", "save"]
     assert estimate["total_cost_cents"] == 20 + 120 + 80 + 120 + 80 + 10
     assert estimate["total_duration_ms"] == 2000 + 8000 + 6000 + 8000 + 6000 + 1000
     assert estimate["nature"] == "estimated"

@@ -65,8 +65,8 @@ def test_estimate_required_arguments_and_projected_completion(cli_env, model_scr
     task = _create()
     model_script(
         [
-            _tool("estimate_cost", {"search_mode": "search_basic"}),
-            _tool("estimate_cost", {"search_mode": "search_basic", "generation_mode": "generate_direct"}),
+            _tool("estimate_cost", {}),
+            _tool("estimate_cost", {"actions": ["search_basic", "generate_direct", "review", "save"]}),
             _brief_tool(),
         ]
     )
@@ -78,7 +78,7 @@ def test_estimate_required_arguments_and_projected_completion(cli_env, model_scr
         if message["role"] == "tool" and message["name"] == "estimate_cost"
     ]
     assert results[0]["ok"] is False
-    assert "必填" in results[0]["message"]
+    assert "actions" in results[0]["message"]
     estimate = results[1]["estimate"]
     assert estimate["projected_sim_complete"]
     assert estimate["budget_gap_cents"] == 1000 - estimate["total_cost_cents"]

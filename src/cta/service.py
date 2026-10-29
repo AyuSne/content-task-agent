@@ -250,7 +250,7 @@ class TaskService:
 
     def _resource_reassessment(self, conn, task, intake, output, review, content_applicable: bool) -> dict:
         """Estimate the still-required path after an explicit resource update, without charging it."""
-        price = load_price_table(self.config.project_root)
+        price = load_price_table(self.config.project_root, version=task["pricing_version"])
         from cta.save import save_preconditions
 
         if review is not None and output is not None and review["output_id"] != output["output_id"]:
@@ -436,6 +436,10 @@ class TaskService:
                  "read_by_main": [result["resource"] for result in successful_reads
                                   if result.get("ok") and result.get("name") == bundle["name"]]}
                 for bundle in task_bundles(conn, task_id)
+            ]
+            view["plan_history"] = [
+                {"version": row["version"], "steps": json.loads(row["steps_json"]), "created_at": row["created_at"]}
+                for row in conn.execute("SELECT * FROM task_plans WHERE task_id = ? ORDER BY version", (task_id,))
             ]
             view["knowledge"] = [
                 {
@@ -693,8 +697,8 @@ class TaskService:
             "content_reuse": output_reuse_basis(conn, task, output),
             "save": save,
             "strategy": strategy,
-            "plan": plan_view(task, output, review, save),
-            "todos": pending_todos(task, output, review, save),
+            "plan": plan_view(conn, task["id"]),
+            "todos": pending_todos(conn, task["id"]),
             "recovery": None if recovery_row is None else json.loads(recovery_row["meta_json"]).get("summary"),
             "gaps": self._gaps(conn, task, brief),
             "mode_notice": (
@@ -704,6 +708,7 @@ class TaskService:
             ),
             "progress": self._progress_view(task, output, save),
             "resources": self._resources_view(conn, task, input_row, spent),
+            "pricing_overview": load_price_table(self.config.project_root, version=task["pricing_version"]).overview(),
             "model_config": self.config.model_config_public(),
             "versions": {
                 "app": __version__,
@@ -737,9 +742,9 @@ class TaskService:
         directions: list[str] | None = None,
     ) -> dict:
         """Read-only strategy comparison for the operator view; never executes or charges."""
-        price = load_price_table(self.config.project_root)
         with open_store(self.config.db_path) as conn:
             task = self._require_task(conn, task_id)
+            price = load_price_table(self.config.project_root, version=task["pricing_version"])
             table = load_strategy_table(self.config.project_root, version=task["strategy_version"])
             input_row = conn.execute(
                 "SELECT * FROM task_inputs WHERE task_id = ? AND version = ?",
