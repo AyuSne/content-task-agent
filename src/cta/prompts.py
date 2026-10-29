@@ -2,12 +2,12 @@
 
 The main system prompt and tool definitions are a fixed prefix for the whole
 task; new knowledge, evidence, feedback and snapshots are appended as messages.
-The script-generation prompt belongs to an isolated internal call.
+The main agent submits complete scripts directly through the tool interface.
 """
 
 from __future__ import annotations
 
-PROMPT_VERSION = "main-2026-10-30.direct-script-v1"
+PROMPT_VERSION = "main-2026-10-30.joint-brief-v1"
 MAX_DISPOSITIONS = 64
 
 MAIN_SYSTEM_PROMPT = """你是「内容任务规划」的主 Agent，服务虚构视频剪辑 App「帧剪」的短视频推广活动。
