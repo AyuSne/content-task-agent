@@ -295,6 +295,25 @@ def latest_output(conn: sqlite3.Connection, task_id: str, kind: str = "campaign"
     }
 
 
+def input_version_applies(conn, task, source_version: int) -> bool:
+    """Reuse an artifact only across explicitly recorded resource-only input updates."""
+    current = int(task["input_version"])
+    if source_version == current:
+        return True
+    if source_version > current:
+        return False
+    updates = conn.execute(
+        "SELECT json_extract(meta_json, '$.input_version') AS version, "
+        "json_extract(meta_json, '$.change_kind') AS kind FROM messages "
+        "WHERE task_id = ? AND agent = 'main' AND json_extract(meta_json, '$.kind') = 'input_update' "
+        "AND json_extract(meta_json, '$.input_version') > ? AND json_extract(meta_json, '$.input_version') <= ?",
+        (task["id"], source_version, current),
+    ).fetchall()
+    return {row["version"]: row["kind"] for row in updates} == {
+        version: "resource" for version in range(source_version + 1, current + 1)
+    }
+
+
 def create_output(
     conn: sqlite3.Connection,
     *,

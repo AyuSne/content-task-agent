@@ -2,10 +2,26 @@
 
 from __future__ import annotations
 
+from html import escape
+
 DRAFT_NOTICE = "> 草稿：尚未完成内容核验与保存核实，不能视为最终交付。"
 VERIFIED_NOTICE = "> 本版本已完成内容核验与保存核实；后续制作素材仍按下文状态处理。"
 
+def _escape_fields(value):
+    if isinstance(value, str):
+        text = escape(value, quote=False)
+        for char in "｜；：（）「」,\r\n":
+            text = text.replace(char, f"&#{ord(char)};")
+        return text
+    if isinstance(value, list):
+        return [_escape_fields(item) for item in value]
+    if isinstance(value, dict):
+        return {key: _escape_fields(item) for key, item in value.items()}
+    return value
+
+
 def campaign_markdown(campaign: dict) -> str:
+    campaign = _escape_fields(campaign)
     strategy = campaign.get("strategy", {})
     activity = campaign.get("activity", {})
     script = campaign.get("script", {})
@@ -37,7 +53,7 @@ def campaign_markdown(campaign: dict) -> str:
             f"{item.get('duration_s', '')} 秒｜{item.get('platform', '')}"
         )
     lines += ["", f"## 主视频脚本（{script.get('duration_seconds', '')} 秒）", ""]
-    lines += [f"脚本标题：{script.get('title', '')}", ""]
+    lines += [f"脚本标题：{script.get('title', '')}", f"脚本方向：{script.get('direction', '')}", ""]
     for segment in script.get("segments", []):
         lines += [
             f"### {segment.get('segment_id', '')}. {str(segment.get('duration_seconds', '')) + ' 秒'}",
@@ -45,16 +61,23 @@ def campaign_markdown(campaign: dict) -> str:
             f"- 画面：{segment.get('visual', '')}",
             f"- 音频：{segment.get('voiceover', '')}",
             f"- 字幕：{segment.get('on_screen_text', '')}",
-            f"- 素材：{', '.join(segment.get('material_ids', [])) or '无'}",
             f"- 证据：{', '.join(segment.get('evidence_ids', [])) or '无'}",
             "",
         ]
-    lines += ["## 素材用途", ""]
+    lines += ["### 脚本证据", ""]
+    for evidence in script.get("evidence", []):
+        lines.append(
+            f"- [{evidence.get('id', '')}] {evidence.get('claim', '')}；依据 {evidence.get('material_id', '')}"
+            f"（版本 {evidence.get('material_version', '')}）「{evidence.get('quote', '')}」；范围：{evidence.get('scope', '')}；用途：{evidence.get('use', '')}"
+        )
+    if not script.get("evidence"):
+        lines.append("- 无")
+    lines += ["", "## 素材用途", ""]
     status_labels = {"existing": "已有", "to_acquire": "待获取", "to_create": "待制作"}
     for material in campaign.get("materials", []):
         lines.append(
             f"- {material.get('name', '')}（{status_labels.get(material.get('status'), material.get('status'))}）："
-            f"{material.get('use', '')}；位置：{material.get('position', '')}；权利/状态：{material.get('rights_note', '')}"
+            f"{material.get('use', '')}；位置：{material.get('position', '')}；权利/状态：{material.get('rights_note', '')}；素材ID：{material.get('material_id', '')}"
         )
     lines += ["", "## 制作步骤", ""]
     for index, step in enumerate(campaign.get("production_steps", []), start=1):
@@ -65,8 +88,10 @@ def campaign_markdown(campaign: dict) -> str:
     for evidence in campaign.get("evidence", []):
         lines.append(
             f"- [{evidence.get('id', '')}] {evidence.get('claim', '')}；依据 {evidence.get('material_id', '')}"
-            f"「{evidence.get('quote', '')}」；范围：{evidence.get('scope', '')}；用途：{evidence.get('use', '')}"
+            f"（版本 {evidence.get('material_version', '')}）「{evidence.get('quote', '')}」；范围：{evidence.get('scope', '')}；用途：{evidence.get('use', '')}"
         )
+    if not campaign.get("evidence"):
+        lines.append("- 无")
     lines += ["", "## 必要待确认项", ""]
     if campaign.get("open_questions"):
         for question in campaign["open_questions"]:
