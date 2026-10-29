@@ -61,6 +61,9 @@ class MaterialCatalog:
     def ids(self) -> list[str]:
         return list(self._materials)
 
+    def as_dict(self) -> dict:
+        return {"version": self.version, "materials": [item.as_dict() for item in self.materials.values()]}
+
     @property
     def materials(self) -> dict[str, Material]:
         return self._materials
@@ -167,7 +170,6 @@ def load_task_catalog(conn, task, project_root: Path) -> MaterialCatalog:
     A changed external fixture or a cold material cache must not silently
     replace bodies the task already used; recovery reads the saved snapshot.
     """
-    from cta.config import utc_now_iso
     from cta.db import transaction
 
     rows = conn.execute(
@@ -192,25 +194,24 @@ def load_task_catalog(conn, task, project_root: Path) -> MaterialCatalog:
         return MaterialCatalog({"version": version, "materials": materials}, Path("<task-snapshot>"))
 
     catalog = load_catalog(project_root)
-    now = utc_now_iso()
+    if catalog.version != task["materials_version"]:
+        catalog = load_catalog(project_root, version=task["materials_version"])
     with transaction(conn):
-        for material in catalog.materials.values():
-            conn.execute(
-                """
-                INSERT OR IGNORE INTO material_snapshots
-                    (task_id, material_id, version, content_json, loaded_at)
-                VALUES (?, ?, ?, ?, ?)
-                """,
-                (
-                    task["id"],
-                    material.id,
-                    catalog.version,
-                    json.dumps(material.as_dict(), ensure_ascii=False),
-                    now,
-                ),
-            )
-        conn.execute(
-            "UPDATE tasks SET materials_version = ?, updated_at = ? WHERE id = ?",
-            (catalog.version, now, task["id"]),
-        )
+        store_task_catalog(conn, task["id"], catalog)
     return catalog
+
+
+def store_task_catalog(conn, task_id: str, catalog: MaterialCatalog) -> None:
+    """Set the adopted projection; callers archive the previous catalog before replacement."""
+    from cta.config import utc_now_iso
+
+    now = utc_now_iso()
+    conn.execute("DELETE FROM material_snapshots WHERE task_id = ?", (task_id,))
+    for material in catalog.materials.values():
+        conn.execute(
+            """
+            INSERT INTO material_snapshots (task_id, material_id, version, content_json, loaded_at)
+            VALUES (?, ?, ?, ?, ?)
+            """,
+            (task_id, material.id, catalog.version, json.dumps(material.as_dict(), ensure_ascii=False), now),
+        )
