@@ -1,0 +1,50 @@
+{
+  "task_id": "t_662d4bce2f12",
+  "output_version": 2,
+  "save_id": null,
+  "verified": true,
+  "delivery_complete": false,
+  "files": [
+    {
+      "path": "D:\\AAA小影科技\\content-task-agent\\examples\\repair-live\\budget-delivery-03\\data\\real\\exports\\t_662d4bce2f12\\campaign-v2.md",
+      "sha256": "0a2f38e52b5ed64ca93c0366dc775e1725c72dcc7e24b4de5b0f9aedae330b4a",
+      "bytes": 13429,
+      "exists": true,
+      "current_sha256": "0a2f38e52b5ed64ca93c0366dc775e1725c72dcc7e24b4de5b0f9aedae330b4a",
+      "ok": true
+    },
+    {
+      "path": "D:\\AAA小影科技\\content-task-agent\\examples\\repair-live\\budget-delivery-03\\data\\real\\exports\\t_662d4bce2f12\\campaign-v2.json",
+      "sha256": "b7b021018a9d858620d49e4410c8f7783906bef0ad064f960bf86c27afe1f38b",
+      "bytes": 16113,
+      "exists": true,
+      "current_sha256": "b7b021018a9d858620d49e4410c8f7783906bef0ad064f960bf86c27afe1f38b",
+      "ok": true
+    },
+    {
+      "path": "D:\\AAA小影科技\\content-task-agent\\examples\\repair-live\\budget-delivery-03\\data\\real\\exports\\t_662d4bce2f12\\execution-report.md",
+      "sha256": "c77e708d5c446b7a7cc0acef40af45a6f549d45f5bcb1c8fd19cdea243b93381",
+      "bytes": 18796,
+      "exists": true,
+      "current_sha256": "c77e708d5c446b7a7cc0acef40af45a6f549d45f5bcb1c8fd19cdea243b93381",
+      "ok": true
+    },
+    {
+      "path": "D:\\AAA小影科技\\content-task-agent\\examples\\repair-live\\budget-delivery-03\\data\\real\\exports\\t_662d4bce2f12\\trace.jsonl",
+      "sha256": "ea48adc2b0f6e9226fb2ebbd6ff2fdec64f6900c22a27d8bc3fed9be1018253b",
+      "bytes": 248586,
+      "exists": true,
+      "current_sha256": "ea48adc2b0f6e9226fb2ebbd6ff2fdec64f6900c22a27d8bc3fed9be1018253b",
+      "ok": true
+    },
+    {
+      "path": "D:\\AAA小影科技\\content-task-agent\\examples\\repair-live\\budget-delivery-03\\data\\real\\exports\\t_662d4bce2f12\\brief-v1.json",
+      "sha256": "8f94d7de87dc4b3ebc8482913916610e2b3b640e2ac6e8f8bc17ce59569029e7",
+      "bytes": 6853,
+      "exists": true,
+      "current_sha256": "8f94d7de87dc4b3ebc8482913916610e2b3b640e2ac6e8f8bc17ce59569029e7",
+      "ok": true
+    }
+  ],
+  "repaired": false
+}

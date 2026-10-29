@@ -1,0 +1,49 @@
+{
+  "task_id": "t_662d4bce2f12",
+  "output_version": 2,
+  "save_id": null,
+  "verified": true,
+  "files": [
+    {
+      "path": "D:\\AAA小影科技\\content-task-agent\\examples\\repair-live\\budget-delivery-03\\data\\real\\exports\\t_662d4bce2f12\\campaign-v2.md",
+      "sha256": "6aba285826a67bac1d80cf996c8e29a0b83fa86a2660db09d8615af1fb1bcbf8",
+      "bytes": 13503,
+      "exists": true,
+      "current_sha256": "6aba285826a67bac1d80cf996c8e29a0b83fa86a2660db09d8615af1fb1bcbf8",
+      "ok": true
+    },
+    {
+      "path": "D:\\AAA小影科技\\content-task-agent\\examples\\repair-live\\budget-delivery-03\\data\\real\\exports\\t_662d4bce2f12\\campaign-v2.json",
+      "sha256": "4f61559525a657aadd17814564733e5c147904c0c688444f0a9c1b89dbec00f3",
+      "bytes": 16382,
+      "exists": true,
+      "current_sha256": "4f61559525a657aadd17814564733e5c147904c0c688444f0a9c1b89dbec00f3",
+      "ok": true
+    },
+    {
+      "path": "D:\\AAA小影科技\\content-task-agent\\examples\\repair-live\\budget-delivery-03\\data\\real\\exports\\t_662d4bce2f12\\execution-report.md",
+      "sha256": "27db8974b4eed023c1e4821ee3228dfecac0ed9b42d636c70ca84a1ca07c9543",
+      "bytes": 18917,
+      "exists": true,
+      "current_sha256": "27db8974b4eed023c1e4821ee3228dfecac0ed9b42d636c70ca84a1ca07c9543",
+      "ok": true
+    },
+    {
+      "path": "D:\\AAA小影科技\\content-task-agent\\examples\\repair-live\\budget-delivery-03\\data\\real\\exports\\t_662d4bce2f12\\trace.jsonl",
+      "sha256": "a37e1fd537f47ee84f3cadd917061355b2cf4a54ac53bb4ff5faced9d9660be3",
+      "bytes": 248715,
+      "exists": true,
+      "current_sha256": "a37e1fd537f47ee84f3cadd917061355b2cf4a54ac53bb4ff5faced9d9660be3",
+      "ok": true
+    },
+    {
+      "path": "D:\\AAA小影科技\\content-task-agent\\examples\\repair-live\\budget-delivery-03\\data\\real\\exports\\t_662d4bce2f12\\brief-v1.json",
+      "sha256": "2bb2d18ac36e56cb6d981d43c9cac09b882778c73390e676e62901a44ade203d",
+      "bytes": 6999,
+      "exists": true,
+      "current_sha256": "2bb2d18ac36e56cb6d981d43c9cac09b882778c73390e676e62901a44ade203d",
+      "ok": true
+    }
+  ],
+  "repaired": false
+}

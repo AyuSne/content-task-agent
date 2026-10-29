@@ -1,0 +1,22 @@
+{
+  "tasks": 19,
+  "usage": {
+    "requests": 393,
+    "unknown_usage_requests": 22,
+    "prompt_tokens": 8232992,
+    "completion_tokens": 381161,
+    "cache_hit_tokens": 7216256,
+    "cache_miss_tokens": 1016736
+  },
+  "calibration": {
+    "problem_samples": 6,
+    "good_samples": 6,
+    "evaluable_problem_samples": 6,
+    "evaluable_good_samples": 6,
+    "bad_detected": 6,
+    "missed": [],
+    "false_positives": [],
+    "optional_on_good": 8,
+    "incomplete_reviews": 0
+  }
+}

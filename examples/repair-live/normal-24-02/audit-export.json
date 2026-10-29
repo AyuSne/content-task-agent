@@ -1,0 +1,26 @@
+{
+  "task_id": "t_0c5ae8ac4eb1",
+  "output_version": null,
+  "save_id": null,
+  "verified": true,
+  "delivery_complete": false,
+  "files": [
+    {
+      "path": "D:\\AAA小影科技\\content-task-agent\\examples\\repair-live\\normal-24-02\\data\\real\\exports\\t_0c5ae8ac4eb1\\execution-report.md",
+      "sha256": "90bd66ef3afc80ae8d383144985ed708cddaa6c71aced5c44062aa0bde701d06",
+      "bytes": 2013,
+      "exists": true,
+      "current_sha256": "90bd66ef3afc80ae8d383144985ed708cddaa6c71aced5c44062aa0bde701d06",
+      "ok": true
+    },
+    {
+      "path": "D:\\AAA小影科技\\content-task-agent\\examples\\repair-live\\normal-24-02\\data\\real\\exports\\t_0c5ae8ac4eb1\\trace.jsonl",
+      "sha256": "c98d7ddd871ca9aa435edfc3fba8b2f396034e16bc7bca50abe4e97fa89c5674",
+      "bytes": 3392,
+      "exists": true,
+      "current_sha256": "c98d7ddd871ca9aa435edfc3fba8b2f396034e16bc7bca50abe4e97fa89c5674",
+      "ok": true
+    }
+  ],
+  "repaired": false
+}

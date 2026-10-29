@@ -1,0 +1,826 @@
+{
+  "task_id": "t_2c8aac8edf5e",
+  "mode": "real",
+  "status": "incomplete",
+  "reason": "模型请求失败：APIConnectionError: Connection error. <- ConnectError: [SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1032) <- ConnectError: [SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1032)",
+  "duplicate": false,
+  "created_at": "2026-10-29T03:45:08+00:00",
+  "updated_at": "2026-10-29T03:49:27+00:00",
+  "input": {
+    "version": 1,
+    "topic": "帧剪校园社团招新短视频推广",
+    "budget": "20.00",
+    "budget_cents": 2000,
+    "deadline": "2026-10-30T04:00:00+00:00",
+    "audience": "18-24岁大学生",
+    "requirements": [
+      "围绕自动卡点，准备一份含一条30秒主视频的完整内容活动方案。",
+      "只使用合成资料可支持的正式能力；说明音乐授权和待制作操作录屏；不作涨粉承诺。"
+    ],
+    "raw": {
+      "topic": "帧剪校园社团招新短视频推广",
+      "budget": "20",
+      "deadline": "2026-10-30T12:00:00+08:00",
+      "audience": "18-24岁大学生",
+      "requirements": [
+        "围绕自动卡点，准备一份含一条30秒主视频的完整内容活动方案。",
+        "只使用合成资料可支持的正式能力；说明音乐授权和待制作操作录屏；不作涨粉承诺。"
+      ]
+    },
+    "fingerprint": "c35500075e5ef91c0a0f827a3c6b64b56cae88a3cb33b54a9e20c909aa50ab36"
+  },
+  "validation": {
+    "errors": [],
+    "interpretations": []
+  },
+  "brief": {
+    "version": 1,
+    "content": {
+      "goal": "为「帧剪」准备一份校园社团招新短视频推广活动方案：含一条30秒主视频（以自动卡点为核心表达），供运营团队在2026-10-30前定稿并进入制作。",
+      "audience": "18-24岁大学生（用户已确认）。合成调研显示受访者最常制作社团活动记录、学习打卡和旅行 vlog，超过一半会在30分钟内出片，模板与自动卡点能减少重复操作，但对“一键出片”信任度一般、更愿保留手动调整——因此内容重点放在“社团招新片快速卡点+可逐段微调”。",
+      "product_facts": [
+        {
+          "claim": "帧剪的自动卡点会分析所选音乐的节拍，把用户选中的视频片段对齐到节拍点，并支持逐段微调和一键重新卡点。",
+          "material_id": "M-001",
+          "quote": "自动卡点会分析所选音乐的节拍，把用户选中的视频片段对齐到节拍点。用户可以逐段微调，也可以一键重新卡点。",
+          "scope": "iOS/Android 4.2 及以上；支持 15/30/60 秒成片",
+          "use": "主脚本核心卖点与演示动作"
+        },
+        {
+          "claim": "自动卡点不承诺对所有曲风都准确，复杂变速或弱节拍音乐需要人工调整。",
+          "material_id": "M-001",
+          "quote": "该功能不承诺对所有曲风都准确，复杂变速或弱节拍音乐需要人工调整。",
+          "scope": "对节奏清晰的流行乐与鼓点识别更稳",
+          "use": "字幕旁白与音乐选择说明中的边界提示，避免绝对化"
+        },
+        {
+          "claim": "校园素材包含教室、操场、社团招新、宿舍剪辑四个场景，共12条10-20秒片段，1080p，已取得演员授权、限本题活动使用。",
+          "material_id": "M-005",
+          "quote": "素材包含教室、操场、社团招新、宿舍剪辑四个场景，共 12 条 10-20 秒片段，分辨率 1080p。",
+          "scope": "已取得演员授权，限本题活动使用；不含品牌 Logo 特写",
+          "use": "主脚本情境画面来源"
+        },
+        {
+          "claim": "背景音乐《Late Bus》节奏为120 BPM，适合卡点演示，但商用授权尚未购买，目前仅可试听。",
+          "material_id": "M-006",
+          "quote": "曲目节奏为 120 BPM，适合卡点演示。当前状态为待获取授权",
+          "scope": "商用授权尚未购买；仅可试听，不可直接用于发布",
+          "use": "音乐授权待办与备选方案说明"
+        },
+        {
+          "claim": "品牌表达应轻快、真实、可操作；不得承诺涨粉、收益或爆款，不得把实验性功能写成正式能力，不得使用“最强”“唯一”等绝对化表述。",
+          "material_id": "M-004",
+          "quote": "表达应轻快、真实、可操作。不得承诺涨粉、收益或爆款；不得把实验性功能写成正式能力；不得使用‘最强’‘唯一’等绝对化表述",
+          "scope": "适用于所有对外传播",
+          "use": "脚本与文案合规约束"
+        }
+      ],
+      "creative_requirements": [
+        {
+          "text": "围绕自动卡点，准备一份含一条30秒主视频的完整内容活动方案",
+          "source": "用户输入 requirements"
+        },
+        {
+          "text": "只使用合成资料可支持的正式能力",
+          "source": "用户输入 requirements"
+        },
+        {
+          "text": "说明音乐授权和待制作操作录屏",
+          "source": "用户输入 requirements"
+        },
+        {
+          "text": "不作涨粉承诺",
+          "source": "用户输入 requirements"
+        },
+        {
+          "text": "不得使用“最强”“唯一”等绝对化表述；不得把实验性功能（如多语言 AI 字幕）写成正式能力",
+          "source": "M-004 品牌表达规则"
+        }
+      ],
+      "assumptions": [
+        {
+          "text": "方案截止 2026-10-30T04:00Z 约束的是方案准备与核实保存，成片制作与发布另排期",
+          "basis": "任务输入 deadline 与工作知识“方案截止约束本方案准备及核实保存”"
+        },
+        {
+          "text": "主视频投放平台按抖音/视频号竖屏作为假设，交付时需运营确认",
+          "basis": "受众为18-24岁大学生、短视频推广任务；未在输入中指定平台"
+        },
+        {
+          "text": "社团招新场景优先使用素材包中“社团招新”片段，并搭配操场、教室片段补充节奏点",
+          "basis": "M-005 场景清单与主题匹配"
+        }
+      ],
+      "suggestions": [
+        {
+          "text": "主视频采用“真实操作+情境画面”结合的功能演示方向：前段展示一键卡点，中段展示逐段微调，避免“一键出片”式夸大",
+          "basis": "M-001 支持逐段微调与重新卡点；M-003 显示用户对“一键出片”信任度一般、更愿保留手动调整"
+        },
+        {
+          "text": "音乐优先选节奏清晰、约120 BPM 的曲目并先完成授权；若授权未落地，改用剪辑团队自有原创鼓点",
+          "basis": "M-006 授权未购买；M-001 对节奏清晰的流行乐与鼓点识别更稳"
+        },
+        {
+          "text": "活动内容以一条30秒主视频为主，配1-2条呼应切片与招新海报，不额外增加未验证卖点",
+          "basis": "知识聚焦范围：一条主视频可构成完整方案，新增内容需说明目标收益与制作依赖"
+        }
+      ],
+      "unknowns": [
+        {
+          "question": "主视频首发平台与账号（抖音/视频号/B站等）未指定",
+          "impact": "影响时长节奏、竖横屏比例与发布排期；不影响脚本主体",
+          "blocking": false
+        },
+        {
+          "question": "音乐《Late Bus》商用授权能否在制作窗口内取得",
+          "impact": "若未取得，需换用原创鼓点或已授权曲目；影响第2-4段音乐与卡点演示",
+          "blocking": false
+        },
+        {
+          "question": "本次活动的真实制作、音乐采购与投放费用未知（budget_cents=2000 仅为方案准备模拟工具费用）",
+          "impact": "不影响方案内容，但费用需另行估算，方案内不承诺采购",
+          "blocking": false
+        },
+        {
+          "question": "活动由谁负责录屏与成片审核（运营/社团成员）",
+          "impact": "影响制作步骤责任人安排；可在制作步骤中按角色默认，发布前确认",
+          "blocking": false
+        }
+      ],
+      "sources": [
+        {
+          "material_id": "M-001",
+          "used_for": "自动卡点能力与适用范围"
+        },
+        {
+          "material_id": "M-003",
+          "used_for": "受众创作习惯与信任度判断"
+        },
+        {
+          "material_id": "M-004",
+          "used_for": "品牌表达与禁语约束"
+        },
+        {
+          "material_id": "M-005",
+          "used_for": "情境画面素材状态与授权范围"
+        },
+        {
+          "material_id": "M-006",
+          "used_for": "背景音乐授权状态与节奏信息"
+        }
+      ],
+      "blocking_unknowns": 0
+    },
+    "created_at": "2026-10-29T03:45:50+00:00"
+  },
+  "review": {
+    "review_id": "v_cf72376a42002b97",
+    "output_id": "o_e0456c3a3e4e8c9e",
+    "output_version": 1,
+    "status": "incomplete",
+    "verdict": null,
+    "completeness": null,
+    "findings": [],
+    "summary": "核验未完成：APIConnectionError: Connection error. <- ConnectError: [SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1032) <- ConnectError: [SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1032)",
+    "evidence_gaps": [],
+    "requests_used": 1,
+    "readbacks_used": 0,
+    "attempt_id": "a_e71f4aeea2a4cea5",
+    "created_at": "2026-10-29T03:46:35+00:00"
+  },
+  "content_reuse": null,
+  "save": null,
+  "strategy": {
+    "table_version": "2026-10-29.v1",
+    "directions": [
+      {
+        "direction": "functional_demo",
+        "label": "功能演示",
+        "expression_goal": "直接展示自动卡点能做什么、如何操作、结果是什么",
+        "material_needs": [
+          "产品操作录屏（待制作）",
+          "M-001 自动卡点能力与适用范围",
+          "M-004 品牌表达规则"
+        ],
+        "evidence_queries": [
+          "自动卡点能力与适用范围",
+          "产品操作录屏素材状态"
+        ],
+        "required_queries": 2,
+        "risk": "缺少可展示的操作录屏时无法制作；纯功能演示对情境吸引力的帮助有限"
+      },
+      {
+        "direction": "user_scenario",
+        "label": "用户情境",
+        "expression_goal": "用校园社团招新情境承接自动卡点带来的成片效果",
+        "material_needs": [
+          "M-005 校园场景素材（已有）",
+          "M-003 校园用户调研（仅代表合成样本）",
+          "M-006 背景音乐授权（待获取）",
+          "M-001 自动卡点能力依据"
+        ],
+        "evidence_queries": [
+          "校园受众与使用情境",
+          "校园场景素材与音乐授权状态",
+          "自动卡点能力与适用范围"
+        ],
+        "required_queries": 3,
+        "risk": "情境画面不能单独证明产品能力；音乐授权未取得前不能写成已可用"
+      },
+      {
+        "direction": "tutorial",
+        "label": "教程",
+        "expression_goal": "分步说明如何完成一次自动卡点，并把操作与结果对应起来",
+        "material_needs": [
+          "M-001 自动卡点能力与边界",
+          "M-002 AI 字幕能力（如使用）",
+          "M-004 品牌表达规则",
+          "产品操作录屏（待制作）"
+        ],
+        "evidence_queries": [
+          "自动卡点操作步骤与能力边界",
+          "相关产品能力与正式支持范围",
+          "品牌表达与素材限制"
+        ],
+        "required_queries": 3,
+        "risk": "短片内容密度高；需要更完整的操作录屏和更清晰的步骤取舍"
+      }
+    ],
+    "latest_selection": {
+      "selection_id": "st_c5e001a296ef68b6",
+      "direction": "user_scenario",
+      "search_mode": "search_basic",
+      "generation_mode": "generate_direct",
+      "search_queries": 0,
+      "include_revision": true,
+      "improvement": false,
+      "expected_benefit": null,
+      "rationale": "以社团招新情境为主线（已有授权的 M-005 校园素材可直接用），在产品操作处嵌入待制作录屏展示一键卡点与逐段微调，兼顾招新场景吸引力与自动卡点能力表达；三个方向的完整路径均为410分、可负担（剩余1960分），选 user_scenario 是因为它最贴合“校园社团招新”主题，且风险（情境不证明能力、音乐待授权）已在方案中以录屏证据和授权待办处理。功能演示缺情境吸引力且同样依赖录屏；教程在30秒内步骤密度过高。资料检索已完成，剩余的已知待办是待制作的录屏和音乐授权，都作为制作步骤与素材状态写入方案。",
+      "strategy_version": "2026-10-29.v1",
+      "pricing_version": "2026-10-29.v1",
+      "path": {
+        "version": "2026-10-29.v1",
+        "currency": "CNY_cent",
+        "pricing_source": "2026-10-29.v1.json",
+        "search_queries": 0,
+        "include_revision": true,
+        "lines": [
+          {
+            "step": "generation",
+            "mode": "generate_direct",
+            "label": "直接生成",
+            "cost_cents": 120,
+            "duration_ms": 8000,
+            "max_internal_requests": 1,
+            "max_requests": null,
+            "max_readbacks": null,
+            "candidates": 1,
+            "failure_rule": "一次生成；失败或中断保留计量"
+          },
+          {
+            "step": "review",
+            "mode": "review",
+            "label": "内容核验",
+            "cost_cents": 80,
+            "duration_ms": 6000,
+            "max_internal_requests": null,
+            "max_requests": 3,
+            "max_readbacks": 2,
+            "candidates": null,
+            "failure_rule": "最多 3 次模型请求、2 次回读；触顶/中断不退还"
+          },
+          {
+            "step": "revision",
+            "mode": "revision",
+            "label": "返修",
+            "cost_cents": 120,
+            "duration_ms": 8000,
+            "max_internal_requests": 2,
+            "max_requests": null,
+            "max_readbacks": null,
+            "candidates": null,
+            "failure_rule": "启动即计量；失败不退还"
+          },
+          {
+            "step": "re_review",
+            "mode": "review",
+            "label": "内容核验",
+            "cost_cents": 80,
+            "duration_ms": 6000,
+            "max_internal_requests": null,
+            "max_requests": 3,
+            "max_readbacks": 2,
+            "candidates": null,
+            "failure_rule": "最多 3 次模型请求、2 次回读；触顶/中断不退还"
+          },
+          {
+            "step": "save",
+            "mode": "save",
+            "label": "方案保存",
+            "cost_cents": 10,
+            "duration_ms": 1000,
+            "max_internal_requests": 1,
+            "max_requests": null,
+            "max_readbacks": null,
+            "candidates": null,
+            "failure_rule": "启动即计量；保存失败另行核实"
+          }
+        ],
+        "total_cost_cents": 410,
+        "total_duration_ms": 29000,
+        "notes": "估算与预留不是实际支出；执行前仍须按当前预算与模拟截止检查。"
+      },
+      "total_cost_cents": 410,
+      "total_duration_ms": 29000,
+      "incurred_cents": 40,
+      "remaining_cents": 1960,
+      "created_at": "2026-10-29T03:45:52+00:00",
+      "nature": "reserved"
+    },
+    "selection_count": 1,
+    "mode_table_version": "2026-10-29.v1"
+  },
+  "plan": {
+    "version": "plan-2026-10-29.v1",
+    "steps": [
+      {
+        "step": "brief",
+        "title": "业务简报",
+        "status": "done"
+      },
+      {
+        "step": "campaign_draft",
+        "title": "完整活动方案草稿",
+        "status": "done"
+      },
+      {
+        "step": "review",
+        "title": "内容核验",
+        "status": "pending"
+      },
+      {
+        "step": "save",
+        "title": "核实保存与导出",
+        "status": "pending"
+      }
+    ]
+  },
+  "todos": [
+    {
+      "step": "review",
+      "title": "内容核验",
+      "status": "pending"
+    },
+    {
+      "step": "save",
+      "title": "核实保存与导出",
+      "status": "pending"
+    }
+  ],
+  "recovery": {
+    "explicit_resume": true,
+    "prior_status": "incomplete",
+    "prior_phase": "stopped",
+    "prior_reason": "模型请求失败：APIConnectionError: Connection error. <- ConnectError: [SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1032) <- ConnectError: [SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1032)",
+    "pending_calls": 0,
+    "recovered_calls": [],
+    "interrupted_calls": [],
+    "interrupted_attempts": [],
+    "save_unknown": null,
+    "unpaused": false,
+    "reused": {
+      "input_version": 1,
+      "brief_version": 1,
+      "output_version": 1,
+      "review": {
+        "review_id": "v_cf72376a42002b97",
+        "status": "incomplete",
+        "verdict": null
+      },
+      "save": null,
+      "knowledge": [
+        {
+          "knowledge_id": "campaign-creation",
+          "version": "2026-10-29.v2",
+          "sha256": "4cfaf74443e1d8c6f772adbaf9355f22fb66c1c361a0e3beb0362ba510d7b215"
+        },
+        {
+          "knowledge_id": "content-review",
+          "version": "2026-10-29.v2",
+          "sha256": "c9a1ea91bf00e1610d0fff6598f7c1f7acda38f45c949f5b6d4419b4e7678090"
+        }
+      ],
+      "materials": {
+        "version": "2026-10-29.v1",
+        "count": 10
+      },
+      "search_results": 2,
+      "attempts": 4,
+      "spent_cents": 240
+    },
+    "todos": [
+      {
+        "step": "review",
+        "title": "内容核验",
+        "status": "pending"
+      },
+      {
+        "step": "save",
+        "title": "核实保存与导出",
+        "status": "pending"
+      }
+    ],
+    "task_id": "t_2c8aac8edf5e",
+    "mode": "real",
+    "input_version": 1,
+    "brief_version": 1,
+    "output_version": 1,
+    "review_id": "v_cf72376a42002b97",
+    "save_status": null,
+    "save_verified": null,
+    "sim_elapsed_ms": 18000,
+    "sim_start": "2026-10-29T00:00:00+08:00",
+    "used_rounds": 13,
+    "max_rounds": 24,
+    "spent_cents": 240,
+    "requests": 15,
+    "instruction": "这是新进程追加的恢复事实。只继续未完成的有界步骤；已恢复的有效检索、草稿和评审直接复用，不要重新执行或重新计费；原预算、模拟截止和已用轮数不变，续跑不获得新额度。"
+  },
+  "gaps": [
+    {
+      "source": "brief",
+      "question": "主视频首发平台与账号（抖音/视频号/B站等）未指定",
+      "impact": "影响时长节奏、竖横屏比例与发布排期；不影响脚本主体",
+      "blocking": false
+    },
+    {
+      "source": "brief",
+      "question": "音乐《Late Bus》商用授权能否在制作窗口内取得",
+      "impact": "若未取得，需换用原创鼓点或已授权曲目；影响第2-4段音乐与卡点演示",
+      "blocking": false
+    },
+    {
+      "source": "brief",
+      "question": "本次活动的真实制作、音乐采购与投放费用未知（budget_cents=2000 仅为方案准备模拟工具费用）",
+      "impact": "不影响方案内容，但费用需另行估算，方案内不承诺采购",
+      "blocking": false
+    },
+    {
+      "source": "brief",
+      "question": "活动由谁负责录屏与成片审核（运营/社团成员）",
+      "impact": "影响制作步骤责任人安排；可在制作步骤中按角色默认，发布前确认",
+      "blocking": false
+    },
+    {
+      "source": "stop",
+      "stop_kind": "model_error",
+      "question": "模型请求失败",
+      "impact": "本轮无有效动作；保留已有成果与用量，需显式续跑",
+      "blocking": true
+    },
+    {
+      "source": "stop",
+      "stop_kind": "model_error",
+      "question": "模型请求失败",
+      "impact": "本轮无有效动作；保留已有成果与用量，需显式续跑",
+      "blocking": true
+    },
+    {
+      "source": "stop",
+      "stop_kind": "model_error",
+      "question": "模型请求失败",
+      "impact": "本轮无有效动作；保留已有成果与用量，需显式续跑",
+      "blocking": true
+    },
+    {
+      "source": "stop",
+      "stop_kind": "model_error",
+      "question": "模型请求失败",
+      "impact": "本轮无有效动作；保留已有成果与用量，需显式续跑",
+      "blocking": true
+    },
+    {
+      "source": "stop",
+      "stop_kind": "model_error",
+      "question": "模型请求失败",
+      "impact": "本轮无有效动作；保留已有成果与用量，需显式续跑",
+      "blocking": true
+    }
+  ],
+  "mode_notice": "真实模型运行；小样本观察不代表生产质量或统计显著结论。",
+  "progress": {
+    "sim_start": "2026-10-29T00:00:00+08:00",
+    "sim_now": "2026-10-29T00:00:18+08:00",
+    "sim_elapsed_ms": 18000,
+    "used_rounds": 14,
+    "max_rounds": 24,
+    "paused": false,
+    "current_output": {
+      "output_id": "o_e0456c3a3e4e8c9e",
+      "version": 1,
+      "status": "draft",
+      "strategy": "user_scenario"
+    },
+    "save": null,
+    "phase": "stopped",
+    "brief_version": 1,
+    "last_run_at": "2026-10-29T03:49:21+00:00"
+  },
+  "resources": {
+    "budget_cents": 2000,
+    "sim_spent_cents": 240,
+    "remaining_cents": 1760,
+    "real_requests": 16,
+    "mock_requests": 0,
+    "model_requests": 16,
+    "real_usage": {
+      "requests": 16,
+      "real_requests": 16,
+      "mock_requests": 0,
+      "unknown_usage_requests": 6,
+      "usage_complete": false,
+      "prompt_tokens": 163555,
+      "completion_tokens": 10957,
+      "cache_hit_tokens": 138368,
+      "cache_miss_tokens": 25187,
+      "elapsed_ms": 85265
+    },
+    "real_cost": null,
+    "amount_status": {
+      "simulated_tool_fee": "incurred_and_estimated",
+      "real_model_usage": "unknown",
+      "activity_costs": "unknown"
+    },
+    "simulated_tool_fee": {
+      "category": "simulated_tool_fee",
+      "unit": "CNY_cent",
+      "source": "pricing:2026-10-29.v1",
+      "nature": "incurred",
+      "incurred_cents": 240,
+      "ledger_entries": 4,
+      "estimated": {
+        "estimate_id": "e_6344c9bd1927a38f",
+        "kind": "strategy_choice",
+        "direction": "user_scenario",
+        "search_mode": "search_basic",
+        "generation_mode": "generate_direct",
+        "search_queries": 0,
+        "include_revision": true,
+        "total_cost_cents": 410,
+        "total_duration_ms": 29000,
+        "incurred_cents": 40,
+        "remaining_cents": 1960,
+        "feasible": true,
+        "strategy_version": "2026-10-29.v1",
+        "pricing_version": "2026-10-29.v1",
+        "created_at": "2026-10-29T03:45:52+00:00",
+        "nature": "estimated"
+      },
+      "reserved": {
+        "selection_id": "st_c5e001a296ef68b6",
+        "direction": "user_scenario",
+        "search_mode": "search_basic",
+        "generation_mode": "generate_direct",
+        "search_queries": 0,
+        "include_revision": true,
+        "improvement": false,
+        "expected_benefit": null,
+        "rationale": "以社团招新情境为主线（已有授权的 M-005 校园素材可直接用），在产品操作处嵌入待制作录屏展示一键卡点与逐段微调，兼顾招新场景吸引力与自动卡点能力表达；三个方向的完整路径均为410分、可负担（剩余1960分），选 user_scenario 是因为它最贴合“校园社团招新”主题，且风险（情境不证明能力、音乐待授权）已在方案中以录屏证据和授权待办处理。功能演示缺情境吸引力且同样依赖录屏；教程在30秒内步骤密度过高。资料检索已完成，剩余的已知待办是待制作的录屏和音乐授权，都作为制作步骤与素材状态写入方案。",
+        "total_cost_cents": 410,
+        "total_duration_ms": 29000,
+        "incurred_cents": 40,
+        "remaining_cents": 1960,
+        "strategy_version": "2026-10-29.v1",
+        "pricing_version": "2026-10-29.v1",
+        "created_at": "2026-10-29T03:45:52+00:00",
+        "nature": "reserved"
+      },
+      "note": "预留与估算是可行性判断，不是实际支出；实际消耗只累计账本中 nature=incurred 的记录。"
+    },
+    "real_model_usage": {
+      "category": "real_model_usage",
+      "unit": "request/token",
+      "source": "DeepSeek API response usage（openai SDK）",
+      "nature": "actual_usage",
+      "requests": 16,
+      "real_requests": 16,
+      "mock_requests": 0,
+      "unknown_usage_requests": 6,
+      "prompt_tokens": 163555,
+      "completion_tokens": 10957,
+      "cache_hit_tokens": 138368,
+      "cache_miss_tokens": 25187,
+      "elapsed_ms": 85265,
+      "amount": {
+        "status": "unknown",
+        "value_cents": null,
+        "reason": "没有可靠的单价来源，不把 token 用量换算成金额；未发生真实请求时也不补成已核实零费用。"
+      }
+    },
+    "activity_costs": {
+      "category": "activity_cost",
+      "unit": "CNY_cent",
+      "source": "campaign.materials",
+      "status": "unknown",
+      "nature": "unknown",
+      "entries": [
+        {
+          "name": "背景音乐《Late Bus》（120 BPM）",
+          "material_id": "M-006",
+          "status": "to_acquire",
+          "amount_cents": null,
+          "nature": "unknown",
+          "source": "campaign.materials"
+        },
+        {
+          "name": "帧剪自动卡点操作录屏（待制作）",
+          "material_id": null,
+          "status": "to_create",
+          "amount_cents": null,
+          "nature": "unknown",
+          "source": "campaign.materials"
+        },
+        {
+          "name": "原创鼓点/节拍音轨（待制作）",
+          "material_id": null,
+          "status": "to_create",
+          "amount_cents": null,
+          "nature": "unknown",
+          "source": "campaign.materials"
+        },
+        {
+          "name": "界面点击/鼓点音效（待制作）",
+          "material_id": null,
+          "status": "to_create",
+          "amount_cents": null,
+          "nature": "unknown",
+          "source": "campaign.materials"
+        },
+        {
+          "name": "招新海报版式（待制作）",
+          "material_id": null,
+          "status": "to_create",
+          "amount_cents": null,
+          "nature": "unknown",
+          "source": "campaign.materials"
+        }
+      ],
+      "reason": "方案含待获取或待制作素材，但任务输入与材料未给出活动预算或已发生支出金额。"
+    },
+    "unknown": [
+      "real_model_usage.amount",
+      "activity_costs"
+    ],
+    "not_applicable": []
+  },
+  "model_config": {
+    "provider": "deepseek",
+    "sdk": "openai",
+    "base_url": "https://api.deepseek.com",
+    "model": "deepseek-flash",
+    "api_key": "set",
+    "thinking": false,
+    "streaming": false,
+    "sdk_auto_retries": 0,
+    "network_route": "direct"
+  },
+  "versions": {
+    "app": "0.1.0",
+    "prompt": "main-2026-10-29.v10",
+    "materials": "2026-10-29.v1",
+    "pricing": "2026-10-29.v1",
+    "strategy": "2026-10-29.v1"
+  },
+  "artifacts": {
+    "campaign_versions": 1
+  },
+  "run": {
+    "rounds_used": 1,
+    "stop_reason": "model_error",
+    "requests": 1,
+    "explicit_resume": true,
+    "recovery": {
+      "explicit_resume": true,
+      "prior_status": "incomplete",
+      "prior_phase": "stopped",
+      "prior_reason": "模型请求失败：APIConnectionError: Connection error. <- ConnectError: [SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1032) <- ConnectError: [SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1032)",
+      "pending_calls": 0,
+      "recovered_calls": [],
+      "interrupted_calls": [],
+      "interrupted_attempts": [],
+      "save_unknown": null,
+      "unpaused": false,
+      "reused": {
+        "input_version": 1,
+        "brief_version": 1,
+        "output_version": 1,
+        "review": {
+          "review_id": "v_cf72376a42002b97",
+          "status": "incomplete",
+          "verdict": null
+        },
+        "save": null,
+        "knowledge": [
+          {
+            "knowledge_id": "campaign-creation",
+            "version": "2026-10-29.v2",
+            "sha256": "4cfaf74443e1d8c6f772adbaf9355f22fb66c1c361a0e3beb0362ba510d7b215"
+          },
+          {
+            "knowledge_id": "content-review",
+            "version": "2026-10-29.v2",
+            "sha256": "c9a1ea91bf00e1610d0fff6598f7c1f7acda38f45c949f5b6d4419b4e7678090"
+          }
+        ],
+        "materials": {
+          "version": "2026-10-29.v1",
+          "count": 10
+        },
+        "search_results": 2,
+        "attempts": 4,
+        "spent_cents": 240
+      },
+      "todos": [
+        {
+          "step": "review",
+          "title": "内容核验",
+          "status": "pending"
+        },
+        {
+          "step": "save",
+          "title": "核实保存与导出",
+          "status": "pending"
+        }
+      ]
+    },
+    "recovery_summary": {
+      "explicit_resume": true,
+      "prior_status": "incomplete",
+      "prior_phase": "stopped",
+      "prior_reason": "模型请求失败：APIConnectionError: Connection error. <- ConnectError: [SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1032) <- ConnectError: [SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1032)",
+      "pending_calls": 0,
+      "recovered_calls": [],
+      "interrupted_calls": [],
+      "interrupted_attempts": [],
+      "save_unknown": null,
+      "unpaused": false,
+      "reused": {
+        "input_version": 1,
+        "brief_version": 1,
+        "output_version": 1,
+        "review": {
+          "review_id": "v_cf72376a42002b97",
+          "status": "incomplete",
+          "verdict": null
+        },
+        "save": null,
+        "knowledge": [
+          {
+            "knowledge_id": "campaign-creation",
+            "version": "2026-10-29.v2",
+            "sha256": "4cfaf74443e1d8c6f772adbaf9355f22fb66c1c361a0e3beb0362ba510d7b215"
+          },
+          {
+            "knowledge_id": "content-review",
+            "version": "2026-10-29.v2",
+            "sha256": "c9a1ea91bf00e1610d0fff6598f7c1f7acda38f45c949f5b6d4419b4e7678090"
+          }
+        ],
+        "materials": {
+          "version": "2026-10-29.v1",
+          "count": 10
+        },
+        "search_results": 2,
+        "attempts": 4,
+        "spent_cents": 240
+      },
+      "todos": [
+        {
+          "step": "review",
+          "title": "内容核验",
+          "status": "pending"
+        },
+        {
+          "step": "save",
+          "title": "核实保存与导出",
+          "status": "pending"
+        }
+      ],
+      "task_id": "t_2c8aac8edf5e",
+      "mode": "real",
+      "input_version": 1,
+      "brief_version": 1,
+      "output_version": 1,
+      "review_id": "v_cf72376a42002b97",
+      "save_status": null,
+      "save_verified": null,
+      "sim_elapsed_ms": 18000,
+      "sim_start": "2026-10-29T00:00:00+08:00",
+      "used_rounds": 13,
+      "max_rounds": 24,
+      "spent_cents": 240,
+      "requests": 15,
+      "instruction": "这是新进程追加的恢复事实。只继续未完成的有界步骤；已恢复的有效检索、草稿和评审直接复用，不要重新执行或重新计费；原预算、模拟截止和已用轮数不变，续跑不获得新额度。"
+    }
+  }
+}

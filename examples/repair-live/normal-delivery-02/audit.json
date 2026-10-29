@@ -1,0 +1,245 @@
+{
+  "case": "normal-delivery-02",
+  "task_id": "t_664f0c057b05",
+  "status": "complete",
+  "checks": {
+    "simulation_ledger_matches": true,
+    "simulation_time_matches": true,
+    "audit_did_not_charge": true,
+    "audit_did_not_call_model": true,
+    "round_limit_preserved": true,
+    "no_mock_requests": true,
+    "main_message_pairing": true,
+    "unique_call_ids": true,
+    "no_running_request": true,
+    "verified_current_save": true,
+    "all_delivery_hashes_match": true,
+    "within_simulated_budget": true,
+    "within_simulated_deadline": true,
+    "review_applies_to_current_version": true,
+    "trace_save_matches_authority": true
+  },
+  "invariants_hold": true,
+  "input": {
+    "version": 1,
+    "topic": "帧剪校园社团招新短视频推广",
+    "budget": "20.00",
+    "budget_cents": 2000,
+    "deadline": "2026-10-30T04:00:00+00:00",
+    "audience": "18-24岁大学生",
+    "requirements": [
+      "围绕自动卡点，准备一份含一条30秒主视频的完整内容活动方案。",
+      "只使用合成资料可支持的正式能力；说明音乐授权和待制作操作录屏；不作涨粉承诺。"
+    ],
+    "raw": {
+      "topic": "帧剪校园社团招新短视频推广",
+      "budget": "20",
+      "deadline": "2026-10-30T12:00:00+08:00",
+      "audience": "18-24岁大学生",
+      "requirements": [
+        "围绕自动卡点，准备一份含一条30秒主视频的完整内容活动方案。",
+        "只使用合成资料可支持的正式能力；说明音乐授权和待制作操作录屏；不作涨粉承诺。"
+      ]
+    },
+    "fingerprint": "c35500075e5ef91c0a0f827a3c6b64b56cae88a3cb33b54a9e20c909aa50ab36"
+  },
+  "progress": {
+    "sim_start": "2026-10-29T00:00:00+08:00",
+    "sim_now": "2026-10-29T00:00:41+08:00",
+    "sim_elapsed_ms": 41000,
+    "used_rounds": 16,
+    "max_rounds": 24,
+    "paused": false,
+    "current_output": {
+      "output_id": "o_177cc129b06f2dcb",
+      "version": 2,
+      "status": "draft",
+      "strategy": "user_scenario"
+    },
+    "save": {
+      "save_id": "s_89ab10675f3c0754",
+      "output_version": 2,
+      "status": "verified",
+      "verified": true
+    },
+    "phase": "complete",
+    "brief_version": 1,
+    "last_run_at": "2026-10-29T04:32:43+00:00"
+  },
+  "resources": {
+    "budget_cents": 2000,
+    "sim_spent_cents": 530,
+    "remaining_cents": 1470,
+    "real_requests": 21,
+    "mock_requests": 0,
+    "model_requests": 21,
+    "real_usage": {
+      "requests": 21,
+      "real_requests": 21,
+      "mock_requests": 0,
+      "unknown_usage_requests": 0,
+      "usage_complete": true,
+      "prompt_tokens": 410549,
+      "completion_tokens": 21681,
+      "cache_hit_tokens": 349184,
+      "cache_miss_tokens": 61365,
+      "elapsed_ms": 115713
+    },
+    "real_cost": null,
+    "amount_status": {
+      "simulated_tool_fee": "incurred_and_estimated",
+      "real_model_usage": "unknown",
+      "activity_costs": "unknown"
+    },
+    "simulated_tool_fee": {
+      "category": "simulated_tool_fee",
+      "unit": "CNY_cent",
+      "source": "pricing:2026-10-29.v1",
+      "nature": "incurred",
+      "incurred_cents": 530,
+      "ledger_entries": 7,
+      "estimated": {
+        "estimate_id": "e_670f9ed904b4aa07",
+        "kind": "strategy_choice",
+        "direction": "user_scenario",
+        "search_mode": "search_basic",
+        "generation_mode": "generate_direct",
+        "search_queries": 0,
+        "include_revision": true,
+        "total_cost_cents": 410,
+        "total_duration_ms": 29000,
+        "incurred_cents": 120,
+        "remaining_cents": 1880,
+        "feasible": true,
+        "strategy_version": "2026-10-29.v1",
+        "pricing_version": "2026-10-29.v1",
+        "created_at": "2026-10-29T04:31:23+00:00",
+        "nature": "estimated"
+      },
+      "reserved": {
+        "selection_id": "st_8ac0fbcb194ce10a",
+        "direction": "user_scenario",
+        "search_mode": "search_basic",
+        "generation_mode": "generate_direct",
+        "search_queries": 0,
+        "include_revision": true,
+        "improvement": false,
+        "expected_benefit": null,
+        "rationale": "三个方向完整剩余路径均为 410 分、均可行（检索已在此前完成，剩余检索为0）。选用户情境：①服务已确认目标——社团招新是 M-003 中受访者最常制作的类型，情境切入直接对应真实使用场景；②资料需求已被现有材料覆盖：M-005 校园招新/教室/操场/宿舍四场景共12条片段可作情境骨架，M-001 提供自动卡点唯一能力依据，M-006 待授权音乐与待制作操作录屏按待获取/待制作写清负责人与时点即可继续制作；③风险可控——情境画面只表场景、能力一律回引 M-001，不把画面当能力证明；④相比纯功能演示与教程，用户情境更贴合 M-003 中受众对\"一键出片\"信任度一般、更愿保留手动调整的态度，可用\"自动对齐+逐段微调\"的真实流程建立可信度，同时避免 30 秒内容塞满教程步骤的密度风险。脚本仍保留操作录屏段落作为演示脊梁，因此不是纯情境片。",
+        "total_cost_cents": 410,
+        "total_duration_ms": 29000,
+        "incurred_cents": 120,
+        "remaining_cents": 1880,
+        "strategy_version": "2026-10-29.v1",
+        "pricing_version": "2026-10-29.v1",
+        "created_at": "2026-10-29T04:31:23+00:00",
+        "nature": "reserved"
+      },
+      "note": "预留与估算是可行性判断，不是实际支出；实际消耗只累计账本中 nature=incurred 的记录。"
+    },
+    "real_model_usage": {
+      "category": "real_model_usage",
+      "unit": "request/token",
+      "source": "DeepSeek API response usage（openai SDK）",
+      "nature": "actual_usage",
+      "requests": 21,
+      "real_requests": 21,
+      "mock_requests": 0,
+      "unknown_usage_requests": 0,
+      "prompt_tokens": 410549,
+      "completion_tokens": 21681,
+      "cache_hit_tokens": 349184,
+      "cache_miss_tokens": 61365,
+      "elapsed_ms": 115713,
+      "amount": {
+        "status": "unknown",
+        "value_cents": null,
+        "reason": "没有可靠的单价来源，不把 token 用量换算成金额；未发生真实请求时也不补成已核实零费用。"
+      }
+    },
+    "activity_costs": {
+      "category": "activity_cost",
+      "unit": "CNY_cent",
+      "source": "campaign.materials",
+      "status": "unknown",
+      "nature": "unknown",
+      "entries": [
+        {
+          "name": "帧剪自动卡点操作录屏（选音乐→选片段→自动对齐→逐段微调→一键重新卡点，含时间线与预览画面）",
+          "material_id": null,
+          "status": "to_create",
+          "amount_cents": null,
+          "nature": "unknown",
+          "source": "campaign.materials"
+        },
+        {
+          "name": "背景音乐《Late Bus》（120 BPM）",
+          "material_id": "M-006",
+          "status": "to_acquire",
+          "amount_cents": null,
+          "nature": "unknown",
+          "source": "campaign.materials"
+        },
+        {
+          "name": "已授权替代背景音乐（备选）",
+          "material_id": null,
+          "status": "to_acquire",
+          "amount_cents": null,
+          "nature": "unknown",
+          "source": "campaign.materials"
+        }
+      ],
+      "reason": "方案含待获取或待制作素材，但任务输入与材料未给出活动预算或已发生支出金额。"
+    },
+    "unknown": [
+      "real_model_usage.amount",
+      "activity_costs"
+    ],
+    "not_applicable": []
+  },
+  "review": {
+    "review_id": "v_ff1e7c8bf9962316",
+    "output_id": "o_177cc129b06f2dcb",
+    "output_version": 2,
+    "status": "complete",
+    "verdict": "pass",
+    "completeness": "full",
+    "findings": [
+      {
+        "finding_id": "R1",
+        "severity": "optional",
+        "location": "production_steps[0]「录制自动卡点操作录屏」timing 字段；production_steps[1]「确认音乐商用授权」timing 字段",
+        "requirement": "制作可用：待制作/待获取项须有可执行步骤与时点（不要求日历日期）",
+        "evidence": "timing 写「D前3天（且不晚于 D前3天完成，留出合成余量）」与「方案准备完成后立即发起，D前2天确认结果」，二者语义重复；format 已给出 D 未定义时「音乐授权启动+2个工作日」与「录屏完成后3个工作日」两条并行倒推规则，与「D前2天确认授权」在时间线上可能不完全对齐",
+        "issue": "两处 timing 表述存在冗余措辞，且「授权 D前2天确认」与「授权 D前2天倒推=授权启动+2个工作日」在现代理上基本一致但未显式说明二者等价，制作人使用时需自行换算。",
+        "suggestion": "将 timing 精简为「D前3天（首发录制完成日，留 1 天合成余量）」「D前2天（= 授权启动后第 2 个工作日，与 format 倒推规则对齐）」，或直接提示「若按授权倒推得 D，则授权确认日即 D前2天」，避免二次换算。",
+        "reviewed_version": "2"
+      },
+      {
+        "finding_id": "R2",
+        "severity": "optional",
+        "location": "materials「已授权替代背景音乐（备选）」条目；open_questions[0]",
+        "requirement": "不确定性清楚：待确认项说明影响",
+        "evidence": "备选曲 rights_note 写「待选定/待获取。须为可商用授权曲目并保存授权凭证」，但未给出候选曲目库或选择标准；open_questions 第1项已标注 blocking=false 并说明会改变 D 倒推起点",
+        "issue": "兜底方案已存在但缺少可执行的选择路径（如从哪个已授权曲库选、是否需与前授权同 BPM 以保证卡点节奏），若《Late Bus》未获授权，启用备选将额外引入曲目筛选时间，可能推迟 D。",
+        "suggestion": "在备选条目中补一句可执行流程：「从已购买商用授权的曲库按 115-125 BPM 区间初筛 2 首备选，选定后 1 个工作日内完成授权凭证归档并试听确认」，并说明 BPM 偏离会影响卡点密度但不影响功能表述。",
+        "reviewed_version": "2"
+      }
+    ],
+    "summary": "v2 已修复上轮两处 must_fix：第4段改为纯情境段落（删除成片/节选表述，evidence_ids 只挂 E6/E7，配套制作步骤同步说明\"只做情境铺陈、不标注为自动卡点产出\"），排期锚点明确为 D = 成片计划发布日并给出未定时两条并行倒推规则、各步骤含相对时点与顺延处置；需求覆盖、事实支持、一致性、制作可用与不确定性说明五项逐条核对成立，无阻塞缺口。",
+    "evidence_gaps": [],
+    "requests_used": 1,
+    "readbacks_used": 0,
+    "attempt_id": "a_d1b72a9b4e28184c",
+    "created_at": "2026-10-29T04:32:43+00:00"
+  },
+  "versions": {
+    "app": "0.1.0",
+    "prompt": "main-2026-10-29.v11",
+    "materials": "2026-10-29.v1",
+    "pricing": "2026-10-29.v1",
+    "strategy": "2026-10-29.v1"
+  },
+  "source_manifest": "examples\\repair-live\\normal-delivery-02\\manifest.json",
+  "initial_scenario_result": "complete"
+}

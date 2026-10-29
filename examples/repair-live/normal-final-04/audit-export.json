@@ -1,0 +1,50 @@
+{
+  "task_id": "t_683625d6acf7",
+  "output_version": 2,
+  "save_id": null,
+  "verified": true,
+  "delivery_complete": false,
+  "files": [
+    {
+      "path": "D:\\AAA小影科技\\content-task-agent\\examples\\repair-live\\normal-final-04\\data\\real\\exports\\t_683625d6acf7\\campaign-v2.md",
+      "sha256": "4d96abbac29cd99aa57ac6a51359415cec0c098dfa2e70d2ee4688de4d7068a1",
+      "bytes": 14664,
+      "exists": true,
+      "current_sha256": "4d96abbac29cd99aa57ac6a51359415cec0c098dfa2e70d2ee4688de4d7068a1",
+      "ok": true
+    },
+    {
+      "path": "D:\\AAA小影科技\\content-task-agent\\examples\\repair-live\\normal-final-04\\data\\real\\exports\\t_683625d6acf7\\campaign-v2.json",
+      "sha256": "a212bfc60aabb84cc2ffaff40cd4e61f62690ab7b05515722ba708eda54975b4",
+      "bytes": 17784,
+      "exists": true,
+      "current_sha256": "a212bfc60aabb84cc2ffaff40cd4e61f62690ab7b05515722ba708eda54975b4",
+      "ok": true
+    },
+    {
+      "path": "D:\\AAA小影科技\\content-task-agent\\examples\\repair-live\\normal-final-04\\data\\real\\exports\\t_683625d6acf7\\execution-report.md",
+      "sha256": "bbe5e98f12f315de7d9652ebd54ec6c0247e9bc8dfbf2c964cacf17f4f4ca86d",
+      "bytes": 20348,
+      "exists": true,
+      "current_sha256": "bbe5e98f12f315de7d9652ebd54ec6c0247e9bc8dfbf2c964cacf17f4f4ca86d",
+      "ok": true
+    },
+    {
+      "path": "D:\\AAA小影科技\\content-task-agent\\examples\\repair-live\\normal-final-04\\data\\real\\exports\\t_683625d6acf7\\trace.jsonl",
+      "sha256": "28b7705e0a7cc9e9186ad6d1b8a2785538382276d726fbdda6bd82823632c1ef",
+      "bytes": 259325,
+      "exists": true,
+      "current_sha256": "28b7705e0a7cc9e9186ad6d1b8a2785538382276d726fbdda6bd82823632c1ef",
+      "ok": true
+    },
+    {
+      "path": "D:\\AAA小影科技\\content-task-agent\\examples\\repair-live\\normal-final-04\\data\\real\\exports\\t_683625d6acf7\\brief-v1.json",
+      "sha256": "1d8e97697451160ad86cbacb5310ebfa9763d0d9cfdceed9330e8a34ee902f3d",
+      "bytes": 8351,
+      "exists": true,
+      "current_sha256": "1d8e97697451160ad86cbacb5310ebfa9763d0d9cfdceed9330e8a34ee902f3d",
+      "ok": true
+    }
+  ],
+  "repaired": false
+}

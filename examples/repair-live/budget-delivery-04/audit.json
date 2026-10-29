@@ -1,0 +1,273 @@
+{
+  "case": "budget-delivery-04",
+  "task_id": "t_73b2ea9fd163",
+  "status": "complete",
+  "checks": {
+    "simulation_ledger_matches": true,
+    "simulation_time_matches": true,
+    "audit_did_not_charge": true,
+    "audit_did_not_call_model": true,
+    "round_limit_preserved": true,
+    "no_mock_requests": true,
+    "main_message_pairing": true,
+    "unique_call_ids": true,
+    "no_running_request": true,
+    "verified_current_save": true,
+    "all_delivery_hashes_match": true,
+    "within_simulated_budget": true,
+    "within_simulated_deadline": true,
+    "review_applies_to_current_version": true,
+    "trace_save_matches_authority": true
+  },
+  "invariants_hold": true,
+  "input": {
+    "version": 1,
+    "topic": "帧剪校园社团招新短视频推广",
+    "budget": "6.00",
+    "budget_cents": 600,
+    "deadline": "2026-10-30T04:00:00+00:00",
+    "audience": "18-24岁大学生",
+    "requirements": [
+      "围绕自动卡点，准备一份含一条30秒主视频的完整内容活动方案。",
+      "只使用合成资料可支持的正式能力；说明音乐授权和待制作操作录屏；不作涨粉承诺。",
+      "比较包含一次必要返修及复核预留的完整路径，再依据实际预算反馈选择模式；预留不计已发生费用，不要求用尽预算。"
+    ],
+    "raw": {
+      "topic": "帧剪校园社团招新短视频推广",
+      "budget": "6.00",
+      "deadline": "2026-10-30T12:00:00+08:00",
+      "audience": "18-24岁大学生",
+      "requirements": [
+        "围绕自动卡点，准备一份含一条30秒主视频的完整内容活动方案。",
+        "只使用合成资料可支持的正式能力；说明音乐授权和待制作操作录屏；不作涨粉承诺。",
+        "比较包含一次必要返修及复核预留的完整路径，再依据实际预算反馈选择模式；预留不计已发生费用，不要求用尽预算。"
+      ]
+    },
+    "fingerprint": "37aa4223238addb1e2fc784af11cbcd869e4a159867e0c7aa5d989e757b5ff6f"
+  },
+  "progress": {
+    "sim_start": "2026-10-29T00:00:00+08:00",
+    "sim_now": "2026-10-29T00:00:29+08:00",
+    "sim_elapsed_ms": 29000,
+    "used_rounds": 13,
+    "max_rounds": 24,
+    "paused": false,
+    "current_output": {
+      "output_id": "o_a1cac7bd30469c01",
+      "version": 2,
+      "status": "draft",
+      "strategy": "user_scenario"
+    },
+    "save": {
+      "save_id": "s_eabaa597654b8d98",
+      "output_version": 2,
+      "status": "verified",
+      "verified": true
+    },
+    "phase": "complete",
+    "brief_version": 1,
+    "last_run_at": "2026-10-29T05:18:34+00:00"
+  },
+  "resources": {
+    "budget_cents": 600,
+    "sim_spent_cents": 370,
+    "remaining_cents": 230,
+    "real_requests": 17,
+    "mock_requests": 0,
+    "model_requests": 17,
+    "real_usage": {
+      "requests": 17,
+      "real_requests": 17,
+      "mock_requests": 0,
+      "unknown_usage_requests": 0,
+      "usage_complete": true,
+      "prompt_tokens": 303947,
+      "completion_tokens": 18912,
+      "cache_hit_tokens": 262144,
+      "cache_miss_tokens": 41803,
+      "elapsed_ms": 147269
+    },
+    "real_cost": null,
+    "amount_status": {
+      "simulated_tool_fee": "incurred_and_estimated",
+      "real_model_usage": "unknown",
+      "activity_costs": "unknown"
+    },
+    "simulated_tool_fee": {
+      "category": "simulated_tool_fee",
+      "unit": "CNY_cent",
+      "source": "pricing:2026-10-29.v1",
+      "nature": "incurred",
+      "incurred_cents": 370,
+      "ledger_entries": 6,
+      "estimated": {
+        "estimate_id": "e_ff55f2c03ab06aef",
+        "kind": "strategy_choice",
+        "direction": "user_scenario",
+        "search_mode": "search_basic",
+        "generation_mode": "generate_direct",
+        "search_queries": 0,
+        "include_revision": true,
+        "total_cost_cents": 410,
+        "total_duration_ms": 29000,
+        "incurred_cents": 80,
+        "remaining_cents": 520,
+        "feasible": true,
+        "strategy_version": "2026-10-29.v1",
+        "pricing_version": "2026-10-29.v1",
+        "created_at": "2026-10-29T05:16:30+00:00",
+        "nature": "estimated"
+      },
+      "reserved": {
+        "selection_id": "st_ab72fd658757c89b",
+        "direction": "user_scenario",
+        "search_mode": "search_basic",
+        "generation_mode": "generate_direct",
+        "search_queries": 0,
+        "include_revision": true,
+        "improvement": false,
+        "expected_benefit": null,
+        "rationale": "三个方向在含返修与复核的完整路径上费用与时长相同（410 分、29 秒，剩余 520 分、截止 2026-10-30T04:00 均满足），差异在表达与资料风险。选用户情境：M-005 已提供已授权的招新等四类校园情境片段（12 条 10-20 秒 1080p），可直接承担场景与氛围；自动卡点的能力由 M-001 与待制作操作录屏承担，符合“情境画面不能单独证明功能”的边界。功能演示缺少现成录屏、纯功能对招新情境吸引力有限；教程在 30 秒内步骤密度过高。计划基础检索模式、直接生成，并预留一次返修与复核（120+80 分）。",
+        "total_cost_cents": 410,
+        "total_duration_ms": 29000,
+        "incurred_cents": 80,
+        "remaining_cents": 520,
+        "strategy_version": "2026-10-29.v1",
+        "pricing_version": "2026-10-29.v1",
+        "created_at": "2026-10-29T05:16:30+00:00",
+        "nature": "reserved"
+      },
+      "note": "预留与估算是可行性判断，不是实际支出；实际消耗只累计账本中 nature=incurred 的记录。"
+    },
+    "real_model_usage": {
+      "category": "real_model_usage",
+      "unit": "request/token",
+      "source": "DeepSeek API response usage（openai SDK）",
+      "nature": "actual_usage",
+      "requests": 17,
+      "real_requests": 17,
+      "mock_requests": 0,
+      "unknown_usage_requests": 0,
+      "prompt_tokens": 303947,
+      "completion_tokens": 18912,
+      "cache_hit_tokens": 262144,
+      "cache_miss_tokens": 41803,
+      "elapsed_ms": 147269,
+      "amount": {
+        "status": "unknown",
+        "value_cents": null,
+        "reason": "没有可靠的单价来源，不把 token 用量换算成金额；未发生真实请求时也不补成已核实零费用。"
+      }
+    },
+    "activity_costs": {
+      "category": "activity_cost",
+      "unit": "CNY_cent",
+      "source": "campaign.materials",
+      "status": "unknown",
+      "nature": "unknown",
+      "entries": [
+        {
+          "name": "背景音乐《Late Bus》（120 BPM）",
+          "material_id": "M-006",
+          "status": "to_acquire",
+          "amount_cents": null,
+          "nature": "unknown",
+          "source": "campaign.materials"
+        },
+        {
+          "name": "自动卡点操作录屏（导入-卡点对齐-逐段微调-重新卡点-复杂曲风手动调整）",
+          "material_id": null,
+          "status": "to_create",
+          "amount_cents": null,
+          "nature": "unknown",
+          "source": "campaign.materials"
+        },
+        {
+          "name": "第4段测试音乐（已授权变速/弱节拍曲目）",
+          "material_id": null,
+          "status": "to_acquire",
+          "amount_cents": null,
+          "nature": "unknown",
+          "source": "campaign.materials"
+        },
+        {
+          "name": "平台已授权占位音乐",
+          "material_id": null,
+          "status": "to_acquire",
+          "amount_cents": null,
+          "nature": "unknown",
+          "source": "campaign.materials"
+        },
+        {
+          "name": "“帧剪”字样与结尾字幕板",
+          "material_id": null,
+          "status": "to_create",
+          "amount_cents": null,
+          "nature": "unknown",
+          "source": "campaign.materials"
+        }
+      ],
+      "reason": "方案含待获取或待制作素材，但任务输入与材料未给出活动预算或已发生支出金额。"
+    },
+    "unknown": [
+      "real_model_usage.amount",
+      "activity_costs"
+    ],
+    "not_applicable": []
+  },
+  "review": {
+    "review_id": "v_b54b3466b22fefac",
+    "output_id": "o_a1cac7bd30469c01",
+    "output_version": 2,
+    "status": "complete",
+    "verdict": "pass",
+    "completeness": "full",
+    "findings": [
+      {
+        "finding_id": "G1",
+        "severity": "optional",
+        "location": "campaign.activity.content_items 第2项（操作录屏时长40s）与第3项（发布说明duration_s=60）",
+        "requirement": "制作可用/前后一致：内容条目时长字段应与条目性质一致",
+        "evidence": "campaign.activity.content_items 中“操作录屏素材合集”标注 duration_s:40 且 purpose 写“30-45秒原始素材”；“发布说明与素材权利核对单”标注 duration_s:60 并在 purpose 中自注“60秒为文档阅读估时，非视频时长”",
+        "issue": "两项均为非成片交付物，被放进 duration_s 字段并用不同口径（40s 落在30-45s范围外的表达、60为阅读估时），会让排期与素材使用方对时长口径产生误解；不影响主视频30秒与排期锚点判断",
+        "suggestion": "建议将该字段改为“预计素材/阅读时长”或加性质备注，或将发布说明的 duration_s 置空，并在 materials 中统一写“30-45秒原始素材，剪辑取用第2-4段共21秒”，避免误读",
+        "reviewed_version": "2"
+      },
+      {
+        "finding_id": "G2",
+        "severity": "optional",
+        "location": "materials 中“校园场景视频素材包”的 use/position（第2段录屏内作为导入的时间线素材）与 production_steps 录屏步骤",
+        "requirement": "制作可用：录屏素材须为可展示的授权画面",
+        "evidence": "M-005 scope 为“已取得演员授权，限本题活动使用；不含品牌 Logo 特写”；materials 中 M-005 的 position 写“第2段录屏内”，production_steps 录屏步骤仅笼统要求“避免出现个人信息与未获授权素材”",
+        "issue": "第2段录屏内导入 M-005 片段会在屏幕内呈现该素材；用途与授权范围一致，但录屏步骤未明确“屏幕内出现的招新片段须为 M-005 已授权片段、不得混入其他现场拍摄素材或含 Logo 特写画面”，实际录制存在混入风险",
+        "suggestion": "可选：在录屏拍摄步骤 note 中补一句“录屏内导入的素材仅限 M-005 已授权招新片段，避免出现其他社团 Logo 特写或未授权拍摄画面”",
+        "reviewed_version": "2"
+      },
+      {
+        "finding_id": "G3",
+        "severity": "optional",
+        "location": "campaign.strategy.rationale（“三个方向在含一次返修与复核的完整路径上费用与时长相同（估算410分、29秒）”）",
+        "requirement": "前后一致：估算口径应区分完整路径与已发生费用",
+        "evidence": "resource_evidence.strategy_estimates 中三方向 total_cost_cents=410、total_duration_ms=29000，spent_cents=360；方案 rationale 同时写“实际已发生280分……剩余320分”与“410分完整路径中生成与核验已完成，剩余返修120分、复核80分、保存10分，合计210分，完成后余量约110分”",
+        "issue": "“410分完整路径”与“剩余210分”两种口径并列，数字自洽（280+210=490，余110，与 budget_gap_cents=110 一致），但“410”易被误读为还需再花410分；属表达清晰度问题，不影响可行性判断",
+        "suggestion": "可选：改为“完整路径估算410分（其中生成120与核验80已发生），后续需返修120+复核80+保存10=210分”，并注明410为估算非实际支出、预留不等于已花费",
+        "reviewed_version": "2"
+      }
+    ],
+    "summary": "v2 稿已修复上轮三项意见（预算记账改为已发生280分/剩余320分并与 budget_gap 110 自洽、新增第4段测试音乐授权项与主曲衔接处理、版本门槛写入发布说明与审核步骤）；事实主张均可追溯到 M-001/M-003/M-004/M-005/M-006 并标明适用范围，情境画面未冒充功能证据，待制作项均含位置、负责人、步骤、风险与发布前条件，含一次返修与复核的完整路径比较与预算取舍清楚；仅余少量不影响交付的表达细节可选改进。",
+    "evidence_gaps": [],
+    "requests_used": 2,
+    "readbacks_used": 0,
+    "attempt_id": "a_f15e894cb949f3fa",
+    "created_at": "2026-10-29T05:18:34+00:00"
+  },
+  "versions": {
+    "app": "0.1.0",
+    "prompt": "main-2026-10-29.v11",
+    "materials": "2026-10-29.v1",
+    "pricing": "2026-10-29.v1",
+    "strategy": "2026-10-29.v1"
+  },
+  "source_manifest": "examples\\repair-live\\budget-delivery-04\\manifest.json",
+  "initial_scenario_result": "complete"
+}

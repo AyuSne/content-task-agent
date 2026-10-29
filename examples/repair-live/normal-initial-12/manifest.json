@@ -1,0 +1,189 @@
+{
+  "scenario": "normal",
+  "mode": "real",
+  "input": {
+    "topic": "帧剪校园社团招新短视频推广",
+    "budget": "20",
+    "deadline": "2026-10-30T12:00:00+08:00",
+    "audience": "18-24岁大学生",
+    "requirements": [
+      "围绕自动卡点，准备一份含一条30秒主视频的完整内容活动方案。",
+      "只使用合成资料可支持的正式能力；说明音乐授权和待制作操作录屏；不作涨粉承诺。"
+    ]
+  },
+  "main_round_limit_for_new_task": "application_default",
+  "fault": null,
+  "commands": [
+    {
+      "label": "01-create",
+      "argv": [
+        "D:\\AAA小影科技\\content-task-agent\\.venv\\Scripts\\python.exe",
+        "-m",
+        "cta",
+        "--mode",
+        "real",
+        "--data-dir",
+        "D:\\AAA小影科技\\content-task-agent\\examples\\repair-live\\normal-initial-12\\data",
+        "create",
+        "--new",
+        "--topic",
+        "帧剪校园社团招新短视频推广",
+        "--budget",
+        "20",
+        "--deadline",
+        "2026-10-30T12:00:00+08:00",
+        "--audience",
+        "18-24岁大学生",
+        "--requirement",
+        "围绕自动卡点，准备一份含一条30秒主视频的完整内容活动方案。",
+        "--requirement",
+        "只使用合成资料可支持的正式能力；说明音乐授权和待制作操作录屏；不作涨粉承诺。"
+      ],
+      "fault": null,
+      "exit_code": 0,
+      "wall_seconds": 0.619
+    },
+    {
+      "label": "02-run",
+      "argv": [
+        "D:\\AAA小影科技\\content-task-agent\\.venv\\Scripts\\python.exe",
+        "-m",
+        "cta",
+        "--mode",
+        "real",
+        "--data-dir",
+        "D:\\AAA小影科技\\content-task-agent\\examples\\repair-live\\normal-initial-12\\data",
+        "run",
+        "t_4b3bf5575a10"
+      ],
+      "fault": null,
+      "exit_code": 0,
+      "wall_seconds": 9.628
+    },
+    {
+      "label": "05-inspect",
+      "argv": [
+        "D:\\AAA小影科技\\content-task-agent\\.venv\\Scripts\\python.exe",
+        "-m",
+        "cta",
+        "--mode",
+        "real",
+        "--data-dir",
+        "D:\\AAA小影科技\\content-task-agent\\examples\\repair-live\\normal-initial-12\\data",
+        "inspect",
+        "t_4b3bf5575a10"
+      ],
+      "fault": null,
+      "exit_code": 0,
+      "wall_seconds": 0.461
+    },
+    {
+      "label": "06-export",
+      "argv": [
+        "D:\\AAA小影科技\\content-task-agent\\.venv\\Scripts\\python.exe",
+        "-m",
+        "cta",
+        "--mode",
+        "real",
+        "--data-dir",
+        "D:\\AAA小影科技\\content-task-agent\\examples\\repair-live\\normal-initial-12\\data",
+        "export",
+        "t_4b3bf5575a10"
+      ],
+      "fault": null,
+      "exit_code": 4,
+      "wall_seconds": 0.486
+    }
+  ],
+  "started_at_unix": 1793241382.4102187,
+  "source_sha": "41fe51a487b3c685053ea8b9383b3c531a74e4a8",
+  "task_id": "t_4b3bf5575a10",
+  "finished_at_unix": 1793241393.701011,
+  "status": "incomplete",
+  "progress": {
+    "sim_start": "2026-10-29T00:00:00+08:00",
+    "sim_now": "2026-10-29T00:00:00+08:00",
+    "sim_elapsed_ms": 0,
+    "used_rounds": 1,
+    "max_rounds": 12,
+    "paused": false,
+    "current_output": null,
+    "save": null,
+    "phase": "stopped",
+    "brief_version": 0,
+    "last_run_at": "2026-10-29T02:36:25+00:00"
+  },
+  "resources": {
+    "budget_cents": 2000,
+    "sim_spent_cents": 0,
+    "remaining_cents": 2000,
+    "real_requests": 1,
+    "mock_requests": 0,
+    "model_requests": 1,
+    "real_usage": {
+      "requests": 1,
+      "real_requests": 1,
+      "mock_requests": 0,
+      "unknown_usage_requests": 1,
+      "usage_complete": false,
+      "prompt_tokens": 0,
+      "completion_tokens": 0,
+      "cache_hit_tokens": 0,
+      "cache_miss_tokens": 0,
+      "elapsed_ms": 6565
+    },
+    "real_cost": null,
+    "amount_status": {
+      "simulated_tool_fee": "incurred_and_estimated",
+      "real_model_usage": "unknown",
+      "activity_costs": "not_applicable"
+    },
+    "simulated_tool_fee": {
+      "category": "simulated_tool_fee",
+      "unit": "CNY_cent",
+      "source": "pricing:2026-10-29.v1",
+      "nature": "incurred",
+      "incurred_cents": 0,
+      "ledger_entries": 0,
+      "estimated": null,
+      "reserved": null,
+      "note": "预留与估算是可行性判断，不是实际支出；实际消耗只累计账本中 nature=incurred 的记录。"
+    },
+    "real_model_usage": {
+      "category": "real_model_usage",
+      "unit": "request/token",
+      "source": "DeepSeek API response usage（openai SDK）",
+      "nature": "actual_usage",
+      "requests": 1,
+      "real_requests": 1,
+      "mock_requests": 0,
+      "unknown_usage_requests": 1,
+      "prompt_tokens": 0,
+      "completion_tokens": 0,
+      "cache_hit_tokens": 0,
+      "cache_miss_tokens": 0,
+      "elapsed_ms": 6565,
+      "amount": {
+        "status": "unknown",
+        "value_cents": null,
+        "reason": "没有可靠的单价来源，不把 token 用量换算成金额；未发生真实请求时也不补成已核实零费用。"
+      }
+    },
+    "activity_costs": {
+      "category": "activity_cost",
+      "unit": "CNY_cent",
+      "source": "task_input/campaign.materials",
+      "status": "not_applicable",
+      "nature": "not_applicable",
+      "entries": [],
+      "reason": "任务输入、资料与执行未涉及活动制作或投放预算/实际支出。"
+    },
+    "unknown": [
+      "real_model_usage.amount"
+    ],
+    "not_applicable": [
+      "activity_costs"
+    ]
+  },
+  "file_hashes": {}
+}

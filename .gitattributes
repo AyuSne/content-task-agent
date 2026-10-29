@@ -1,0 +1,3 @@
+# Raw evidence retains original bytes and model-produced whitespace.
+# Source-code whitespace checks remain enabled outside examples/.
+examples/** -text -whitespace

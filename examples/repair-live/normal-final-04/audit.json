@@ -1,0 +1,266 @@
+{
+  "case": "normal-final-04",
+  "task_id": "t_683625d6acf7",
+  "status": "incomplete",
+  "checks": {
+    "simulation_ledger_matches": true,
+    "simulation_time_matches": true,
+    "audit_did_not_charge": true,
+    "audit_did_not_call_model": true,
+    "round_limit_preserved": true,
+    "no_mock_requests": true,
+    "main_message_pairing": true,
+    "unique_call_ids": true,
+    "no_running_request": true
+  },
+  "invariants_hold": true,
+  "input": {
+    "version": 1,
+    "topic": "帧剪校园社团招新短视频推广",
+    "budget": "20.00",
+    "budget_cents": 2000,
+    "deadline": "2026-10-30T04:00:00+00:00",
+    "audience": "18-24岁大学生",
+    "requirements": [
+      "围绕自动卡点，准备一份含一条30秒主视频的完整内容活动方案。",
+      "只使用合成资料可支持的正式能力；说明音乐授权和待制作操作录屏；不作涨粉承诺。"
+    ],
+    "raw": {
+      "topic": "帧剪校园社团招新短视频推广",
+      "budget": "20",
+      "deadline": "2026-10-30T12:00:00+08:00",
+      "audience": "18-24岁大学生",
+      "requirements": [
+        "围绕自动卡点，准备一份含一条30秒主视频的完整内容活动方案。",
+        "只使用合成资料可支持的正式能力；说明音乐授权和待制作操作录屏；不作涨粉承诺。"
+      ]
+    },
+    "fingerprint": "c35500075e5ef91c0a0f827a3c6b64b56cae88a3cb33b54a9e20c909aa50ab36"
+  },
+  "progress": {
+    "sim_start": "2026-10-29T00:00:00+08:00",
+    "sim_now": "2026-10-29T00:00:36+08:00",
+    "sim_elapsed_ms": 36000,
+    "used_rounds": 24,
+    "max_rounds": 24,
+    "paused": false,
+    "current_output": {
+      "output_id": "o_bbc7a01f24949dd6",
+      "version": 2,
+      "status": "draft",
+      "strategy": "user_scenario"
+    },
+    "save": null,
+    "phase": "stopped",
+    "brief_version": 1,
+    "last_run_at": "2026-10-29T03:35:50+00:00"
+  },
+  "resources": {
+    "budget_cents": 2000,
+    "sim_spent_cents": 480,
+    "remaining_cents": 1520,
+    "real_requests": 29,
+    "mock_requests": 0,
+    "model_requests": 29,
+    "real_usage": {
+      "requests": 29,
+      "real_requests": 29,
+      "mock_requests": 0,
+      "unknown_usage_requests": 0,
+      "usage_complete": true,
+      "prompt_tokens": 730871,
+      "completion_tokens": 26121,
+      "cache_hit_tokens": 662144,
+      "cache_miss_tokens": 68727,
+      "elapsed_ms": 138961
+    },
+    "real_cost": null,
+    "amount_status": {
+      "simulated_tool_fee": "incurred_and_estimated",
+      "real_model_usage": "unknown",
+      "activity_costs": "unknown"
+    },
+    "simulated_tool_fee": {
+      "category": "simulated_tool_fee",
+      "unit": "CNY_cent",
+      "source": "pricing:2026-10-29.v1",
+      "nature": "incurred",
+      "incurred_cents": 480,
+      "ledger_entries": 6,
+      "estimated": {
+        "estimate_id": "e_0bc15098b4e71f9e",
+        "kind": "strategy_choice",
+        "direction": "user_scenario",
+        "search_mode": "search_basic",
+        "generation_mode": "generate_direct",
+        "search_queries": 0,
+        "include_revision": true,
+        "total_cost_cents": 410,
+        "total_duration_ms": 29000,
+        "incurred_cents": 80,
+        "remaining_cents": 1920,
+        "feasible": true,
+        "strategy_version": "2026-10-29.v1",
+        "pricing_version": "2026-10-29.v1",
+        "created_at": "2026-10-29T03:34:04+00:00",
+        "nature": "estimated"
+      },
+      "reserved": {
+        "selection_id": "st_f458c2ea336df62a",
+        "direction": "user_scenario",
+        "search_mode": "search_basic",
+        "generation_mode": "generate_direct",
+        "search_queries": 0,
+        "include_revision": true,
+        "improvement": false,
+        "expected_benefit": null,
+        "rationale": "活动目标是面向大学社团招新的短视频推广，30 秒主视频既要让人代入招新情境又必须举证自动卡点。用户情境主线以已授权的 M-005 招新/操场画面建立代入，操作录屏段承担能力证明（M-001），可同时满足情境吸引力与“只用正式能力”的要求。比较显示三方向剩余路径同为 410 分、约 29 秒，预算剩余 1920 分、截止余量充足，选择不基于价格。纯功能演示缺少情境吸引力，且 30 秒内单独讲功能难以建立招新相关性；教程在 30 秒内步骤密度过高，需要更完整录屏。主风险（情境画面不能证明能力、音乐授权待获取、录屏待制作）已在素材表与待确认项中显式处理。已完成的两次检索覆盖了所需证据，无需新增检索。",
+        "total_cost_cents": 410,
+        "total_duration_ms": 29000,
+        "incurred_cents": 80,
+        "remaining_cents": 1920,
+        "strategy_version": "2026-10-29.v1",
+        "pricing_version": "2026-10-29.v1",
+        "created_at": "2026-10-29T03:34:04+00:00",
+        "nature": "reserved"
+      },
+      "note": "预留与估算是可行性判断，不是实际支出；实际消耗只累计账本中 nature=incurred 的记录。"
+    },
+    "real_model_usage": {
+      "category": "real_model_usage",
+      "unit": "request/token",
+      "source": "DeepSeek API response usage（openai SDK）",
+      "nature": "actual_usage",
+      "requests": 29,
+      "real_requests": 29,
+      "mock_requests": 0,
+      "unknown_usage_requests": 0,
+      "prompt_tokens": 730871,
+      "completion_tokens": 26121,
+      "cache_hit_tokens": 662144,
+      "cache_miss_tokens": 68727,
+      "elapsed_ms": 138961,
+      "amount": {
+        "status": "unknown",
+        "value_cents": null,
+        "reason": "没有可靠的单价来源，不把 token 用量换算成金额；未发生真实请求时也不补成已核实零费用。"
+      }
+    },
+    "activity_costs": {
+      "category": "activity_cost",
+      "unit": "CNY_cent",
+      "source": "campaign.materials",
+      "status": "unknown",
+      "nature": "unknown",
+      "entries": [
+        {
+          "name": "自动卡点操作录屏（帧剪 4.2 及以上，竖屏）",
+          "material_id": null,
+          "status": "to_create",
+          "amount_cents": null,
+          "nature": "unknown",
+          "source": "campaign.materials"
+        },
+        {
+          "name": "背景音乐《Late Bus》（120 BPM）",
+          "material_id": "M-006",
+          "status": "to_acquire",
+          "amount_cents": null,
+          "nature": "unknown",
+          "source": "campaign.materials"
+        },
+        {
+          "name": "替代卡点曲目（名称待定）",
+          "material_id": null,
+          "status": "to_acquire",
+          "amount_cents": null,
+          "nature": "unknown",
+          "source": "campaign.materials"
+        },
+        {
+          "name": "人工叠加操作引导图文与字幕（选音乐→选片段→一键对齐→逐段微调）",
+          "material_id": null,
+          "status": "to_create",
+          "amount_cents": null,
+          "nature": "unknown",
+          "source": "campaign.materials"
+        }
+      ],
+      "reason": "方案含待获取或待制作素材，但任务输入与材料未给出活动预算或已发生支出金额。"
+    },
+    "unknown": [
+      "real_model_usage.amount",
+      "activity_costs"
+    ],
+    "not_applicable": []
+  },
+  "review": {
+    "review_id": "v_ab37e5a2a46e11e8",
+    "output_id": "o_bbc7a01f24949dd6",
+    "output_version": 2,
+    "status": "complete",
+    "verdict": "fail",
+    "completeness": "full",
+    "findings": [
+      {
+        "finding_id": "R1",
+        "severity": "must_fix",
+        "location": "campaign.materials「自动卡点操作录屏」rights_note / campaign.production_steps「录制自动卡点操作录屏」note / open_questions[1]",
+        "requirement": "待制作项须有使用位置、负责人、可执行步骤、风险和发布前条件（制作可用）",
+        "evidence": "素材表仅写“录制账号与版本由产品负责人确认”；制作步骤写“客户端同学（录制）+ 产品同学（版本与功能口径核对）”；M-001 scope 为 iOS/Android 4.2 及以上；open_questions[1] 仅列为待确认，blocking:false。",
+        "issue": "录屏是第3-5段及两条切片的唯一能力证明，但方案未指定录制设备/系统（iOS 或 Android）、具体账号、4.2+ 版本核验方式与验收口径；风险（界面出现未授权素材、版本不符、录屏不可用）未写对应回退动作；录制步骤前置条件为“音乐授权确认后第1个工作日”，若授权延误则后续步骤无替代路径。",
+        "suggestion": "在素材表与制作步骤中补充：指定录制设备与系统、账号归属人、版本号核验方法（设置内版本页截图留档）、验收清单（四个动作齐全、无第三方素材、竖屏）；明确授权未在录制日到位时的顺延方式，并将该项升级为发布前必须闭合的条件。",
+        "reviewed_version": "2"
+      },
+      {
+        "finding_id": "R2",
+        "severity": "must_fix",
+        "location": "campaign.materials「替代卡点曲目」/ production_steps「锁定首发音乐并完成授权」note / open_questions[0]",
+        "requirement": "说明音乐授权；待获取素材须有负责人、可执行步骤、风险与发布前条件",
+        "evidence": "M-006：授权待获取、预计2个工作日；素材表标注替代曲“授权、授权凭证与节奏参数（BPM）均未确认，无现有材料支持”；open_questions[0] 提出“由谁在何时确认”但 blocking:false。",
+        "issue": "替代曲仅标“仅备选”，未指定接洽人员、最晚确认时点（相对录制日）与失败判定标准，“同步评估替代曲”在执行层不可核查；《Late Bus》预计2个工作日授权与录制节点无缓冲，两曲均未到位时方案未给出发布延期或改变方案的决策路径。",
+        "suggestion": "在制作步骤与素材表明确：替代曲接洽负责人、最晚确认时点（如录制前一天18:00）、判定标准（书面授权凭证+BPM+节奏清晰度试听通过）；并写明两首曲目均未到位时的决策责任人、发布延期或替代处理方式及对招新窗口的影响。",
+        "reviewed_version": "2"
+      },
+      {
+        "finding_id": "R3",
+        "severity": "optional",
+        "location": "campaign.script.segments[2]（第3段 subtitle）与 segments[4]（第5段 subtitle）",
+        "requirement": "表达应轻快、真实、可操作（M-004）；事实支持",
+        "evidence": "E1/E3 scope：支持15/30/60秒成片、节奏清晰曲目更稳；E2：不承诺全曲风准确。",
+        "issue": "两条字幕均在 scope 内、事实合规；但第3段含括注、第5段并列两句，30秒内单屏字数偏多，可读性与“轻快”表达略有折损。",
+        "suggestion": "可将第5段拆为两屏，或压缩括注为角标，提升可读性；不改事实口径。",
+        "reviewed_version": "2"
+      },
+      {
+        "finding_id": "R4",
+        "severity": "optional",
+        "location": "campaign.production_steps timing 字段 / campaign.delivery_scope",
+        "requirement": "制作与发布排期独立标明；制作可用",
+        "evidence": "delivery_scope 已声明 deadline 仅适用方案准备与核实保存；制作步骤多数使用“第1-2个工作日”“录屏后第1个工作日”等相对表述。",
+        "issue": "相对时程未对应具体日期或招新窗口，无法验证能否落在招新周期内；切片“主视频后2-3天发布”也缺锚点。",
+        "suggestion": "招新日期确认后补一张带绝对日期的执行排期表，并说明发布窗口与招新起始日的关系。",
+        "reviewed_version": "2"
+      }
+    ],
+    "summary": "上轮 F1/F2/F3/F5/F6 主体问题已修复（录屏与发布同曲绑定、人工叠加图文与 AI 字幕区分、替代曲仅备选、第6段不显示界面、剪辑前平台画幅确认），事实引用与范围可追、无涨粉承诺、实验性能力未写成正式能力；但待制作录屏与替代曲缺少可执行的操作细节与失败回退路径，需补齐后方可交付。",
+    "evidence_gaps": [
+      "《Late Bus》商用授权能否在录制前取得及书面凭证无材料支持（M-006 仅说明待获取、预计2个工作日）；替代曲名称、授权状态、BPM 与接洽负责人均无材料",
+      "自动卡点操作录屏的录制设备/系统（iOS 或 Android）、录制账号、4.2+ 版本核验方式与验收清单未固定到材料，仅有文字安排",
+      "社团招新具体日期与发布窗口未知，导致制作步骤相对时程无法换算为绝对日期"
+    ],
+    "requests_used": 2,
+    "readbacks_used": 0,
+    "attempt_id": "a_c449412d714cc716",
+    "created_at": "2026-10-29T03:35:45+00:00"
+  },
+  "versions": {
+    "app": "0.1.0",
+    "prompt": "main-2026-10-29.v11",
+    "materials": "2026-10-29.v1",
+    "pricing": "2026-10-29.v1",
+    "strategy": "2026-10-29.v1"
+  },
+  "source_manifest": "examples\\repair-live\\normal-final-04\\manifest.json",
+  "initial_scenario_result": "incomplete"
+}

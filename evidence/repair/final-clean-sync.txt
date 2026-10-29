@@ -1,15 +1,15 @@
-Resolved 24 packages in 3ms
-   Building content-task-agent @ file:///D:/AAA%E5%B0%8F%E5%BD%B1%E7%A7%91%E6%8A%80/.scratch/content-task-agent-build/repro-final-a6c71c1
-WARN Retry attempt #0. Sleeping 250.5104ms before the next attempt
-WARN Retry attempt #1. Sleeping 1.0041748s before the next attempt
-      Built content-task-agent @ file:///D:/AAA%E5%B0%8F%E5%BD%B1%E7%A7%91%E6%8A%80/.scratch/content-task-agent-build/repro-final-a6c71c1
-Prepared 1 package in 15.34s
-Installed 24 packages in 747ms
+Using CPython 3.13.11
+Creating virtual environment at: D:/AAA小影科技/.scratch/content-task-agent-build/repro-final-60249d6/.venv
+Resolved 24 packages in 4ms
+   Building content-task-agent @ file:///D:/AAA%E5%B0%8F%E5%BD%B1%E7%A7%91%E6%8A%80/.scratch/content-task-agent-build/repro-final-60249d6
+      Built content-task-agent @ file:///D:/AAA%E5%B0%8F%E5%BD%B1%E7%A7%91%E6%8A%80/.scratch/content-task-agent-build/repro-final-60249d6
+Prepared 1 package in 3.71s
+Installed 24 packages in 1.03s
  + annotated-types==0.8.0
  + anyio==4.15.1
  + certifi==2026.10.23
  + colorama==0.4.6
- + content-task-agent==0.1.0 (from file:///D:/AAA%E5%B0%8F%E5%BD%B1%E7%A7%91%E6%8A%80/.scratch/content-task-agent-build/repro-final-a6c71c1)
+ + content-task-agent==0.1.0 (from file:///D:/AAA%E5%B0%8F%E5%BD%B1%E7%A7%91%E6%8A%80/.scratch/content-task-agent-build/repro-final-60249d6)
  + distro==1.9.0
  + h11==0.16.0
  + httpcore==1.0.9

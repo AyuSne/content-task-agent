@@ -1,0 +1,255 @@
+{
+  "case": "budget-delivery-02",
+  "task_id": "t_20abe86da8c9",
+  "status": "complete",
+  "checks": {
+    "simulation_ledger_matches": true,
+    "simulation_time_matches": true,
+    "audit_did_not_charge": true,
+    "audit_did_not_call_model": true,
+    "round_limit_preserved": true,
+    "no_mock_requests": true,
+    "main_message_pairing": true,
+    "unique_call_ids": true,
+    "no_running_request": true,
+    "verified_current_save": true,
+    "all_delivery_hashes_match": true,
+    "within_simulated_budget": true,
+    "within_simulated_deadline": true,
+    "review_applies_to_current_version": true,
+    "trace_save_matches_authority": true
+  },
+  "invariants_hold": true,
+  "input": {
+    "version": 1,
+    "topic": "帧剪校园社团招新短视频推广",
+    "budget": "6.00",
+    "budget_cents": 600,
+    "deadline": "2026-10-30T04:00:00+00:00",
+    "audience": "18-24岁大学生",
+    "requirements": [
+      "围绕自动卡点，准备一份含一条30秒主视频的完整内容活动方案。",
+      "只使用合成资料可支持的正式能力；说明音乐授权和待制作操作录屏；不作涨粉承诺。",
+      "比较包含一次必要返修及复核预留的完整路径，再依据实际预算反馈选择模式；预留不计已发生费用，不要求用尽预算。"
+    ],
+    "raw": {
+      "topic": "帧剪校园社团招新短视频推广",
+      "budget": "6.00",
+      "deadline": "2026-10-30T12:00:00+08:00",
+      "audience": "18-24岁大学生",
+      "requirements": [
+        "围绕自动卡点，准备一份含一条30秒主视频的完整内容活动方案。",
+        "只使用合成资料可支持的正式能力；说明音乐授权和待制作操作录屏；不作涨粉承诺。",
+        "比较包含一次必要返修及复核预留的完整路径，再依据实际预算反馈选择模式；预留不计已发生费用，不要求用尽预算。"
+      ]
+    },
+    "fingerprint": "37aa4223238addb1e2fc784af11cbcd869e4a159867e0c7aa5d989e757b5ff6f"
+  },
+  "progress": {
+    "sim_start": "2026-10-29T00:00:00+08:00",
+    "sim_now": "2026-10-29T00:00:41+08:00",
+    "sim_elapsed_ms": 41000,
+    "used_rounds": 17,
+    "max_rounds": 24,
+    "paused": false,
+    "current_output": {
+      "output_id": "o_61e44f9157b6122a",
+      "version": 2,
+      "status": "draft",
+      "strategy": "user_scenario"
+    },
+    "save": {
+      "save_id": "s_54dc7622b816278f",
+      "output_version": 2,
+      "status": "verified",
+      "verified": true
+    },
+    "phase": "complete",
+    "brief_version": 1,
+    "last_run_at": "2026-10-29T04:36:30+00:00"
+  },
+  "resources": {
+    "budget_cents": 600,
+    "sim_spent_cents": 550,
+    "remaining_cents": 50,
+    "real_requests": 22,
+    "mock_requests": 0,
+    "model_requests": 22,
+    "real_usage": {
+      "requests": 22,
+      "real_requests": 22,
+      "mock_requests": 0,
+      "unknown_usage_requests": 2,
+      "usage_complete": false,
+      "prompt_tokens": 424643,
+      "completion_tokens": 18754,
+      "cache_hit_tokens": 360960,
+      "cache_miss_tokens": 63683,
+      "elapsed_ms": 119550
+    },
+    "real_cost": null,
+    "amount_status": {
+      "simulated_tool_fee": "incurred_and_estimated",
+      "real_model_usage": "unknown",
+      "activity_costs": "unknown"
+    },
+    "simulated_tool_fee": {
+      "category": "simulated_tool_fee",
+      "unit": "CNY_cent",
+      "source": "pricing:2026-10-29.v1",
+      "nature": "incurred",
+      "incurred_cents": 550,
+      "ledger_entries": 7,
+      "estimated": {
+        "estimate_id": "e_e77a55cceb36fa3c",
+        "kind": "strategy_choice",
+        "direction": "user_scenario",
+        "search_mode": "search_basic",
+        "generation_mode": "generate_direct",
+        "search_queries": 0,
+        "include_revision": true,
+        "total_cost_cents": 410,
+        "total_duration_ms": 29000,
+        "incurred_cents": 60,
+        "remaining_cents": 540,
+        "feasible": true,
+        "strategy_version": "2026-10-29.v1",
+        "pricing_version": "2026-10-29.v1",
+        "created_at": "2026-10-29T04:35:00+00:00",
+        "nature": "estimated"
+      },
+      "reserved": {
+        "selection_id": "st_3ed43c101177e80e",
+        "direction": "user_scenario",
+        "search_mode": "search_basic",
+        "generation_mode": "generate_direct",
+        "search_queries": 0,
+        "include_revision": true,
+        "improvement": false,
+        "expected_benefit": null,
+        "rationale": "用户要求围绕自动卡点做校园社团招新推广，受众是 18-24 岁大学生。用户情境方向以 M-005 已授权的社团招新/操场/教室情境画面承接场景吸引力，配合 M-001 的自动卡点能力作为证据支撑，最贴合「校园社团招新」主题与受众调研（M-003 显示社团活动记录是高频类型、重视手动微调）。功能演示缺可展示录屏且情境吸引力有限；教程在 30 秒内密度过高、需更完整录屏步骤。资料缺口已在简报阶段检索完成（剩余检索 0 次），风险点（情境画面不能证明能力、M-006 音乐授权待获取）在方案中以证据关联与待获取素材说明处理。按 generate_direct 含一次返修及复核的完整路径为 410 分，当前剩余 540 分，预算与截止均可行。",
+        "total_cost_cents": 410,
+        "total_duration_ms": 29000,
+        "incurred_cents": 60,
+        "remaining_cents": 540,
+        "strategy_version": "2026-10-29.v1",
+        "pricing_version": "2026-10-29.v1",
+        "created_at": "2026-10-29T04:35:00+00:00",
+        "nature": "reserved"
+      },
+      "note": "预留与估算是可行性判断，不是实际支出；实际消耗只累计账本中 nature=incurred 的记录。"
+    },
+    "real_model_usage": {
+      "category": "real_model_usage",
+      "unit": "request/token",
+      "source": "DeepSeek API response usage（openai SDK）",
+      "nature": "actual_usage",
+      "requests": 22,
+      "real_requests": 22,
+      "mock_requests": 0,
+      "unknown_usage_requests": 2,
+      "prompt_tokens": 424643,
+      "completion_tokens": 18754,
+      "cache_hit_tokens": 360960,
+      "cache_miss_tokens": 63683,
+      "elapsed_ms": 119550,
+      "amount": {
+        "status": "unknown",
+        "value_cents": null,
+        "reason": "没有可靠的单价来源，不把 token 用量换算成金额；未发生真实请求时也不补成已核实零费用。"
+      }
+    },
+    "activity_costs": {
+      "category": "activity_cost",
+      "unit": "CNY_cent",
+      "source": "campaign.materials",
+      "status": "unknown",
+      "nature": "unknown",
+      "entries": [
+        {
+          "name": "帧剪自动卡点操作录屏",
+          "material_id": null,
+          "status": "to_create",
+          "amount_cents": null,
+          "nature": "unknown",
+          "source": "campaign.materials"
+        },
+        {
+          "name": "背景音乐《Late Bus》",
+          "material_id": "M-006",
+          "status": "to_acquire",
+          "amount_cents": null,
+          "nature": "unknown",
+          "source": "campaign.materials"
+        },
+        {
+          "name": "备选节奏清晰流行乐（授权可用）",
+          "material_id": null,
+          "status": "to_acquire",
+          "amount_cents": null,
+          "nature": "unknown",
+          "source": "campaign.materials"
+        },
+        {
+          "name": "结尾界面定格图",
+          "material_id": null,
+          "status": "to_create",
+          "amount_cents": null,
+          "nature": "unknown",
+          "source": "campaign.materials"
+        }
+      ],
+      "reason": "方案含待获取或待制作素材，但任务输入与材料未给出活动预算或已发生支出金额。"
+    },
+    "unknown": [
+      "real_model_usage.amount",
+      "activity_costs"
+    ],
+    "not_applicable": []
+  },
+  "review": {
+    "review_id": "v_b68d36a720d01698",
+    "output_id": "o_61e44f9157b6122a",
+    "output_version": 2,
+    "status": "complete",
+    "verdict": "pass",
+    "completeness": "full",
+    "findings": [
+      {
+        "finding_id": "F1",
+        "severity": "optional",
+        "location": "strategy.rationale「已发生与预留」段",
+        "requirement": "用户要求 3：比较含一次必要返修及复核预留的完整路径，依据实际预算反馈选择模式；预留不计已发生费用，不要求用尽预算。",
+        "evidence": "resource_evidence.spent_cents=540（含本稿生成与本次核验）；strategy 写「生成候选 120 分、首次核验 80 分已先后实际发生，截至返修前累计 380 分」，其中返修 120 分尚未实际发生却被并入「已发生」累计。",
+        "issue": "「截至返修前累计 380 分」把尚未发生的返修生成 120 分算进已发生金额，与本段自身「已发生与预留」的区分口径略有不一致；结论（剩余 90 分预留、合计 470 分、低于 600 分、不要求用尽）不受影响，不阻塞。",
+        "suggestion": "改为「截至本次复核前已发生 260 分（含失败提交修正前的 60 分与首轮生成、核验），返修 120 分为二次返修预留」并相应重算合计，使已发生/预留口径前后一致。",
+        "reviewed_version": "2"
+      },
+      {
+        "finding_id": "F2",
+        "severity": "optional",
+        "location": "script.segments 第 5 段 visual「结尾定格帧剪界面（待制作截帧）」与 materials「结尾界面定格图」",
+        "requirement": "制作可用：待制作项须有使用位置、负责人、可执行步骤、风险与发布前条件。",
+        "evidence": "materials 定格图 status=to_create，但 rights_note、use 仅写「由操作录屏截帧生成，随录屏权利状态」；production_steps 六步未指定该截帧的负责人与时点。",
+        "issue": "相比录屏与音乐，结尾截帧缺少明确的负责人角色与制作节点，执行时可能遗漏；风险低但影响交付完整性。",
+        "suggestion": "在 production_steps「粗剪与卡点对齐」或新增条目中注明由剪辑负责人随录屏制作截帧、时点同录屏完成日，并在 rights_note 保留「随录屏权利状态、需确认无第三方信息露出」。",
+        "reviewed_version": "2"
+      }
+    ],
+    "summary": "v2 已修复上轮两条 must_fix（第三项预算/模式要求、第 4 段录屏与字幕矛盾），三项可选建议也落入正文；全稿事实主张均可追至 M-001/M-003/M-004/M-005/M-006 且未超出适用范围，情境画面未冒充能力证据，待制作/待获取项均有位置、负责人角色、节点、风险与发布前条件，未发现新的阻塞缺陷。",
+    "evidence_gaps": [],
+    "requests_used": 1,
+    "readbacks_used": 0,
+    "attempt_id": "a_bd1cf179409eee96",
+    "created_at": "2026-10-29T04:36:27+00:00"
+  },
+  "versions": {
+    "app": "0.1.0",
+    "prompt": "main-2026-10-29.v11",
+    "materials": "2026-10-29.v1",
+    "pricing": "2026-10-29.v1",
+    "strategy": "2026-10-29.v1"
+  },
+  "source_manifest": "examples\\repair-live\\budget-delivery-02\\manifest.json",
+  "initial_scenario_result": "complete"
+}

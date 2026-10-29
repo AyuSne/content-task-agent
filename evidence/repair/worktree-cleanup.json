@@ -1,0 +1,52 @@
+[
+  {
+    "worktree": "repair-loop",
+    "removed": true,
+    "stash": "7730d9dcbffccc456eb4672fbbef2344a0617557"
+  },
+  {
+    "worktree": "repair-review",
+    "removed": true,
+    "stash": null
+  },
+  {
+    "worktree": "repair-comparison",
+    "removed": true,
+    "stash": null
+  },
+  {
+    "worktree": "repair-validity",
+    "removed": true,
+    "stash": null
+  },
+  {
+    "worktree": "repair-evaluation",
+    "removed": true,
+    "stash": "80dfc9a04813f5717b2fba33bc60e04447e3327e"
+  },
+  {
+    "worktree": "repair-direct",
+    "removed": true,
+    "stash": null
+  },
+  {
+    "worktree": "repair-post-diagnosis",
+    "removed": true,
+    "stash": null
+  },
+  {
+    "worktree": "repair-post-lifecycle",
+    "removed": true,
+    "stash": "957cb31ec59a7d9c2c53273feb598afc91d6d2fa"
+  },
+  {
+    "worktree": "repair-call-receipts",
+    "removed": true,
+    "stash": null
+  },
+  {
+    "worktree": "review-save-48407bd",
+    "removed": true,
+    "stash": null
+  }
+]

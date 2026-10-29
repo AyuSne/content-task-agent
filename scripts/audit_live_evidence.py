@@ -63,7 +63,7 @@ def audit(folder):
         checks["trace_save_matches_authority"] = latest_event["status"] == save["status"] and latest_event["verified"] == save["verified"]
     result = {
         "case": folder.name, "task_id": task_id, "status": current["status"], "checks": checks,
-        "passed": all(checks.values()), "input": current["input"], "progress": current["progress"],
+        "invariants_hold": all(checks.values()), "input": current["input"], "progress": current["progress"],
         "resources": current["resources"], "review": current["review"],
         "versions": current["versions"], "source_manifest": str(folder / "manifest.json"),
         "initial_scenario_result": json.loads((folder / "05-inspect.json").read_text(encoding="utf-8"))["status"],
@@ -78,8 +78,8 @@ def main():
     args = parser.parse_args()
     results = [audit(path.parent) for path in sorted(args.root.glob("*/01-create.json"))]
     write(args.root / "audit-summary.json", results)
-    print(json.dumps([{key: item[key] for key in ("case", "status", "passed")} for item in results], ensure_ascii=False, indent=2))
-    return 0 if all(item["passed"] for item in results) else 1
+    print(json.dumps([{key: item[key] for key in ("case", "status", "invariants_hold")} for item in results], ensure_ascii=False, indent=2))
+    return 0 if all(item["invariants_hold"] for item in results) else 1
 
 
 if __name__ == "__main__":

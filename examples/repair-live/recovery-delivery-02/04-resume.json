@@ -1,0 +1,877 @@
+{
+  "task_id": "t_9fd56d281f8f",
+  "mode": "real",
+  "status": "complete",
+  "reason": "核实导出修复后确认产物与交付文件一致。",
+  "duplicate": false,
+  "created_at": "2026-10-29T04:41:23+00:00",
+  "updated_at": "2026-10-29T04:43:19+00:00",
+  "input": {
+    "version": 1,
+    "topic": "帧剪校园社团招新短视频推广",
+    "budget": "20.00",
+    "budget_cents": 2000,
+    "deadline": "2026-10-30T04:00:00+00:00",
+    "audience": "18-24岁大学生",
+    "requirements": [
+      "围绕自动卡点，准备一份含一条30秒主视频的完整内容活动方案。",
+      "只使用合成资料可支持的正式能力；说明音乐授权和待制作操作录屏；不作涨粉承诺。"
+    ],
+    "raw": {
+      "topic": "帧剪校园社团招新短视频推广",
+      "budget": "20",
+      "deadline": "2026-10-30T12:00:00+08:00",
+      "audience": "18-24岁大学生",
+      "requirements": [
+        "围绕自动卡点，准备一份含一条30秒主视频的完整内容活动方案。",
+        "只使用合成资料可支持的正式能力；说明音乐授权和待制作操作录屏；不作涨粉承诺。"
+      ]
+    },
+    "fingerprint": "c35500075e5ef91c0a0f827a3c6b64b56cae88a3cb33b54a9e20c909aa50ab36"
+  },
+  "validation": {
+    "errors": [],
+    "interpretations": []
+  },
+  "brief": {
+    "version": 1,
+    "content": {
+      "goal": "为「帧剪」制作一条30秒校园社团招新主题短视频（含配套活动安排），演示自动卡点并保留手动微调，让18-24岁大学生看懂“社团活动记录怎么快速卡上节奏”，不作涨粉承诺。",
+      "audience": "18-24岁大学生（用户已确认）。合成调研显示该群体最常制作社团活动记录、学习打卡和旅行 vlog，且多数人愿在30分钟内完成成片、更愿意保留手动调整（M-003，仅代表120人合成样本，不可外推）。据此把受众细化为“需要为社团招新做活动记录视频的学生社团成员/干事”，该细化属建议。",
+      "product_facts": [
+        {
+          "claim": "自动卡点会分析所选音乐节拍，把用户选中的视频片段对齐到节拍点，并提供逐段微调与一键重新卡点。",
+          "material_id": "M-001",
+          "quote": "自动卡点会分析所选音乐的节拍，把用户选中的视频片段对齐到节拍点。用户可以逐段微调，也可以一键重新卡点。",
+          "scope": "iOS/Android 4.2 及以上；支持 15/30/60 秒成片",
+          "use": "主脚本的核心演示点：卡点结果可逐段微调，避免“一键出片”过度承诺"
+        },
+        {
+          "claim": "自动卡点不承诺对所有曲风都准确，复杂变速或弱节拍音乐需要人工调整。",
+          "material_id": "M-001",
+          "quote": "该功能不承诺对所有曲风都准确，复杂变速或弱节拍音乐需要人工调整。",
+          "scope": "iOS/Android 4.2 及以上；对节奏清晰的流行乐与鼓点识别更稳",
+          "use": "脚本第3段以“换一段更清晰的鼓点更稳”呈现限制，并在活动说明中注明选曲建议"
+        },
+        {
+          "claim": "AI 字幕正式支持普通话与英语，可批量改样式、一键翻译为英语；其他语言仍为实验性。",
+          "material_id": "M-002",
+          "quote": "AI 字幕可把视频中的人声转成可编辑字幕，支持批量改样式和一键翻译为英语。普通话与英语为正式支持语言；粤语、日语等仍在小范围测试，识别质量不稳定。",
+          "scope": "普通话与英语为正式支持；其他语言不计入对外承诺",
+          "use": "作为可选辅助说明（招新视频里的社团旁白字幕），仅写正式支持范围，不作主卖点"
+        },
+        {
+          "claim": "校园场景素材包含教室、操场、社团招新、宿舍剪辑四个场景共12条10-20秒1080p片段，已取得演员授权、限本题使用。",
+          "material_id": "M-005",
+          "quote": "素材包含教室、操场、社团招新、宿舍剪辑四个场景，共 12 条 10-20 秒片段，分辨率 1080p。素材为情境画面，只能说明使用场景，不能单独证明产品功能。",
+          "scope": "已取得演员授权，限本题活动使用；不含品牌 Logo 特写",
+          "use": "第1、4段情境画面；只表达招新场景，不用于证明卡点能力"
+        },
+        {
+          "claim": "对外表达应轻快、真实、可操作，不得承诺涨粉/收益/爆款，不得把实验性功能写成正式能力，不得使用“最强”“唯一”等绝对化表述。",
+          "material_id": "M-004",
+          "quote": "表达应轻快、真实、可操作。不得承诺涨粉、收益或爆款；不得把实验性功能写成正式能力；不得使用‘最强’‘唯一’等绝对化表述；涉及未成年人时避免诱导消费。",
+          "scope": "适用于所有对外传播",
+          "use": "全案文案、字幕与活动主题的合规底线；字幕采用可操作动词，不用绝对化词"
+        }
+      ],
+      "creative_requirements": [
+        {
+          "text": "围绕自动卡点，准备一份含一条30秒主视频的完整内容活动方案",
+          "source": "用户输入 requirements"
+        },
+        {
+          "text": "只使用合成资料可支持的正式能力",
+          "source": "用户输入 requirements"
+        },
+        {
+          "text": "说明音乐授权和待制作操作录屏",
+          "source": "用户输入 requirements"
+        },
+        {
+          "text": "不作涨粉承诺",
+          "source": "用户输入 requirements；M-004 品牌规则同向要求"
+        },
+        {
+          "text": "不得使用“最强”“唯一”等绝对化表述，不得把实验性功能写成正式能力",
+          "source": "M-004 品牌表达规则"
+        },
+        {
+          "text": "情境画面只能说明使用场景，不能单独证明产品功能",
+          "source": "M-005 素材登记适用范围"
+        }
+      ],
+      "assumptions": [
+        {
+          "text": "主视频时长为30秒，按自动卡点支持的15/30/60秒成片规格制作",
+          "basis": "用户要求30秒主视频；M-001 支持30秒成片"
+        },
+        {
+          "text": "配乐选用节奏清晰的120 BPM 曲目《Late Bus》作为卡点演示参考",
+          "basis": "M-006 记录该曲120 BPM、适合卡点演示；M-001 说明节奏清晰的流行乐与鼓点识别更稳"
+        },
+        {
+          "text": "发布平台以校园社群可分享的竖屏短视频平台为主（如抖音/视频号类），竖屏9:16",
+          "basis": "受众为大学生、题材为社团招新的常规传播习惯；属建议性假设，未在资料中确认"
+        },
+        {
+          "text": "活动在方案截止后进入制作与发布，成片发布节点为建议排期，非承诺",
+          "basis": "任务截止2026-10-30T04:00Z 仅约束方案准备与保存"
+        }
+      ],
+      "suggestions": [
+        {
+          "text": "只做一条30秒主视频，不做多平台切片矩阵，把资源集中在卡点演示的说服力上",
+          "basis": "用户只要求一条30秒主视频；预算2000分（模拟工具费用）有限，多切片会增加制作与授权依赖"
+        },
+        {
+          "text": "脚本第2段保留“卡完后逐段拖动微调”的细节镜头，而不是只展示一键效果",
+          "basis": "M-003 显示受访者对“一键出片”信任度一般、更愿意保留手动调整"
+        },
+        {
+          "text": "字幕用“拖一下、对一下、再导出”这类可操作动词，避免“轻松涨粉”“秒出大片”",
+          "basis": "M-004 要求真实、可操作且不作涨粉承诺"
+        },
+        {
+          "text": "备一段替代鼓点作为后备音轨，在《Late Bus》授权未到位时使用",
+          "basis": "M-006 授权尚未购买，仅可试听，预计2个工作日；需避免发布前卡在音乐授权上"
+        }
+      ],
+      "unknowns": [
+        {
+          "question": "《Late Bus》的商用授权由谁购买、预算多少、是否能在发布前拿到（预计2个工作日）",
+          "impact": "未授权则第2-3段卡点演示音乐不可用，须换成后备原创/已授权鼓点，成片节奏与镜头切点需重排",
+          "blocking": false
+        },
+        {
+          "question": "音乐采购、录屏制作、投放等真实活动费用未在任务输入中给出",
+          "impact": "任务预算2000分仅为方案准备的模拟工具费用上限，不构成采购与投放预算；相关费用需另行估算与审批",
+          "blocking": false
+        },
+        {
+          "question": "发布平台与账号归属（学校社团账号还是帧剪官方账号）未确认",
+          "impact": "影响竖屏比例、封面文案与发布节奏；不改变主脚本内容",
+          "blocking": false
+        }
+      ],
+      "sources": [
+        {
+          "material_id": "M-001",
+          "used_for": "自动卡点能力、微调与曲风限制、规格与系统范围"
+        },
+        {
+          "material_id": "M-002",
+          "used_for": "AI 字幕正式支持范围（可选辅助说明）"
+        },
+        {
+          "material_id": "M-003",
+          "used_for": "受众创作习惯与手动调整偏好"
+        },
+        {
+          "material_id": "M-004",
+          "used_for": "品牌表达与禁语底线"
+        },
+        {
+          "material_id": "M-005",
+          "used_for": "校园情境画面素材与授权范围"
+        },
+        {
+          "material_id": "M-006",
+          "used_for": "背景音乐选用、授权状态与获取周期"
+        }
+      ],
+      "blocking_unknowns": 0
+    },
+    "created_at": "2026-10-29T04:41:50+00:00"
+  },
+  "review": {
+    "review_id": "v_92d360cc84ffd798",
+    "output_id": "o_5e871b241aad39da",
+    "output_version": 2,
+    "status": "complete",
+    "verdict": "pass",
+    "completeness": "full",
+    "findings": [
+      {
+        "finding_id": "F1",
+        "severity": "optional",
+        "location": "activity.format / script 各段平台与活动说明（竖屏9:16、发布平台与账号归属）",
+        "requirement": "需求覆盖与制作可用：格式与发布安排清晰；不作未来承诺",
+        "evidence": "open_questions 第4条与 assumptions 均标注平台与账号归属待确认、属建议性假设；program_checks.blocking_open_questions=0",
+        "issue": "若最终选用不支持9:16或时长受平台限制的渠道，封面、字幕安全区与结尾提示需重排；当前已列open_question且被标非阻塞，不影响当前判断，但方案未说明该确认的时点",
+        "suggestion": "可在发布与素材归档步骤或该open_question中补一句“须在D前2天开始剪辑前确认平台与账号归属，以便确定安全区与封面文案”，避免临近发布返工",
+        "reviewed_version": "2"
+      },
+      {
+        "finding_id": "F2",
+        "severity": "optional",
+        "location": "script.segments 第1段 audio 与 materials「背景音乐《Late Bus》」",
+        "requirement": "制作可用：素材状态与使用位置一致，避免执行者误用",
+        "evidence": "第1段 audio 写“《Late Bus》待授权取得后使用，未授权前仅试听、成片不发布”；materials 中该曲 position 写“第2段起贯穿至第4段收尾”，未列第1段",
+        "issue": "第1段说明环境声+配乐，但素材登记未把第1段列入该曲使用位置，执行者可能误以为第1段无配乐或需另配，属衔接瑕疵而非事实矛盾",
+        "suggestion": "将《Late Bus》position 改为“第1段环境声之下轻入，第2段起贯穿至第4段收尾并淡出”，或明确第1段不铺该曲，仅保留环境声",
+        "reviewed_version": "2"
+      }
+    ],
+    "summary": "方案（reviewed_version 2）完整回应四项明确要求：30秒竖屏主视频围绕自动卡点，能力主张可追到 M-001（含曲风限制与15/30/60秒规格），第2-3段用待制作操作录屏覆盖对齐/逐段微调/一键重新卡点；M-005情境画面明确只表达场景；音乐授权（M-006）与后备/对照音轨、录屏、后期字幕均有状态、负责人角色、时点、风险与发布前置条件，D相对排期与方案截止已分离；全案无涨粉、收益、爆款承诺与绝对化表述，AI字幕只作可选且限定正式支持范围；上轮四条可选意见均已实质落实（新增弱节拍对照音轨条目、第4段字幕改为普通后期字幕、M-003比例限定为内部使用、观察数据不作对外承诺），修改未引入新矛盾，无 must_fix，故判通过。",
+    "evidence_gaps": [],
+    "requests_used": 1,
+    "readbacks_used": 0,
+    "attempt_id": "a_9d6b5bc03f654896",
+    "created_at": "2026-10-29T04:43:18+00:00"
+  },
+  "content_reuse": null,
+  "save": {
+    "save_id": "s_5ab2b3547eaa0d83",
+    "output_id": "o_5e871b241aad39da",
+    "output_version": 2,
+    "status": "verified",
+    "files": [
+      {
+        "path": "D:\\AAA小影科技\\content-task-agent\\examples\\repair-live\\recovery-delivery-02\\data\\real\\exports\\t_9fd56d281f8f\\campaign-v2.md",
+        "sha256": "d8e348023d63ddc5c9a0e8df9f4549aba9fc7d55a27b55e646c825d138dbc0d0",
+        "bytes": 13667,
+        "exists": true,
+        "current_sha256": "d8e348023d63ddc5c9a0e8df9f4549aba9fc7d55a27b55e646c825d138dbc0d0",
+        "ok": true
+      },
+      {
+        "path": "D:\\AAA小影科技\\content-task-agent\\examples\\repair-live\\recovery-delivery-02\\data\\real\\exports\\t_9fd56d281f8f\\campaign-v2.json",
+        "sha256": "73ea6c31c709b28b7780c52c2c249e4dc381014d24b1c74746dcb3912b616708",
+        "bytes": 16332,
+        "exists": true,
+        "current_sha256": "73ea6c31c709b28b7780c52c2c249e4dc381014d24b1c74746dcb3912b616708",
+        "ok": true
+      },
+      {
+        "path": "D:\\AAA小影科技\\content-task-agent\\examples\\repair-live\\recovery-delivery-02\\data\\real\\exports\\t_9fd56d281f8f\\brief-v1.json",
+        "sha256": "772238ed58fb26bba398d9dd1cca0d287aaa01bd47cb0ceecb43d08d27eb1c4e",
+        "bytes": 8110,
+        "exists": true,
+        "current_sha256": "772238ed58fb26bba398d9dd1cca0d287aaa01bd47cb0ceecb43d08d27eb1c4e",
+        "ok": true
+      },
+      {
+        "path": "D:\\AAA小影科技\\content-task-agent\\examples\\repair-live\\recovery-delivery-02\\data\\real\\exports\\t_9fd56d281f8f\\execution-report.md",
+        "sha256": "3e7e16d91fcea446004b11a70bd6112915e8afacd1c569f0dcc67d705a770dcf",
+        "bytes": 13661,
+        "exists": true,
+        "current_sha256": "3e7e16d91fcea446004b11a70bd6112915e8afacd1c569f0dcc67d705a770dcf",
+        "ok": true
+      },
+      {
+        "path": "D:\\AAA小影科技\\content-task-agent\\examples\\repair-live\\recovery-delivery-02\\data\\real\\exports\\t_9fd56d281f8f\\trace.jsonl",
+        "sha256": "6e92caac3b16f5aa6f11b986d7023a575f8548d1e0b14ec4fff21a037cf64f70",
+        "bytes": 175360,
+        "exists": true,
+        "current_sha256": "6e92caac3b16f5aa6f11b986d7023a575f8548d1e0b14ec4fff21a037cf64f70",
+        "ok": true
+      }
+    ],
+    "verified": true,
+    "verified_at": "2026-10-29T04:43:19+00:00",
+    "error": null,
+    "attempt_id": "a_459b009652fa0bf5",
+    "created_at": "2026-10-29T04:43:19+00:00"
+  },
+  "strategy": {
+    "table_version": "2026-10-29.v1",
+    "directions": [
+      {
+        "direction": "functional_demo",
+        "label": "功能演示",
+        "expression_goal": "直接展示自动卡点能做什么、如何操作、结果是什么",
+        "material_needs": [
+          "产品操作录屏（待制作）",
+          "M-001 自动卡点能力与适用范围",
+          "M-004 品牌表达规则"
+        ],
+        "evidence_queries": [
+          "自动卡点能力与适用范围",
+          "产品操作录屏素材状态"
+        ],
+        "required_queries": 2,
+        "risk": "缺少可展示的操作录屏时无法制作；纯功能演示对情境吸引力的帮助有限"
+      },
+      {
+        "direction": "user_scenario",
+        "label": "用户情境",
+        "expression_goal": "用校园社团招新情境承接自动卡点带来的成片效果",
+        "material_needs": [
+          "M-005 校园场景素材（已有）",
+          "M-003 校园用户调研（仅代表合成样本）",
+          "M-006 背景音乐授权（待获取）",
+          "M-001 自动卡点能力依据"
+        ],
+        "evidence_queries": [
+          "校园受众与使用情境",
+          "校园场景素材与音乐授权状态",
+          "自动卡点能力与适用范围"
+        ],
+        "required_queries": 3,
+        "risk": "情境画面不能单独证明产品能力；音乐授权未取得前不能写成已可用"
+      },
+      {
+        "direction": "tutorial",
+        "label": "教程",
+        "expression_goal": "分步说明如何完成一次自动卡点，并把操作与结果对应起来",
+        "material_needs": [
+          "M-001 自动卡点能力与边界",
+          "M-002 AI 字幕能力（如使用）",
+          "M-004 品牌表达规则",
+          "产品操作录屏（待制作）"
+        ],
+        "evidence_queries": [
+          "自动卡点操作步骤与能力边界",
+          "相关产品能力与正式支持范围",
+          "品牌表达与素材限制"
+        ],
+        "required_queries": 3,
+        "risk": "短片内容密度高；需要更完整的操作录屏和更清晰的步骤取舍"
+      }
+    ],
+    "latest_selection": {
+      "selection_id": "st_4f9ffd6d7578e3db",
+      "direction": "user_scenario",
+      "search_mode": "search_basic",
+      "generation_mode": "generate_direct",
+      "search_queries": 0,
+      "include_revision": true,
+      "improvement": false,
+      "expected_benefit": null,
+      "rationale": "任务要求围绕自动卡点给18-24岁大学生做一条30秒社团招新短视频，且明确要说明音乐授权与待制作操作录屏。纯功能演示缺少情境吸引力，教程在30秒内步骤密度过高；用户情境能用已授权的 M-005 校园招新画面承接场景，再用待制作操作录屏在第2-3段证明自动卡点可逐段微调（能力依据 M-001），情境与证据分工清楚。资料检索已完成（M-001/M-002/M-003/M-004/M-005/M-006 均已取得），三个方向剩余路径同价（410分）且在1960分剩余预算与截止时间内可行，故按表达匹配度选用户情境，直接生成一版候选脚本以控制探索成本并留足返修空间。",
+      "strategy_version": "2026-10-29.v1",
+      "pricing_version": "2026-10-29.v1",
+      "path": {
+        "version": "2026-10-29.v1",
+        "currency": "CNY_cent",
+        "pricing_source": "2026-10-29.v1.json",
+        "search_queries": 0,
+        "include_revision": true,
+        "lines": [
+          {
+            "step": "generation",
+            "mode": "generate_direct",
+            "label": "直接生成",
+            "cost_cents": 120,
+            "duration_ms": 8000,
+            "max_internal_requests": 1,
+            "max_requests": null,
+            "max_readbacks": null,
+            "candidates": 1,
+            "failure_rule": "一次生成；失败或中断保留计量"
+          },
+          {
+            "step": "review",
+            "mode": "review",
+            "label": "内容核验",
+            "cost_cents": 80,
+            "duration_ms": 6000,
+            "max_internal_requests": null,
+            "max_requests": 3,
+            "max_readbacks": 2,
+            "candidates": null,
+            "failure_rule": "最多 3 次模型请求、2 次回读；触顶/中断不退还"
+          },
+          {
+            "step": "revision",
+            "mode": "revision",
+            "label": "返修",
+            "cost_cents": 120,
+            "duration_ms": 8000,
+            "max_internal_requests": 2,
+            "max_requests": null,
+            "max_readbacks": null,
+            "candidates": null,
+            "failure_rule": "启动即计量；失败不退还"
+          },
+          {
+            "step": "re_review",
+            "mode": "review",
+            "label": "内容核验",
+            "cost_cents": 80,
+            "duration_ms": 6000,
+            "max_internal_requests": null,
+            "max_requests": 3,
+            "max_readbacks": 2,
+            "candidates": null,
+            "failure_rule": "最多 3 次模型请求、2 次回读；触顶/中断不退还"
+          },
+          {
+            "step": "save",
+            "mode": "save",
+            "label": "方案保存",
+            "cost_cents": 10,
+            "duration_ms": 1000,
+            "max_internal_requests": 1,
+            "max_requests": null,
+            "max_readbacks": null,
+            "candidates": null,
+            "failure_rule": "启动即计量；保存失败另行核实"
+          }
+        ],
+        "total_cost_cents": 410,
+        "total_duration_ms": 29000,
+        "notes": "估算与预留不是实际支出；执行前仍须按当前预算与模拟截止检查。"
+      },
+      "total_cost_cents": 410,
+      "total_duration_ms": 29000,
+      "incurred_cents": 40,
+      "remaining_cents": 1960,
+      "created_at": "2026-10-29T04:41:54+00:00",
+      "nature": "reserved"
+    },
+    "selection_count": 1,
+    "mode_table_version": "2026-10-29.v1"
+  },
+  "plan": {
+    "version": "plan-2026-10-29.v1",
+    "steps": [
+      {
+        "step": "brief",
+        "title": "业务简报",
+        "status": "done"
+      },
+      {
+        "step": "campaign_draft",
+        "title": "完整活动方案草稿",
+        "status": "done"
+      },
+      {
+        "step": "review",
+        "title": "内容核验",
+        "status": "done"
+      },
+      {
+        "step": "save",
+        "title": "核实保存与导出",
+        "status": "done"
+      }
+    ]
+  },
+  "todos": [],
+  "recovery": {
+    "explicit_resume": true,
+    "prior_status": "in_progress",
+    "prior_phase": "reviewed",
+    "prior_reason": "内容核验完成：通过。",
+    "pending_calls": 1,
+    "recovered_calls": [
+      {
+        "tool": "review_campaign",
+        "tool_call_id": "call_00_UKJBNByYHS0bhMwRuCf02422",
+        "attempt_id": null,
+        "outcome": "recovered"
+      }
+    ],
+    "interrupted_calls": [],
+    "interrupted_attempts": [],
+    "save_unknown": null,
+    "unpaused": false,
+    "reused": {
+      "input_version": 1,
+      "brief_version": 1,
+      "output_version": 1,
+      "review": {
+        "review_id": "v_8dfa71d4123140c4",
+        "status": "complete",
+        "verdict": "pass"
+      },
+      "save": null,
+      "knowledge": [
+        {
+          "knowledge_id": "campaign-creation",
+          "version": "2026-10-29.v2",
+          "sha256": "4cfaf74443e1d8c6f772adbaf9355f22fb66c1c361a0e3beb0362ba510d7b215"
+        },
+        {
+          "knowledge_id": "content-review",
+          "version": "2026-10-29.v2",
+          "sha256": "c9a1ea91bf00e1610d0fff6598f7c1f7acda38f45c949f5b6d4419b4e7678090"
+        }
+      ],
+      "materials": {
+        "version": "2026-10-29.v1",
+        "count": 10
+      },
+      "search_results": 2,
+      "attempts": 4,
+      "spent_cents": 240
+    },
+    "todos": [
+      {
+        "step": "save",
+        "title": "核实保存与导出",
+        "status": "current"
+      }
+    ],
+    "task_id": "t_9fd56d281f8f",
+    "mode": "real",
+    "input_version": 1,
+    "brief_version": 1,
+    "output_version": 1,
+    "review_id": "v_8dfa71d4123140c4",
+    "save_status": null,
+    "save_verified": null,
+    "sim_elapsed_ms": 18000,
+    "sim_start": "2026-10-29T00:00:00+08:00",
+    "used_rounds": 9,
+    "max_rounds": 24,
+    "spent_cents": 240,
+    "requests": 11,
+    "instruction": "这是新进程追加的恢复事实。只继续未完成的有界步骤；已恢复的有效检索、草稿和评审直接复用，不要重新执行或重新计费；原预算、模拟截止和已用轮数不变，续跑不获得新额度。"
+  },
+  "gaps": [
+    {
+      "source": "brief",
+      "question": "《Late Bus》的商用授权由谁购买、预算多少、是否能在发布前拿到（预计2个工作日）",
+      "impact": "未授权则第2-3段卡点演示音乐不可用，须换成后备原创/已授权鼓点，成片节奏与镜头切点需重排",
+      "blocking": false
+    },
+    {
+      "source": "brief",
+      "question": "音乐采购、录屏制作、投放等真实活动费用未在任务输入中给出",
+      "impact": "任务预算2000分仅为方案准备的模拟工具费用上限，不构成采购与投放预算；相关费用需另行估算与审批",
+      "blocking": false
+    },
+    {
+      "source": "brief",
+      "question": "发布平台与账号归属（学校社团账号还是帧剪官方账号）未确认",
+      "impact": "影响竖屏比例、封面文案与发布节奏；不改变主脚本内容",
+      "blocking": false
+    },
+    {
+      "source": "stop",
+      "stop_kind": "model_error",
+      "question": "模型请求失败",
+      "impact": "本轮无有效动作；保留已有成果与用量，需显式续跑",
+      "blocking": true
+    }
+  ],
+  "mode_notice": "真实模型运行；小样本观察不代表生产质量或统计显著结论。",
+  "progress": {
+    "sim_start": "2026-10-29T00:00:00+08:00",
+    "sim_now": "2026-10-29T00:00:25+08:00",
+    "sim_elapsed_ms": 25000,
+    "used_rounds": 13,
+    "max_rounds": 24,
+    "paused": false,
+    "current_output": {
+      "output_id": "o_5e871b241aad39da",
+      "version": 2,
+      "status": "draft",
+      "strategy": "user_scenario"
+    },
+    "save": {
+      "save_id": "s_5ab2b3547eaa0d83",
+      "output_version": 2,
+      "status": "verified",
+      "verified": true
+    },
+    "phase": "complete",
+    "brief_version": 1,
+    "last_run_at": "2026-10-29T04:43:18+00:00"
+  },
+  "resources": {
+    "budget_cents": 2000,
+    "sim_spent_cents": 330,
+    "remaining_cents": 1670,
+    "real_requests": 16,
+    "mock_requests": 0,
+    "model_requests": 16,
+    "real_usage": {
+      "requests": 16,
+      "real_requests": 16,
+      "mock_requests": 0,
+      "unknown_usage_requests": 1,
+      "usage_complete": false,
+      "prompt_tokens": 269246,
+      "completion_tokens": 13769,
+      "cache_hit_tokens": 220416,
+      "cache_miss_tokens": 48830,
+      "elapsed_ms": 107498
+    },
+    "real_cost": null,
+    "amount_status": {
+      "simulated_tool_fee": "incurred_and_estimated",
+      "real_model_usage": "unknown",
+      "activity_costs": "unknown"
+    },
+    "simulated_tool_fee": {
+      "category": "simulated_tool_fee",
+      "unit": "CNY_cent",
+      "source": "pricing:2026-10-29.v1",
+      "nature": "incurred",
+      "incurred_cents": 330,
+      "ledger_entries": 6,
+      "estimated": {
+        "estimate_id": "e_9ac6a48dbd332da5",
+        "kind": "strategy_choice",
+        "direction": "user_scenario",
+        "search_mode": "search_basic",
+        "generation_mode": "generate_direct",
+        "search_queries": 0,
+        "include_revision": true,
+        "total_cost_cents": 410,
+        "total_duration_ms": 29000,
+        "incurred_cents": 40,
+        "remaining_cents": 1960,
+        "feasible": true,
+        "strategy_version": "2026-10-29.v1",
+        "pricing_version": "2026-10-29.v1",
+        "created_at": "2026-10-29T04:41:54+00:00",
+        "nature": "estimated"
+      },
+      "reserved": {
+        "selection_id": "st_4f9ffd6d7578e3db",
+        "direction": "user_scenario",
+        "search_mode": "search_basic",
+        "generation_mode": "generate_direct",
+        "search_queries": 0,
+        "include_revision": true,
+        "improvement": false,
+        "expected_benefit": null,
+        "rationale": "任务要求围绕自动卡点给18-24岁大学生做一条30秒社团招新短视频，且明确要说明音乐授权与待制作操作录屏。纯功能演示缺少情境吸引力，教程在30秒内步骤密度过高；用户情境能用已授权的 M-005 校园招新画面承接场景，再用待制作操作录屏在第2-3段证明自动卡点可逐段微调（能力依据 M-001），情境与证据分工清楚。资料检索已完成（M-001/M-002/M-003/M-004/M-005/M-006 均已取得），三个方向剩余路径同价（410分）且在1960分剩余预算与截止时间内可行，故按表达匹配度选用户情境，直接生成一版候选脚本以控制探索成本并留足返修空间。",
+        "total_cost_cents": 410,
+        "total_duration_ms": 29000,
+        "incurred_cents": 40,
+        "remaining_cents": 1960,
+        "strategy_version": "2026-10-29.v1",
+        "pricing_version": "2026-10-29.v1",
+        "created_at": "2026-10-29T04:41:54+00:00",
+        "nature": "reserved"
+      },
+      "note": "预留与估算是可行性判断，不是实际支出；实际消耗只累计账本中 nature=incurred 的记录。"
+    },
+    "real_model_usage": {
+      "category": "real_model_usage",
+      "unit": "request/token",
+      "source": "DeepSeek API response usage（openai SDK）",
+      "nature": "actual_usage",
+      "requests": 16,
+      "real_requests": 16,
+      "mock_requests": 0,
+      "unknown_usage_requests": 1,
+      "prompt_tokens": 269246,
+      "completion_tokens": 13769,
+      "cache_hit_tokens": 220416,
+      "cache_miss_tokens": 48830,
+      "elapsed_ms": 107498,
+      "amount": {
+        "status": "unknown",
+        "value_cents": null,
+        "reason": "没有可靠的单价来源，不把 token 用量换算成金额；未发生真实请求时也不补成已核实零费用。"
+      }
+    },
+    "activity_costs": {
+      "category": "activity_cost",
+      "unit": "CNY_cent",
+      "source": "campaign.materials",
+      "status": "unknown",
+      "nature": "unknown",
+      "entries": [
+        {
+          "name": "自动卡点操作录屏（竖屏屏幕内录）",
+          "material_id": null,
+          "status": "to_create",
+          "amount_cents": null,
+          "nature": "unknown",
+          "source": "campaign.materials"
+        },
+        {
+          "name": "背景音乐《Late Bus》（120 BPM）",
+          "material_id": "M-006",
+          "status": "to_acquire",
+          "amount_cents": null,
+          "nature": "unknown",
+          "source": "campaign.materials"
+        },
+        {
+          "name": "后备清晰鼓点音轨（原创或已授权曲库曲目）",
+          "material_id": null,
+          "status": "to_acquire",
+          "amount_cents": null,
+          "nature": "unknown",
+          "source": "campaign.materials"
+        },
+        {
+          "name": "弱节拍对照音轨（原创或已授权）",
+          "material_id": null,
+          "status": "to_acquire",
+          "amount_cents": null,
+          "nature": "unknown",
+          "source": "campaign.materials"
+        },
+        {
+          "name": "第4段后期普通字幕（可选，非产品功能演示）",
+          "material_id": null,
+          "status": "to_create",
+          "amount_cents": null,
+          "nature": "unknown",
+          "source": "campaign.materials"
+        }
+      ],
+      "reason": "方案含待获取或待制作素材，但任务输入与材料未给出活动预算或已发生支出金额。"
+    },
+    "unknown": [
+      "real_model_usage.amount",
+      "activity_costs"
+    ],
+    "not_applicable": []
+  },
+  "model_config": {
+    "provider": "deepseek",
+    "sdk": "openai",
+    "base_url": "https://api.deepseek.com",
+    "model": "deepseek-flash",
+    "api_key": "set",
+    "thinking": false,
+    "streaming": false,
+    "sdk_auto_retries": 0,
+    "network_route": "direct",
+    "keepalive_expiry_seconds": 180
+  },
+  "versions": {
+    "app": "0.1.0",
+    "prompt": "main-2026-10-29.v11",
+    "materials": "2026-10-29.v1",
+    "pricing": "2026-10-29.v1",
+    "strategy": "2026-10-29.v1"
+  },
+  "artifacts": {
+    "campaign_versions": 2
+  },
+  "run": {
+    "rounds_used": 4,
+    "stop_reason": "save_campaign",
+    "requests": 4,
+    "explicit_resume": true,
+    "recovery": {
+      "explicit_resume": true,
+      "prior_status": "in_progress",
+      "prior_phase": "reviewed",
+      "prior_reason": "内容核验完成：通过。",
+      "pending_calls": 1,
+      "recovered_calls": [
+        {
+          "tool": "review_campaign",
+          "tool_call_id": "call_00_UKJBNByYHS0bhMwRuCf02422",
+          "attempt_id": null,
+          "outcome": "recovered"
+        }
+      ],
+      "interrupted_calls": [],
+      "interrupted_attempts": [],
+      "save_unknown": null,
+      "unpaused": false,
+      "reused": {
+        "input_version": 1,
+        "brief_version": 1,
+        "output_version": 1,
+        "review": {
+          "review_id": "v_8dfa71d4123140c4",
+          "status": "complete",
+          "verdict": "pass"
+        },
+        "save": null,
+        "knowledge": [
+          {
+            "knowledge_id": "campaign-creation",
+            "version": "2026-10-29.v2",
+            "sha256": "4cfaf74443e1d8c6f772adbaf9355f22fb66c1c361a0e3beb0362ba510d7b215"
+          },
+          {
+            "knowledge_id": "content-review",
+            "version": "2026-10-29.v2",
+            "sha256": "c9a1ea91bf00e1610d0fff6598f7c1f7acda38f45c949f5b6d4419b4e7678090"
+          }
+        ],
+        "materials": {
+          "version": "2026-10-29.v1",
+          "count": 10
+        },
+        "search_results": 2,
+        "attempts": 4,
+        "spent_cents": 240
+      },
+      "todos": [
+        {
+          "step": "save",
+          "title": "核实保存与导出",
+          "status": "current"
+        }
+      ]
+    },
+    "recovery_summary": {
+      "explicit_resume": true,
+      "prior_status": "in_progress",
+      "prior_phase": "reviewed",
+      "prior_reason": "内容核验完成：通过。",
+      "pending_calls": 1,
+      "recovered_calls": [
+        {
+          "tool": "review_campaign",
+          "tool_call_id": "call_00_UKJBNByYHS0bhMwRuCf02422",
+          "attempt_id": null,
+          "outcome": "recovered"
+        }
+      ],
+      "interrupted_calls": [],
+      "interrupted_attempts": [],
+      "save_unknown": null,
+      "unpaused": false,
+      "reused": {
+        "input_version": 1,
+        "brief_version": 1,
+        "output_version": 1,
+        "review": {
+          "review_id": "v_8dfa71d4123140c4",
+          "status": "complete",
+          "verdict": "pass"
+        },
+        "save": null,
+        "knowledge": [
+          {
+            "knowledge_id": "campaign-creation",
+            "version": "2026-10-29.v2",
+            "sha256": "4cfaf74443e1d8c6f772adbaf9355f22fb66c1c361a0e3beb0362ba510d7b215"
+          },
+          {
+            "knowledge_id": "content-review",
+            "version": "2026-10-29.v2",
+            "sha256": "c9a1ea91bf00e1610d0fff6598f7c1f7acda38f45c949f5b6d4419b4e7678090"
+          }
+        ],
+        "materials": {
+          "version": "2026-10-29.v1",
+          "count": 10
+        },
+        "search_results": 2,
+        "attempts": 4,
+        "spent_cents": 240
+      },
+      "todos": [
+        {
+          "step": "save",
+          "title": "核实保存与导出",
+          "status": "current"
+        }
+      ],
+      "task_id": "t_9fd56d281f8f",
+      "mode": "real",
+      "input_version": 1,
+      "brief_version": 1,
+      "output_version": 1,
+      "review_id": "v_8dfa71d4123140c4",
+      "save_status": null,
+      "save_verified": null,
+      "sim_elapsed_ms": 18000,
+      "sim_start": "2026-10-29T00:00:00+08:00",
+      "used_rounds": 9,
+      "max_rounds": 24,
+      "spent_cents": 240,
+      "requests": 11,
+      "instruction": "这是新进程追加的恢复事实。只继续未完成的有界步骤；已恢复的有效检索、草稿和评审直接复用，不要重新执行或重新计费；原预算、模拟截止和已用轮数不变，续跑不获得新额度。"
+    }
+  }
+}

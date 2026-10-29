@@ -1,0 +1,79 @@
+[
+  {
+    "label": "01-reconcile",
+    "argv": [
+      "D:\\AAA小影科技\\content-task-agent\\.venv\\Scripts\\python.exe",
+      "-m",
+      "cta",
+      "--mode",
+      "real",
+      "--data-dir",
+      "examples\\repair-live\\normal-delivery-01\\data",
+      "reconcile",
+      "t_3aff860f454f"
+    ],
+    "exit_code": 0
+  },
+  {
+    "label": "02-import",
+    "argv": [
+      "D:\\AAA小影科技\\content-task-agent\\.venv\\Scripts\\python.exe",
+      "-m",
+      "cta",
+      "--mode",
+      "real",
+      "--data-dir",
+      "examples\\repair-live\\normal-delivery-01\\data",
+      "import-draft",
+      "t_3aff860f454f",
+      "--file",
+      "examples\\repair-human\\import-01\\operator-edited.md"
+    ],
+    "exit_code": 0
+  },
+  {
+    "label": "03-resume",
+    "argv": [
+      "D:\\AAA小影科技\\content-task-agent\\.venv\\Scripts\\python.exe",
+      "-m",
+      "cta",
+      "--mode",
+      "real",
+      "--data-dir",
+      "examples\\repair-live\\normal-delivery-01\\data",
+      "resume",
+      "t_3aff860f454f"
+    ],
+    "exit_code": 0
+  },
+  {
+    "label": "04-inspect",
+    "argv": [
+      "D:\\AAA小影科技\\content-task-agent\\.venv\\Scripts\\python.exe",
+      "-m",
+      "cta",
+      "--mode",
+      "real",
+      "--data-dir",
+      "examples\\repair-live\\normal-delivery-01\\data",
+      "inspect",
+      "t_3aff860f454f"
+    ],
+    "exit_code": 0
+  },
+  {
+    "label": "05-export",
+    "argv": [
+      "D:\\AAA小影科技\\content-task-agent\\.venv\\Scripts\\python.exe",
+      "-m",
+      "cta",
+      "--mode",
+      "real",
+      "--data-dir",
+      "examples\\repair-live\\normal-delivery-01\\data",
+      "export",
+      "t_3aff860f454f"
+    ],
+    "exit_code": 0
+  }
+]

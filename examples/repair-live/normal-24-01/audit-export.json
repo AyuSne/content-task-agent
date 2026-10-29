@@ -1,0 +1,50 @@
+{
+  "task_id": "t_562c7e28f5d1",
+  "output_version": 1,
+  "save_id": null,
+  "verified": true,
+  "delivery_complete": false,
+  "files": [
+    {
+      "path": "D:\\AAA小影科技\\content-task-agent\\examples\\repair-live\\normal-24-01\\data\\real\\exports\\t_562c7e28f5d1\\campaign-v1.md",
+      "sha256": "3c6ddcb8a20f005946bc6efabb3fc12613e40e68dbc25f82ffb6af8ada7ded85",
+      "bytes": 12942,
+      "exists": true,
+      "current_sha256": "3c6ddcb8a20f005946bc6efabb3fc12613e40e68dbc25f82ffb6af8ada7ded85",
+      "ok": true
+    },
+    {
+      "path": "D:\\AAA小影科技\\content-task-agent\\examples\\repair-live\\normal-24-01\\data\\real\\exports\\t_562c7e28f5d1\\campaign-v1.json",
+      "sha256": "1fab3cae79f70bb70ccecfdfdfe8fbf2d8a90eda9c759d232d9bcd0ffb3bf8ba",
+      "bytes": 15626,
+      "exists": true,
+      "current_sha256": "1fab3cae79f70bb70ccecfdfdfe8fbf2d8a90eda9c759d232d9bcd0ffb3bf8ba",
+      "ok": true
+    },
+    {
+      "path": "D:\\AAA小影科技\\content-task-agent\\examples\\repair-live\\normal-24-01\\data\\real\\exports\\t_562c7e28f5d1\\execution-report.md",
+      "sha256": "242814445a90ee49a9bd0ad63d224328a190c35ee4d18fbd34965139d101f703",
+      "bytes": 19389,
+      "exists": true,
+      "current_sha256": "242814445a90ee49a9bd0ad63d224328a190c35ee4d18fbd34965139d101f703",
+      "ok": true
+    },
+    {
+      "path": "D:\\AAA小影科技\\content-task-agent\\examples\\repair-live\\normal-24-01\\data\\real\\exports\\t_562c7e28f5d1\\trace.jsonl",
+      "sha256": "263e3028183b8c10c90ab472d38951383790b9ea908d4d0592790f09d7e874ad",
+      "bytes": 182906,
+      "exists": true,
+      "current_sha256": "263e3028183b8c10c90ab472d38951383790b9ea908d4d0592790f09d7e874ad",
+      "ok": true
+    },
+    {
+      "path": "D:\\AAA小影科技\\content-task-agent\\examples\\repair-live\\normal-24-01\\data\\real\\exports\\t_562c7e28f5d1\\brief-v1.json",
+      "sha256": "f5ef2fd3387d6f4e72f01bd6502488fabb91772ac69b88339fe10d923d547b51",
+      "bytes": 7756,
+      "exists": true,
+      "current_sha256": "f5ef2fd3387d6f4e72f01bd6502488fabb91772ac69b88339fe10d923d547b51",
+      "ok": true
+    }
+  ],
+  "repaired": false
+}

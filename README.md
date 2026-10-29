@@ -1,130 +1,87 @@
-# 内容任务规划 Agent（content-task-agent）
+# 内容任务规划 Agent
 
-为虚构视频剪辑 App 的短视频推广活动准备有依据、可核验、可续跑的内容活动方案。
-实现依据：`D:/AAA小影科技/.scratch/content-task-agent-build/spec.md`；本仓库按十四张实现票逐票交付。
+为虚构剪辑 App「帧剪」准备有证据、可核验、可续跑的内容活动方案。Python + uv + openai SDK + DeepSeek `deepseek-flash`；SQLite 是权威状态。
 
-当前修复已接通 `run/resume` 的完整自主路径：简报 → 策略比较与选择 → 完整方案草稿 → 独立内容核验 → 必要返修复审 → 核实保存。主 Agent 选择核验与保存，程序核对资源、版本和文件；支持跨进程续跑、人工稿导入及评审校准。功能回归与真实模型验收分别记录，交付是否通过以 [测试与验收](docs/delivery/04-testing.md) 的实际证据为准。
+当前：自主生成→核验→返修→核实保存已真实跑通。正常3/3保存，故障续跑3/3保存；预算4次中3次保存、1次在新增失败后无可行路径正确停止。最新增量独立Standards/Spec复查通过，详见[修复验收报告](docs/delivery/10-repair-acceptance.md)。
 
-## 环境
+## 安装与检查
 
-- Python 3.12+（当前锁定 3.13.11）
-- [uv](https://docs.astral.sh/uv/) 管理虚拟环境与依赖
-- 网络依赖安装如在本机需要代理，先设置 `HTTP_PROXY` / `HTTPS_PROXY`（本环境为 `http://127.0.0.1:7890`）
+本轮实测 Python 3.13.11、uv 0.9.27、openai 2.54.0；依赖由 `uv.lock` 锁定。
 
 ```powershell
-$env:UV_CACHE_DIR = "D:\AAA小影科技\content-task-agent\.uv-cache"
-$env:UV_DEFAULT_INDEX = "https://pypi.tuna.tsinghua.edu.cn/simple"
-uv sync
-```
-
-`uv.lock` 锁定实际依赖。真实密钥只放在项目内 `.env`（已被忽略），字段见 `.env.example`：
-
-```text
-DEEPSEEK_API_KEY=
-DEEPSEEK_BASE_URL=https://api.deepseek.com
-DEEPSEEK_MODEL=deepseek-flash
-```
-
-`cta status` 等输出只显示密钥是否已配置（`set`/`missing`），不会回显值。
-
-## CLI
-
-命令默认输出 JSON；加 `--format text` 输出简短文本。`--mode mock|real` 选择模式（默认 `mock`），两种模式使用独立数据库、输出目录和请求身份。
-
-创建任务（完整输入）：
-
-```powershell
-uv run cta create --topic "校园剪辑挑战" --budget 10 --deadline "2026-10-30T12:00:00+08:00"
-uv run cta create --topic "校园剪辑挑战" --budget 10 --deadline "2026-10-30T12:00:00+08:00" --audience "大学生" --requirement "突出自动卡点"
-```
-
-- `--budget` 单位为元，最多两位小数，必须大于 0。
-- `--deadline` 使用 ISO-8601；只给日期按北京时间当日 23:59:59 解释；无时区按北京时间解释。截止时间必须晚于模拟起点（默认 `2026-10-29T00:00:00+08:00`）。
-- 主题、预算、截止时间缺失或无效时仍会持久保存一次输入，状态为 `needs_input`，`validation.errors` 给出逐字段原因。
-
-查询与列表：
-
-```powershell
-uv run cta status <task_id>
-uv run cta list
-```
-
-执行主循环与查看执行事实：
-
-```powershell
-uv run cta run <task_id>          # 真实模式调用 DeepSeek；Mock 模式需注入脚本
-uv run cta resume <task_id>       # 显式续跑：先核实进行中/缺回执/未知动作，再继续
-uv run cta pause <task_id>        # 暂停；模拟时钟与已用轮数不推进
-uv run cta review <task_id>       # 独立上下文核验当前完整方案（最多 3 次请求/2 次回读）
-uv run cta save <task_id>         # 核对核验、阻塞项、预算与截止后保存并核实文件
-uv run cta reconcile <task_id>    # 核实保存记录；必要时从权威内容修复文件
-uv run cta export <task_id>       # 从 SQLite 重新导出方案、报告与 Trace
-uv run cta export <task_id> --repair  # 修复缺失/不一致的导出文件
-uv run cta strategies <task_id>   # 只读比较创作方向与完整剩余路径（不计费、不执行）
-uv run cta update <task_id> --budget 20 --audience "研究生"  # 新输入版本
-uv run cta adopt-knowledge <task_id> --knowledge-id campaign-creation --version 2026-10-30.v1
-uv run cta adopt-material <task_id> --version 2026-10-30.v1
-uv run cta import-draft <task_id> --file <edited-campaign-v1.md>
-uv run cta calibrate --pairs fixtures/calibration/2026-10-29.v1.json --output <result.json>
-uv run cta inspect <task_id>      # 简报、计划、消息、恢复事实、快照、资料/知识版本、尝试、账本、逐请求用量
-```
-
-- `run` 执行主循环；`resume` 是显式续跑入口，会先核实未完成调用与结果未知动作，追加恢复事实与当前快照。暂停后的任务必须 `resume` 才继续；普通 `run` 在暂停时只返回 `paused`。
-- `resume` 复用已保存的消息、检索结果、简报、草稿、评审、资料与知识正文；已登记启动的尝试不重复收费，实际重试才新增尝试。达到轮数上限、模拟截止或预算耗尽后，续跑不获得新额度；模型不可用时保留进度并明确未完成，后续由显式续跑重试。
-- 保存记录与文件无法核实时进入 `save_unknown` 并安全停止，不盲目重放；完整保存未知核实与导出修复由 08 交付。
-- 故障注入只用于测试：`CTA_FAULT_CRASH=<测试注入点>` 让真实子进程在指定系统边界中断，不是面向用户的能力；Mock 脚本 `CTA_MODEL_SCRIPT` 仍是离线模型边界的测试注入。
-- `run` 持续推进当前任务；默认最多 12 轮，每轮只接受一个已校验动作。失败、非法响应、多调用与截断同样计数。任务在创建时保存总轮数上限，恢复或改变进程配置不会增加旧任务额度。
-- `run/resume` 在形成业务简报（`brief_ready`）和草稿（`draft_ready`）后继续，主 Agent 经 `review_campaign` 获得独立核验意见、据反馈返修，并经 `save_campaign` 完成核实保存。人工稿续跑将完整修改稿交给主 Agent，重新核验当前版本。也可使用独立 `review/save` 命令核对某一步。
-- 测试或排查时可用 `run/resume <task_id> --max-rounds N` 暂停在有限执行前缀；该次调用上限不会改变任务总限额。阶段检查使用此入口，普通执行持续到完成、有依据的未完成或安全停止。
-- `compare_strategies` 按同一版本化费用表比较功能演示/用户情境/教程的表达目标、资料需求、风险与完整剩余路径（已知必要检索、生成、核验、保存，可选返修复核）；`choose_strategy` 记录方向、模式、理由与改进预期收益，不可行时拒绝并返回可行替代。二者均不执行、不计费。
-- `review` 在独立上下文核验完整方案；`pass + full` 且无 must_fix 才能继续。`save` 在满足版本、核验、阻塞项、预算与截止条件后写文件并核实哈希，状态才进入 `complete`；否则返回明确未完成。
-- 工具启动即按版本化费用表记模拟费用与模拟耗时；预算或模拟截止不足时在执行前拒绝，不记消耗。生成前额外核对生成+核验+保存的完整剩余路径。
-- `resources` 分类展示：模拟工具费用（单位 CNY_cent、来源 pricing 版本、已发生/估算/预留分开）、真实模型用量（请求/token，金额未知）、活动费用（未涉及为不适用，涉及时金额未知）；未知与不适用分列，估算和预留不进入 `sim_spent_cents`。
-- 真实模型请求逐次写入 `llm_requests`（用量、缓存命中/未命中、耗时、错误）；未知用量保持未知，不补零。
-- 停止时 `stops` 与 `gaps` 保留具体缺口、影响和既有成果；轮数/截止/模型不可用等程序停止也会留痕。
-- `inspect` 提供产物版本、独立生成/核验上下文、消息、工具结果、尝试、账本、逐请求用量、估算/选择与保存记录。
-- Mock 离线演示通过 `CTA_MODEL_SCRIPT=<json>` 注入模型响应，仅用于测试/复现，不是产品对外能力。`CTA_FAIL_SEARCH=<N>` 仅用于测试注入前 N 次检索失败。
-
-重复与显式新建：
-
-- 同一模式内，规范化后的主题、预算、截止时间、受众、创作要求完全一致时，`create` 返回原任务（`"duplicate": true`），不触发新执行。
-- 加 `--new` 显式新建同内容任务，获得独立任务 ID 和统计单位。
-- 状态为 `in_progress` 只表示任务已创建且未完成，不代表方案已生成或保存。
-
-数据位置：
-
-```text
-.cta-runs/mock/tasks.db      # Mock 模式权威 SQLite
-.cta-runs/real/tasks.db      # 真实模式权威 SQLite
-.cta-runs/<mode>/exports/    # 按任务 ID 存放方案、报告与 Trace
-```
-
-`CTA_DATA_DIR` 可覆盖 `.cta-runs` 根目录（测试使用临时目录）；`CTA_SIM_START` 只用于测试注入模拟起点。
-
-## 测试
-
-```powershell
+uv sync --locked
 uv run pytest -q
+uv run ruff check src tests scripts
 ```
 
-测试通过 CLI 公开接口断言，跨进程用例使用真实落盘 SQLite；模型、工具与时钟在系统边界注入。
+首次安装需要可访问依赖源；本机也可使用 `UV_DEFAULT_INDEX=https://pypi.tuna.tsinghua.edu.cn/simple`。模型SDK显式直连，不读取代理环境或系统代理配置；TLS校验保留、非思考、非流式、SDK重试0。
+
+真实模式把密钥放入被忽略的本地 `.env`，字段见 `.env.example`。CLI只显示密钥是否配置，不回显值。
+
+## 离线完整演示
+
+```powershell
+$env:CTA_MODEL_SCRIPT = (Resolve-Path examples/offline/model-script.json).Path
+$task = uv run cta create --new --topic '校园剪辑挑战' --budget 10 --deadline '2026-10-30T12:00:00+08:00' --audience '大学生' --requirement '突出自动卡点' | ConvertFrom-Json
+uv run cta run $task.task_id
+uv run cta inspect $task.task_id
+```
+
+这是模型边界脚本注入，明确为Mock，只验证流程与确定性规则。[实际离线结果](examples/offline/actual-result.json)不证明真实决策或语义质量。
+
+## 真实运行与续跑
+
+```powershell
+$task = uv run cta --mode real create --new --topic '校园社团招新自动卡点推广' --budget 10 --deadline '2026-10-30T12:00:00+08:00' --audience '18-24岁大学生' --requirement '含一条30秒主视频，突出自动卡点和微调' | ConvertFrom-Json
+uv run cta --mode real run $task.task_id
+uv run cta --mode real status $task.task_id
+uv run cta --mode real resume $task.task_id
+```
+
+预算单位为元，只约束合成费用表计量的方案准备工具费；制作、采购与投放费用另列。示例截止属于模拟业务时钟，默认起点为2026-10-29北京时间00:00；暂停不推进模拟时间。
+
+`run` 持续到核实保存、澄清或可信停止；核验和保存由主模型选择。`resume` 先核实未完成/未知动作，再恢复原消息、资料、知识、账本和轮数。新任务默认24轮，每轮一个动作，失败/非法响应也计数；旧任务保留原12轮，重启不获取额度。`CTA_MAX_ROUNDS` 只决定新任务初值。
+
+## 查询、修改与导出
+
+```powershell
+uv run cta list
+uv run cta status <task_id>
+uv run cta inspect <task_id>
+uv run cta pause <task_id>
+uv run cta strategies <task_id>
+uv run cta update <task_id> --budget 20
+uv run cta import-draft <task_id> --file <edited-campaign.md>
+uv run cta resume <task_id>
+uv run cta reconcile <task_id>
+uv run cta export <task_id>
+uv run cta export <task_id> --repair
+```
+
+这些命令也可加 `--mode real`。人工导入关联当前基稿，只修改正文形成新产物版本；旧通过不继承。过期基稿拒绝覆盖。外部文件未导入不成为新任务内容；发现文件与保存记录不符时保持未完成，显式修复从权威内容重建。
+
+`review` / `save` 保留为明确单步接口，完整自主验收使用 `run/resume`。纯资源更新记录语义复用依据；`adopt-knowledge` / `adopt-material` 显式采用新版正文并保留历史。详细参数见 `uv run cta --help`。
+
+## 证据与复现
+
+- [验收报告与12组场景](docs/delivery/10-repair-acceptance.md)
+- [机器汇总](examples/acceptance-summary.json)：合格交付、正确停止、早期失败分列
+- [真实核心样例](examples/repair-live/) / [人工稿](examples/repair-human/import-01/)
+- [六对真实校准](examples/repair-calibration/knowledge2/result.json)
+- [三方式实际对照](examples/repair-comparison/normal-01/suite.json) / [回读对照](examples/repair-comparison/readback-01/result.json)
+
+```powershell
+uv run python scripts/verify_saved_artifacts.py
+uv run cta --mode real calibrate --output <new-result.json>
+uv run python -m cta.comparison --mode real --method all --case fixtures/comparison/campaign-2026-10-29.v1.json --output <new-experiment-directory>
+```
+
+第一条离线核对89个存档导出的原始字节，不依赖原D盘路径。后两条会真实调用模型，保留全部结果；不保证托管模型内部实现或随机输出不变。
+
+真实/Mock使用独立数据库与导出目录，默认 `.cta-runs/<mode>/`；`--data-dir` / `CTA_DATA_DIR` 可指定根目录。本题合成资料与费用表在 `fixtures/`，两类工作知识在 `knowledge/`。实际用量和金额未知项分列；模拟按时不证明真实墙钟按时。
 
 ## 文档
 
-- [需求分析](docs/delivery/01-requirements-analysis.md)
-- [架构](docs/delivery/02-architecture.md) / [设计](docs/delivery/03-design.md)
-- [测试与验收](docs/delivery/04-testing.md)
-- [运行、复现与运维](docs/delivery/05-operations.md)
-- [证据索引](docs/delivery/06-evidence-index.md)
-- [最终双轴评审](docs/delivery/07-final-review.md)
-- [AI 使用说明](docs/delivery/09-ai-usage.md)
-- [复盘](docs/delivery/08-retro.md)
+[需求](docs/delivery/01-requirements-analysis.md) · [架构](docs/delivery/02-architecture.md) · [设计](docs/delivery/03-design.md) · [测试](docs/delivery/04-testing.md) · [运维](docs/delivery/05-operations.md) · [证据索引](docs/delivery/06-evidence-index.md) · [独立评审](docs/delivery/07-final-review.md) · [复盘](docs/delivery/08-retro.md) · [AI使用](docs/delivery/09-ai-usage.md)
 
-## 当前范围与限制
-
-- 当前可完成正常核验与保存，并支持主循环/生成中断后的真实新进程续跑；暂停不推进模拟时钟，续跑继续原进度与额度。
-- 意见处置、返修复审与评估中断恢复由 06 加入；保存未知的完整核实、回执恢复与导出修复由 08 加入。
-- 真实模式已接入 DeepSeek 并执行过简报、草稿、核验与评审校准的真实运行；05/07/08/09/10 的确定性样例均为 Mock 注入，未新增真实 API 运行。真实/Mock 的数据库、导出目录与请求身份独立。
-- **历史真实失败**：修复前的 12 轮任务最远到“草稿 v1 + 评审 fail”，详见 `evidence/ticket-12/README.md`。该记录保留；修复后的真实运行、返修与保存结果另有证据，不用离线通过代替真实验收。
-- 预算只约束模拟工具费用；真实 Token 用量另记。模拟按时不代表真实墙钟按时。
-- 交付文档、证据索引与完整复现步骤由 14 票汇总。
+没有远程发布或考试平台提交。本地分支为 `repair/autonomous-delivery`，最终提交以 `git rev-parse HEAD` 为准。

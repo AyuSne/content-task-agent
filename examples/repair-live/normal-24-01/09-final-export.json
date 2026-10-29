@@ -1,0 +1,49 @@
+{
+  "task_id": "t_562c7e28f5d1",
+  "output_version": 1,
+  "save_id": null,
+  "verified": true,
+  "files": [
+    {
+      "path": "D:\\AAA小影科技\\content-task-agent\\examples\\repair-live\\normal-24-01\\data\\real\\exports\\t_562c7e28f5d1\\campaign-v1.md",
+      "sha256": "a484b305a45a7cd1bc18322fe20cd1550927f55f30b1dcd67f4be28dc9c92978",
+      "bytes": 13016,
+      "exists": true,
+      "current_sha256": "a484b305a45a7cd1bc18322fe20cd1550927f55f30b1dcd67f4be28dc9c92978",
+      "ok": true
+    },
+    {
+      "path": "D:\\AAA小影科技\\content-task-agent\\examples\\repair-live\\normal-24-01\\data\\real\\exports\\t_562c7e28f5d1\\campaign-v1.json",
+      "sha256": "d3b5e82e9e7950a30e179b17c2a9f9a753e3325a2601e5f0c867f8aec60d6888",
+      "bytes": 15895,
+      "exists": true,
+      "current_sha256": "d3b5e82e9e7950a30e179b17c2a9f9a753e3325a2601e5f0c867f8aec60d6888",
+      "ok": true
+    },
+    {
+      "path": "D:\\AAA小影科技\\content-task-agent\\examples\\repair-live\\normal-24-01\\data\\real\\exports\\t_562c7e28f5d1\\execution-report.md",
+      "sha256": "dd017c9172a01279ca7b04271bec6f702cb32a6aa258bfe1b0bf14b55ced3474",
+      "bytes": 19496,
+      "exists": true,
+      "current_sha256": "dd017c9172a01279ca7b04271bec6f702cb32a6aa258bfe1b0bf14b55ced3474",
+      "ok": true
+    },
+    {
+      "path": "D:\\AAA小影科技\\content-task-agent\\examples\\repair-live\\normal-24-01\\data\\real\\exports\\t_562c7e28f5d1\\trace.jsonl",
+      "sha256": "ebe16078467b857ef0572dc4106b0a13a8151ea179a15f46c862475cb4f77f78",
+      "bytes": 183001,
+      "exists": true,
+      "current_sha256": "ebe16078467b857ef0572dc4106b0a13a8151ea179a15f46c862475cb4f77f78",
+      "ok": true
+    },
+    {
+      "path": "D:\\AAA小影科技\\content-task-agent\\examples\\repair-live\\normal-24-01\\data\\real\\exports\\t_562c7e28f5d1\\brief-v1.json",
+      "sha256": "e620603d5c7c8ea09729c3ba009496fe9dedaa5ffccf015276ae33668dab6c34",
+      "bytes": 7888,
+      "exists": true,
+      "current_sha256": "e620603d5c7c8ea09729c3ba009496fe9dedaa5ffccf015276ae33668dab6c34",
+      "ok": true
+    }
+  ],
+  "repaired": false
+}

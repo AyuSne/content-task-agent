@@ -1,0 +1,50 @@
+{
+  "task_id": "t_fe6aa76ff034",
+  "output_version": 2,
+  "save_id": "s_54316c7f0ac4e596",
+  "verified": true,
+  "delivery_complete": true,
+  "files": [
+    {
+      "path": "D:\\AAA小影科技\\content-task-agent\\examples\\repair-live\\recovery-delivery-03\\data\\real\\exports\\t_fe6aa76ff034\\campaign-v2.md",
+      "sha256": "ef7c209ca1fc5f11de91b7500a2a690e8a0145aa9ea784ad04b57c2360c9c179",
+      "bytes": 13017,
+      "exists": true,
+      "current_sha256": "ef7c209ca1fc5f11de91b7500a2a690e8a0145aa9ea784ad04b57c2360c9c179",
+      "ok": true
+    },
+    {
+      "path": "D:\\AAA小影科技\\content-task-agent\\examples\\repair-live\\recovery-delivery-03\\data\\real\\exports\\t_fe6aa76ff034\\campaign-v2.json",
+      "sha256": "9bfeabb2f43966eadbbe80f06cb1bf5ccfb743d250d74eb28a38d60c47117917",
+      "bytes": 15507,
+      "exists": true,
+      "current_sha256": "9bfeabb2f43966eadbbe80f06cb1bf5ccfb743d250d74eb28a38d60c47117917",
+      "ok": true
+    },
+    {
+      "path": "D:\\AAA小影科技\\content-task-agent\\examples\\repair-live\\recovery-delivery-03\\data\\real\\exports\\t_fe6aa76ff034\\brief-v1.json",
+      "sha256": "d90071d82f7db47c1ee0bfa7e90450f82712c6ef78b0862c077ea097a8267930",
+      "bytes": 7886,
+      "exists": true,
+      "current_sha256": "d90071d82f7db47c1ee0bfa7e90450f82712c6ef78b0862c077ea097a8267930",
+      "ok": true
+    },
+    {
+      "path": "D:\\AAA小影科技\\content-task-agent\\examples\\repair-live\\recovery-delivery-03\\data\\real\\exports\\t_fe6aa76ff034\\execution-report.md",
+      "sha256": "9774896fd8daa59c3c83905039cfc53ee80e71e91c7080849ed0be7e78344a0b",
+      "bytes": 17175,
+      "exists": true,
+      "current_sha256": "9774896fd8daa59c3c83905039cfc53ee80e71e91c7080849ed0be7e78344a0b",
+      "ok": true
+    },
+    {
+      "path": "D:\\AAA小影科技\\content-task-agent\\examples\\repair-live\\recovery-delivery-03\\data\\real\\exports\\t_fe6aa76ff034\\trace.jsonl",
+      "sha256": "f068a5c3afdf10d41c5cf854ed66188755b167b5eb12fc71429ea04d56a39d8a",
+      "bytes": 222142,
+      "exists": true,
+      "current_sha256": "f068a5c3afdf10d41c5cf854ed66188755b167b5eb12fc71429ea04d56a39d8a",
+      "ok": true
+    }
+  ],
+  "repaired": false
+}

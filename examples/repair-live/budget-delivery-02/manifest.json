@@ -1,0 +1,307 @@
+{
+  "scenario": "budget",
+  "mode": "real",
+  "input": {
+    "topic": "帧剪校园社团招新短视频推广",
+    "budget": "6.00",
+    "deadline": "2026-10-30T12:00:00+08:00",
+    "audience": "18-24岁大学生",
+    "requirements": [
+      "围绕自动卡点，准备一份含一条30秒主视频的完整内容活动方案。",
+      "只使用合成资料可支持的正式能力；说明音乐授权和待制作操作录屏；不作涨粉承诺。",
+      "比较包含一次必要返修及复核预留的完整路径，再依据实际预算反馈选择模式；预留不计已发生费用，不要求用尽预算。"
+    ]
+  },
+  "main_round_limit_for_new_task": "application_default",
+  "fault": null,
+  "commands": [
+    {
+      "label": "01-create",
+      "argv": [
+        "D:\\AAA小影科技\\content-task-agent\\.venv\\Scripts\\python.exe",
+        "-m",
+        "cta",
+        "--mode",
+        "real",
+        "--data-dir",
+        "D:\\AAA小影科技\\content-task-agent\\examples\\repair-live\\budget-delivery-02\\data",
+        "create",
+        "--new",
+        "--topic",
+        "帧剪校园社团招新短视频推广",
+        "--budget",
+        "6.00",
+        "--deadline",
+        "2026-10-30T12:00:00+08:00",
+        "--audience",
+        "18-24岁大学生",
+        "--requirement",
+        "围绕自动卡点，准备一份含一条30秒主视频的完整内容活动方案。",
+        "--requirement",
+        "只使用合成资料可支持的正式能力；说明音乐授权和待制作操作录屏；不作涨粉承诺。",
+        "--requirement",
+        "比较包含一次必要返修及复核预留的完整路径，再依据实际预算反馈选择模式；预留不计已发生费用，不要求用尽预算。"
+      ],
+      "fault": null,
+      "exit_code": 0,
+      "wall_seconds": 0.475
+    },
+    {
+      "label": "02-run",
+      "argv": [
+        "D:\\AAA小影科技\\content-task-agent\\.venv\\Scripts\\python.exe",
+        "-m",
+        "cta",
+        "--mode",
+        "real",
+        "--data-dir",
+        "D:\\AAA小影科技\\content-task-agent\\examples\\repair-live\\budget-delivery-02\\data",
+        "run",
+        "t_20abe86da8c9"
+      ],
+      "fault": null,
+      "exit_code": 0,
+      "wall_seconds": 8.699
+    },
+    {
+      "label": "retry-1-before",
+      "argv": [
+        "D:\\AAA小影科技\\content-task-agent\\.venv\\Scripts\\python.exe",
+        "-m",
+        "cta",
+        "--mode",
+        "real",
+        "--data-dir",
+        "D:\\AAA小影科技\\content-task-agent\\examples\\repair-live\\budget-delivery-02\\data",
+        "inspect",
+        "t_20abe86da8c9"
+      ],
+      "fault": null,
+      "exit_code": 0,
+      "wall_seconds": 0.382
+    },
+    {
+      "label": "retry-1-resume",
+      "argv": [
+        "D:\\AAA小影科技\\content-task-agent\\.venv\\Scripts\\python.exe",
+        "-m",
+        "cta",
+        "--mode",
+        "real",
+        "--data-dir",
+        "D:\\AAA小影科技\\content-task-agent\\examples\\repair-live\\budget-delivery-02\\data",
+        "resume",
+        "t_20abe86da8c9"
+      ],
+      "fault": null,
+      "exit_code": 0,
+      "wall_seconds": 116.812
+    },
+    {
+      "label": "05-inspect",
+      "argv": [
+        "D:\\AAA小影科技\\content-task-agent\\.venv\\Scripts\\python.exe",
+        "-m",
+        "cta",
+        "--mode",
+        "real",
+        "--data-dir",
+        "D:\\AAA小影科技\\content-task-agent\\examples\\repair-live\\budget-delivery-02\\data",
+        "inspect",
+        "t_20abe86da8c9"
+      ],
+      "fault": null,
+      "exit_code": 0,
+      "wall_seconds": 0.332
+    },
+    {
+      "label": "06-export",
+      "argv": [
+        "D:\\AAA小影科技\\content-task-agent\\.venv\\Scripts\\python.exe",
+        "-m",
+        "cta",
+        "--mode",
+        "real",
+        "--data-dir",
+        "D:\\AAA小影科技\\content-task-agent\\examples\\repair-live\\budget-delivery-02\\data",
+        "export",
+        "t_20abe86da8c9"
+      ],
+      "fault": null,
+      "exit_code": 0,
+      "wall_seconds": 0.362
+    }
+  ],
+  "started_at_unix": 1793248466.06823,
+  "source_sha": "26747097175d32884fed137f5a3ecf9f48b07710",
+  "task_id": "t_20abe86da8c9",
+  "finished_at_unix": 1793248593.1969845,
+  "status": "complete",
+  "progress": {
+    "sim_start": "2026-10-29T00:00:00+08:00",
+    "sim_now": "2026-10-29T00:00:41+08:00",
+    "sim_elapsed_ms": 41000,
+    "used_rounds": 17,
+    "max_rounds": 24,
+    "paused": false,
+    "current_output": {
+      "output_id": "o_61e44f9157b6122a",
+      "version": 2,
+      "status": "draft",
+      "strategy": "user_scenario"
+    },
+    "save": {
+      "save_id": "s_54dc7622b816278f",
+      "output_version": 2,
+      "status": "verified",
+      "verified": true
+    },
+    "phase": "complete",
+    "brief_version": 1,
+    "last_run_at": "2026-10-29T04:36:30+00:00"
+  },
+  "resources": {
+    "budget_cents": 600,
+    "sim_spent_cents": 550,
+    "remaining_cents": 50,
+    "real_requests": 22,
+    "mock_requests": 0,
+    "model_requests": 22,
+    "real_usage": {
+      "requests": 22,
+      "real_requests": 22,
+      "mock_requests": 0,
+      "unknown_usage_requests": 2,
+      "usage_complete": false,
+      "prompt_tokens": 424643,
+      "completion_tokens": 18754,
+      "cache_hit_tokens": 360960,
+      "cache_miss_tokens": 63683,
+      "elapsed_ms": 119550
+    },
+    "real_cost": null,
+    "amount_status": {
+      "simulated_tool_fee": "incurred_and_estimated",
+      "real_model_usage": "unknown",
+      "activity_costs": "unknown"
+    },
+    "simulated_tool_fee": {
+      "category": "simulated_tool_fee",
+      "unit": "CNY_cent",
+      "source": "pricing:2026-10-29.v1",
+      "nature": "incurred",
+      "incurred_cents": 550,
+      "ledger_entries": 7,
+      "estimated": {
+        "estimate_id": "e_e77a55cceb36fa3c",
+        "kind": "strategy_choice",
+        "direction": "user_scenario",
+        "search_mode": "search_basic",
+        "generation_mode": "generate_direct",
+        "search_queries": 0,
+        "include_revision": true,
+        "total_cost_cents": 410,
+        "total_duration_ms": 29000,
+        "incurred_cents": 60,
+        "remaining_cents": 540,
+        "feasible": true,
+        "strategy_version": "2026-10-29.v1",
+        "pricing_version": "2026-10-29.v1",
+        "created_at": "2026-10-29T04:35:00+00:00",
+        "nature": "estimated"
+      },
+      "reserved": {
+        "selection_id": "st_3ed43c101177e80e",
+        "direction": "user_scenario",
+        "search_mode": "search_basic",
+        "generation_mode": "generate_direct",
+        "search_queries": 0,
+        "include_revision": true,
+        "improvement": false,
+        "expected_benefit": null,
+        "rationale": "用户要求围绕自动卡点做校园社团招新推广，受众是 18-24 岁大学生。用户情境方向以 M-005 已授权的社团招新/操场/教室情境画面承接场景吸引力，配合 M-001 的自动卡点能力作为证据支撑，最贴合「校园社团招新」主题与受众调研（M-003 显示社团活动记录是高频类型、重视手动微调）。功能演示缺可展示录屏且情境吸引力有限；教程在 30 秒内密度过高、需更完整录屏步骤。资料缺口已在简报阶段检索完成（剩余检索 0 次），风险点（情境画面不能证明能力、M-006 音乐授权待获取）在方案中以证据关联与待获取素材说明处理。按 generate_direct 含一次返修及复核的完整路径为 410 分，当前剩余 540 分，预算与截止均可行。",
+        "total_cost_cents": 410,
+        "total_duration_ms": 29000,
+        "incurred_cents": 60,
+        "remaining_cents": 540,
+        "strategy_version": "2026-10-29.v1",
+        "pricing_version": "2026-10-29.v1",
+        "created_at": "2026-10-29T04:35:00+00:00",
+        "nature": "reserved"
+      },
+      "note": "预留与估算是可行性判断，不是实际支出；实际消耗只累计账本中 nature=incurred 的记录。"
+    },
+    "real_model_usage": {
+      "category": "real_model_usage",
+      "unit": "request/token",
+      "source": "DeepSeek API response usage（openai SDK）",
+      "nature": "actual_usage",
+      "requests": 22,
+      "real_requests": 22,
+      "mock_requests": 0,
+      "unknown_usage_requests": 2,
+      "prompt_tokens": 424643,
+      "completion_tokens": 18754,
+      "cache_hit_tokens": 360960,
+      "cache_miss_tokens": 63683,
+      "elapsed_ms": 119550,
+      "amount": {
+        "status": "unknown",
+        "value_cents": null,
+        "reason": "没有可靠的单价来源，不把 token 用量换算成金额；未发生真实请求时也不补成已核实零费用。"
+      }
+    },
+    "activity_costs": {
+      "category": "activity_cost",
+      "unit": "CNY_cent",
+      "source": "campaign.materials",
+      "status": "unknown",
+      "nature": "unknown",
+      "entries": [
+        {
+          "name": "帧剪自动卡点操作录屏",
+          "material_id": null,
+          "status": "to_create",
+          "amount_cents": null,
+          "nature": "unknown",
+          "source": "campaign.materials"
+        },
+        {
+          "name": "背景音乐《Late Bus》",
+          "material_id": "M-006",
+          "status": "to_acquire",
+          "amount_cents": null,
+          "nature": "unknown",
+          "source": "campaign.materials"
+        },
+        {
+          "name": "备选节奏清晰流行乐（授权可用）",
+          "material_id": null,
+          "status": "to_acquire",
+          "amount_cents": null,
+          "nature": "unknown",
+          "source": "campaign.materials"
+        },
+        {
+          "name": "结尾界面定格图",
+          "material_id": null,
+          "status": "to_create",
+          "amount_cents": null,
+          "nature": "unknown",
+          "source": "campaign.materials"
+        }
+      ],
+      "reason": "方案含待获取或待制作素材，但任务输入与材料未给出活动预算或已发生支出金额。"
+    },
+    "unknown": [
+      "real_model_usage.amount",
+      "activity_costs"
+    ],
+    "not_applicable": []
+  },
+  "file_hashes": {
+    "data\\real\\exports\\t_20abe86da8c9\\campaign-v2.md": "bcf7c619cd1175574dca8fb2a4a010463366b937d7b1d893e3f51fd2de7cccfe",
+    "data\\real\\exports\\t_20abe86da8c9\\execution-report.md": "dc17bcaca85b1749d01f0cbb3f3fed23eebac7fa0100e25f0547388cd7cef531",
+    "data\\real\\exports\\t_20abe86da8c9\\trace.jsonl": "a9db3c8f5b7b6b9af1068964ec246d545bae8059caea110dff6ae9822b950d4f"
+  }
+}
