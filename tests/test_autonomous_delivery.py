@@ -10,6 +10,22 @@ from test_review_save import REVIEW_PASS, _review_item
 from test_revision_disposition import REVIEW_FAIL
 
 
+def test_passed_review_exposes_current_save_option_without_requiring_optional_rewrite(cli_env, model_script):
+    report = {**REVIEW_PASS, "findings": [{**REVIEW_FAIL["findings"][0], "severity": "optional"}]}
+    model_script([*_brief_then_draft_script(), _tool("review_campaign", {}),
+                  _review_item(report), _tool("save_campaign", {})])
+    task_id = _create()["task_id"]
+    assert cli_json("run", task_id)["status"] == "complete"
+    facts = cli_json("inspect", task_id)
+    result = next(json.loads(m["content"]) for m in facts["messages"]
+                  if m["role"] == "tool" and m["name"] == "review_campaign")
+    options = result["delivery_options"]
+    assert options["quality_allows_save"] is True
+    assert options["optional_findings"] == 1
+    assert options["remaining_main_rounds"] == facts["progress"]["max_rounds"] - 5
+    assert len(facts["outputs"]) == 1
+
+
 def test_one_run_delivers_reviewed_campaign_without_operator_review_or_save(cli_env, model_script):
     task = _create()
     model_script([

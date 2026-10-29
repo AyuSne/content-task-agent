@@ -1,0 +1,23 @@
+F                                                                        [100%]
+================================== FAILURES ===================================
+_ test_passed_review_exposes_current_save_option_without_requiring_optional_rewrite _
+
+cli_env = WindowsPath('C:/Users/10167/AppData/Local/Temp/pytest-of-10167/pytest-260/test_passed_review_exposes_cur0')
+model_script = <function model_script.<locals>.write at 0x0000020067EE60C0>
+
+    def test_passed_review_exposes_current_save_option_without_requiring_optional_rewrite(cli_env, model_script):
+        report = {**REVIEW_PASS, "findings": [{**REVIEW_FAIL["findings"][0], "severity": "optional"}]}
+        model_script([*_brief_then_draft_script(), _tool("review_campaign", {}),
+                      _review_item(report), _tool("save_campaign", {})])
+        task_id = _create()["task_id"]
+        assert cli_json("run", task_id)["status"] == "complete"
+        facts = cli_json("inspect", task_id)
+        result = next(json.loads(m["content"]) for m in facts["messages"]
+                      if m["role"] == "tool" and m["name"] == "review_campaign")
+>       options = result["delivery_options"]
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       KeyError: 'delivery_options'
+
+tests\test_autonomous_delivery.py:22: KeyError
+=========================== short test summary info ===========================
+FAILED tests/test_autonomous_delivery.py::test_passed_review_exposes_current_save_option_without_requiring_optional_rewrite

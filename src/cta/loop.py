@@ -54,7 +54,7 @@ from cta.repository import (
     task_spent,
 )
 from cta.review import ReviewError, review_task
-from cta.save import SaveBlocked, reconcile_task, save_task
+from cta.save import SaveBlocked, reconcile_task, save_preconditions, save_task
 from cta.service import (
     STATUS_COMPLETE,
     STATUS_IN_PROGRESS,
@@ -404,6 +404,25 @@ def _ensure_base_context(conn, task, config: Config) -> None:
         )
 
 
+def _delivery_options(conn, task) -> dict:
+    task = _task(conn, task["id"])
+    output, review = latest_output(conn, task["id"]), latest_review(conn, task["id"])
+    blocked = {"code": "no_output"} if output is None else save_preconditions(conn, task, output)
+    return {
+        "quality_allows_save": blocked is None,
+        "quality_blocker": blocked,
+        "optional_findings": sum(f["severity"] == "optional" for f in review["findings"]) if review else 0,
+        "remaining_main_rounds": task["max_rounds"] - task["used_rounds"],
+        "next": (
+            "当前稿已满足内容保存前提。比较保存当前合格稿与有实质收益的改进；optional 无需全部采纳，"
+            "可依据当前已满足的要求、收益和回归风险保留原稿。任何改进先核对完整返修/复审/保存路径及剩余主轮数；"
+            "没有明确值得投入的改进时调用 save_campaign，保存仍核对预算、模拟截止和全部文件。"
+            if blocked is None else
+            "处理当前关键缺口，集中记录每条意见的依据；必要返修后复审，资料不足或完整路径不可行时明确停止。"
+        ),
+    }
+
+
 def _ensure_phase_context(conn, task, config: Config) -> None:
     if task["phase"] not in ("brief_ready", "draft_ready", "reviewed", "review_incomplete", "input_updated"):
         return
@@ -469,7 +488,7 @@ def _ensure_phase_context(conn, task, config: Config) -> None:
                         {
                             "review": review,
                             "dispositions": dispositions,
-                            "next": "逐条处置意见；accepted 必须返修并重新 propose_campaign，rejected 需引用原始要求或证据。",
+                            "delivery_options": _delivery_options(conn, task),
                         },
                         ensure_ascii=False,
                     ),
@@ -634,14 +653,17 @@ def _handle_response(
         result, terminal = _request_clarification(conn, task, parsed)
     elif call.name == "record_disposition":
         result = _record_disposition(conn, task, parsed)
+        result["delivery_options"] = _delivery_options(conn, task)
         terminal = False
     elif call.name == "record_dispositions":
         result = _record_dispositions(conn, task, parsed)
+        result["delivery_options"] = _delivery_options(conn, task)
         terminal = False
     elif call.name == "review_campaign":
         try:
             document = review_task(config, task["id"])
-            result = {"ok": True, "review": document["review"], "resources": document["resources"]}
+            result = {"ok": True, "review": document["review"], "resources": document["resources"],
+                      "delivery_options": _delivery_options(conn, task)}
         except ReviewError as exc:
             result = {"ok": False, "error": exc.code, "message": str(exc)}
         terminal = False
