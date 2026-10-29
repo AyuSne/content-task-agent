@@ -11,7 +11,7 @@ from datetime import datetime
 
 from cta.config import Config, utc_now_iso
 from cta.db import open_store, transaction
-from cta.evaluation import MAX_READBACKS, MAX_REQUESTS, evaluate, review_report_status
+from cta.evaluation import evaluate, review_report_status
 from cta.knowledge import load_doc
 from cta.materials import load_task_catalog
 from cta.model import create_client
@@ -136,8 +136,8 @@ def review_task(config: Config, task_id: str) -> dict:
             return {**TaskService(config).status(task_id), "duplicate": True, "review": existing}
 
         spec = price.mode("review")
-        max_requests = int(spec.max_requests or MAX_REQUESTS)
-        max_readbacks = int(spec.max_readbacks or MAX_READBACKS)
+        max_requests = int(spec.max_requests)
+        max_readbacks = int(spec.max_readbacks)
         guard = _guard(conn, task, spec.cost_cents, spec.duration_ms)
         if guard is not None:
             raise ReviewError(guard["message"], guard.get("code", "review_blocked"))
