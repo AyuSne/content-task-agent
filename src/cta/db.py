@@ -44,6 +44,7 @@ CREATE TABLE IF NOT EXISTS tasks (
     materials_version TEXT NOT NULL DEFAULT '',
     pricing_version TEXT NOT NULL DEFAULT '',
     strategy_version TEXT NOT NULL DEFAULT '',
+    protocol_version TEXT NOT NULL DEFAULT 'legacy',
     current_review_id TEXT,
     current_save_id TEXT
 );
@@ -184,6 +185,7 @@ CREATE TABLE IF NOT EXISTS briefs (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     task_id TEXT NOT NULL REFERENCES tasks(id) ON DELETE CASCADE,
     version INTEGER NOT NULL,
+    input_version INTEGER NOT NULL DEFAULT 0,
     content_json TEXT NOT NULL,
     created_at TEXT NOT NULL,
     UNIQUE(task_id, version)
@@ -344,10 +346,14 @@ def _ensure_columns(conn: sqlite3.Connection) -> None:
         "current_review_id": "TEXT",
         "current_save_id": "TEXT",
         "max_rounds": "INTEGER NOT NULL DEFAULT 12",
+        "protocol_version": "TEXT NOT NULL DEFAULT 'legacy'",
     }
     for name, definition in additions.items():
         if name not in columns:
             conn.execute(f"ALTER TABLE tasks ADD COLUMN {name} {definition}")
+    brief_columns = {row["name"] for row in conn.execute("PRAGMA table_info(briefs)")}
+    if "input_version" not in brief_columns:
+        conn.execute("ALTER TABLE briefs ADD COLUMN input_version INTEGER NOT NULL DEFAULT 0")
 
 
 def initialize(conn: sqlite3.Connection) -> None:

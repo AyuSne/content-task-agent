@@ -20,11 +20,9 @@ from cta.materials import MaterialCatalog, load_catalog, load_task_catalog
 from cta.model import ModelResponse, create_client
 from cta.pricing import PriceTable, load_price_table
 from cta.prompts import (
-    GENERATION_PROMPT_VERSION,
     MAIN_SYSTEM_PROMPT,
     MAX_DISPOSITIONS,
     PROMPT_VERSION,
-    SCRIPT_GENERATION_SYSTEM_PROMPT,
     TOOL_DEFINITIONS,
 )
 from cta.recovery import (
@@ -32,21 +30,16 @@ from cta.recovery import (
     recover_task,
     recovery_has_events,
 )
-from cta.render import campaign_markdown
 from cta.repository import (
     LOCAL_TOOL_NAMES,
     api_messages,
     append_message,
     append_snapshot,
     count_attempts,
-    count_purpose_requests,
-    create_output,
-    create_strategy_selection,
     finish_attempt,
     latest_brief,
     latest_output,
     latest_review,
-    latest_strategy_selection,
     record_estimate,
     record_llm_request,
     record_local_tool_result,
@@ -66,7 +59,6 @@ from cta.service import (
     TaskNotFound,
     TaskService,
 )
-from cta.strategy import DIRECTIONS, ResourceState, compare_strategies, load_strategy_table
 from cta.task_plan import update_plan
 
 
@@ -96,8 +88,13 @@ def run_task(config: Config, task_id: str, *, max_rounds: int | None = None, exp
 
     with open_store(config.db_path) as conn:
         task = _task(conn, task_id)
+        if task["protocol_version"] != "direct-script-v1":
+            run_info["stop_reason"] = "legacy_protocol"
+            document = _document(config, task_id, run_info)
+            document["reason"] = ("旧任务使用旧业务协议，请使用固定代码基线 "
+                                  "836aa827d835e54a8e9385c18e7a3ff05ed3e600 和原采用资料恢复。")
+            return document
         price = load_price_table(config.project_root, version=task["pricing_version"])
-        strategy_table = load_strategy_table(config.project_root, version=task["strategy_version"])
         if task["status"] == STATUS_NEEDS_INPUT and not _has_messages(conn, task_id):
             run_info["stop_reason"] = "needs_input"
             return _document(config, task_id, run_info)
@@ -279,7 +276,7 @@ def run_task(config: Config, task_id: str, *, max_rounds: int | None = None, exp
                 run_info["stop_reason"] = "model_error"
                 break
 
-            outcome = _handle_response(conn, task, response, price, catalog, config, client, strategy_table,
+            outcome = _handle_response(conn, task, response, price, catalog, config, client,
                                        tools=protocol["tools"])
             task = _task(conn, task_id)
             _ensure_phase_context(conn, task, config)
@@ -459,8 +456,7 @@ def _ensure_phase_context(conn, task, config: Config) -> None:
                     conn,
                     task["id"],
                     "user",
-                    "[阶段推进] 业务简报已保存。请比较创作方向，调用 generate_script 获得独立生成的脚本候选，"
-                    "再整合活动安排、素材用途、制作步骤与证据，调用 propose_campaign 提交完整方案草稿。",
+                    "[阶段推进] 业务简报已保存。请依据当前材料完成脚本，调用 submit_script 提交完整稿并引用该简报版本。",
                     meta={"kind": "phase_transition", "from": "brief", "to": "campaign_draft"},
                 )
         if task["phase"] == "draft_ready":
@@ -576,7 +572,6 @@ def _handle_response(
     catalog: MaterialCatalog,
     config: Config,
     client,
-    strategy_table,
     *,
     tools: list[dict] | None = None,
 ) -> dict:
@@ -673,16 +668,15 @@ def _handle_response(
                 result = disposition(conn, task, parsed)
                 result["delivery_options"] = _delivery_options(conn, task)
             else:
-                result = _execute_business_tool(conn, task, call.name, parsed, price, catalog, config, strategy_table)
+                result = _execute_business_tool(conn, task, call.name, parsed, price, catalog, config)
             crash("before_local_tool_receipt")
             record_local_tool_result(conn, task["id"], request_seq, call.id, call.name, result)
         terminal = False
     elif call.name == "propose_brief":
         result, terminal = _propose_brief(conn, task, parsed, catalog)
-    elif call.name == "propose_campaign":
-        result, terminal = _propose_campaign(conn, task, parsed, catalog)
-    elif call.name == "generate_script":
-        result = _generate_script(conn, task, parsed, price, catalog, config, client, tool_call_id=call.id)
+    elif call.name == "submit_script":
+        from cta.artifacts import submit_script
+        result = submit_script(conn, task, parsed, price, catalog, tool_call_id=call.id, guard=_guard)
         terminal = False
     elif call.name == "request_clarification":
         result, terminal = _request_clarification(conn, task, parsed)
@@ -715,13 +709,11 @@ def _handle_response(
         result, terminal = _stop_incomplete(conn, task, parsed)
     else:
         result = _execute_business_tool(
-            conn, task, call.name, parsed, price, catalog, config, strategy_table, tool_call_id=call.id
+            conn, task, call.name, parsed, price, catalog, config, tool_call_id=call.id
         )
         terminal = False
 
     crash("after_tool_effect")
-    if call.name == "propose_campaign":
-        crash("after_campaign_effect")
     if call.name == "review_campaign":
         crash("after_review_effect")
     if call.name == "save_campaign":
@@ -770,7 +762,6 @@ def _execute_business_tool(
     price: PriceTable,
     catalog: MaterialCatalog,
     config: Config,
-    strategy_table,
     *,
     tool_call_id: str | None = None,
 ) -> dict:
@@ -787,10 +778,6 @@ def _execute_business_tool(
         return catalog.read(material_id)
     if name == "estimate_cost":
         return _estimate(conn, task, parsed, price)
-    if name == "compare_strategies":
-        return _compare_strategies(conn, task, parsed, price, strategy_table)
-    if name == "choose_strategy":
-        return _choose_strategy(conn, task, parsed, price, strategy_table)
     return {"ok": False, "error": "unknown_tool", "message": f"未知工具：{name}"}
 
 
@@ -868,18 +855,6 @@ def _search(
     return {**result, "attempt_id": attempt_id, "cost_cents": spec.cost_cents, "duration_ms": spec.duration_ms}
 
 
-def _resource_state(conn, task) -> ResourceState:
-    input_row = _input_row(conn, task)
-    deadline = None if input_row["deadline"] is None else datetime.fromisoformat(input_row["deadline"])
-    return ResourceState(
-        incurred_cents=task_spent(conn, task["id"]),
-        budget_cents=input_row["budget_cents"],
-        sim_start=datetime.fromisoformat(task["sim_start"]),
-        sim_elapsed_ms=task["sim_elapsed_ms"],
-        deadline=deadline,
-    )
-
-
 def _estimate(conn, task, parsed: dict, price: PriceTable) -> dict:
     actions = parsed.get("actions")
     if not isinstance(actions, list) or not actions or not all(isinstance(action, str) for action in actions):
@@ -939,633 +914,6 @@ def _estimate(conn, task, parsed: dict, price: PriceTable) -> dict:
     estimate["estimate_id"] = recorded["estimate_id"]
     estimate["nature"] = "estimated"
     return {"ok": True, "estimate": estimate, "estimate_id": recorded["estimate_id"]}
-
-
-def _compare_strategies(conn, task, parsed: dict, price: PriceTable, strategy_table) -> dict:
-    search_mode = parsed.get("search_mode")
-    generation_mode = parsed.get("generation_mode")
-    if search_mode not in ("search_basic", "search_extended"):
-        return {"ok": False, "error": "invalid_arguments", "message": "search_mode 无效。"}
-    if generation_mode not in ("generate_direct", "generate_multi"):
-        return {"ok": False, "error": "invalid_arguments", "message": "generation_mode 无效。"}
-    include_revision = parsed.get("include_revision", False)
-    if not isinstance(include_revision, bool):
-        return {"ok": False, "error": "invalid_arguments", "message": "include_revision 必须是布尔值。"}
-    search_queries = parsed.get("search_queries")
-    if search_queries is not None and (
-        not isinstance(search_queries, int) or isinstance(search_queries, bool) or not 0 <= search_queries <= 6
-    ):
-        return {"ok": False, "error": "invalid_arguments", "message": "search_queries 必须是 0 到 6 的整数。"}
-    directions = parsed.get("directions")
-    if directions is not None and (
-        not isinstance(directions, list)
-        or not directions
-        or not all(isinstance(item, str) for item in directions)
-    ):
-        return {"ok": False, "error": "invalid_arguments", "message": "directions 必须是非空字符串数组。"}
-    state = _resource_state(conn, task)
-    try:
-        comparison = compare_strategies(
-            strategy_table,
-            price,
-            state,
-            directions=directions,
-            search_mode=search_mode,
-            generation_mode=generation_mode,
-            search_queries=search_queries,
-            include_revision=include_revision,
-        )
-    except ValueError as exc:
-        return {"ok": False, "error": "invalid_arguments", "message": str(exc)}
-    cheapest = comparison["cheapest_feasible"]
-    if cheapest is not None:
-        total_cost = cheapest["total_cost_cents"]
-        total_duration = cheapest["total_duration_ms"]
-    else:
-        total_cost = min(item["path"]["total_cost_cents"] for item in comparison["directions"])
-        total_duration = min(item["path"]["total_duration_ms"] for item in comparison["directions"])
-    detail = {key: value for key, value in comparison.items() if key != "mode_table"}
-    recorded = record_estimate(
-        conn,
-        task_id=task["id"],
-        kind="strategy_comparison",
-        direction=None,
-        search_mode=search_mode,
-        generation_mode=generation_mode,
-        search_queries=search_queries,
-        include_revision=include_revision,
-        strategy_version=strategy_table.version,
-        pricing_version=price.version,
-        total_cost_cents=total_cost,
-        total_duration_ms=total_duration,
-        incurred_cents=state.incurred_cents,
-        remaining_cents=state.remaining_budget_cents,
-        feasible=cheapest is not None,
-        detail=detail,
-    )
-    comparison["estimate_id"] = recorded["estimate_id"]
-    comparison["nature"] = "estimated"
-    return comparison
-
-
-def _choose_strategy(conn, task, parsed: dict, price: PriceTable, strategy_table) -> dict:
-    direction = parsed.get("direction")
-    search_mode = parsed.get("search_mode")
-    generation_mode = parsed.get("generation_mode")
-    rationale = parsed.get("rationale")
-    include_revision = parsed.get("include_revision", False)
-    improvement = parsed.get("improvement", False)
-    expected_benefit = parsed.get("expected_benefit")
-    search_queries = parsed.get("search_queries")
-    if direction not in DIRECTIONS:
-        return {"ok": False, "error": "invalid_arguments", "message": "direction 必须是三种创作方向之一。"}
-    if search_mode not in ("search_basic", "search_extended"):
-        return {"ok": False, "error": "invalid_arguments", "message": "search_mode 无效。"}
-    if generation_mode not in ("generate_direct", "generate_multi"):
-        return {"ok": False, "error": "invalid_arguments", "message": "generation_mode 无效。"}
-    if not isinstance(rationale, str) or not rationale.strip():
-        return {"ok": False, "error": "invalid_arguments", "message": "rationale 必须说明选择理由。"}
-    if not isinstance(include_revision, bool) or not isinstance(improvement, bool):
-        return {"ok": False, "error": "invalid_arguments", "message": "include_revision 与 improvement 必须是布尔值。"}
-    if search_queries is not None and (
-        not isinstance(search_queries, int) or isinstance(search_queries, bool) or not 0 <= search_queries <= 6
-    ):
-        return {"ok": False, "error": "invalid_arguments", "message": "search_queries 必须是 0 到 6 的整数。"}
-    if expected_benefit is not None and not isinstance(expected_benefit, str):
-        return {"ok": False, "error": "invalid_arguments", "message": "expected_benefit 必须是字符串。"}
-    if improvement and (not isinstance(expected_benefit, str) or not expected_benefit.strip()):
-        return {
-            "ok": False,
-            "error": "invalid_arguments",
-            "message": "improvement=true 时必须说明 expected_benefit（改善目标与预期收益）。",
-        }
-    state = _resource_state(conn, task)
-    try:
-        comparison = compare_strategies(
-            strategy_table,
-            price,
-            state,
-            directions=[direction],
-            search_mode=search_mode,
-            generation_mode=generation_mode,
-            search_queries=search_queries,
-            include_revision=include_revision,
-        )
-    except ValueError as exc:
-        return {"ok": False, "error": "invalid_arguments", "message": str(exc)}
-    item = comparison["directions"][0]
-    detail = {
-        "direction": direction,
-        "search_mode": search_mode,
-        "generation_mode": generation_mode,
-        "search_queries": item["search_queries"],
-        "include_revision": include_revision,
-        "improvement": improvement,
-        "expected_benefit": expected_benefit.strip() if isinstance(expected_benefit, str) else None,
-        "path": item["path"],
-        "budget_feasible": item["budget_feasible"],
-        "deadline_feasible": item["deadline_feasible"],
-        "infeasibility": item["infeasibility"],
-    }
-    recorded_estimate = record_estimate(
-        conn,
-        task_id=task["id"],
-        kind="strategy_choice",
-        direction=direction,
-        search_mode=search_mode,
-        generation_mode=generation_mode,
-        search_queries=item["search_queries"],
-        include_revision=include_revision,
-        strategy_version=strategy_table.version,
-        pricing_version=price.version,
-        total_cost_cents=item["path"]["total_cost_cents"],
-        total_duration_ms=item["path"]["total_duration_ms"],
-        incurred_cents=state.incurred_cents,
-        remaining_cents=state.remaining_budget_cents,
-        feasible=item["feasible"],
-        detail=detail,
-    )
-    if not item["feasible"]:
-        return {
-            "ok": False,
-            "error": "strategy_infeasible",
-            "message": "所选创作方向与完整剩余路径当前不可行；未记录选择，也未产生模拟消耗。请改走可行替代或停止并说明缺口。",
-            "direction": direction,
-            "path": item["path"],
-            "budget_feasible": item["budget_feasible"],
-            "deadline_feasible": item["deadline_feasible"],
-            "infeasibility": item["infeasibility"],
-            "alternatives": item["alternatives"],
-            "cheapest_feasible": comparison["cheapest_feasible"],
-            "estimate_id": recorded_estimate["estimate_id"],
-            "selection_recorded": False,
-            "nature": "estimated",
-        }
-    selection = create_strategy_selection(
-        conn,
-        task_id=task["id"],
-        direction=direction,
-        search_mode=search_mode,
-        generation_mode=generation_mode,
-        search_queries=item["search_queries"],
-        include_revision=include_revision,
-        improvement=improvement,
-        expected_benefit=expected_benefit.strip() if isinstance(expected_benefit, str) else None,
-        rationale=rationale.strip(),
-        strategy_version=strategy_table.version,
-        pricing_version=price.version,
-        path=item["path"],
-        total_cost_cents=item["path"]["total_cost_cents"],
-        total_duration_ms=item["path"]["total_duration_ms"],
-        incurred_cents=state.incurred_cents,
-        remaining_cents=state.remaining_budget_cents,
-    )
-    return {
-        "ok": True,
-        "selection_id": selection["selection_id"],
-        "direction": direction,
-        "label": item["label"],
-        "search_mode": search_mode,
-        "generation_mode": generation_mode,
-        "search_queries": item["search_queries"],
-        "include_revision": include_revision,
-        "improvement": improvement,
-        "expected_benefit": selection["expected_benefit"],
-        "rationale": selection["rationale"],
-        "total_cost_cents": item["path"]["total_cost_cents"],
-        "total_duration_ms": item["path"]["total_duration_ms"],
-        "path": item["path"],
-        "alternatives": item["alternatives"],
-        "cheapest_feasible": comparison["cheapest_feasible"],
-        "estimate_id": recorded_estimate["estimate_id"],
-        "selection_recorded": True,
-        "nature": "reserved",
-        "message": "策略选择与完整路径已记录；预留不是实际支出，执行前仍按当前预算与模拟截止检查。",
-    }
-
-
-def _guard_generation_path(conn, task, generation_mode: str, price: PriceTable) -> dict | None:
-    path = price.remaining_after_generation(generation_mode)
-    cost = path["total_cost_cents"]
-    duration = path["total_duration_ms"]
-    input_row = _input_row(conn, task)
-    spent = task_spent(conn, task["id"])
-    remaining = None if input_row["budget_cents"] is None else input_row["budget_cents"] - spent
-    estimate = {
-        "lines": path["lines"],
-        "total_cost_cents": cost,
-        "total_duration_ms": duration,
-        "remaining_budget_cents": remaining,
-        "notes": "生成前核对完整剩余路径；估算不是实际支出。",
-    }
-    if remaining is not None and cost > remaining:
-        return {
-            "ok": False,
-            "error": "full_path_infeasible",
-            "message": f"完整剩余路径需要 {cost} 分，但只剩 {remaining} 分；不能只做生成而无法核验保存。",
-            "estimate": estimate,
-        }
-    if input_row["deadline"] is not None:
-        deadline = datetime.fromisoformat(input_row["deadline"])
-        sim_start = datetime.fromisoformat(task["sim_start"])
-        allowed_ms = (deadline - sim_start).total_seconds() * 1000
-        if task["sim_elapsed_ms"] + duration > allowed_ms:
-            return {
-                "ok": False,
-                "error": "full_path_deadline_infeasible",
-                "message": "完整剩余路径耗时超过模拟截止时间；不能只做生成而无法核验保存。",
-                "estimate": estimate,
-            }
-    return None
-
-
-def _generate_script(
-    conn,
-    task,
-    parsed: dict,
-    price: PriceTable,
-    catalog: MaterialCatalog,
-    config: Config,
-    client,
-    *,
-    tool_call_id: str | None = None,
-) -> dict:
-    strategy = parsed.get("strategy")
-    generation_mode = parsed.get("generation_mode", "generate_direct")
-    focus = parsed.get("focus", "")
-    if strategy not in ("functional_demo", "user_scenario", "tutorial"):
-        return {"ok": False, "error": "invalid_arguments", "message": "strategy 无效。"}
-    if generation_mode not in ("generate_direct", "generate_multi"):
-        return {"ok": False, "error": "invalid_arguments", "message": "generation_mode 无效。"}
-    brief = latest_brief(conn, task["id"])
-    if brief is None:
-        return {"ok": False, "error": "brief_required", "message": "尚未保存业务简报，不能生成脚本。"}
-
-    path_guard = _guard_generation_path(conn, task, generation_mode, price)
-    if path_guard is not None:
-        return path_guard
-    spec = price.mode(generation_mode)
-    guard = _guard(conn, task, spec.cost_cents, spec.duration_ms)
-    if guard is not None:
-        return guard
-
-    internal_requests = 1 if generation_mode == "generate_direct" else int(spec.max_internal_requests or 3)
-    attempt_id = start_attempt(
-        conn,
-        task=task,
-        kind="generate_script",
-        mode=generation_mode,
-        cost_cents=spec.cost_cents,
-        duration_ms=spec.duration_ms,
-        pricing_version=price.version,
-        meta={
-            "strategy": strategy,
-            "focus": focus,
-            "tool_call_id": tool_call_id,
-            "internal_requests": internal_requests,
-        },
-    )
-    conn.commit()
-    crash("generation_after_start")
-
-    knowledge_row = conn.execute(
-        "SELECT content FROM knowledge_loads WHERE task_id = ? AND agent = 'main' AND knowledge_id = 'campaign-creation'",
-        (task["id"],),
-    ).fetchone()
-    material_context = []
-    referenced = {
-        fact.get("material_id") for fact in brief["content"].get("product_facts", [])
-    } | {source.get("material_id") for source in brief["content"].get("sources", [])}
-    for material_id in sorted(item for item in referenced if isinstance(item, str)):
-        material = catalog.get(material_id)
-        if material is not None:
-            material_context.append(material.as_dict())
-    for material in catalog.materials.values():
-        if material.kind == "asset" and material.id not in {item["material_id"] for item in material_context}:
-            material_context.append(material.as_dict())
-
-    request_payload = {
-        "task": {
-            "topic": _input_row(conn, task)["topic"],
-            "audience": _input_row(conn, task)["audience"],
-            "requirements": json.loads(_input_row(conn, task)["requirements_json"]),
-        },
-        "brief": brief["content"],
-        "strategy": strategy,
-        "focus": focus,
-        "materials": material_context,
-    }
-    current_output = latest_output(conn, task["id"])
-    if current_output is not None:
-        review = latest_review(conn, task["id"])
-        dispositions = [] if review is None else [dict(row) for row in conn.execute(
-            "SELECT finding_id, decision, reason FROM dispositions WHERE review_id = ? ORDER BY id",
-            (review["review_id"],),
-        )]
-        request_payload["revision"] = {
-            "current_output_version": current_output["version"],
-            "current_campaign": current_output["content"],
-            "review": review,
-            "dispositions": dispositions,
-            "protection": "围绕具体意见修改脚本及受影响关系，保护其余已正确的事实、要求、素材状态与内容。",
-        }
-    base_messages = [
-        {"role": "system", "content": SCRIPT_GENERATION_SYSTEM_PROMPT},
-        {
-            "role": "user",
-            "content": "[脚本生成请求] "
-            + json.dumps(
-                {**request_payload, "working_knowledge": knowledge_row["content"] if knowledge_row else ""},
-                ensure_ascii=False,
-            ),
-        },
-    ]
-    candidate_cap = int(spec.candidates or spec.max_internal_requests or 1)
-    request_cap = int(spec.max_internal_requests or candidate_cap)
-    internal_requests = max(1, min(candidate_cap, request_cap))
-    existing = count_purpose_requests(conn, task["id"], "script_generation")
-    candidates = []
-    errors = []
-    for candidate_index in range(internal_requests):
-        messages = list(base_messages)
-        if internal_requests > 1:
-            messages.append(
-                {
-                    "role": "user",
-                    "content": f"请生成第 {candidate_index + 1} 个候选；可以调整开场或段落节奏，但必须遵守全部约束。只输出 JSON。",
-                }
-            )
-        with transaction(conn):
-            for message in messages:
-                append_message(
-                    conn,
-                    task["id"],
-                    message["role"],
-                    message["content"],
-                    agent="generator",
-                    attempt_id=attempt_id,
-                    meta={"kind": "generation_prompt", "candidate": candidate_index + 1},
-                )
-        started = datetime.now(UTC)
-        request_id = start_llm_request(
-            conn, task_id=task["id"], purpose="script_generation", started_at=started,
-            request_config=config.model_config_public(), mock=config.mode == "mock", attempt_id=attempt_id,
-            meta={"strategy": strategy, "candidate": candidate_index + 1,
-                  "context": "isolated_generation", "prompt_version": GENERATION_PROMPT_VERSION},
-        )
-        try:
-            response = client.complete(
-                messages,
-                [],
-                cursor=existing + candidate_index,
-                channel="generation",
-                json_mode=True,
-            )
-        except Exception as exc:  # noqa: BLE001 - boundary
-            response = ModelResponse(error=config.redact(f"{type(exc).__name__}: {exc}")[:800])
-        finished = datetime.now(UTC)
-        with transaction(conn):
-            record_llm_request(
-                conn,
-                task_id=task["id"],
-                purpose="script_generation",
-                response=response,
-                started_at=started,
-                finished_at=finished,
-                mock=response.mock,
-                request_id=request_id,
-                attempt_id=attempt_id,
-                meta={
-                    "strategy": strategy,
-                    "candidate": candidate_index + 1,
-                    "context": "isolated_generation",
-                    "prompt_version": GENERATION_PROMPT_VERSION,
-                },
-            )
-            append_message(
-                conn,
-                task["id"],
-                "assistant",
-                response.content,
-                agent="generator",
-                attempt_id=attempt_id,
-                meta={"kind": "generation_response", "candidate": candidate_index + 1},
-            )
-        crash("generation_after_response")
-        if response.error:
-            errors.append(response.error)
-            continue
-        if response.finish_reason == "length":
-            errors.append("脚本生成响应被截断")
-            continue
-        try:
-            candidate = json.loads(_strip_json_fences(response.content or ""))
-        except json.JSONDecodeError:
-            errors.append("脚本生成输出不是合法 JSON")
-            continue
-        normalized, candidate_errors = _validate_script(candidate, strategy, catalog)
-        if candidate_errors:
-            errors.extend(candidate_errors[:4])
-            continue
-        candidates.append(normalized)
-
-    selection = latest_strategy_selection(conn, task["id"])
-    selection_warning = None
-    if selection is not None and selection["generation_mode"] != generation_mode:
-        selection_warning = (
-            f"当前已记录策略选择使用 {selection['generation_mode']}，本次为 {generation_mode}；"
-            "如果条件已变化，请说明依据并用 choose_strategy 重新记录选择。"
-        )
-    partial = 0 < len(candidates) < internal_requests
-    if not candidates:
-        finish_attempt(
-            conn,
-            attempt_id,
-            status="failed",
-            error="; ".join(errors)[:800] or "no valid candidate",
-            meta={"internal_requests": internal_requests, "candidates": 0},
-        )
-        conn.commit()
-        return {
-            "ok": False,
-            "error": "generation_failed",
-            "message": "脚本生成没有得到完整有效候选；已保留尝试与消耗。",
-            "details": errors[:6],
-            "attempt_id": attempt_id,
-            "cost_cents": spec.cost_cents,
-            "internal_requests": internal_requests,
-            "expected_candidates": internal_requests,
-            "candidate_count": 0,
-            "partial": False,
-            "selection_warning": selection_warning,
-        }
-
-    best = max(candidates, key=lambda item: len(item.get("segments", [])))
-    finish_attempt(
-        conn,
-        attempt_id,
-        status="success",
-        meta={"internal_requests": internal_requests, "candidates": len(candidates), "partial": partial},
-    )
-    conn.commit()
-    return {
-        "ok": True,
-        "strategy": strategy,
-        "script": best,
-        "attempt_id": attempt_id,
-        "cost_cents": spec.cost_cents,
-        "internal_requests": internal_requests,
-        "candidate_count": len(candidates),
-        "expected_candidates": internal_requests,
-        "partial": partial,
-        "candidate_errors": errors[:6] if partial else [],
-        "selection_warning": selection_warning,
-        "message": (
-            "脚本生成部分成功：只有部分候选有效；已保留有效候选、失败尝试与消耗，请决定采用、补生成或停止。"
-            if partial
-            else "脚本候选定稿完成；请把它整合进完整活动方案后调用 propose_campaign。"
-        ),
-    }
-
-
-def _strip_json_fences(content: str) -> str:
-    text = content.strip()
-    if text.startswith("```"):
-        lines = text.splitlines()
-        if lines and lines[0].startswith("```"):
-            lines = lines[1:]
-        if lines and lines[-1].strip() == "```":
-            lines = lines[:-1]
-        return "\n".join(lines).strip()
-    return text
-
-
-def _validate_script(candidate: dict, strategy: str, catalog: MaterialCatalog) -> tuple[dict, list[str]]:
-    errors: list[str] = []
-    if not isinstance(candidate, dict):
-        return {}, ["脚本输出必须是 JSON 对象"]
-    if candidate.get("strategy") != strategy:
-        errors.append("脚本 strategy 必须与请求一致")
-    duration = candidate.get("duration_s")
-    if not isinstance(duration, int) or isinstance(duration, bool) or duration <= 0:
-        errors.append("duration_s 必须是正整数")
-    segments = candidate.get("segments")
-    if not isinstance(segments, list) or len(segments) < 2:
-        errors.append("segments 至少需要 2 段")
-        segments = []
-    normalized_segments = []
-    for index, segment in enumerate(segments):
-        if not isinstance(segment, dict):
-            errors.append(f"segments[{index}] 必须是对象")
-            continue
-        for field in ("time_range", "visual", "audio", "subtitle"):
-            if not isinstance(segment.get(field), str) or not segment.get(field, "").strip():
-                errors.append(f"segments[{index}].{field} 不能为空")
-        material_ids = segment.get("material_ids")
-        if not isinstance(material_ids, list) or not all(isinstance(item, str) for item in material_ids):
-            errors.append(f"segments[{index}].material_ids 必须是字符串数组")
-            material_ids = []
-        for material_id in material_ids:
-            if catalog.get(material_id) is None:
-                errors.append(f"segments[{index}].material_ids 含未知材料 {material_id}")
-        evidence_ids = segment.get("evidence_ids")
-        if not isinstance(evidence_ids, list) or not all(isinstance(item, str) for item in evidence_ids):
-            errors.append(f"segments[{index}].evidence_ids 必须是字符串数组")
-            evidence_ids = []
-        normalized_segments.append(
-            {
-                "index": segment.get("index", index + 1),
-                "time_range": segment.get("time_range", ""),
-                "visual": segment.get("visual", ""),
-                "audio": segment.get("audio", ""),
-                "subtitle": segment.get("subtitle", ""),
-                "material_ids": material_ids,
-                "evidence_ids": evidence_ids,
-            }
-        )
-    claims = candidate.get("claims")
-    if not isinstance(claims, list):
-        errors.append("claims 必须是数组")
-        claims = []
-    normalized_claims = []
-    claim_ids = set()
-    for index, claim in enumerate(claims):
-        if not isinstance(claim, dict):
-            errors.append(f"claims[{index}] 必须是对象")
-            continue
-        claim_id = claim.get("id")
-        if not isinstance(claim_id, str) or not claim_id.strip() or claim_id in claim_ids:
-            errors.append(f"claims[{index}].id 必须唯一且非空")
-            continue
-        claim_ids.add(claim_id)
-        material = catalog.get(claim.get("material_id")) if isinstance(claim.get("material_id"), str) else None
-        if material is None:
-            errors.append(f"claims[{index}].material_id 不在本任务材料中")
-            continue
-        quote = claim.get("quote")
-        if not isinstance(quote, str) or " ".join(quote.split()) not in " ".join(material.text.split()):
-            errors.append(f"claims[{index}].quote 无法在材料正文中找到")
-            continue
-        scope = claim.get("scope")
-        if not isinstance(scope, str) or not scope.strip():
-            errors.append(f"claims[{index}].scope 不能为空")
-            continue
-        normalized_claims.append(
-            {
-                "id": claim_id,
-                "claim": str(claim.get("claim", "")).strip(),
-                "material_id": material.id,
-                "quote": quote.strip(),
-                "scope": scope.strip(),
-            }
-        )
-    for segment in normalized_segments:
-        for evidence_id in segment["evidence_ids"]:
-            if evidence_id not in claim_ids:
-                errors.append(f"segment 证据 {evidence_id} 不在 claims 中")
-    open_questions = candidate.get("open_questions", [])
-    if not isinstance(open_questions, list):
-        errors.append("open_questions 必须是数组")
-        open_questions = []
-    normalized = {
-        "strategy": strategy,
-        "duration_s": duration,
-        "segments": normalized_segments,
-        "claims": normalized_claims,
-        "open_questions": open_questions,
-    }
-    return normalized, errors
-
-
-def _propose_campaign(conn, task, parsed: dict, catalog: MaterialCatalog) -> tuple[dict, bool]:
-    campaign, errors = _validate_campaign(parsed, catalog)
-    if errors:
-        return {"ok": False, "error": "invalid_campaign", "message": "完整方案未通过校验。", "details": errors[:12]}, False
-    with transaction(conn):
-        output = create_output(
-            conn,
-            task_id=task["id"],
-            kind="campaign",
-            content=campaign,
-            content_md=campaign_markdown(campaign),
-            input_version=int(task["input_version"]),
-            attempt_id=None,
-        )
-        conn.execute(
-            "UPDATE tasks SET status = ?, phase = 'draft_ready', reason = ?, updated_at = ? WHERE id = ?",
-            (
-                STATUS_IN_PROGRESS,
-                f"完整方案草稿 v{output['version']} 已保存，等待内容核验。",
-                utc_now_iso(),
-                task["id"],
-            ),
-        )
-    return {
-        "ok": True,
-        "output_id": output["output_id"],
-        "output_version": output["version"],
-        "message": "完整方案草稿已保存；尚未核验，不代表可交付。",
-    }, False
 
 
 def _validate_campaign(campaign: dict, catalog: MaterialCatalog) -> tuple[dict, list[str]]:
@@ -1824,8 +1172,8 @@ def _propose_brief(conn, task, parsed: dict, catalog: MaterialCatalog) -> tuple[
     version = int(task["brief_version"]) + 1
     with transaction(conn):
         conn.execute(
-            "INSERT INTO briefs (task_id, version, content_json, created_at) VALUES (?, ?, ?, ?)",
-            (task["id"], version, json.dumps(brief, ensure_ascii=False), utc_now_iso()),
+            "INSERT INTO briefs (task_id, version, input_version, content_json, created_at) VALUES (?, ?, ?, ?, ?)",
+            (task["id"], version, task["input_version"], json.dumps(brief, ensure_ascii=False), utc_now_iso()),
         )
         conn.execute(
             "UPDATE tasks SET brief_version = ?, status = ?, phase = 'brief_ready', reason = ?, updated_at = ? WHERE id = ?",

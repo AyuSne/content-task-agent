@@ -186,7 +186,7 @@ def test_estimate_covers_full_remaining_path_without_charging(cli_env, model_scr
         [
             _tool(
                 "estimate_cost",
-                {"actions": ["search_basic", "generate_direct", "review", "revision", "review", "save"]},
+                {"actions": ["search_basic", "submit_script", "review", "revision", "review", "save"]},
             ),
             _brief_tool(),
         ]
@@ -200,7 +200,7 @@ def test_estimate_covers_full_remaining_path_without_charging(cli_env, model_scr
     )
     estimate = json.loads(estimate_message["content"])["estimate"]
     steps = [line["mode"] for line in estimate["lines"]]
-    assert steps == ["search_basic", "generate_direct", "review", "revision", "review", "save"]
+    assert steps == ["search_basic", "submit_script", "review", "revision", "review", "save"]
     assert estimate["total_cost_cents"] == 20 + 120 + 80 + 120 + 80 + 10
     assert estimate["total_duration_ms"] == 2000 + 8000 + 6000 + 8000 + 6000 + 1000
     assert estimate["nature"] == "estimated"

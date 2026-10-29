@@ -7,8 +7,7 @@ The script-generation prompt belongs to an isolated internal call.
 
 from __future__ import annotations
 
-PROMPT_VERSION = "main-2026-10-29.v11"
-GENERATION_PROMPT_VERSION = "script-generation-2026-10-29.v2"
+PROMPT_VERSION = "main-2026-10-30.direct-script-v1"
 MAX_DISPOSITIONS = 64
 
 MAIN_SYSTEM_PROMPT = """你是「内容任务规划」的主 Agent，服务虚构视频剪辑 App「帧剪」的短视频推广活动。
@@ -25,28 +24,10 @@ MAIN_SYSTEM_PROMPT = """你是「内容任务规划」的主 Agent，服务虚�
 5. 每轮只调用一个工具。工具返回成功、失败、拒绝、部分成功或缺口都是真实反馈；下一步必须依据反馈选择，不重复无效调用，不假装成功，也不预设“先昂贵后便宜”或固定动作顺序。
 6. 预算与模拟截止是硬约束。方案中引用的预算数字必须与任务输入一致，不要自创总预算或剩余金额；工具被拒绝时阅读原因与完整剩余路径，改走当前可行的方向或模式；没有可行路径时用 stop_incomplete 说明具体缺口，并保留已完成成果。预估、预留不是实际支出；失败和额外消耗发生后重新估算。
    budget_cents 是本次方案准备的模拟工具费用上限，不是音乐采购、拍摄或投放预算；真实活动费用未知，单独标为待估，不得用任务预算承诺购买素材。方案截止时间约束活动方案准备及保存，后续制作与发布按另列建议排期执行。
-7. 简报完整后调用 propose_brief。简报保存后进入方案阶段：先用 compare_strategies 按实际反馈比较创作方向的表达目标、资料需求与完整剩余路径，再用 choose_strategy 记录方向、检索/生成模式与理由；不可行时改用返回的可行替代。随后调用 generate_script 获得独立生成的脚本候选，最后由你整合活动安排、脚本、素材用途、制作步骤与证据，调用 propose_campaign。脚本候选不能替代你的整体整合。propose_campaign 被拒绝时按返回的 error/details 逐项修正并立即重新提交，不要用重复检索或估算代替修正。
-8. 完整方案提交成功后继续调用 review_campaign 核验当前版本。收到核验意见后，优先一轮调用 record_dispositions 集中处置本审意见；decisions 中每条分别记录 finding_id、accepted / rejected / needs_evidence 及独立理由。accepted 必须返修后重新提交完整方案并再次调用 review_campaign；脚本修改经 generate_script，其他修改由你整合。rejected 必须引用原始要求或证据，不能只凭偏好。当前稿满足要求、意见已有据处置且全路径可行时，调用 save_campaign 核实保存；保存明确失败后依据反馈决定重试或停止，保存未知时先停止等核实。
+7. 按需要比较方向；已有依据充分时直接创作。先用 propose_brief 保存简报，再用 submit_script 提交完整脚本并引用该简报。返修提交完整新稿并引用旧稿，保护不需修改的内容。当前实现尚未接通引用脚本的完整方案提交，完成脚本后应说明缺口并停止，不能把脚本冒充完整方案。
+8. 完整方案提交成功后继续调用 review_campaign 核验当前版本。收到核验意见后，集中处置本审意见，明确关联意见、理由和证据；必要时返修并重新核验。当前稿满足要求、意见已有据处置且全路径可行时，调用 save_campaign 核实保存；保存未知时先停止等核实。
 9. 核验 full/pass 后，当前合格稿可以直接保存，optional 不需要清零。比较保存当前稿与有明确实质收益的改进，收益需关联已确认目标，并考虑回归风险、完整路径及剩余主轮数；没有值得投入的新改进就保存。未来可选加固不自动构成本次返修义务，也不要为了清空新意见反复重写已通过稿件；不以最低价、花尽预算或固定改进次数代替判断。
 10. 不承诺涨粉、收益、爆款或转化；不把实验性能力写成正式能力；不输出内部思维过程。你负责持续推进到核实保存或有依据的未完成；简报、草稿或核验返回都不是任务终点。"""
-
-SCRIPT_GENERATION_SYSTEM_PROMPT = """你是「帧剪」活动脚本生成子调用。你只输出一个 JSON 对象，不调用工具、不写解释。
-
-你将获得：创作工作知识、已确认业务简报、选定创作策略、事实片段与素材状态。请生成一条可继续制作的主视频脚本，要求：
-1. 每个画面段落说明时间、画面、台词/字幕或音频、使用的素材 ID、支持的事实或表达。
-2. 事实主张只能来自给定简报/证据，不得新增产品能力、比例、用户数据或竞品结论；情境画面不能单独证明产品能力。
-3. 素材状态必须真实：已有、待获取、待制作；未授权音乐/字体不能写成已可用。段落 material_ids 只能使用本任务材料目录已给出的 ID；待制作画面没有既有 ID 时填 []，在 visual 写清待制作安排，不编造 A-001 等本地 ID。事实引用另用 evidence_ids 关联 claims。
-4. 建议、假设与已确认事实分开；缺口写入 open_questions，不用“待确认”掩盖关键阻塞。
-5. 不承诺涨粉、收益、爆款或转化；不使用绝对化表述；与选定策略一致。
-6. claims.quote 必须逐字来自给定材料的 text 正文；source、scope、素材权利状态等元数据分别注明来源及范围，不能伪装成正文引语。只为脚本实际使用的关键事实列 claims，不将全部简报字段机械转为事实引用。
-
-输出结构：
-{"strategy":"functional_demo|user_scenario|tutorial","duration_s":30,
- "segments":[{"index":1,"time_range":"0-5s","visual":"画面","audio":"音乐/音效","subtitle":"字幕","material_ids":["M-005"],"evidence_ids":["E1"]}],
- "claims":[{"id":"E1","claim":"对外主张","material_id":"M-001","quote":"原文片段","scope":"适用范围"}],
- "open_questions":[{"question":"待确认","impact":"影响","blocking":false}]}
-"""
-
 
 def _disposition_schema() -> dict:
     return {
@@ -61,166 +42,38 @@ def _disposition_schema() -> dict:
     }
 
 
-def _campaign_schema() -> dict:
-    return {
-        "type": "function",
-        "function": {
-            "name": "propose_campaign",
-            "description": "提交完整活动方案草稿（含主脚本、素材用途、制作步骤、证据关联与待确认项）。程序校验后保存为草稿版本，不代表已核验或完成。",
-            "parameters": {
-                "type": "object",
-                "properties": {
-                    "strategy": {
-                        "type": "object",
-                        "properties": {
-                            "name": {"type": "string", "enum": ["functional_demo", "user_scenario", "tutorial"]},
-                            "rationale": {"type": "string"},
-                            "alternatives": {
-                                "type": "array",
-                                "items": {
-                                    "type": "object",
-                                    "properties": {"name": {"type": "string"}, "why_not": {"type": "string"}},
-                                    "required": ["name", "why_not"],
-                                    "additionalProperties": False,
-                                },
-                            },
-                        },
-                        "required": ["name", "rationale", "alternatives"],
-                        "additionalProperties": False,
-                    },
-                    "activity": {
-                        "type": "object",
-                        "properties": {
-                            "goal": {"type": "string"},
-                            "audience": {"type": "string"},
-                            "theme": {"type": "string"},
-                            "format": {"type": "string"},
-                            "content_items": {
-                                "type": "array",
-                                "items": {
-                                    "type": "object",
-                                    "properties": {
-                                        "title": {"type": "string"},
-                                        "purpose": {"type": "string"},
-                                        "duration_s": {"type": "integer"},
-                                        "platform": {"type": "string"},
-                                    },
-                                    "required": ["title", "purpose", "duration_s", "platform"],
-                                    "additionalProperties": False,
-                                },
-                            },
-                        },
-                        "required": ["goal", "audience", "theme", "format", "content_items"],
-                        "additionalProperties": False,
-                    },
-                    "script": {
-                        "type": "object",
-                        "properties": {
-                            "duration_s": {"type": "integer"},
-                            "segments": {
-                                "type": "array",
-                                "items": {
-                                    "type": "object",
-                                    "properties": {
-                                        "index": {"type": "integer"},
-                                        "time_range": {"type": "string"},
-                                        "visual": {"type": "string"},
-                                        "audio": {"type": "string"},
-                                        "subtitle": {"type": "string"},
-                                        "material_ids": {
-                                            "type": "array", "items": {"type": "string"},
-                                            "description": "仅本任务材料目录中的既有ID；待制作且无既有ID时填[]，用visual及素材表名称/位置关联。",
-                                        },
-                                        "evidence_ids": {"type": "array", "items": {"type": "string"}},
-                                    },
-                                    "required": ["index", "time_range", "visual", "audio", "subtitle", "material_ids", "evidence_ids"],
-                                    "additionalProperties": False,
-                                },
-                            },
-                        },
-                        "required": ["duration_s", "segments"],
-                        "additionalProperties": False,
-                    },
-                    "materials": {
-                        "type": "array",
-                        "items": {
-                            "type": "object",
-                            "properties": {
-                                "name": {"type": "string"},
-                                "material_id": {
-                                    "type": "string",
-                                    "description": "本任务材料目录的既有ID；待制作且没有既有资料ID时填空字符串，不创建新ID。",
-                                },
-                                "status": {"type": "string", "enum": ["existing", "to_acquire", "to_create"]},
-                                "use": {"type": "string"},
-                                "position": {"type": "string"},
-                                "rights_note": {"type": "string"},
-                            },
-                            "required": ["name", "material_id", "status", "use", "position", "rights_note"],
-                            "additionalProperties": False,
-                        },
-                    },
-                    "production_steps": {
-                        "type": "array",
-                        "items": {
-                            "type": "object",
-                            "properties": {
-                                "step": {"type": "string"},
-                                "owner": {"type": "string"},
-                                "timing": {"type": "string"},
-                                "note": {"type": "string"},
-                            },
-                            "required": ["step", "owner", "timing", "note"],
-                            "additionalProperties": False,
-                        },
-                    },
-                    "evidence": {
-                        "type": "array",
-                        "items": {
-                            "type": "object",
-                            "properties": {
-                                "id": {"type": "string"},
-                                "claim": {"type": "string"},
-                                "material_id": {"type": "string"},
-                                "quote": {"type": "string"},
-                                "scope": {"type": "string"},
-                                "use": {"type": "string"},
-                            },
-                            "required": ["id", "claim", "material_id", "quote", "scope", "use"],
-                            "additionalProperties": False,
-                        },
-                    },
-                    "open_questions": {
-                        "type": "array",
-                        "items": {
-                            "type": "object",
-                            "properties": {
-                                "question": {"type": "string"},
-                                "impact": {"type": "string"},
-                                "blocking": {"type": "boolean"},
-                            },
-                            "required": ["question", "impact", "blocking"],
-                            "additionalProperties": False,
-                        },
-                    },
-                },
-                "required": [
-                    "strategy",
-                    "activity",
-                    "script",
-                    "materials",
-                    "production_steps",
-                    "evidence",
-                    "open_questions",
-                ],
-                "additionalProperties": False,
-            },
-        },
-    }
-
-
+_script_segment = {
+    "type": "object",
+    "properties": {"segment_id": {"type": "string"}, "duration_seconds": {"type": "integer", "minimum": 1},
+                   "visual": {"type": "string"}, "voiceover": {"type": "string"},
+                   "on_screen_text": {"type": "string"},
+                   "evidence_ids": {"type": "array", "items": {"type": "string"}}},
+    "required": ["segment_id", "duration_seconds", "visual", "voiceover", "on_screen_text", "evidence_ids"],
+    "additionalProperties": False,
+}
+_script_evidence = {
+    "type": "object",
+    "properties": {key: {"type": "string"} for key in
+                   ("id", "claim", "material_id", "material_version", "quote", "scope", "use")},
+    "required": ["id", "claim", "material_id", "material_version", "quote", "scope", "use"],
+    "additionalProperties": False,
+}
+_submit_script = {"type": "function", "function": {
+    "name": "submit_script",
+    "description": "接收你创作的完整脚本，引用已保存且适用于当前输入的简报版本；返修时引用旧脚本。校验后按任务价目计量并返回新脚本引用，不另调用模型。",
+    "parameters": {"type": "object", "properties": {
+        "brief_version": {"type": "integer", "minimum": 1, "description": "本任务已保存的适用简报版本"},
+        "revises_script_ref": {"type": "object", "properties": {"id": {"type": "string"}, "version": {"type": "integer"}},
+                               "required": ["id", "version"], "additionalProperties": False},
+        "script": {"type": "object", "properties": {
+            "title": {"type": "string"}, "direction": {"type": "string", "description": "开放的表达方向及其取舍"},
+            "duration_seconds": {"type": "integer", "minimum": 1},
+            "segments": {"type": "array", "minItems": 1, "items": _script_segment},
+            "evidence": {"type": "array", "items": _script_evidence}},
+            "required": ["title", "direction", "duration_seconds", "segments", "evidence"], "additionalProperties": False}},
+        "required": ["brief_version", "script"], "additionalProperties": False}}}
 TOOL_DEFINITIONS = [
-    {"type": "function", "function": {
+{"type": "function", "function": {
         "name": "read_skill",
         "description": "读取本任务采用的 Skill 正文或条件引用；不会执行附带脚本。",
         "parameters": {"type": "object", "properties": {
@@ -228,7 +81,7 @@ TOOL_DEFINITIONS = [
             "resource": {"type": "string", "description": "可选的 Skill 内相对引用路径；省略读取 SKILL.md"},
         }, "required": ["name"], "additionalProperties": False},
     }},
-    {
+{
         "type": "function",
         "function": {
             "name": "update_plan",
@@ -255,7 +108,7 @@ TOOL_DEFINITIONS = [
             },
         },
     },
-    {
+{
         "type": "function",
         "function": {
             "name": "review_campaign",
@@ -263,7 +116,7 @@ TOOL_DEFINITIONS = [
             "parameters": {"type": "object", "properties": {}, "additionalProperties": False},
         },
     },
-    {
+{
         "type": "function",
         "function": {
             "name": "save_campaign",
@@ -271,7 +124,7 @@ TOOL_DEFINITIONS = [
             "parameters": {"type": "object", "properties": {}, "additionalProperties": False},
         },
     },
-    {
+{
         "type": "function",
         "function": {
             "name": "search_materials",
@@ -287,7 +140,7 @@ TOOL_DEFINITIONS = [
             },
         },
     },
-    {
+{
         "type": "function",
         "function": {
             "name": "read_material",
@@ -300,7 +153,7 @@ TOOL_DEFINITIONS = [
             },
         },
     },
-    {
+{
         "type": "function",
         "function": {
             "name": "estimate_cost",
@@ -316,38 +169,7 @@ TOOL_DEFINITIONS = [
             },
         },
     },
-    {
-        "type": "function",
-        "function": {
-            "name": "compare_strategies",
-            "description": (
-                "按同一版本化费用表比较功能演示、用户情境、教程等创作方向的表达目标、资料需求、风险与完整剩余路径，"
-                "包含已知必要检索、生成、核验、保存及可选返修复核。只估算、不执行、不计费；不预设昂贵或便宜路线。"
-            ),
-            "parameters": {
-                "type": "object",
-                "properties": {
-                    "directions": {
-                        "type": "array",
-                        "items": {"type": "string", "enum": ["functional_demo", "user_scenario", "tutorial"]},
-                        "description": "要比较的方向；省略时比较全部三个",
-                    },
-                    "search_mode": {"type": "string", "enum": ["search_basic", "search_extended"]},
-                    "generation_mode": {"type": "string", "enum": ["generate_direct", "generate_multi"]},
-                    "search_queries": {
-                        "type": "integer",
-                        "minimum": 0,
-                        "maximum": 6,
-                        "description": "每个方向仍需执行的检索次数；省略时使用该方向声明的资料查询需求",
-                    },
-                    "include_revision": {"type": "boolean", "description": "是否把一次返修及其后复核纳入剩余路径"},
-                },
-                "required": ["search_mode", "generation_mode"],
-                "additionalProperties": False,
-            },
-        },
-    },
-    {
+{
         "type": "function",
         "function": {
             "name": "propose_brief",
@@ -436,56 +258,8 @@ TOOL_DEFINITIONS = [
             },
         },
     },
-    {
-        "type": "function",
-        "function": {
-            "name": "generate_script",
-            "description": "在独立上下文中调用脚本生成子任务，获得一条候选主脚本。程序按版本化模式计费，内部调用次数受限。",
-            "parameters": {
-                "type": "object",
-                "properties": {
-                    "strategy": {"type": "string", "enum": ["functional_demo", "user_scenario", "tutorial"]},
-                    "generation_mode": {"type": "string", "enum": ["generate_direct", "generate_multi"]},
-                    "focus": {"type": "string", "description": "需要强调的内容或约束，可选"},
-                },
-                "required": ["strategy", "generation_mode"],
-                "additionalProperties": False,
-            },
-        },
-    },
-    {
-        "type": "function",
-        "function": {
-            "name": "choose_strategy",
-            "description": (
-                "记录创作方向、检索/生成模式、已知剩余检索次数与理由。程序用同一版本化费用表检查完整剩余路径："
-                "不可行时拒绝并返回可行替代；可行时只记录选择与预留，不执行、不计费。"
-                "达到可交付要求后仍可提出有明确预期收益的改进（improvement）。"
-            ),
-            "parameters": {
-                "type": "object",
-                "properties": {
-                    "direction": {"type": "string", "enum": ["functional_demo", "user_scenario", "tutorial"]},
-                    "search_mode": {"type": "string", "enum": ["search_basic", "search_extended"]},
-                    "generation_mode": {"type": "string", "enum": ["generate_direct", "generate_multi"]},
-                    "search_queries": {
-                        "type": "integer",
-                        "minimum": 0,
-                        "maximum": 6,
-                        "description": "已知仍需执行的检索次数；省略时使用方向声明的资料查询需求",
-                    },
-                    "include_revision": {"type": "boolean", "description": "完整路径是否包含一次返修及复核"},
-                    "improvement": {"type": "boolean", "description": "是否为有明确预期收益的改进投入"},
-                    "expected_benefit": {"type": "string", "description": "improvement=true 时必须说明预期改善与理由"},
-                    "rationale": {"type": "string", "description": "为什么该方向与完整路径适合当前要求、反馈和资源"},
-                },
-                "required": ["direction", "search_mode", "generation_mode", "rationale"],
-                "additionalProperties": False,
-            },
-        },
-    },
-    _campaign_schema(),
-    {
+_submit_script,
+{
         "type": "function",
         "function": {
             "name": "request_clarification",
@@ -512,7 +286,7 @@ TOOL_DEFINITIONS = [
             },
         },
     },
-    {
+{
         "type": "function",
         "function": {
             "name": "record_disposition",
@@ -520,7 +294,7 @@ TOOL_DEFINITIONS = [
             "parameters": _disposition_schema(),
         },
     },
-    {
+{
         "type": "function",
         "function": {
             "name": "record_dispositions",
@@ -536,7 +310,7 @@ TOOL_DEFINITIONS = [
             },
         },
     },
-    {
+{
         "type": "function",
         "function": {
             "name": "stop_incomplete",
@@ -559,7 +333,7 @@ TOOL_DEFINITIONS = [
                 "additionalProperties": False,
             },
         },
-    },
+    }
 ]
 
 REVIEW_PROMPT_VERSION = "review-2026-10-29.v2"

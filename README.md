@@ -2,7 +2,17 @@
 
 为虚构剪辑 App「帧剪」准备有证据、可核验、可续跑的内容活动方案。Python + uv + openai SDK + DeepSeek `deepseek-flash`；SQLite 是权威状态。
 
-当前：自主生成→核验→返修→核实保存已真实跑通。新增9个场景及2个修复复测均达到预期，覆盖15/30/60秒、不同受众、约束停止及保存中断；本轮修复策略旧场景污染与任务策略版本加载问题，见[新鲜eval报告](docs/delivery/11-fresh-eval.md)。历史真实集合及固定范围的独立Standards/Spec记录保留在[修复验收报告](docs/delivery/10-repair-acceptance.md)。
+历史代码基线 `836aa827d835e54a8e9385c18e7a3ff05ed3e600` 的真实运行与评审证据见[新鲜eval报告](docs/delivery/11-fresh-eval.md)和[修复验收报告](docs/delivery/10-repair-acceptance.md)，它们不代表新协议已通过真实验收。当前正在实施新协议：主 Agent 直接提交完整脚本，完整方案引用、核验和交付仍以各工单的实际状态为准。
+
+## 旧任务恢复
+
+新任务记录 `direct-script-v1` 协议，新程序拒绝执行或修改未标记的旧任务，查询仍保留。旧任务须使用固定旧代码和任务原采用的资料、费用表及本地环境，不能由新 handler 自动迁移或续跑。可在工作区外另设旧代码工作树，例如从本仓库运行：
+
+```powershell
+git worktree add --detach ../content-task-agent-legacy-836aa82 836aa827d835e54a8e9385c18e7a3ff05ed3e600
+```
+
+在该工作树按旧锁文件同步依赖，运行时指定原任务数据目录和原有本地凭据；不要提交或打印凭据。旧资料和运行证据保持原位，模拟预算、截止与轮数不能重置。
 
 ## 安装与检查
 
@@ -18,7 +28,9 @@ uv run ruff check src tests scripts
 
 真实模式把密钥放入被忽略的本地 `.env`，字段见 `.env.example`。CLI只显示密钥是否配置，不回显值。
 
-## 离线完整演示
+## 历史离线完整演示
+
+以下脚本属于旧协议，请在上节固定旧代码工作树中运行；新协议的完整演示待后续工单验收后补充。
 
 ```powershell
 $env:CTA_MODEL_SCRIPT = (Resolve-Path examples/offline/model-script.json).Path
@@ -42,7 +54,7 @@ uv run cta --mode real resume $task.task_id
 
 `run` 持续到核实保存、澄清或可信停止；核验和保存由主模型选择。`resume` 先核实未完成/未知动作，再恢复原消息、资料、知识、账本和轮数。新任务默认24轮，每轮一个动作，失败/非法响应也计数；已有任务沿用创建时上限，历史12轮任务仍为12轮，重启不获取额度。`CTA_MAX_ROUNDS` 只决定新任务初值。
 
-新任务默认采用通用策略表 `2026-10-29.v2`。`CTA_STRATEGY_VERSION` 只选择新任务初始策略版本；已有任务的查询、比较与执行沿用已记录版本，旧v1资料保留。
+创作方向由主 Agent 根据任务选择，功能演示、用户情境、教程仅作参考；正式脚本提交与返修按任务采用的费用版本计量。新默认费用表为 `2026-10-30.v1`，已有旧费用版本保留原义。
 
 ## 查询、修改与导出
 
@@ -51,7 +63,6 @@ uv run cta list
 uv run cta status <task_id>
 uv run cta inspect <task_id>
 uv run cta pause <task_id>
-uv run cta strategies <task_id>
 uv run cta update <task_id> --budget 20
 uv run cta import-draft <task_id> --file <edited-campaign.md>
 uv run cta resume <task_id>
@@ -60,7 +71,7 @@ uv run cta export <task_id>
 uv run cta export <task_id> --repair
 ```
 
-这些命令也可加 `--mode real`。人工导入关联当前基稿，只修改正文形成新产物版本；旧通过不继承。过期基稿拒绝覆盖。外部文件未导入不成为新任务内容；发现文件与保存记录不符时保持未完成，显式修复从权威内容重建。
+这些命令也可加 `--mode real`。新协议的完整方案和人工稿导入尚待工单 05、09；当前 `import-draft` 明确返回未接通。旧协议中的人工导入、核验及保存请使用固定旧代码。外部文件未导入不成为权威内容。
 
 `review` / `save` 保留为明确单步接口，完整自主验收使用 `run/resume`。纯资源更新记录语义复用依据；`adopt-knowledge` / `adopt-material` 显式采用新版正文并保留历史。详细参数见 `uv run cta --help`。
 

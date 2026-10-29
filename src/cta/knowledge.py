@@ -53,7 +53,11 @@ def load_doc(knowledge_id: str, project_root: Path | None = None, version: str |
     selected_version = version or entry["version"]
     if not isinstance(selected_version, str) or not selected_version or any(c in selected_version for c in "/\\"):
         raise ValueError(f"unknown knowledge version: {knowledge_id} {selected_version}")
-    path = knowledge_root / (entry["path"] if selected_version == entry["version"] else f"{knowledge_id}/{selected_version}.md")
+    if selected_version == entry["version"]:
+        path = knowledge_root / entry["path"]
+    else:
+        archived_bundle = knowledge_root / knowledge_id / selected_version / "SKILL.md"
+        path = archived_bundle if archived_bundle.is_file() else knowledge_root / knowledge_id / f"{selected_version}.md"
     if not path.is_file():
         if version is not None:
             raise ValueError(f"unknown knowledge version: {knowledge_id} {version}")
