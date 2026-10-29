@@ -21,7 +21,6 @@ from cta.model import ModelResponse, create_client
 from cta.pricing import PriceTable, load_price_table
 from cta.prompts import (
     MAIN_SYSTEM_PROMPT,
-    MAX_DISPOSITIONS,
     PROMPT_VERSION,
     TOOL_DEFINITIONS,
 )
@@ -521,8 +520,10 @@ def _ensure_phase_context(conn, task, config: Config) -> None:
                 )
         if task["phase"] == "input_updated":
             existing_update = conn.execute(
-                "SELECT COUNT(*) AS n FROM messages WHERE task_id = ? AND agent = 'main' AND meta_json LIKE '%input_update%'",
-                (task["id"],),
+                "SELECT COUNT(*) AS n FROM messages WHERE task_id = ? AND agent = 'main' "
+                "AND json_extract(meta_json, '$.kind') = 'input_update' "
+                "AND json_extract(meta_json, '$.input_version') = ?",
+                (task["id"], task["input_version"]),
             ).fetchone()
             if int(existing_update["n"]) == 0:
                 input_row = _input_row(conn, task)

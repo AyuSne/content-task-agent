@@ -3,8 +3,9 @@
 import json
 
 from conftest import cli_json, run_cli, run_scripted_stage
+from test_campaign_delivery_new import _new_draft_ready as _draft_ready
 from test_campaign_draft import _brief_tool, _create
-from test_review_save import REVIEW_PASS, _draft_ready, _review_item
+from test_review_save import REVIEW_PASS, _review_item
 
 
 def _update(task_id, *args):
