@@ -1,0 +1,28 @@
+F                                                                        [100%]
+================================== FAILURES ===================================
+_______ test_reconcile_does_not_turn_explicit_failure_into_free_success _______
+
+cli_env = WindowsPath('C:/Users/10167/AppData/Local/Temp/pytest-of-10167/pytest-213/test_reconcile_does_not_turn_e0')
+model_script = <function model_script.<locals>.write at 0x0000023C7CF1CFE0>
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x0000023C7CFF0510>
+
+    def test_reconcile_does_not_turn_explicit_failure_into_free_success(cli_env, model_script, monkeypatch):
+        task = _draft_ready(model_script, _review_item(REVIEW_PASS))
+        cli_json("review", task["task_id"])
+        monkeypatch.setenv("CTA_FAIL_SAVE", "1")
+        code, failed = _save(task["task_id"])
+        assert code == 4
+        assert failed["save"]["status"] == "failed"
+        before = cli_json("inspect", task["task_id"])
+        monkeypatch.delenv("CTA_FAIL_SAVE")
+        reconciled = cli_json("reconcile", task["task_id"])
+>       assert reconciled["status"] == "incomplete"
+E       AssertionError: assert 'complete' == 'incomplete'
+E         
+E         - incomplete
+E         ? --
+E         + complete
+
+tests\test_save_reconcile.py:29: AssertionError
+=========================== short test summary info ===========================
+FAILED tests/test_save_reconcile.py::test_reconcile_does_not_turn_explicit_failure_into_free_success

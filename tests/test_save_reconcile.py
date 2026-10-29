@@ -16,6 +16,22 @@ def _complete_task(model_script, cli_env):
     return task, saved
 
 
+def test_reconcile_does_not_turn_explicit_failure_into_free_success(cli_env, model_script, monkeypatch):
+    task = _draft_ready(model_script, _review_item(REVIEW_PASS))
+    cli_json("review", task["task_id"])
+    monkeypatch.setenv("CTA_FAIL_SAVE", "1")
+    code, failed = _save(task["task_id"])
+    assert code == 4
+    assert failed["save"]["status"] == "failed"
+    before = cli_json("inspect", task["task_id"])
+    monkeypatch.delenv("CTA_FAIL_SAVE")
+    reconciled = cli_json("reconcile", task["task_id"])
+    assert reconciled["status"] == "incomplete"
+    after = cli_json("inspect", task["task_id"])
+    assert after["attempts"] == before["attempts"]
+    assert after["save"]["status"] == "failed"
+
+
 def test_export_repair_restores_missing_file_without_new_attempt(cli_env, model_script):
     task, saved = _complete_task(model_script, cli_env)
     report = next(item for item in saved["save"]["files"] if item["path"].endswith("execution-report.md"))
@@ -83,3 +99,19 @@ def test_reconcile_without_save_record_is_not_applicable(cli_env, model_script):
     reconciled = cli_json("reconcile", task["task_id"])
     assert reconciled["status"] == "not_applicable"
     assert "不能据此声称完成" in reconciled["message"]
+
+
+def test_resume_first_reconciles_unknown_save_without_new_model_or_business_attempt(cli_env, model_script):
+    task = _draft_ready(model_script, _review_item(REVIEW_PASS))
+    cli_json("review", task["task_id"])
+    crashed = run_cli_process("save", task["task_id"], data_dir=cli_env / "data",
+                              extra_env={"CTA_FAULT_SAVE_AFTER_RECORD": "1"})
+    assert crashed.returncode == 70
+    before = cli_json("inspect", task["task_id"])
+    resumed = cli_json("resume", task["task_id"])
+    assert resumed["status"] == "complete"
+    assert resumed["save"]["verified"] is True
+    after = cli_json("inspect", task["task_id"])
+    assert len(after["attempts"]) == len(before["attempts"])
+    assert len(after["llm_requests"]) == len(before["llm_requests"])
+    assert after["resources"]["sim_spent_cents"] == before["resources"]["sim_spent_cents"]

@@ -535,6 +535,11 @@ def test_resume_keeps_unknown_save_and_never_replays_it(cli_env, model_script):
     save_attempts = len([item for item in before["attempts"] if item["kind"] == "save_campaign"])
     requests_before = len(before["llm_requests"])
 
+    # An actual external filesystem obstacle makes this result unverifiable.
+    # With no obstacle, resume must first reconstruct and verify local exports.
+    target_dir = data_dir / "mock" / "exports" / task["task_id"]
+    target_dir.write_text("external file blocks the export directory", encoding="utf-8")
+
     resumed = _process_json("resume", task["task_id"], data_dir=data_dir, script=script)
     assert resumed["status"] == "incomplete"
     assert resumed["progress"]["phase"] == "save_unknown"

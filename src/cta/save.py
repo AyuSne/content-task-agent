@@ -220,6 +220,13 @@ def reconcile_task(config: Config, task_id: str, *, refresh_exports: bool = Fals
                 "message": "保存记录与当前产物版本不一致；保持未知，不静默覆盖。",
                 "save": save,
             }
+        if save["status"] == "failed":
+            document = TaskService(config).status(task_id)
+            document["reconcile"] = {
+                "verified": False, "status": "failed",
+                "message": "已有明确保存失败；核实不重执行业务动作。重试由主 Agent 决定，并新建计费尝试。",
+            }
+            return document
         review = latest_review(conn, task_id)
         repaired = (
             _repair_files(conn, config, task, output, review, save)
@@ -388,7 +395,7 @@ def save_task(config: Config, task_id: str) -> dict:
             document["duplicate"] = False
             document["save"] = latest_save(conn, task_id)
             return document
-        except Exception as exc:  # noqa: BLE001 - save failure is recorded, not hidden
+        except OSError as exc:
             conn.execute(
                 "UPDATE saves SET status = 'failed', verified = 0, error = ? WHERE id = ?",
                 (str(exc)[:800], save["save_id"]),
