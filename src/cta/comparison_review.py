@@ -35,7 +35,7 @@ def run_readback_comparison(config: Config, case: dict, output_dir: Path) -> dic
                 "task_input": {"requirements": pair["requirements"]},
                 "campaign": pair["campaign"], "evidence": pair["evidence"],
                 "reviewed_version": 1,
-                "limits": {"max_requests": max_requests, "max_readbacks": max_readbacks},
+                "limits": {"max_requests": max_requests, "max_readbacks": max_readbacks, "protocol_corrections": False},
             }
             messages = [
                 {"role": "system", "content": REVIEW_SYSTEM_PROMPT},
@@ -51,6 +51,7 @@ def run_readback_comparison(config: Config, case: dict, output_dir: Path) -> dic
                 messages, client, read_material, output_version=1,
                 max_requests=max_requests, max_readbacks=max_readbacks,
                 cursor=cursor, channel="comparison_review", redact=config.redact,
+                protocol_corrections=False,
             )
             cursor += evaluation.requests
             for record in evaluation.request_records:
@@ -75,6 +76,7 @@ def run_readback_comparison(config: Config, case: dict, output_dir: Path) -> dic
               "wall_seconds": (finished - started).total_seconds(), "results": results,
               "simulated_cost": "not_applicable: reviewer-only experiment outside content-task budgets",
               "cache_condition": "paired sequential, arm order rotates; service cache is uncontrolled",
+              "request_policy": "Both arms stop on any protocol error; extra requests only follow successful original reads.",
               "limitations": ["同一稿件和片段只改变回读权限及随之变化的有限请求上限。",
                               "读回实验不执行改稿或保存；交付影响由发现的问题及额外请求描述。"]}
     output_dir.mkdir(parents=True, exist_ok=True)

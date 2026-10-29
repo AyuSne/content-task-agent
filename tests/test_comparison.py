@@ -130,3 +130,24 @@ def test_failed_baseline_without_candidate_still_retains_attempts_and_result(cli
     assert report["export"]["error"] == "no_output"
     assert report["generation_requests"] == 0
     assert (output / "result.json").is_file()
+
+
+def test_readback_arms_cannot_use_extra_requests_to_correct_a_protocol_failure(cli_env, model_script, capsys):
+    from cta.comparison import main
+
+    case_path = cli_env / "protocol-pair.json"
+    case_path.write_text(json.dumps({"version": "protocol-pair", "pairs": [{
+        "id": "sufficient", "requirements": ["事实支持"], "evidence": [{"material_id": "M-001"}],
+        "campaign": CAMPAIGN, "material_ids": ["M-001"],
+    }]}), encoding="utf-8")
+    invalid = {"channel": "comparison_review", "name": "report_review", "arguments": {}}
+    model_script([
+        invalid, invalid,
+        {"channel": "comparison_review", "name": "report_review", "arguments": REVIEW_PASS},
+    ])
+    assert main(["--method", "readback", "--mode", "mock", "--case", str(case_path),
+                 "--output", str(cli_env / "protocol-output")]) == 0
+    result = json.loads(capsys.readouterr().out)
+    assert [arm["report_status"] for arm in result["results"]] == ["incomplete", "incomplete"]
+    assert [arm["requests"] for arm in result["results"]] == [1, 1]
+    assert [arm["readbacks"] for arm in result["results"]] == [0, 0]

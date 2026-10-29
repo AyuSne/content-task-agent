@@ -1,0 +1,33 @@
+F                                                                        [100%]
+================================== FAILURES ===================================
+_ test_readback_arms_cannot_use_extra_requests_to_correct_a_protocol_failure __
+
+cli_env = WindowsPath('C:/Users/10167/AppData/Local/Temp/pytest-of-10167/pytest-240/test_readback_arms_cannot_use_0')
+model_script = <function model_script.<locals>.write at 0x00000237348C1440>
+capsys = <_pytest.capture.CaptureFixture object at 0x00000237347F3A10>
+
+    def test_readback_arms_cannot_use_extra_requests_to_correct_a_protocol_failure(cli_env, model_script, capsys):
+        from cta.comparison import main
+    
+        case_path = cli_env / "protocol-pair.json"
+        case_path.write_text(json.dumps({"version": "protocol-pair", "pairs": [{
+            "id": "sufficient", "requirements": ["事实支持"], "evidence": [{"material_id": "M-001"}],
+            "campaign": CAMPAIGN, "material_ids": ["M-001"],
+        }]}), encoding="utf-8")
+        invalid = {"channel": "comparison_review", "name": "report_review", "arguments": {}}
+        model_script([
+            invalid, invalid,
+            {"channel": "comparison_review", "name": "report_review", "arguments": REVIEW_PASS},
+        ])
+        assert main(["--method", "readback", "--mode", "mock", "--case", str(case_path),
+                     "--output", str(cli_env / "protocol-output")]) == 0
+        result = json.loads(capsys.readouterr().out)
+>       assert [arm["report_status"] for arm in result["results"]] == ["incomplete", "incomplete"]
+E       AssertionError: assert ['incomplete', 'complete'] == ['incomplete', 'incomplete']
+E         
+E         At index 1 diff: 'complete' != 'incomplete'
+E         Use -v to get more diff
+
+tests\test_comparison.py:151: AssertionError
+=========================== short test summary info ===========================
+FAILED tests/test_comparison.py::test_readback_arms_cannot_use_extra_requests_to_correct_a_protocol_failure

@@ -141,12 +141,15 @@ def evaluate(
     on_request: Callable[[ModelResponse, datetime, datetime, int], None] | None = None,
     on_message: Callable[[dict], None] | None = None,
     redact: Callable[[str], str] = str,
+    protocol_corrections: bool = True,
 ) -> Evaluation:
     """Run finite read/report actions, recording every actual external attempt.
 
     ``read_material`` enforces the caller's real material permissions. Request
     and message callbacks run before subsequent actions; their errors propagate
     so an internal persistence bug cannot masquerade as a model rejection.
+    With protocol corrections disabled, only a successful original read allows
+    another request; all refused actions terminate the evaluation equally.
     """
     history = list(messages)
     tools = [tool for tool in REVIEW_TOOL_DEFINITIONS
@@ -193,6 +196,8 @@ def evaluate(
                                                "message": "只允许一个完整核验动作，本轮全部拒绝。"}, ensure_ascii=False)})
             if not calls:
                 append({"role": "user", "content": "[核验反馈] 请只调用一个完整的 read_material 或 report_review。"})
+            if not protocol_corrections:
+                break
             continue
 
         call = calls[0]
@@ -223,6 +228,9 @@ def evaluate(
         append({"role": "tool", "tool_call_id": call.id, "name": call.name,
                 "content": json.dumps(result, ensure_ascii=False)})
         if report is not None:
+            break
+        if not protocol_corrections and not (call.name == "read_material" and result.get("ok")):
+            errors.append(result["error"])
             break
     if report is None and not errors:
         errors.append("核验请求次数耗尽，未形成完整有效报告。")

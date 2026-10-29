@@ -69,9 +69,9 @@ def test_rejected_actions_have_consistent_feedback_without_reads(
         entry, cli_env, model_script, capsys, invalid,
     )
     results = [json.loads(m["content"]) for m in messages if m["role"] == "tool"]
-    assert [result["error"] for result in results[:-1]] == expected_errors
+    assert [result["error"] for result in results if not result["ok"]] == expected_errors
     assert reads == 0
-    assert requests == 2
+    assert requests == (1 if entry == "comparison" else 2)
     assert "never-load-this-answer" not in json.dumps(messages)
 
 
@@ -123,3 +123,22 @@ def test_truncated_multi_calls_are_all_paired_and_do_not_form_a_pass():
     assert result.readbacks == 0
     assert review_report_status(result.report) == "incomplete"
     assert [message["tool_call_id"] for message in result.messages if message["role"] == "tool"] == ["read1", "report1"]
+
+
+def test_read_only_extra_requests_allow_two_original_reads_then_one_report():
+    from cta.evaluation import evaluate, review_report_status
+    from cta.model import ModelResponse, ToolCall
+
+    class ReadThenReport:
+        def complete(self, messages, tools, *, cursor, channel="review"):
+            if cursor < 2:
+                call = ToolCall(f"read{cursor}", "read_material", json.dumps({"material_id": f"M-00{cursor + 1}"}))
+            else:
+                call = ToolCall("report", "report_review", json.dumps(REVIEW_PASS))
+            return ModelResponse(tool_calls=(call,))
+
+    result = evaluate([], ReadThenReport(), lambda mid: {"ok": True, "material_id": mid},
+                      output_version=1, protocol_corrections=False)
+    assert result.requests == 3
+    assert result.readbacks == 2
+    assert review_report_status(result.report) == "complete"
