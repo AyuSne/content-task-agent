@@ -8,7 +8,7 @@ from cta.config import utc_now_iso
 from cta.db import transaction
 from cta.faults import crash
 from cta.materials import MaterialCatalog
-from cta.repository import create_output, finish_attempt, start_attempt
+from cta.repository import create_output, finish_attempt, input_version_applies, start_attempt
 
 
 def _store_brief(conn, task, brief):
@@ -247,7 +247,7 @@ def submit_script(conn, task, arguments, price, catalog, *, tool_call_id, reques
         brief = None
         if isinstance(version, int) and not isinstance(version, bool):
             brief = conn.execute("SELECT * FROM briefs WHERE task_id = ? AND version = ?", (task["id"], version)).fetchone()
-        if brief is None or brief["input_version"] != task["input_version"]:
+        if brief is None or not input_version_applies(conn, task, brief["input_version"]):
             errors.append("brief_version 必须引用当前输入版本的本任务简报")
     previous = arguments.get("revises_script_ref")
     if previous is not None:
@@ -258,7 +258,7 @@ def submit_script(conn, task, arguments, price, catalog, *, tool_call_id, reques
         else:
             row = conn.execute("SELECT * FROM outputs WHERE task_id = ? AND kind = 'script' AND id = ? AND version = ?",
                                (task["id"], previous["id"], previous["version"])).fetchone()
-            if row is None or row["input_version"] != task["input_version"]:
+            if row is None or not input_version_applies(conn, task, row["input_version"]):
                 errors.append("revises_script_ref 必须引用当前输入的本任务脚本")
     errors.extend(_script_errors(arguments.get("script"), catalog))
     if errors:

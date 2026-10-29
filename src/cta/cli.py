@@ -228,9 +228,13 @@ def main(argv: list[str] | None = None) -> int:
         elif args.command == "adopt-material":
             document = service.adopt_material_version(args.task_id, args.version)
         elif args.command == "import-draft":
-            _emit({"error": "protocol_not_ready", "task_id": args.task_id,
-                   "message": "新协议的人工稿导入尚未接通；旧任务请使用固定旧代码。"}, args.format)
-            return 4
+            from cta.importer import ImportDraftError, import_draft
+
+            try:
+                document = import_draft(config, args.task_id, args.file)
+            except ImportDraftError as exc:
+                _emit({"error": exc.code, "message": exc.message, "details": exc.details}, args.format)
+                return 4
         elif args.command == "run":
             from cta.loop import run_task
 

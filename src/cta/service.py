@@ -233,6 +233,7 @@ class TaskService:
                 "budget_cents": intake.budget_cents,
                 "deadline": None if intake.deadline_utc is None else to_utc_iso(intake.deadline_utc),
                 "requirements": intake.requirements,
+                "raw_input": intake.raw.as_dict(),
                 "reuse": reuse,
                 "resource_reassessment": reassessment,
                 "instruction": (

@@ -3,7 +3,7 @@
 import json
 
 from cta.config import utc_now_iso
-from cta.repository import create_output
+from cta.repository import create_output, input_version_applies
 
 
 def submit_campaign(conn, task, args, catalog):
@@ -21,7 +21,7 @@ def submit_campaign(conn, task, args, catalog):
             "SELECT * FROM outputs WHERE task_id = ? AND kind = 'script' AND id = ? AND version = ?",
             (task["id"], ref["id"], ref["version"]),
         ).fetchone()
-    if script_row is None or script_row["input_version"] != task["input_version"]:
+    if script_row is None or not input_version_applies(conn, task, script_row["input_version"]):
         errors.append("script_ref 必须引用本任务适用于当前输入的脚本版本")
     campaign = args.get("campaign")
     if set(args) != {"script_ref", "campaign"} or not isinstance(campaign, dict):
