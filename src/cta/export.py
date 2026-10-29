@@ -439,7 +439,15 @@ def export_task(config: Config, task_id: str) -> dict:
             raise TaskNotFound(task_id)
         output = latest_output(conn, task_id)
         if output is None:
-            raise ValueError("任务还没有可导出的完整方案草稿。")
+            records = [build_report_file(conn, config, task, None, None, None), build_trace_file(conn, config, task)]
+            brief = latest_brief(conn, task_id)
+            if brief is not None:
+                path = config.exports_dir / task_id / f"brief-v{brief['version']}.json"
+                _write_atomic(path, json.dumps(brief["content"], ensure_ascii=False, indent=2) + "\n")
+                records.append(record_file(path))
+            ok, checked = verify_records(records)
+            return {"task_id": task_id, "output_version": None, "save_id": None,
+                    "verified": ok, "delivery_complete": False, "files": checked, "repaired": False}
         review = latest_review(conn, task_id)
         save = latest_save(conn, task_id)
         if save is not None and save["verified"]:

@@ -1,0 +1,32 @@
+F                                                                        [100%]
+================================== FAILURES ===================================
+______ test_task_without_campaign_can_export_execution_report_and_trace _______
+
+cli_env = WindowsPath('C:/Users/10167/AppData/Local/Temp/pytest-of-10167/pytest-264/test_task_without_campaign_can0')
+
+    def test_task_without_campaign_can_export_execution_report_and_trace(cli_env):
+        from pathlib import Path
+    
+        task = cli_json("create", "--topic", "信息不足任务", "--deadline", "2026-10-30")
+>       exported = cli_json("export", task["task_id"])
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\test_task_intake.py:224: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+args = ('export', 't_b4450dfc1e60')
+
+    def cli_json(*args):
+        code, out, err = run_cli(*args)
+>       assert code == 0, f"exit={code} stderr={err} stdout={out}"
+E       AssertionError: exit=4 stderr= stdout={
+E           "error": "operation_blocked",
+E           "task_id": "t_b4450dfc1e60",
+E           "message": "任务还没有可导出的完整方案草稿。"
+E         }
+E         
+E       assert 4 == 0
+
+tests\conftest.py:50: AssertionError
+=========================== short test summary info ===========================
+FAILED tests/test_task_intake.py::test_task_without_campaign_can_export_execution_report_and_trace

@@ -217,6 +217,23 @@ def test_mode_output_locations_are_separate(cli_env):
     assert (data_dir / "real" / "exports").is_dir()
 
 
+def test_task_without_campaign_can_export_execution_report_and_trace(cli_env):
+    from pathlib import Path
+
+    task = cli_json("create", "--topic", "信息不足任务", "--deadline", "2026-10-30")
+    exported = cli_json("export", task["task_id"])
+    assert exported["delivery_complete"] is False
+    assert exported["output_version"] is None
+    assert exported["verified"] is True
+    report = next(Path(item["path"]) for item in exported["files"] if item["path"].endswith("execution-report.md"))
+    assert "needs_input" in report.read_text(encoding="utf-8")
+    trace = next(Path(item["path"]) for item in exported["files"] if item["path"].endswith("trace.jsonl"))
+    assert '"status": "needs_input"' in trace.read_text(encoding="utf-8")
+    after = cli_json("status", task["task_id"])
+    assert after["status"] == "needs_input"
+    assert after["resources"]["sim_spent_cents"] == 0
+
+
 def test_bad_config_respects_text_format(cli_env, monkeypatch):
     monkeypatch.setenv("CTA_SIM_START", "not-a-date")
     code, out, _err = run_cli("--format", "text", "create")
