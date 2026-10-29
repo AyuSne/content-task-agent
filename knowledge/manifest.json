@@ -1,17 +1,17 @@
 {
-  "version": "2026-10-29.v1",
+  "version": "2026-10-29.v2",
   "docs": [
     {
       "id": "campaign-creation",
       "title": "活动方案创作工作知识",
-      "version": "2026-10-29.v1",
-      "path": "campaign-creation/2026-10-29.v1.md"
+      "version": "2026-10-29.v2",
+      "path": "campaign-creation/2026-10-29.v2.md"
     },
     {
       "id": "content-review",
       "title": "内容核验工作知识",
-      "version": "2026-10-29.v1",
-      "path": "content-review/2026-10-29.v1.md"
+      "version": "2026-10-29.v2",
+      "path": "content-review/2026-10-29.v2.md"
     }
   ]
 }
