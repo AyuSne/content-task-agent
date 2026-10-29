@@ -1,0 +1,25 @@
+F                                                                        [100%]
+================================== FAILURES ===================================
+_ test_oneshot_generation_fits_its_own_budget_and_clock_while_assessment_is_separate _
+
+cli_env = WindowsPath('C:/Users/10167/AppData/Local/Temp/pytest-of-10167/pytest-234/test_oneshot_generation_fits_i0')
+model_script = <function model_script.<locals>.write at 0x000002497817D3A0>
+capsys = <_pytest.capture.CaptureFixture object at 0x00000249780C3A10>
+
+    def test_oneshot_generation_fits_its_own_budget_and_clock_while_assessment_is_separate(cli_env, model_script, capsys):
+        model_script([
+            {"channel": "comparison", "name": "propose_campaign", "arguments": CAMPAIGN,
+             "usage": {"prompt_tokens": 101, "completion_tokens": 31}},
+            {"channel": "review", "name": "report_review", "arguments": REVIEW_PASS,
+             "usage": {"prompt_tokens": 202, "completion_tokens": 42}},
+        ])
+        code, report, output = _run(cli_env, capsys, "oneshot", budget="1.50", deadline="2026-10-29T00:00:10+08:00")
+        assert code == 0
+        inspected = cli_json("inspect", report["task_id"])
+>       assert len(inspected["outputs"]) == 1
+E       assert 0 == 1
+E        +  where 0 = len([])
+
+tests\test_comparison.py:57: AssertionError
+=========================== short test summary info ===========================
+FAILED tests/test_comparison.py::test_oneshot_generation_fits_its_own_budget_and_clock_while_assessment_is_separate

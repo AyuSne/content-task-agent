@@ -17,11 +17,13 @@ from pathlib import Path
 
 from cta.config import Config, load_config
 from cta.db import open_store, transaction
+from cta.evaluation import evaluate, review_report_status
 from cta.export import export_task
 from cta.identity import RawInput
+from cta.knowledge import load_doc
 from cta.loop import (
     _ensure_base_context,
-    _guard_generation_path,
+    _guard,
     _handle_response,
     _stop_incomplete,
     _task,
@@ -30,12 +32,13 @@ from cta.loop import (
 from cta.materials import load_task_catalog
 from cta.model import ModelResponse, ToolCall, create_client
 from cta.pricing import load_price_table
-from cta.prompts import TOOL_DEFINITIONS
+from cta.prompts import REVIEW_SYSTEM_PROMPT, TOOL_DEFINITIONS
 from cta.repository import (
     api_messages,
     append_message,
     count_purpose_requests,
     finish_attempt,
+    latest_output,
     record_llm_request,
     start_attempt,
 )
@@ -44,7 +47,7 @@ from cta.save import SaveBlocked, save_task
 from cta.service import TaskService
 from cta.strategy import load_strategy_table
 
-VERSION = "comparison-2026-10-29.v2"
+VERSION = "comparison-2026-10-29.v3"
 METHODS = ("oneshot", "fixed", "enhanced")
 SEED_IDS = ("M-001", "M-002", "M-003", "M-004", "M-005", "M-006")
 
@@ -89,10 +92,10 @@ class Experiment:
             task = _task(conn, self.task_id)
             attempt_id = None
             if charged:
-                guard = _guard_generation_path(conn, task, "generate_direct", self.price)
+                spec = self.price.mode("generate_direct")
+                guard = _guard(conn, task, spec.cost_cents, spec.duration_ms)
                 if guard:
                     return guard
-                spec = self.price.mode("generate_direct")
                 attempt_id = start_attempt(
                     conn, task=task, kind="oneshot_campaign", mode="generate_direct",
                     cost_cents=spec.cost_cents, duration_ms=spec.duration_ms,
@@ -147,6 +150,49 @@ class Experiment:
                                    error=None if result.get("ok") else json.dumps(result, ensure_ascii=False))
             return result
 
+    def assess(self) -> dict:
+        """Evaluate a one-shot candidate outside its execution budget and clock."""
+        started = datetime.now(UTC)
+        knowledge = load_doc("content-review", self.config.project_root)
+        spec = self.price.mode("review")
+        with open_store(self.config.db_path) as conn:
+            task = _task(conn, self.task_id)
+            catalog = load_task_catalog(conn, task, self.config.project_root)
+            output = latest_output(conn, self.task_id)
+        task_input = TaskService(self.config).status(self.task_id)["input"]
+        material_ids = {item["material_id"] for item in output["content"]["evidence"] + output["content"]["materials"]
+                        if item.get("material_id")}
+        payload = {
+            "task_input": task_input, "campaign": output["content"], "reviewed_version": output["version"],
+            "evidence": [catalog.get(mid).as_dict() for mid in sorted(material_ids)],
+            "delivery_scope": {"deliverable": "campaign_plan",
+                               "deadline_applies_to": "完成并核实保存活动方案；后续成片制作、音乐采购和发布另列执行排期。"},
+            "limits": {"max_requests": spec.max_requests, "max_readbacks": spec.max_readbacks},
+        }
+        messages = [
+            {"role": "system", "content": REVIEW_SYSTEM_PROMPT},
+            {"role": "system", "content": "[核验工作知识]\n" + knowledge.content},
+            {"role": "user", "content": "[待核验方案] " + json.dumps(payload, ensure_ascii=False)},
+        ]
+        evaluation = evaluate(
+            messages, self.client, catalog.read, output_version=output["version"],
+            max_requests=spec.max_requests, max_readbacks=spec.max_readbacks, channel="review", redact=self.config.redact,
+        )
+        finished = datetime.now(UTC)
+        self.trace.append({"controller": "external_assessment", "messages": evaluation.messages,
+                           "request_records": evaluation.request_records})
+        return {
+            "nature": "external_evaluation_outside_task_budget_and_clock", "requests": evaluation.requests,
+            "simulated_cost_cents": spec.cost_cents, "simulated_duration_ms": spec.duration_ms,
+            "simulation_nature": "separate evaluator attempt, charged once at configured review mode",
+            "pricing_version": self.price.version, "knowledge_version": knowledge.version,
+            "report_status": review_report_status(evaluation.report), "report": evaluation.report,
+            "usage": evaluation.usage, "readbacks": evaluation.readbacks, "errors": evaluation.errors,
+            "request_records": evaluation.request_records, "messages": evaluation.messages,
+            "started_at": started.isoformat(), "finished_at": finished.isoformat(),
+            "wall_seconds": (finished - started).total_seconds(),
+        }
+
 
 def run_experiment(config: Config, case: dict, method: str, output_dir: Path, *, order: int = 1) -> dict:
     """Public experimental seam; outputs contain all attempted arms, including failures."""
@@ -170,6 +216,8 @@ def run_experiment(config: Config, case: dict, method: str, output_dir: Path, *,
                                meta={"kind": "comparison_controller", "method": method})
     experiment = Experiment(config, task_id)
     error = None
+    external_assessment = None
+    execution_finished_at = None
     if created["status"] == "needs_input":
         error = {"ok": False, "error": "needs_input", "validation": created["validation"]}
     elif method == "enhanced":
@@ -207,14 +255,19 @@ def run_experiment(config: Config, case: dict, method: str, output_dir: Path, *,
                 error = proposed
         if error is None:
             try:
-                reviewed = review_task(config, task_id)
                 if method == "fixed":
+                    review_task(config, task_id)
                     saved = save_task(config, task_id)
                     if saved.get("save_error"):
                         error = {"ok": False, "error": saved["save_error"]["code"],
                                  "message": saved["save_error"]["message"]}
-                elif reviewed["review"]["status"] != "complete" or reviewed["review"]["verdict"] != "pass":
-                    error = {"ok": False, "error": "assessment_not_passed", "message": reviewed["review"]["summary"]}
+                else:
+                    execution_finished_at = datetime.now(UTC)
+                    external_assessment = experiment.assess()
+                    report = external_assessment["report"]
+                    if external_assessment["report_status"] != "complete" or report["verdict"] != "pass":
+                        error = {"ok": False, "error": "assessment_not_passed",
+                                 "message": report["summary"] if report else "; ".join(external_assessment["errors"])}
             except (ReviewError, SaveBlocked) as exc:
                 error = {"ok": False, "error": exc.code, "message": str(exc)}
         if error is not None:
@@ -229,9 +282,6 @@ def run_experiment(config: Config, case: dict, method: str, output_dir: Path, *,
     finished = datetime.now(UTC)
     requests = inspected["llm_requests"]
     seed_json = json.dumps(dossier, ensure_ascii=False, sort_keys=True)
-    review_requests = [r for r in requests if r["purpose"] == "review"]
-    external_assessment_cents = (sum(a["cost_cents"] for a in inspected["attempts"] if a["kind"] == "review_campaign")
-                                 if method == "oneshot" else 0)
     result = {
         "version": VERSION, "mode": config.mode, "method": method, "task_id": task_id, "order": order,
         "case": case, "model_config": config.model_config_public(),
@@ -241,15 +291,15 @@ def run_experiment(config: Config, case: dict, method: str, output_dir: Path, *,
         "environment_faults": {key: os.environ[key] for key in
                                ("CTA_FAIL_SEARCH", "CTA_FAIL_SAVE", "CTA_FAULT_CRASH") if key in os.environ},
         "status": inspected["status"], "error": error, "resources": inspected["resources"],
-        "execution_simulated_cost_cents": inspected["resources"]["sim_spent_cents"] - external_assessment_cents,
-        "external_assessment": {"requests": len(review_requests) if method == "oneshot" else 0,
-                                "simulated_cost_cents": external_assessment_cents,
-                                "nature": "external_evaluation" if method == "oneshot" else "none; review belongs to delivery"},
+        "execution_simulated_cost_cents": inspected["resources"]["sim_spent_cents"],
+        "external_assessment": external_assessment,
         "progress": inspected["progress"], "reviews": inspected["reviews"], "export": exported,
         "generation_requests": sum(r["purpose"] != "review" for r in requests),
-        "assessment_requests": sum(r["purpose"] == "review" for r in requests),
+        "assessment_requests": (external_assessment["requests"] if external_assessment is not None
+                                else sum(r["purpose"] == "review" for r in requests)),
         "started_at": started.isoformat(), "finished_at": finished.isoformat(),
         "wall_seconds": (finished - started).total_seconds(),
+        "execution_wall_seconds": ((execution_finished_at or finished) - started).total_seconds(),
         "dynamic_recovery": "not_applicable" if method == "oneshot" else ("fixed_stop" if method == "fixed" else "main_agent"),
         "cache_condition": "service_cache_uncontrolled; report actual per-request hit/miss; no cold-cache claim",
         "limitations": ["一次性方案的独立核验为共同评价开销，未执行业务保存，动态恢复不适用。",

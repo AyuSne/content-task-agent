@@ -8,11 +8,11 @@ from datetime import UTC, datetime
 from pathlib import Path
 
 from cta.config import Config
+from cta.evaluation import evaluate, review_report_status
 from cta.knowledge import load_doc
 from cta.materials import load_catalog
-from cta.model import ModelResponse, create_client
-from cta.prompts import REVIEW_SYSTEM_PROMPT, REVIEW_TOOL_DEFINITIONS
-from cta.review import _validate_report, review_report_status
+from cta.model import create_client
+from cta.prompts import REVIEW_SYSTEM_PROMPT
 
 
 def run_readback_comparison(config: Config, case: dict, output_dir: Path) -> dict:
@@ -31,91 +31,43 @@ def run_readback_comparison(config: Config, case: dict, output_dir: Path) -> dic
         arms = ("single", "bounded") if pair_index % 2 == 0 else ("bounded", "single")
         for arm in arms:
             max_requests, max_readbacks = (1, 0) if arm == "single" else (3, 2)
-            tools = [t for t in REVIEW_TOOL_DEFINITIONS
-                     if arm == "bounded" or t["function"]["name"] == "report_review"]
             payload = {
                 "task_input": {"requirements": pair["requirements"]},
                 "campaign": pair["campaign"], "evidence": pair["evidence"],
                 "reviewed_version": 1,
-                "limits": {"max_requests": max_requests, "max_readbacks": max_readbacks},
+                "limits": {"max_requests": max_requests, "max_readbacks": max_readbacks, "protocol_corrections": False},
             }
             messages = [
                 {"role": "system", "content": REVIEW_SYSTEM_PROMPT},
                 {"role": "system", "content": "[核验工作知识]\n" + knowledge.content},
                 {"role": "user", "content": "[待核验方案] " + json.dumps(payload, ensure_ascii=False)},
             ]
-            report = None
-            readbacks, request_count = 0, 0
-            errors, requests = [], []
-            for _ in range(max_requests):
-                request_count += 1
-                request_started = datetime.now(UTC)
-                try:
-                    response = client.complete(messages, tools, cursor=cursor, channel="comparison_review")
-                except Exception as exc:  # noqa: BLE001 - preserve the actual external request attempt
-                    response = ModelResponse(error=config.redact(f"{type(exc).__name__}: {exc}"))
-                cursor += 1
-                request_finished = datetime.now(UTC)
-                requests.append({"started_at": request_started.isoformat(), "finished_at": request_finished.isoformat(),
-                                 "usage": response.usage, "elapsed_ms": response.elapsed_ms, "model": response.model,
-                                 "error": response.error, "mock": response.mock})
-                trace.append({"pair_id": pair["id"], "arm": arm, "messages": list(messages), "tools": tools,
-                              "response": {"content": response.content, "tool_calls": [c.as_openai() for c in response.tool_calls],
-                                           "usage": response.usage, "model": response.model, "error": response.error,
-                                           "elapsed_ms": response.elapsed_ms, "finish_reason": response.finish_reason}})
-                if response.error:
-                    errors.append(response.error)
-                    break
-                calls = list(response.tool_calls)
-                messages.append({"role": "assistant", "content": response.content or "",
-                                 **({"tool_calls": [c.as_openai() for c in calls]} if calls else {})})
-                if response.finish_reason == "length" or len(calls) != 1:
-                    result = {"ok": False, "error": "review_protocol"}
-                    for call in calls:
-                        messages.append({"role": "tool", "tool_call_id": call.id, "name": call.name,
-                                         "content": json.dumps(result)})
-                    if not calls:
-                        messages.append({"role": "user", "content": "请调用一个完整核验动作。"})
-                    errors.append("review_protocol")
-                    continue
-                call = calls[0]
-                try:
-                    arguments = json.loads(call.arguments)
-                except json.JSONDecodeError:
-                    arguments = None
-                if not isinstance(arguments, dict):
-                    result = {"ok": False, "error": "invalid_arguments"}
-                elif call.name == "read_material":
-                    material_id = arguments.get("material_id")
-                    if readbacks >= max_readbacks:
-                        result = {"ok": False, "error": "readback_limit"}
-                    elif material_id not in pair["material_ids"]:
-                        readbacks += 1
-                        result = {"ok": False, "error": "not_in_task_materials"}
-                    else:
-                        readbacks += 1
-                        result = catalog.read(material_id)
-                elif call.name == "report_review":
-                    normalized, report_errors = _validate_report(arguments, 1)
-                    if report_errors:
-                        result = {"ok": False, "error": "invalid_report", "details": report_errors}
-                    else:
-                        report = normalized
-                        result = {"ok": True}
-                else:
-                    result = {"ok": False, "error": "unknown_tool"}
-                messages.append({"role": "tool", "tool_call_id": call.id, "name": call.name,
-                                 "content": json.dumps(result, ensure_ascii=False)})
-                if report is not None:
-                    break
-            # Retain final results too, including read replies on the last request.
-            trace.append({"pair_id": pair["id"], "arm": arm, "final_messages": messages})
+            def read_material(material_id, permitted_ids=pair["material_ids"]):
+                if material_id not in permitted_ids:
+                    return {"ok": False, "error": "not_in_task_materials"}
+                return catalog.read(material_id)
+
+            evaluation = evaluate(
+                messages, client, read_material, output_version=1,
+                max_requests=max_requests, max_readbacks=max_readbacks,
+                cursor=cursor, channel="comparison_review", redact=config.redact,
+                protocol_corrections=False,
+            )
+            cursor += evaluation.requests
+            for record in evaluation.request_records:
+                trace.append({
+                    "pair_id": pair["id"], "arm": arm, "messages": record["messages"], "tools": record["tools"],
+                    "response": {key: record[key] for key in (
+                        "content", "tool_calls", "usage", "model", "error", "elapsed_ms", "finish_reason",
+                    )},
+                })
+            trace.append({"pair_id": pair["id"], "arm": arm, "final_messages": evaluation.messages})
             results.append({
                 "pair_id": pair["id"], "arm": arm, "order": len(results) + 1,
                 "campaign_sha256": hashlib.sha256(json.dumps(pair["campaign"], sort_keys=True).encode()).hexdigest(),
-                "report_status": review_report_status(report), "report": report,
-                "requests": request_count, "readbacks": readbacks, "request_records": requests,
-                "errors": errors, "expected": pair.get("expected"),
+                "report_status": review_report_status(evaluation.report), "report": evaluation.report,
+                "requests": evaluation.requests, "readbacks": evaluation.readbacks, "request_records": evaluation.request_records,
+                "errors": evaluation.errors, "expected": pair.get("expected"),
             })
     finished = datetime.now(UTC)
     result = {"version": case["version"], "mode": config.mode, "model_config": config.model_config_public(),
@@ -124,6 +76,7 @@ def run_readback_comparison(config: Config, case: dict, output_dir: Path) -> dic
               "wall_seconds": (finished - started).total_seconds(), "results": results,
               "simulated_cost": "not_applicable: reviewer-only experiment outside content-task budgets",
               "cache_condition": "paired sequential, arm order rotates; service cache is uncontrolled",
+              "request_policy": "Both arms stop on any protocol error; extra requests only follow successful original reads.",
               "limitations": ["同一稿件和片段只改变回读权限及随之变化的有限请求上限。",
                               "读回实验不执行改稿或保存；交付影响由发现的问题及额外请求描述。"]}
     output_dir.mkdir(parents=True, exist_ok=True)
