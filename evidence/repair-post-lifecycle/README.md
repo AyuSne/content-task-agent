@@ -29,6 +29,12 @@ SDK实际序列化的同一119515字节body用于全部请求，SHA256 `77fd345a
 
 若主控选择延长keepalive，只能把它解释为减少握手机会，后续仍须用长任务真实证据核对；不能把本次12次外部诊断成功当作内容任务交付验收通过。
 
+## 补充包装器核对
+
+主控随后保留了 `wrapper-uncapped/`、`wrapper-pair/` 和 `wrapper-output-limits/`：最初128上限成功而未设置上限的三个调用TLS失败；后续8192上限也失败，紧接着未设置上限和16384又都成功。`curl-uncapped.json` 的原生TLS请求也成功。这些反转说明不能把输出上限称为已定位原因，因此没有据此修改生产输出上限或加入curl回退。所有失败保留未知用量。脚本 `diagnose_wrapper_pair.py --arms ...` 可明确选择对应有限采样。
+
+生产连接池采用180秒保留时间，只依据已实测的握手次数减少；每次实际请求保存 `request_config`，TLS校验和SDK零重试不变，未声称间歇EOF消失。
+
 ## 复现
 
 `scripts/diagnose_model_lifecycle.py --env-file <本地.env> --inspect <任务inspect.json> --output <新目录>`。HTTP/2探针依赖h2==4.4.1（hpack4.2.0/hyperframe6.1.0），本次只安装在worktree `.scratch/diagnostic-deps`，运行时加入PYTHONPATH；没有修改主虚拟环境、依赖文件或产品代码。

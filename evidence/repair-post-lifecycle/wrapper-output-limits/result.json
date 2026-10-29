@@ -1,0 +1,151 @@
+[
+  {
+    "arm": "wrapper8192",
+    "tls_events": [
+      {
+        "event": "connection.connect_tcp.started",
+        "error": ""
+      },
+      {
+        "event": "connection.connect_tcp.complete",
+        "error": ""
+      },
+      {
+        "event": "connection.start_tls.started",
+        "error": ""
+      },
+      {
+        "event": "connection.start_tls.failed",
+        "error": "[SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1032)"
+      }
+    ],
+    "usage": null,
+    "error": "APIConnectionError: Connection error. <- ConnectError: [SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1032) <- ConnectError: [SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1032)",
+    "body_sha256": "cba05fe3c8f698e5954bd318ecfebd8cc6a3ea864ebb2effd6d51955d8631ca6",
+    "body_bytes": 119516,
+    "content": null,
+    "tool_calls": [],
+    "finish_reason": null,
+    "model": "deepseek-flash",
+    "mock": false,
+    "elapsed_ms": 5122,
+    "raw_id": null,
+    "wall_seconds": 5.123
+  },
+  {
+    "arm": "wrapper_default",
+    "tls_events": [
+      {
+        "event": "connection.connect_tcp.started",
+        "error": ""
+      },
+      {
+        "event": "connection.connect_tcp.complete",
+        "error": ""
+      },
+      {
+        "event": "connection.start_tls.started",
+        "error": ""
+      },
+      {
+        "event": "connection.start_tls.complete",
+        "error": ""
+      }
+    ],
+    "usage": {
+      "prompt_tokens": 32418,
+      "completion_tokens": 22,
+      "total_tokens": 32440,
+      "prompt_cache_hit_tokens": 32256,
+      "prompt_cache_miss_tokens": 162,
+      "raw": {
+        "completion_tokens": 22,
+        "prompt_tokens": 32418,
+        "total_tokens": 32440,
+        "completion_tokens_details": null,
+        "prompt_tokens_details": {
+          "audio_tokens": null,
+          "cache_write_tokens": null,
+          "cached_tokens": 32256
+        },
+        "prompt_cache_hit_tokens": 32256,
+        "prompt_cache_miss_tokens": 162
+      }
+    },
+    "error": null,
+    "body_sha256": "c03b1007830862a991cb17113c8e18f669a74566f8003544b6c9da815a09c808",
+    "body_bytes": 119498,
+    "content": "",
+    "tool_calls": [
+      {
+        "id": "call_00_fbG9AYiNjCZVezYwiVi04293",
+        "name": "review_campaign",
+        "arguments": "{}"
+      }
+    ],
+    "finish_reason": "tool_calls",
+    "model": "deepseek-flash",
+    "mock": false,
+    "elapsed_ms": 1722,
+    "raw_id": "63b5fc9f-5a85-4d87-89e5-fbc3f1eb6c32",
+    "wall_seconds": 1.722
+  },
+  {
+    "arm": "wrapper16384",
+    "tls_events": [
+      {
+        "event": "connection.connect_tcp.started",
+        "error": ""
+      },
+      {
+        "event": "connection.connect_tcp.complete",
+        "error": ""
+      },
+      {
+        "event": "connection.start_tls.started",
+        "error": ""
+      },
+      {
+        "event": "connection.start_tls.complete",
+        "error": ""
+      }
+    ],
+    "usage": {
+      "prompt_tokens": 32418,
+      "completion_tokens": 22,
+      "total_tokens": 32440,
+      "prompt_cache_hit_tokens": 32256,
+      "prompt_cache_miss_tokens": 162,
+      "raw": {
+        "completion_tokens": 22,
+        "prompt_tokens": 32418,
+        "total_tokens": 32440,
+        "completion_tokens_details": null,
+        "prompt_tokens_details": {
+          "audio_tokens": null,
+          "cache_write_tokens": null,
+          "cached_tokens": 32256
+        },
+        "prompt_cache_hit_tokens": 32256,
+        "prompt_cache_miss_tokens": 162
+      }
+    },
+    "error": null,
+    "body_sha256": "6e631a71dd7b32e4d36afd2e48ea92162882e6116e6cb44b302898fc55199d46",
+    "body_bytes": 119517,
+    "content": "",
+    "tool_calls": [
+      {
+        "id": "call_00_1WOPi6UunyAruxYsoIL16859",
+        "name": "review_campaign",
+        "arguments": "{}"
+      }
+    ],
+    "finish_reason": "tool_calls",
+    "model": "deepseek-flash",
+    "mock": false,
+    "elapsed_ms": 4733,
+    "raw_id": "f051d574-9c95-488b-bda7-502994c4e264",
+    "wall_seconds": 4.734
+  }
+]

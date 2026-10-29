@@ -1,0 +1,152 @@
+[
+  {
+    "arm": "wrapper128",
+    "tls_events": [
+      {
+        "event": "connection.connect_tcp.started",
+        "error": ""
+      },
+      {
+        "event": "connection.connect_tcp.complete",
+        "error": ""
+      },
+      {
+        "event": "connection.start_tls.started",
+        "error": ""
+      },
+      {
+        "event": "connection.start_tls.complete",
+        "error": ""
+      }
+    ],
+    "usage": {
+      "prompt_tokens": 32418,
+      "completion_tokens": 22,
+      "total_tokens": 32440,
+      "prompt_cache_hit_tokens": 32256,
+      "prompt_cache_miss_tokens": 162,
+      "raw": {
+        "completion_tokens": 22,
+        "prompt_tokens": 32418,
+        "total_tokens": 32440,
+        "completion_tokens_details": null,
+        "prompt_tokens_details": {
+          "audio_tokens": null,
+          "cache_write_tokens": null,
+          "cached_tokens": 32256
+        },
+        "prompt_cache_hit_tokens": 32256,
+        "prompt_cache_miss_tokens": 162
+      }
+    },
+    "error": null,
+    "body_sha256": "77fd345a6ec88ec2ebdfc4c8b05c2c9899e112fec5a62457dba14f02fc9884d6",
+    "body_bytes": 119515,
+    "content": "",
+    "tool_calls": [
+      {
+        "id": "call_00_qWXWK08PV50kb3gNrO8r4220",
+        "name": "review_campaign",
+        "arguments": "{}"
+      }
+    ],
+    "finish_reason": "tool_calls",
+    "model": "deepseek-flash",
+    "mock": false,
+    "elapsed_ms": 1580,
+    "raw_id": "1b1cabc2-5469-4ec1-a9c1-7be5a88a11ee",
+    "wall_seconds": 1.581
+  },
+  {
+    "arm": "wrapper_default",
+    "tls_events": [
+      {
+        "event": "connection.connect_tcp.started",
+        "error": ""
+      },
+      {
+        "event": "connection.connect_tcp.complete",
+        "error": ""
+      },
+      {
+        "event": "connection.start_tls.started",
+        "error": ""
+      },
+      {
+        "event": "connection.start_tls.failed",
+        "error": "[SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1032)"
+      }
+    ],
+    "usage": null,
+    "error": "APIConnectionError: Connection error. <- ConnectError: [SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1032) <- ConnectError: [SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1032)",
+    "body_sha256": "c03b1007830862a991cb17113c8e18f669a74566f8003544b6c9da815a09c808",
+    "body_bytes": 119498,
+    "content": null,
+    "tool_calls": [],
+    "finish_reason": null,
+    "model": "deepseek-flash",
+    "mock": false,
+    "elapsed_ms": 5012,
+    "raw_id": null,
+    "wall_seconds": 5.013
+  },
+  {
+    "arm": "raw_sdk_default",
+    "tls_events": [
+      {
+        "event": "connection.connect_tcp.started",
+        "error": ""
+      },
+      {
+        "event": "connection.connect_tcp.complete",
+        "error": ""
+      },
+      {
+        "event": "connection.start_tls.started",
+        "error": ""
+      },
+      {
+        "event": "connection.start_tls.failed",
+        "error": "[SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1032)"
+      }
+    ],
+    "usage": null,
+    "error": "APIConnectionError: Connection error. <- ConnectError: [SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1032) <- ConnectError: [SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1032)",
+    "body_sha256": "c03b1007830862a991cb17113c8e18f669a74566f8003544b6c9da815a09c808",
+    "body_bytes": 119498,
+    "wall_seconds": 5.009
+  },
+  {
+    "arm": "wrapper_timeout30",
+    "tls_events": [
+      {
+        "event": "connection.connect_tcp.started",
+        "error": ""
+      },
+      {
+        "event": "connection.connect_tcp.complete",
+        "error": ""
+      },
+      {
+        "event": "connection.start_tls.started",
+        "error": ""
+      },
+      {
+        "event": "connection.start_tls.failed",
+        "error": "[SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1032)"
+      }
+    ],
+    "usage": null,
+    "error": "APIConnectionError: Connection error. <- ConnectError: [SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1032) <- ConnectError: [SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1032)",
+    "body_sha256": "c03b1007830862a991cb17113c8e18f669a74566f8003544b6c9da815a09c808",
+    "body_bytes": 119498,
+    "content": null,
+    "tool_calls": [],
+    "finish_reason": null,
+    "model": "deepseek-flash",
+    "mock": false,
+    "elapsed_ms": 5008,
+    "raw_id": null,
+    "wall_seconds": 5.009
+  }
+]

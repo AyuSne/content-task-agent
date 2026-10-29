@@ -1,0 +1,19 @@
+{
+  "transport": "Windows curl uncapped",
+  "elapsed_s": 10.29,
+  "exit": 0,
+  "error": "",
+  "response_error": null,
+  "usage": {
+    "prompt_tokens": 32418,
+    "completion_tokens": 22,
+    "total_tokens": 32440,
+    "prompt_tokens_details": {
+      "cached_tokens": 32256
+    },
+    "prompt_cache_hit_tokens": 32256,
+    "prompt_cache_miss_tokens": 162
+  },
+  "model": "deepseek-flash",
+  "finish_reason": "tool_calls"
+}

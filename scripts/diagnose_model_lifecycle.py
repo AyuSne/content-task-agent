@@ -8,6 +8,7 @@ import json
 import os
 import subprocess
 import time
+from dataclasses import asdict
 from datetime import UTC, datetime
 from pathlib import Path
 
@@ -15,6 +16,7 @@ import httpx
 from openai import OpenAI
 
 from cta.config import load_config, load_env_file
+from cta.model import DeepSeekClient
 from cta.prompts import PROMPT_VERSION, TOOL_DEFINITIONS
 
 
@@ -23,6 +25,7 @@ def main() -> int:
     parser.add_argument("--env-file", type=Path, required=True)
     parser.add_argument("--inspect", type=Path, required=True)
     parser.add_argument("--output", type=Path, required=True)
+    parser.add_argument("--wrapper-once", action="store_true", help="One uncapped production adapter call, no tool effects")
     args = parser.parse_args()
     args.output.mkdir(parents=True, exist_ok=False)
     for key in ("HTTP_PROXY", "HTTPS_PROXY", "ALL_PROXY", "http_proxy", "https_proxy", "all_proxy"):
@@ -58,6 +61,46 @@ def main() -> int:
             chain.append(config.redact(f"{type(exc).__name__}: {exc}"))
             exc = exc.__cause__ or (None if exc.__suppress_context__ else exc.__context__)
         return chain
+
+    if args.wrapper_once:
+        row = {"arm": "production_wrapper_uncapped", "started_at": datetime.now(UTC).isoformat(),
+               "connection_trace": []}
+        start = time.monotonic()
+
+        def wrapper_trace(event, info):
+            if event.startswith("connection.") or event.endswith(".failed"):
+                entry = {"event": event, "offset_s": round(time.monotonic() - start, 4)}
+                if "exception" in info:
+                    entry["error_causes"] = causes(info["exception"])
+                row["connection_trace"].append(entry)
+
+        def wrapper_request(request):
+            request.extensions["trace"] = wrapper_trace
+            row["body_bytes"] = len(request.content)
+            row["body_sha256"] = hashlib.sha256(request.content).hexdigest()
+            (args.output / "request-body.json").write_bytes(request.content)
+
+        def wrapper_response(response):
+            row["http_version"] = response.http_version
+            row["http_status"] = response.status_code
+
+        client = DeepSeekClient(config)
+        client.client._client.event_hooks["request"].append(wrapper_request)
+        client.client._client.event_hooks["response"].append(wrapper_response)
+        try:
+            response = client.complete(messages, TOOL_DEFINITIONS, cursor=0)
+            row.update(asdict(response))
+        finally:
+            client.client.close()
+        row["finished_at"] = datetime.now(UTC).isoformat()
+        row["wall_seconds"] = round(time.monotonic() - start, 3)
+        manifest["max_output_tokens"] = "not_set: production wrapper default"
+        manifest["adapter"] = "DeepSeekClient.complete; unchanged request construction"
+        rows.append(row)
+        save()
+        print(json.dumps({"arm": row["arm"], "seconds": row["wall_seconds"], "error": row["error"],
+                          "usage": row["usage"], "body_sha256": row["body_sha256"]}, ensure_ascii=False), flush=True)
+        return 0
 
     for arm, expiry, http2 in (("default", 5, False), ("keepalive180", 180, False), ("http2", 5, True)):
         active = [None]

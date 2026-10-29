@@ -1,0 +1,80 @@
+{
+  "source_task_id": "t_2c8aac8edf5e",
+  "source_inspect": "examples\\repair-live\\normal-knowledge2-01\\08-final-inspect.json",
+  "source_progress": {
+    "sim_start": "2026-10-29T00:00:00+08:00",
+    "sim_now": "2026-10-29T00:00:18+08:00",
+    "sim_elapsed_ms": 18000,
+    "used_rounds": 14,
+    "max_rounds": 24,
+    "paused": false,
+    "current_output": {
+      "output_id": "o_e0456c3a3e4e8c9e",
+      "version": 1,
+      "status": "draft",
+      "strategy": "user_scenario"
+    },
+    "save": null,
+    "phase": "stopped",
+    "brief_version": 1,
+    "last_run_at": "2026-10-29T03:49:21+00:00"
+  },
+  "model_config": {
+    "provider": "deepseek",
+    "sdk": "openai",
+    "base_url": "https://api.deepseek.com",
+    "model": "deepseek-flash",
+    "api_key": "set",
+    "thinking": false,
+    "streaming": false,
+    "sdk_auto_retries": 0,
+    "network_route": "direct"
+  },
+  "prompt_version": "main-2026-10-29.v10",
+  "max_output_tokens": "not_set: production wrapper default",
+  "request_interval_seconds": 6,
+  "sdk_retries": 0,
+  "note": "External diagnostics only; no tool effects and no writes to the content-task ledger.",
+  "attempts": [
+    {
+      "arm": "production_wrapper_uncapped",
+      "started_at": "2026-10-29T04:18:49.357722+00:00",
+      "connection_trace": [
+        {
+          "event": "connection.connect_tcp.started",
+          "offset_s": 1.2372
+        },
+        {
+          "event": "connection.connect_tcp.complete",
+          "offset_s": 1.2779
+        },
+        {
+          "event": "connection.start_tls.started",
+          "offset_s": 1.2779
+        },
+        {
+          "event": "connection.start_tls.failed",
+          "offset_s": 6.4093,
+          "error_causes": [
+            "ConnectError: [SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1032)",
+            "SSLEOFError: [SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1032)"
+          ]
+        }
+      ],
+      "body_bytes": 119498,
+      "body_sha256": "c03b1007830862a991cb17113c8e18f669a74566f8003544b6c9da815a09c808",
+      "content": null,
+      "tool_calls": [],
+      "finish_reason": null,
+      "model": "deepseek-flash",
+      "usage": null,
+      "error": "APIConnectionError: Connection error. <- ConnectError: [SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1032) <- ConnectError: [SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1032)",
+      "mock": false,
+      "elapsed_ms": 6284,
+      "raw_id": null,
+      "finished_at": "2026-10-29T04:18:55.767321+00:00",
+      "wall_seconds": 6.41
+    }
+  ],
+  "adapter": "DeepSeekClient.complete; unchanged request construction"
+}
