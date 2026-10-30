@@ -36,3 +36,7 @@
 
 2026-10-30：10 的确定性组合已验收；真实主模型在复杂历史、查证/澄清/停止中的选择，独立核验的范围语义质量及新旧同场景对照仍由本票验证。错误范围在脚本化核验预设 pass 后仍可保存的风险未解除，不能把 Mock 或本地假对端结果充当真实模型证据；详见 `evidence/redesign/ticket10-validation.md`。
 
+2026-10-30 后续：真实旧新场景、原始失败、补跑和用量已保存于 `evidence/redesign/ticket11-paired-plan.md` 及 `ticket11-paired-raw/`；语义探针的 Mock 前置与真实续跑分开记于 `semantics-main-report.md`、`semantics-scope-report.md`。按用户要求不使用子 Agent 后，主 Agent 实施并集成工具前馈、错误定位及同类失败提醒，保留上次 13 次拒绝与真实新旧恢复对照：`tool-guidance-validation.md`、`tool-guidance-paired/`。真实保存不等于语义合格，第二次真实范围校准的标签存在争议且未指出原 E3 范围，详见 `scope-review-live-01-notes.md` 与 `reviewer-scope-paired/`。匿名文件的评语由已知总体实验背景的主 Agent 撰写，只能作为 AI 自评，不能声称独立盲评或人工审查。
+
+集成代码 `5a8920f` 完整回归 342 项通过；当前仍需独立内容质量复核、范围歧义处理的真实验证和固定基线到最终 HEAD 的完整两轴独立代码审查。此前两轴审查不覆盖最终改造，且用户禁止子 Agent；保留其覆盖局限，所有未确认的验收项不勾选、不标完成。
+

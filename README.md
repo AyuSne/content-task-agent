@@ -87,6 +87,8 @@ uv run cta export <task_id> --repair
 
 ## 证据与复现
 
+本次改造的工具前馈、错误纠偏与真实恢复对照见 [工具验证记录](evidence/redesign/tool-guidance-validation.md)；范围语义复测及标签争议见 [核验记录](evidence/redesign/scope-review-live-01-notes.md)。两次对照的源码、请求、状态与文件均留存；模型语义质量尚未完成独立人工复核，工单 11 仍未完成。
+
 - [题面要求与证据映射](docs/delivery/01-requirements-analysis.md) / [完整证据索引](docs/delivery/06-evidence-index.md)
 - [最新eval报告](docs/delivery/11-fresh-eval.md) / [机器汇总](examples/eval-2026-10-29/summary.json)：11个场景按完成、正确停止和待补充分列
 - [207项测试及静态检查输出](examples/eval-2026-10-29/validation-results/README.md)：运行代码63ec7c8，本地锁定依赖环境；历史60249d6干净环境204项另有记录

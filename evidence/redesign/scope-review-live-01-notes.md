@@ -1,6 +1,6 @@
 # 真实范围样例复测与标签修正
 
-基于新代码 `3aba7c23784f211891ba68f12bffccfdb706de87`，从 `tool-guidance-paired/new/save-crash-recovery/05-inspect.json` 的真实保存方案派生一对核验样例。原稿的方案和脚本 E3 scope 均为“适用于所有曲风与音乐素材”，与 M-001 设备版本范围并列时可能产生误解；对照稿只将这两处 E3 scope 改为“iOS/Android 4.2 及以上；复杂变速或弱节拍音乐需要人工调整”，不改变其他字段。两份输入及来源可通过 `python scripts/prepare_scope_retest.py` 生成；该脚本会覆盖 fixture，复现前请先核对和保留当前文件。原始请求、评审和用量保存在 `scope-review-live-01.json`。
+基于新代码 `3aba7c23784f211891ba68f12bffccfdb706de87`，从 `tool-guidance-paired/new/save-crash-recovery/05-inspect.json` 的真实保存方案派生一对核验样例。原稿的方案和脚本 E3 scope 均为“适用于所有曲风与音乐素材”，与 M-001 设备版本范围并列时可能产生误解；对照稿只将这两处 E3 scope 改为“iOS/Android 4.2 及以上；复杂变速或弱节拍音乐需要人工调整”，不改变其他字段。两份输入及来源可通过 `python scripts/prepare_scope_retest.py --output <新文件>` 生成，脚本拒绝覆盖已有文件。原始请求、评审和用量保存在 `scope-review-live-01.json`。
 
 原始自动标签把原稿视为问题稿、仅修改 E3 的稿视为合格稿。该标签**不能直接用于“误报率”**：仅更正 E3 没有证明整稿合格。真实核验在对照稿指出 S4“30秒成片就出来了”可能被理解为自动生成完整成片，超出 M-001 仅对齐片段的支持范围；这是可讨论且需要人工核实的独立问题，不能把此意见直接判作虚假报警。原指标中的 `false_positives` 是机器按标签统计的结果，不视为已确认误报。问题稿 scope 是否构成严重缺陷也须结合上下文人工判定；此前 AI 自评认为至少表述可能误导，并非确定性结论。
 

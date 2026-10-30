@@ -1,5 +1,6 @@
 """Derive a labeled scope pair from the preserved real campaign without modifying it."""
 
+import argparse
 import copy
 import json
 from pathlib import Path
@@ -7,10 +8,10 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 SOURCE = ROOT / 'evidence/redesign/tool-guidance-paired/new/save-crash-recovery/05-inspect.json'
 MATERIALS = ROOT / 'evidence/redesign/tool-guidance-paired/materials.json'
-OUTPUT = ROOT / 'fixtures/eval/redesign-real-scope-v1.json'
-
-
 def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--output', type=Path, required=True)
+    output = parser.parse_args().output
     facts = json.loads(SOURCE.read_text(encoding='utf-8'))
     catalog = json.loads(MATERIALS.read_text(encoding='utf-8'))
     campaign = next(item['content'] for item in facts['outputs'] if item['kind'] == 'campaign')
@@ -29,8 +30,9 @@ def main():
         'label_source': {'basis': 'M-001 适用 iOS/Android 4.2 及以上；原 E3 范围只写所有曲风与音乐素材。',
                          'provenance': '真实保存稿派生成对样本，good 只修改方案与脚本的 E3 scope；标签为 AI 判断，需复核。'},
     }
-    OUTPUT.write_text(json.dumps({'version': 'redesign-real-scope-v1', 'pairs': [pair]},
-                                 ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
+    with output.open('x', encoding='utf-8') as stream:
+        stream.write(json.dumps({'version': 'redesign-real-scope-v1', 'pairs': [pair]},
+                                ensure_ascii=False, indent=2) + '\n')
 
 
 if __name__ == '__main__':
