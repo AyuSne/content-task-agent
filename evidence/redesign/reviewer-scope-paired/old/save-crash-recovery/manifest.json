@@ -1,0 +1,149 @@
+{
+  "case": {
+    "id": "save-crash-recovery",
+    "topic": "帧剪学习打卡30秒剪辑介绍",
+    "audience": "18-24岁大学生",
+    "requirements": [
+      "一条30秒主视频，演示自动对齐节拍和逐段微调。"
+    ],
+    "fault": "after_save_effect",
+    "expected_status": "complete",
+    "duration_s": 30
+  },
+  "input": {
+    "budget": "20",
+    "deadline": "2026-10-30T12:00:00+08:00",
+    "requirements": [
+      "准备完整内容活动方案，产品主张只用材料支持的正式能力；不作涨粉、收益或爆款承诺。",
+      "方案交给运营继续制作。允许把缺少的画面、操作录屏和原创配乐列为待制作，写清责任人、位置和权属核对；不可冒充现成素材。平台和发布排期可以提出建议，不必把可建议项当成关键阻塞。",
+      "一条30秒主视频，演示自动对齐节拍和逐段微调。"
+    ],
+    "id": "save-crash-recovery",
+    "topic": "帧剪学习打卡30秒剪辑介绍",
+    "audience": "18-24岁大学生",
+    "fault": "after_save_effect",
+    "expected_status": "complete",
+    "duration_s": 30
+  },
+  "commands": [
+    {
+      "label": "01-create",
+      "argv": [
+        "D:\\Python\\python.exe",
+        "-m",
+        "cta",
+        "--mode",
+        "real",
+        "--data-dir",
+        "D:\\AAA小影科技\\.scratch\\content-agent-redesign-worktrees\\11-runs\\reviewer-scope-paired\\old\\save-crash-recovery\\data",
+        "create",
+        "--new",
+        "--topic",
+        "帧剪学习打卡30秒剪辑介绍",
+        "--budget",
+        "20",
+        "--deadline",
+        "2026-10-30T12:00:00+08:00",
+        "--audience",
+        "18-24岁大学生",
+        "--requirement",
+        "准备完整内容活动方案，产品主张只用材料支持的正式能力；不作涨粉、收益或爆款承诺。",
+        "--requirement",
+        "方案交给运营继续制作。允许把缺少的画面、操作录屏和原创配乐列为待制作，写清责任人、位置和权属核对；不可冒充现成素材。平台和发布排期可以提出建议，不必把可建议项当成关键阻塞。",
+        "--requirement",
+        "一条30秒主视频，演示自动对齐节拍和逐段微调。"
+      ],
+      "exit_code": 0,
+      "wall_seconds": 0.406,
+      "fault": null
+    },
+    {
+      "label": "02-run",
+      "argv": [
+        "D:\\Python\\python.exe",
+        "-m",
+        "cta",
+        "--mode",
+        "real",
+        "--data-dir",
+        "D:\\AAA小影科技\\.scratch\\content-agent-redesign-worktrees\\11-runs\\reviewer-scope-paired\\old\\save-crash-recovery\\data",
+        "run",
+        "t_5ef3c3b3821b"
+      ],
+      "exit_code": 70,
+      "wall_seconds": 122.391,
+      "fault": "after_save_effect"
+    },
+    {
+      "label": "03-before-resume-0",
+      "argv": [
+        "D:\\Python\\python.exe",
+        "-m",
+        "cta",
+        "--mode",
+        "real",
+        "--data-dir",
+        "D:\\AAA小影科技\\.scratch\\content-agent-redesign-worktrees\\11-runs\\reviewer-scope-paired\\old\\save-crash-recovery\\data",
+        "inspect",
+        "t_5ef3c3b3821b"
+      ],
+      "exit_code": 0,
+      "wall_seconds": 0.338,
+      "fault": null
+    },
+    {
+      "label": "04-resume-0",
+      "argv": [
+        "D:\\Python\\python.exe",
+        "-m",
+        "cta",
+        "--mode",
+        "real",
+        "--data-dir",
+        "D:\\AAA小影科技\\.scratch\\content-agent-redesign-worktrees\\11-runs\\reviewer-scope-paired\\old\\save-crash-recovery\\data",
+        "resume",
+        "t_5ef3c3b3821b"
+      ],
+      "exit_code": 0,
+      "wall_seconds": 2.57,
+      "fault": null
+    },
+    {
+      "label": "05-inspect",
+      "argv": [
+        "D:\\Python\\python.exe",
+        "-m",
+        "cta",
+        "--mode",
+        "real",
+        "--data-dir",
+        "D:\\AAA小影科技\\.scratch\\content-agent-redesign-worktrees\\11-runs\\reviewer-scope-paired\\old\\save-crash-recovery\\data",
+        "inspect",
+        "t_5ef3c3b3821b"
+      ],
+      "exit_code": 0,
+      "wall_seconds": 0.315,
+      "fault": null
+    },
+    {
+      "label": "06-export",
+      "argv": [
+        "D:\\Python\\python.exe",
+        "-m",
+        "cta",
+        "--mode",
+        "real",
+        "--data-dir",
+        "D:\\AAA小影科技\\.scratch\\content-agent-redesign-worktrees\\11-runs\\reviewer-scope-paired\\old\\save-crash-recovery\\data",
+        "export",
+        "t_5ef3c3b3821b"
+      ],
+      "exit_code": 0,
+      "wall_seconds": 0.368,
+      "fault": null
+    }
+  ],
+  "started_unix": 1793350962.3417969,
+  "finished_unix": 1793351088.7554421,
+  "task_id": "t_5ef3c3b3821b"
+}

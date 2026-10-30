@@ -1,0 +1,42 @@
+{
+  "sources": {
+    "old": {
+      "commit": "836aa827d835e54a8e9385c18e7a3ff05ed3e600",
+      "status": "",
+      "lock_sha256": "70e9908f236437a8db752b38db2674af1bace69e2e85132333381e57932b46da",
+      "runner_sha256": "05dce28c7125467c56a99d5bb14c344e1b10947c9c5f59f351d6c01476ce5a46"
+    },
+    "new": {
+      "commit": "5a8920f91cb1d4afc7b45ee71714dfefcae14746",
+      "status": "",
+      "lock_sha256": "70e9908f236437a8db752b38db2674af1bace69e2e85132333381e57932b46da",
+      "runner_sha256": "ef414913bef73702e2a26929381b3779c4bb6a9e8ca06b027ca9d1c24846c7d0"
+    }
+  },
+  "cases_sha256": "34d7b5cc5937f24ed189147dd8a789779ab2b6ce40acd945415c3a6f52ab84c3",
+  "materials_sha256": "8a7afcdc3896bf9cd05aeec7049d41d7434797b5a0505bdadfbb24ae991a0010",
+  "python": "3.12.3 (tags/v3.12.3:f6650f9, Apr  9 2024, 14:05:25) [MSC v.1938 64 bit (AMD64)]",
+  "packages": {
+    "openai": "1.99.9",
+    "httpx": "0.28.1"
+  },
+  "model": "deepseek-flash",
+  "base_url": "https://api.deepseek.com",
+  "route": "direct; TLS verification enabled",
+  "started_unix": 1793350962.045329,
+  "runs": [
+    {
+      "side": "old",
+      "case": "save-crash-recovery",
+      "exit_code": 0,
+      "wall_seconds": 126.735
+    },
+    {
+      "side": "new",
+      "case": "save-crash-recovery",
+      "exit_code": 0,
+      "wall_seconds": 357.234
+    }
+  ],
+  "finished_unix": 1793351446.0156922
+}

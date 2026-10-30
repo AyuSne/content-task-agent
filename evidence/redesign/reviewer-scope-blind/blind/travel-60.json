@@ -1,0 +1,31 @@
+{
+  "input": {
+    "budget": "20",
+    "deadline": "2026-10-30T12:00:00+08:00",
+    "requirements": [
+      "准备完整内容活动方案，产品主张只用材料支持的正式能力；不作涨粉、收益或爆款承诺。",
+      "方案交给运营继续制作。允许把缺少的画面、操作录屏和原创配乐列为待制作，写清责任人、位置和权属核对；不可冒充现成素材。平台和发布排期可以提出建议，不必把可建议项当成关键阻塞。",
+      "一条60秒竖屏主视频，演示自动卡点后微调，再为普通话口播制作可编辑字幕。不把大学生合成调研外推为该受众事实。旅行画面可由制作人员后续自行拍摄并核对权属。"
+    ],
+    "id": "travel-60",
+    "topic": "帧剪周末旅行记录剪辑教程",
+    "audience": "25-40岁成年旅行爱好者",
+    "duration_s": 60
+  },
+  "candidates": [
+    {
+      "candidate": "e64739cb69d1c47d",
+      "available": false,
+      "content": null,
+      "task_status": "unknown",
+      "source_error": "missing_inspect"
+    },
+    {
+      "candidate": "fa83c639ef42738e",
+      "available": false,
+      "content": null,
+      "task_status": "unknown",
+      "source_error": "missing_inspect"
+    }
+  ]
+}

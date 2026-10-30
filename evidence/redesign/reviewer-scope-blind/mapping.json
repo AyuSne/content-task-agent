@@ -1,0 +1,128 @@
+[
+  {
+    "candidate": "5f884b2b1fc9d6f2",
+    "case": "campus-15",
+    "side": "old",
+    "source": "evidence\\redesign\\reviewer-scope-paired\\old\\campus-15\\05-inspect.json",
+    "available": false
+  },
+  {
+    "candidate": "a2e239fca607cc3f",
+    "case": "campus-15",
+    "side": "new",
+    "source": "evidence\\redesign\\reviewer-scope-paired\\new\\campus-15\\05-inspect.json",
+    "available": false
+  },
+  {
+    "candidate": "fa83c639ef42738e",
+    "case": "travel-60",
+    "side": "old",
+    "source": "evidence\\redesign\\reviewer-scope-paired\\old\\travel-60\\05-inspect.json",
+    "available": false
+  },
+  {
+    "candidate": "e64739cb69d1c47d",
+    "case": "travel-60",
+    "side": "new",
+    "source": "evidence\\redesign\\reviewer-scope-paired\\new\\travel-60\\05-inspect.json",
+    "available": false
+  },
+  {
+    "candidate": "575022ba4f4b2ddf",
+    "case": "subtitle-30",
+    "side": "old",
+    "source": "evidence\\redesign\\reviewer-scope-paired\\old\\subtitle-30\\05-inspect.json",
+    "available": false
+  },
+  {
+    "candidate": "ad255dbef231bed6",
+    "case": "subtitle-30",
+    "side": "new",
+    "source": "evidence\\redesign\\reviewer-scope-paired\\new\\subtitle-30\\05-inspect.json",
+    "available": false
+  },
+  {
+    "candidate": "aea3784873a9a768",
+    "case": "minor-15",
+    "side": "old",
+    "source": "evidence\\redesign\\reviewer-scope-paired\\old\\minor-15\\05-inspect.json",
+    "available": false
+  },
+  {
+    "candidate": "4a2aeb5c3f4cde79",
+    "case": "minor-15",
+    "side": "new",
+    "source": "evidence\\redesign\\reviewer-scope-paired\\new\\minor-15\\05-inspect.json",
+    "available": false
+  },
+  {
+    "candidate": "0925618e5cde3701",
+    "case": "unsupported-cantonese",
+    "side": "old",
+    "source": "evidence\\redesign\\reviewer-scope-paired\\old\\unsupported-cantonese\\05-inspect.json",
+    "available": false
+  },
+  {
+    "candidate": "dd8325c991c069b0",
+    "case": "unsupported-cantonese",
+    "side": "new",
+    "source": "evidence\\redesign\\reviewer-scope-paired\\new\\unsupported-cantonese\\05-inspect.json",
+    "available": false
+  },
+  {
+    "candidate": "226a35bb68ec6e54",
+    "case": "budget-impossible",
+    "side": "old",
+    "source": "evidence\\redesign\\reviewer-scope-paired\\old\\budget-impossible\\05-inspect.json",
+    "available": false
+  },
+  {
+    "candidate": "2adf4ca7410e33a0",
+    "case": "budget-impossible",
+    "side": "new",
+    "source": "evidence\\redesign\\reviewer-scope-paired\\new\\budget-impossible\\05-inspect.json",
+    "available": false
+  },
+  {
+    "candidate": "7a9da7442f8d3b15",
+    "case": "deadline-impossible",
+    "side": "old",
+    "source": "evidence\\redesign\\reviewer-scope-paired\\old\\deadline-impossible\\05-inspect.json",
+    "available": false
+  },
+  {
+    "candidate": "a0bf8b72ca7a2b24",
+    "case": "deadline-impossible",
+    "side": "new",
+    "source": "evidence\\redesign\\reviewer-scope-paired\\new\\deadline-impossible\\05-inspect.json",
+    "available": false
+  },
+  {
+    "candidate": "61a34d0cdb80c0ae",
+    "case": "save-crash-recovery",
+    "side": "old",
+    "source": "evidence\\redesign\\reviewer-scope-paired\\old\\save-crash-recovery\\05-inspect.json",
+    "available": true
+  },
+  {
+    "candidate": "877f4b3c4f5ed9fb",
+    "case": "save-crash-recovery",
+    "side": "new",
+    "source": "evidence\\redesign\\reviewer-scope-paired\\new\\save-crash-recovery\\05-inspect.json",
+    "available": true
+  },
+  {
+    "candidate": "61e22038f8e09b28",
+    "case": "missing-input",
+    "side": "old",
+    "source": "evidence\\redesign\\reviewer-scope-paired\\old\\missing-input\\05-inspect.json",
+    "available": false
+  },
+  {
+    "candidate": "10100ed43317aca7",
+    "case": "missing-input",
+    "side": "new",
+    "source": "evidence\\redesign\\reviewer-scope-paired\\new\\missing-input\\05-inspect.json",
+    "available": false
+  }
+]
