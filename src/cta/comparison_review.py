@@ -82,5 +82,5 @@ def run_readback_comparison(config: Config, case: dict, output_dir: Path) -> dic
                               "读回实验不执行改稿或保存；交付影响由发现的问题及额外请求描述。"]}
     output_dir.mkdir(parents=True, exist_ok=True)
     for name, value in (("result.json", result), ("request-trace.json", trace)):
-        (output_dir / name).write_text(json.dumps(value, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+        (output_dir / name).write_text(json.dumps(config.redact_data(value), ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     return result

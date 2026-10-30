@@ -17,7 +17,7 @@ from cta.knowledge import freeze_bundles, task_bundles
 from cta.materials import load_task_catalog
 from cta.model import create_client
 from cta.pricing import load_price_table
-from cta.prompts import REVIEW_PROMPT_VERSION, REVIEW_SYSTEM_PROMPT
+from cta.prompts import REVIEW_PROMPT_VERSION, REVIEW_SYSTEM_PROMPT, REVIEW_TOOL_DEFINITIONS
 from cta.repository import (
     append_message,
     count_purpose_requests,
@@ -142,20 +142,6 @@ def review_task(config: Config, task_id: str, *, tool_call_id: str | None = None
         spec = price.mode("review")
         max_requests = int(spec.max_requests)
         max_readbacks = int(spec.max_readbacks)
-        guard = _guard(conn, task, spec.cost_cents, spec.duration_ms)
-        if guard is not None:
-            raise ReviewError(guard["message"], guard.get("code", "review_blocked"))
-        attempt_id = start_attempt(
-            conn,
-            task=task,
-            kind="review_campaign",
-            mode="review",
-            cost_cents=spec.cost_cents,
-            duration_ms=spec.duration_ms,
-            pricing_version=price.version,
-            meta={"output_id": output["output_id"], "output_version": output["version"], "tool_call_id": tool_call_id, "request_seq": request_seq},
-        )
-        conn.commit()
 
         freeze_bundles(conn, task["id"], config.project_root)
         doc = next(item for item in task_bundles(conn, task["id"]) if item["name"] == "content-review")
@@ -236,6 +222,25 @@ def review_task(config: Config, task_id: str, *, tool_call_id: str | None = None
             },
             {"role": "user", "content": "[待核验方案] " + json.dumps(payload, ensure_ascii=False)},
         ]
+        review_input = {"messages": messages, "tools": REVIEW_TOOL_DEFINITIONS}
+        if config.mode == "real" and config.redact_data(review_input) != review_input:
+            raise ReviewError("模型输入包含当前配置凭据；请移除该内容或更换凭据后再继续。", "sensitive_model_input")
+
+        guard = _guard(conn, task, spec.cost_cents, spec.duration_ms)
+        if guard is not None:
+            raise ReviewError(guard["message"], guard.get("code", "review_blocked"))
+        attempt_id = start_attempt(
+            conn,
+            task=task,
+            kind="review_campaign",
+            mode="review",
+            cost_cents=spec.cost_cents,
+            duration_ms=spec.duration_ms,
+            pricing_version=price.version,
+            meta={"output_id": output["output_id"], "output_version": output["version"], "tool_call_id": tool_call_id, "request_seq": request_seq},
+        )
+        conn.commit()
+
         with transaction(conn):
             for message in messages:
                 append_message(

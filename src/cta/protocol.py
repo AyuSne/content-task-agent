@@ -5,7 +5,7 @@ import json
 from cta.prompts import TOOL_DEFINITIONS
 
 # Bump when handler semantics change, even if the JSON schema stays the same.
-HANDLER_VERSION = "context-composition-v2"
+HANDLER_VERSION = "context-composition-v3-redaction"
 
 
 def _without_descriptions(value):
