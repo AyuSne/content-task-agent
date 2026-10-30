@@ -210,3 +210,39 @@ def test_adopting_catalog_without_used_material_reports_review_gap(cli_env, mode
     assert any(entry['attempt_id'] == reviewed['review']['attempt_id'] for entry in view['ledger'])
     assert view['resources']['sim_spent_cents'] == 220
     assert view['progress']['phase'] == 'review_incomplete'
+
+
+def test_review_checks_brief_quote_against_adopted_material_body(cli_env, model_script, monkeypatch):
+    from test_brief_loop import BRIEF
+    from test_campaign_delivery_new import _campaign, _result
+    from test_direct_script import SCRIPT
+
+    from cta import materials
+
+    task_id = _create()['task_id']
+    script = json.loads(json.dumps(SCRIPT))
+    script['evidence'] = []
+    script['segments'][0]['evidence_ids'] = []
+    prefix = [_tool('propose_brief', BRIEF), _tool('submit_script', {'brief_version': 1, 'script': script})]
+    model_script(prefix)
+    cli_json('run', task_id, '--max-rounds', '2')
+    ref = _result(cli_json('inspect', task_id), 'submit_script')[-1]['script_ref']
+    campaign = _campaign()
+    campaign['evidence'] = []
+    model_script(prefix + [_tool('submit_campaign', {'script_ref': ref, 'campaign': campaign})])
+    cli_json('resume', task_id, '--max-rounds', '1')
+    payload = json.loads((Path(__file__).resolve().parents[1] / 'fixtures/materials/catalog.json').read_text('utf-8'))
+    payload['version'] = 'changed-quote-test'
+    next(item for item in payload['materials'] if item['id'] == 'M-001')['text'] = '新版材料不再包含旧引文。'
+    original_load = materials.load_catalog
+    def load(root=None, version=None):
+        if version == 'changed-quote-test':
+            return materials.MaterialCatalog(payload, cli_env / 'new-catalog.json')
+        return original_load(root, version)
+    monkeypatch.setattr(materials, 'load_catalog', load)
+    cli_json('adopt-material', task_id, '--version', 'changed-quote-test')
+    reviewed = cli_json('review', task_id)
+    assert reviewed['review']['status'] == 'incomplete'
+    assert '简报事实[0]' in str(reviewed['review']['evidence_gaps'])
+    code, out, _ = run_cli('save', task_id)
+    assert code != 0 and json.loads(out)['status'] != 'complete'

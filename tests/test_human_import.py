@@ -1,10 +1,14 @@
 """Ticket 10: explicit Markdown draft import, base conflict and re-review."""
 
+import copy
 import json
 from pathlib import Path
 
 from conftest import cli_json, run_cli
-from test_campaign_delivery_new import _new_draft_ready
+from test_brief_loop import BRIEF
+from test_campaign_delivery_new import _campaign, _new_draft_ready, _result
+from test_campaign_draft import _create, _tool
+from test_direct_script import SCRIPT
 from test_review_save import REVIEW_PASS, _review_item
 
 
@@ -21,6 +25,87 @@ def _exported_markdown(task_id):
 def _import(task_id, path):
     code, out, _err = run_cli("import-draft", task_id, "--file", str(path))
     return code, json.loads(out)
+
+
+def test_evidence_identifiers_survive_unedited_export_and_import(cli_env, model_script):
+    task = _create()
+    script = copy.deepcopy(SCRIPT)
+    identifiers = ["x] y", "无", " edge ", "x,y", "&#93;", "x\x0by", "x\u0085y"]
+    script["evidence"] = [{**script["evidence"][0], "id": identifier} for identifier in identifiers]
+    script["segments"][0]["evidence_ids"] = identifiers
+    script["segments"][0]["duration_seconds"] = 10
+    script["segments"].append({**script["segments"][0], "segment_id": "s2", "duration_seconds": 5,
+                               "evidence_ids": ["无"]})
+    prefix = [_tool("propose_brief", BRIEF), _tool("submit_script", {"brief_version": 1, "script": script})]
+    model_script(prefix)
+    cli_json("run", task["task_id"], "--max-rounds", "2")
+    view = cli_json("inspect", task["task_id"])
+    ref = _result(view, "submit_script")[-1]["script_ref"]
+    campaign = _campaign()
+    campaign["evidence"][0]["id"] = "x] y"
+    campaign["evidence"][0]["claim"] += "；演示] 说明"
+    model_script(prefix + [_tool("submit_campaign", {"script_ref": ref, "campaign": campaign})])
+    cli_json("resume", task["task_id"], "--max-rounds", "1")
+    path, _ = _exported_markdown(task["task_id"])
+    code, imported = _import(task["task_id"], path)
+    assert code == 0, imported
+    view = cli_json("inspect", task["task_id"])
+    outputs = [output for output in view["outputs"] if output["kind"] == "campaign"]
+    assert outputs[-1]["content"]["script"] == script
+    assert outputs[-1]["content"]["evidence"] == campaign["evidence"]
+    assert outputs[-1]["content"]["script_ref"] == ref
+
+
+def test_legacy_ambiguous_evidence_id_never_silently_changes(cli_env, model_script):
+    task = _create()
+    prefix = [_tool("propose_brief", BRIEF), _tool("submit_script", {"brief_version": 1, "script": SCRIPT})]
+    model_script(prefix)
+    cli_json("run", task["task_id"], "--max-rounds", "2")
+    ref = _result(cli_json("inspect", task["task_id"]), "submit_script")[-1]["script_ref"]
+    campaign = _campaign()
+    campaign["evidence"][0]["id"] = "x] y"
+    model_script(prefix + [_tool("submit_campaign", {"script_ref": ref, "campaign": campaign})])
+    cli_json("resume", task["task_id"], "--max-rounds", "1")
+    path, text = _exported_markdown(task["task_id"])
+    path.write_text(text.replace("x&#93;&#32;y", "x] y"), encoding="utf-8")
+    code, imported = _import(task["task_id"], path)
+    view = cli_json("inspect", task["task_id"])
+    outputs = [output for output in view["outputs"] if output["kind"] == "campaign"]
+    assert code != 0 and imported["error"] == "invalid_campaign"
+    assert len(outputs) == 1
+
+
+def test_legacy_no_evidence_label_never_drops_a_real_reference(cli_env, model_script):
+    task = _create()
+    script = copy.deepcopy(SCRIPT)
+    script["evidence"][0]["id"] = "无"
+    script["segments"][0]["evidence_ids"] = ["无"]
+    prefix = [_tool("propose_brief", BRIEF), _tool("submit_script", {"brief_version": 1, "script": script})]
+    model_script(prefix)
+    cli_json("run", task["task_id"], "--max-rounds", "2")
+    ref = _result(cli_json("inspect", task["task_id"]), "submit_script")[-1]["script_ref"]
+    model_script(prefix + [_tool("submit_campaign", {"script_ref": ref, "campaign": _campaign()})])
+    cli_json("resume", task["task_id"], "--max-rounds", "1")
+    path, text = _exported_markdown(task["task_id"])
+    path.write_text(text.replace("- 证据：&#26080;", "- 证据：无"), encoding="utf-8")
+    code, imported = _import(task["task_id"], path)
+    outputs = [o for o in cli_json("inspect", task["task_id"])["outputs"] if o["kind"] == "campaign"]
+    assert code != 0 and imported["error"] == "invalid_campaign" and len(outputs) == 1
+
+
+def test_unescaped_edited_evidence_id_is_not_silently_truncated(cli_env, model_script):
+    task = _draft_with_review_script(model_script)
+    path, text = _exported_markdown(task["task_id"])
+    path.write_text(text.replace("- [E1] ", "- [x] y] "), encoding="utf-8")
+    code, result = _import(task["task_id"], path)
+    view = cli_json("inspect", task["task_id"])
+    outputs = [item for item in view["outputs"] if item["kind"] == "campaign"]
+    assert code != 0 and result["error"] == "invalid_campaign" and len(outputs) == 1
+    path.write_text(text.replace("- [E1] ", "- [x&#93; y] "), encoding="utf-8")
+    code, result = _import(task["task_id"], path)
+    assert code == 0, result
+    outputs = [item for item in cli_json("inspect", task["task_id"])["outputs"] if item["kind"] == "campaign"]
+    assert outputs[-1]["content"]["evidence"][0]["id"] == "x] y"
 
 
 def test_edited_markdown_forms_pending_review_version_and_can_complete(cli_env, model_script):

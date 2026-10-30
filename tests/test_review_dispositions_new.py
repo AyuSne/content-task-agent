@@ -1,4 +1,3 @@
-import json
 
 from conftest import cli_json
 from test_campaign_delivery_new import _campaign, _result, _script_ready
@@ -83,6 +82,7 @@ def test_invalid_second_decision_preserves_previous_disposition_and_material_bas
 
 def test_accepted_finding_blocks_save_until_new_complete_script_campaign_and_review(cli_env, model_script):
     from copy import deepcopy
+
     from test_direct_script import SCRIPT
     from test_revision_disposition import REVIEW_PASS_V2
 
@@ -110,7 +110,7 @@ def test_accepted_finding_blocks_save_until_new_complete_script_campaign_and_rev
     view = cli_json('inspect', task_id)
     new_campaign = _result(view, 'submit_campaign')[-1]['campaign_ref']
     assert new_campaign != campaign_ref
-    assert [o for o in view['outputs'] if o['kind'] == 'campaign'][0]['content']['script'] == SCRIPT
+    assert next(o for o in view['outputs'] if o['kind'] == 'campaign')['content']['script'] == SCRIPT
     assert view['dispositions'][0]['review_id'] == review_id
     model_script(prefix + [_review_item(REVIEW_FAIL), _review_item(REVIEW_PASS_V2)])
     review = cli_json('review', task_id)
@@ -132,6 +132,7 @@ def test_accepted_finding_blocks_save_until_new_complete_script_campaign_and_rev
 
 def test_optional_finding_does_not_require_rewrite_or_disposition(cli_env, model_script):
     from copy import deepcopy
+
     from test_review_save import REVIEW_PASS
 
     report = deepcopy(REVIEW_PASS)

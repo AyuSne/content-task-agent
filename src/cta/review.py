@@ -170,6 +170,22 @@ def review_task(config: Config, task_id: str, *, tool_call_id: str | None = None
                 for item in brief.get("product_facts", []) + brief.get("sources", [])
             )
         missing_ids = [mid for mid in sorted(used_material_ids) if catalog.get(mid) is None]
+        reference_gaps = []
+        if missing_ids:
+            reference_gaps.append(f"采用资料版本 {catalog.version} 缺少方案引用材料：{', '.join(missing_ids)}")
+        references = (
+            ("脚本证据", output["content"].get("script", {}).get("evidence", []), True),
+            ("方案证据", output["content"].get("evidence", []), True),
+            ("简报事实", (brief or {}).get("product_facts", []), False),
+        )
+        for label, items, versioned in references:
+            for index, item in enumerate(items):
+                if item["material_id"] in missing_ids:
+                    continue
+                version = item["material_version"] if versioned else catalog.version
+                error = catalog.evidence_error(item["material_id"], version, item["quote"], normalize_whitespace=True)
+                if error:
+                    reference_gaps.append(f"{label}[{index}] 的材料版本或引文不适用于采用资料版本 {catalog.version}")
         input_row = conn.execute(
             "SELECT * FROM task_inputs WHERE task_id = ? AND version = ?", (task["id"], task["input_version"])
         ).fetchone()
@@ -189,6 +205,7 @@ def review_task(config: Config, task_id: str, *, tool_call_id: str | None = None
                 (task["id"], output["input_version"])).fetchone()["raw_json"])},
             "brief": brief,
             "campaign": output["content"],
+            "materials_version": catalog.version,
             "evidence": [catalog.get(mid).as_dict() for mid in sorted(used_material_ids) if mid not in missing_ids],
             "delivery_scope": {
                 "deliverable": "campaign_plan",
@@ -242,13 +259,13 @@ def review_task(config: Config, task_id: str, *, tool_call_id: str | None = None
         )
         conn.commit()
 
-        if missing_ids:
-            gap = f"采用资料版本 {catalog.version} 缺少方案引用材料：{', '.join(missing_ids)}；请补充材料或修订方案。"
+        if reference_gaps:
+            gap = "；".join(reference_gaps) + "；请补充材料或修订方案。"
             with transaction(conn):
                 create_review(conn, task_id=task["id"], output_id=output["output_id"],
                               output_version=output["version"], attempt_id=attempt_id, status="incomplete",
                               verdict=None, completeness=None, findings=[], summary="核验未完成：" + gap,
-                              evidence_gaps=[gap], requests_used=0, readbacks_used=0)
+                              evidence_gaps=reference_gaps, requests_used=0, readbacks_used=0)
                 finish_attempt(conn, attempt_id, status="failed", error=gap)
                 conn.execute("UPDATE tasks SET phase = 'review_incomplete', reason = ?, updated_at = ? WHERE id = ?",
                              (gap, utc_now_iso(), task["id"]))

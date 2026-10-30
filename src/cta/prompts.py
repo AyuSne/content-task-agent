@@ -285,7 +285,7 @@ TOOL_DEFINITIONS = [
         "type": "function",
         "function": {
             "name": "propose_brief",
-            "description": "提交业务简报。程序会校验事实引用、适用范围、未知项与结构；通过后进入方案草稿阶段。",
+            "description": "提交业务简报。程序校验事实引用定位、适用范围字段、未知项与结构；范围及事实支持的语义仍需核验。",
             "parameters": _brief_schema,
         },
     },

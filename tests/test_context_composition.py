@@ -352,7 +352,7 @@ def test_intermediate_handlers_cannot_resume_with_combined_semantics(cli_env, tm
 
     script = tmp_path / 'intermediate-responses.json'
     script.write_text(json.dumps([{'name': 'stop_incomplete', 'arguments': {'reason': '旧代码'}}]), encoding='utf-8')
-    for commit in ('1dfb4c0', '96b9b4c', '3a2612a'):
+    for commit in ('1dfb4c0', '96b9b4c', '3a2612a', '3ceb16b'):
         archive = subprocess.check_output(['git', 'archive', commit], cwd=REPO_ROOT)
         runtime = tmp_path / ('runtime-' + commit)
         runtime.mkdir()
@@ -370,5 +370,31 @@ def test_intermediate_handlers_cannot_resume_with_combined_semantics(cli_env, tm
         assert resumed.returncode == 4
         response = json.loads(resumed.stdout)
         assert response['error'] == 'incompatible_protocol' and commit in response['message']
+        if commit == '3ceb16b':
+            actions = [
+                ('run', task_id), ('pause', task_id), ('review', task_id), ('save', task_id),
+                ('reconcile', task_id), ('export', task_id), ('export', task_id, '--repair'),
+                ('update', task_id, '--budget', '20'),
+                ('adopt-material', task_id, '--version', '2026-10-30.v1'),
+                ('adopt-knowledge', task_id, '--version', '2026-10-30.v1'),
+                ('import-draft', task_id, '--file', str(tmp_path / 'not-read.md')),
+            ]
+            for action in actions:
+                blocked = run_cli_process(*action, data_dir=data, extra_env=current_env)
+                assert blocked.returncode == 4
+                assert json.loads(blocked.stdout)['error'] == 'incompatible_protocol'
+            status = run_cli_process('status', task_id, data_dir=data, extra_env=current_env)
+            assert status.returncode == 0
+            assert json.loads(status.stdout)['versions']['incompatibility']['error'] == 'incompatible_protocol'
         after = run_cli_process('inspect', task_id, data_dir=data, extra_env=current_env)
         assert json.loads(before.stdout)['messages'] == json.loads(after.stdout)['messages']
+        assert json.loads(before.stdout)['attempts'] == json.loads(after.stdout)['attempts']
+        assert json.loads(before.stdout)['resources'] == json.loads(after.stdout)['resources']
+
+
+def test_uninitialized_task_can_be_updated_before_handler_is_frozen(cli_env):
+    task = cli_json('create', '--topic', '尚未初始化', '--budget', '10', '--deadline', '2026-10-30')
+    assert task['versions']['incompatibility'] is None
+    updated = cli_json('update', task['task_id'], '--budget', '20')
+    assert updated['input']['version'] == 2
+    assert cli_json('status', task['task_id'])['versions']['incompatibility'] is None
