@@ -1,0 +1,623 @@
+{
+  "task_id": "t_9d6d0e312dcd",
+  "mode": "real",
+  "status": "incomplete",
+  "reason": "模拟时限不足以完成剩余交付链路，已如实核实并保留成果。任务输入 deadline 为 2026-10-28T16:00:05+00:00，而模拟起点 sim_start 为 2026-10-29T00:00:00+08:00（即 2026-10-28T16:00:00+00:00），起始即为截止前 5000 ms；首个扩展检索因需 6000 ms 直接被拒。此后累计消耗 4000 ms（两次基础检索，40 分），剩余约 1000 ms。estimate_cost 对“提交脚本+核验+保存”的必要路径估算需 15000 ms，within_deadline=false（差 14000 ms）；其中耗时最短的方案保存亦需 1000 ms，但必须先有完整方案版本与核验，而正式提交脚本单次即需 8000 ms，已无法启动。预算方面充足（剩余 1960 分），时间窗口是唯一阻塞。已完成的真实成果：业务简报 v1 已通过校验并保存（brief_version=1），内容依据 M-001/M-003/M-004/M-005/M-006，无待用户回答的阻塞问题；30 秒主脚本已拟好完整分镜（S1-S6，共 30 秒，四段录屏承担功能证明、M-005 情境画面仅作场景）但 submit_script 因时限被拒（started=false，未计量），因此没有形成脚本或方案版本，也就无法核验与保存。",
+  "duplicate": false,
+  "created_at": "2026-10-30T05:13:56+00:00",
+  "updated_at": "2026-10-30T05:14:27+00:00",
+  "input": {
+    "version": 1,
+    "topic": "帧剪自动卡点完整推广方案",
+    "budget": "20.00",
+    "budget_cents": 2000,
+    "deadline": "2026-10-28T16:00:05+00:00",
+    "audience": "18-24岁大学生",
+    "requirements": [
+      "准备完整内容活动方案，产品主张只用材料支持的正式能力；不作涨粉、收益或爆款承诺。",
+      "方案交给运营继续制作。允许把缺少的画面、操作录屏和原创配乐列为待制作，写清责任人、位置和权属核对；不可冒充现成素材。平台和发布排期可以提出建议，不必把可建议项当成关键阻塞。",
+      "一条30秒主视频；方案截止为硬约束，未经核验不得保存完成。"
+    ],
+    "raw": {
+      "topic": "帧剪自动卡点完整推广方案",
+      "budget": "20",
+      "deadline": "2026-10-29T00:00:05+08:00",
+      "audience": "18-24岁大学生",
+      "requirements": [
+        "准备完整内容活动方案，产品主张只用材料支持的正式能力；不作涨粉、收益或爆款承诺。",
+        "方案交给运营继续制作。允许把缺少的画面、操作录屏和原创配乐列为待制作，写清责任人、位置和权属核对；不可冒充现成素材。平台和发布排期可以提出建议，不必把可建议项当成关键阻塞。",
+        "一条30秒主视频；方案截止为硬约束，未经核验不得保存完成。"
+      ]
+    },
+    "fingerprint": "50732fe556c9e771e8a00a7a1dfc2c429b731a42dcb5e6b3241ee582107bc234"
+  },
+  "validation": {
+    "errors": [],
+    "interpretations": []
+  },
+  "brief": {
+    "version": 1,
+    "input_version": 1,
+    "content": {
+      "goal": "为「帧剪」自动卡点制作一条30秒主视频为核心的推广活动方案，向18-24岁大学生展示可用自动卡点把校园片段对齐到音乐节拍、并可逐段微调的剪辑体验，交给运营继续制作并核实保存。",
+      "audience": "18-24岁大学生（用户指定）。依据 M-003 合成调研（样本120名18-24岁大学生，不可外推至全体大学生）：常做社团活动记录、学习打卡和旅行 vlog；过半受访者会在30分钟内完成一条成片；模板和自动卡点被认为能明显减少重复操作；对“一键出片”信任度一般，更愿意保留手动调整。故内容需同时呈现自动对齐与手动微调两侧。",
+      "product_facts": [
+        {
+          "claim": "帧剪的自动卡点会分析所选音乐的节拍，把用户选中的视频片段对齐到节拍点。",
+          "material_id": "M-001",
+          "quote": "自动卡点会分析所选音乐的节拍，把用户选中的视频片段对齐到节拍点。",
+          "scope": "iOS/Android 4.2 及以上；支持 15/30/60 秒成片；对节奏清晰的流行乐与鼓点识别更稳",
+          "use": "主视频核心产品主张，第3-4段录屏与字幕的表述基准"
+        },
+        {
+          "claim": "用户可以逐段微调，也可以一键重新卡点。",
+          "material_id": "M-001",
+          "quote": "用户可以逐段微调，也可以一键重新卡点。",
+          "scope": "iOS/Android 4.2 及以上；支持 15/30/60 秒成片",
+          "use": "主视频第5段“可手动调整”演示，回应受众对“一键出片”的保留态度"
+        },
+        {
+          "claim": "该功能不承诺对所有曲风都准确，复杂变速或弱节拍音乐需要人工调整。",
+          "material_id": "M-001",
+          "quote": "该功能不承诺对所有曲风都准确，复杂变速或弱节拍音乐需要人工调整。",
+          "scope": "M-001 所述能力边界，适用于全部对外表达",
+          "use": "方案与脚本中的能力边界表述，避免夸大；选曲优先节奏清晰的流行乐或鼓点"
+        },
+        {
+          "claim": "对外表达应轻快、真实、可操作；不得承诺涨粉、收益或爆款；不得把实验性功能写成正式能力；不得使用“最强”“唯一”等绝对化表述。",
+          "material_id": "M-004",
+          "quote": "不得承诺涨粉、收益或爆款；不得把实验性功能写成正式能力；不得使用‘最强’‘唯一’等绝对化表述",
+          "scope": "适用于所有对外传播；与用户明确要求冲突时交回用户决定",
+          "use": "活动主题、脚本台词、字幕与发布文案的合规基线"
+        },
+        {
+          "claim": "校园场景视频素材包已取得演员授权，限本题活动使用，含教室、操场、社团招新、宿舍剪辑四个场景，共12条10-20秒1080p片段；素材为情境画面，只能说明使用场景，不能单独证明产品功能。",
+          "material_id": "M-005",
+          "quote": "素材为情境画面，只能说明使用场景，不能单独证明产品功能。",
+          "scope": "已取得演员授权，限本题活动使用；不含品牌 Logo 特写",
+          "use": "主视频情境画面（宿舍/操场/社团招新）的可用依据；功能证明由待制作的 App 录屏承担"
+        }
+      ],
+      "creative_requirements": [
+        {
+          "text": "准备完整内容活动方案，产品主张只用材料支持的正式能力；不作涨粉、收益或爆款承诺。",
+          "source": "任务输入 requirements[0]"
+        },
+        {
+          "text": "方案交给运营继续制作；缺少的画面、操作录屏和原创配乐可列为待制作，写清责任人、位置和权属核对；不可冒充现成素材。",
+          "source": "任务输入 requirements[1]"
+        },
+        {
+          "text": "平台和发布排期可以提出建议，不视为关键阻塞。",
+          "source": "任务输入 requirements[1]"
+        },
+        {
+          "text": "一条30秒主视频；方案截止为硬约束，未经核验不得保存完成。",
+          "source": "任务输入 requirements[2] 与 deadline 2026-10-28T16:00:05+00:00"
+        },
+        {
+          "text": "表达轻快、真实、可操作；不得绝对化表述，不得把实验性功能写成正式能力。",
+          "source": "M-004 品牌表达规则"
+        }
+      ],
+      "assumptions": [
+        {
+          "text": "活动以单条30秒主视频构成完整内容单元，不额外增加切片或搬运版本。",
+          "basis": "任务要求“一条30秒主视频”；campaign-creation 聚焦范围：一条主视频可构成完整方案"
+        },
+        {
+          "text": "主视频发布平台建议为抖音，附带在小红书发布同版本的竖屏图文+视频组合可作为后续可选。",
+          "basis": "M-003 显示该人群常制作校园记录类短视频；平台属用户允许的建议项，不作为阻塞"
+        },
+        {
+          "text": "演示曲目优先选择节奏清晰的流行乐或鼓点，以匹配 M-001 识别较稳的范围。",
+          "basis": "M-001 适用范围“对节奏清晰的流行乐与鼓点识别更稳”"
+        },
+        {
+          "text": "音乐采购、录屏制作与投放费用未在任务中输入，按未知处理，不以2000分模拟工具预算代表活动费用。",
+          "basis": "任务输入 budget_cents=2000 是方案准备模拟工具费用上限"
+        }
+      ],
+      "suggestions": [
+        {
+          "text": "脚本结构采用“宿舍场景痛点→自动卡点对齐→逐段微调→成片展示”，把自动与手动两侧都呈现。",
+          "basis": "M-003：受访者更愿意保留手动调整，单纯“一键出片”信任度一般；M-001 支持逐段微调"
+        },
+        {
+          "text": "在字幕中出现“复杂变速或弱节拍音乐需要人工调整”的能力边界提示，避免夸大。",
+          "basis": "M-001 能力边界；M-004 不得绝对化"
+        },
+        {
+          "text": "背景音乐先以原创鼓点作为待制作备选，避免被未授权曲目卡住制作节奏；《Late Bus》在授权购买成功前只作试听参考。",
+          "basis": "M-006：商用授权尚未购买，仅可试听，不可直接用于发布"
+        }
+      ],
+      "unknowns": [
+        {
+          "question": "背景音乐最终采用已授权商用曲目还是运营原创鼓点？",
+          "impact": "影响第3-4段卡点演示的节拍来源与版权核对；两条路径都可行，不阻塞方案提交",
+          "blocking": false
+        },
+        {
+          "question": "演示用手机型号与系统版本是否均达到 iOS/Android 4.2 及以上？",
+          "impact": "影响录屏画面与功能表述适用范围，需在录制前核对",
+          "blocking": false
+        },
+        {
+          "question": "音乐采购、录屏制作、投放的真实费用预算是多少？",
+          "impact": "任务仅给出2000分模拟工具费用上限；真实活动费用未知，需单独估算",
+          "blocking": false
+        }
+      ],
+      "sources": [
+        {
+          "material_id": "M-001",
+          "used_for": "自动卡点核心能力与能力边界"
+        },
+        {
+          "material_id": "M-003",
+          "used_for": "受众创作习惯与对自动卡点的态度"
+        },
+        {
+          "material_id": "M-004",
+          "used_for": "品牌表达与合规基线"
+        },
+        {
+          "material_id": "M-005",
+          "used_for": "校园情境素材可用性与证明边界"
+        },
+        {
+          "material_id": "M-006",
+          "used_for": "背景音乐授权状态与备选安排"
+        }
+      ],
+      "blocking_unknowns": 0
+    },
+    "created_at": "2026-10-30T05:14:14+00:00"
+  },
+  "review": null,
+  "content_reuse": null,
+  "save": null,
+  "strategy": {
+    "table_version": "2026-10-29.v2",
+    "directions": [
+      {
+        "direction": "functional_demo",
+        "label": "功能演示",
+        "expression_goal": "直接展示当前任务目标功能能做什么、如何操作及其结果与限制",
+        "material_needs": [
+          "目标功能的操作录屏及其制作、权属状态",
+          "当前任务产品主张对应的正式能力原文与适用范围",
+          "本任务采用的品牌表达规则"
+        ],
+        "evidence_queries": [
+          "当前任务目标功能的正式能力与适用范围",
+          "对应操作演示素材的可用状态与权属"
+        ],
+        "required_queries": 2,
+        "risk": "操作录屏尚未制作时须安排制作及核对；展示结果应对应实际操作，纯功能演示对情境吸引力的帮助有限"
+      },
+      {
+        "direction": "user_scenario",
+        "label": "用户情境",
+        "expression_goal": "用当前任务指定受众的相关情境引出需求，再用目标功能的操作与结果回应需求",
+        "material_needs": [
+          "与本任务受众及场景相符的情境素材及可用、制作或权属状态",
+          "受众依据（仅在原资料支持范围内使用；没有调研时明确为创作建议）",
+          "实际选用的声音与画面的权属及可用状态，不预设必须使用背景音乐",
+          "目标功能的正式能力依据与操作演示"
+        ],
+        "evidence_queries": [
+          "当前指定受众及使用情境的依据与适用范围",
+          "本任务拟用画面和声音素材的可用、制作与授权状态",
+          "当前任务目标功能的正式能力与适用范围"
+        ],
+        "required_queries": 3,
+        "risk": "情境画面不能单独证明产品能力；调研不得外推到其他人群；待制作或待授权素材须有处理步骤与发布前条件"
+      },
+      {
+        "direction": "tutorial",
+        "label": "教程",
+        "expression_goal": "分步说明当前任务目标功能的实际操作，把步骤、结果和适用边界对应起来",
+        "material_needs": [
+          "当前任务目标功能的正式能力与边界",
+          "脚本实际涉及的其他能力依据（未使用的功能无需加入）",
+          "本任务采用的品牌与素材规则",
+          "与脚本步骤一致的操作录屏及其制作、权属状态"
+        ],
+        "evidence_queries": [
+          "当前任务目标功能的操作依据与能力边界",
+          "本脚本实际使用能力的正式支持范围",
+          "本任务的品牌表达与素材限制"
+        ],
+        "required_queries": 3,
+        "risk": "按任务指定时长取舍步骤密度；需要清楚的操作录屏和结果对应，不可擅改时长或核心要求"
+      }
+    ],
+    "latest_selection": null,
+    "selection_count": 0,
+    "mode_table_version": "2026-10-30.v2"
+  },
+  "plan": {
+    "version": 1,
+    "steps": [
+      {
+        "id": "s1",
+        "depends_on": [],
+        "references": [],
+        "status": "done",
+        "title": "检索产品能力、受众、品牌规则与素材状态（M-001/003/004/005/006）"
+      },
+      {
+        "id": "s2",
+        "depends_on": [
+          "s1"
+        ],
+        "references": [],
+        "status": "current",
+        "title": "提交业务简报（四类内容，事实带引用范围）"
+      },
+      {
+        "id": "s3",
+        "depends_on": [
+          "s2"
+        ],
+        "references": [],
+        "status": "pending",
+        "title": "提交30秒主脚本并引用简报"
+      },
+      {
+        "id": "s4",
+        "depends_on": [
+          "s3"
+        ],
+        "references": [],
+        "status": "pending",
+        "title": "提交完整活动方案（策略/活动/素材/制作步骤/证据/待确认）"
+      },
+      {
+        "id": "s5",
+        "depends_on": [
+          "s4"
+        ],
+        "references": [],
+        "status": "pending",
+        "title": "review_campaign 核验当前版本并按需返修"
+      },
+      {
+        "id": "s6",
+        "depends_on": [
+          "s5"
+        ],
+        "references": [],
+        "status": "pending",
+        "title": "record_dispositions 处置意见后 save_campaign 核实保存"
+      }
+    ],
+    "created_at": "2026-10-30T05:14:05+00:00"
+  },
+  "todos": [
+    {
+      "id": "s2",
+      "depends_on": [
+        "s1"
+      ],
+      "references": [],
+      "status": "current",
+      "title": "提交业务简报（四类内容，事实带引用范围）"
+    },
+    {
+      "id": "s3",
+      "depends_on": [
+        "s2"
+      ],
+      "references": [],
+      "status": "pending",
+      "title": "提交30秒主脚本并引用简报"
+    },
+    {
+      "id": "s4",
+      "depends_on": [
+        "s3"
+      ],
+      "references": [],
+      "status": "pending",
+      "title": "提交完整活动方案（策略/活动/素材/制作步骤/证据/待确认）"
+    },
+    {
+      "id": "s5",
+      "depends_on": [
+        "s4"
+      ],
+      "references": [],
+      "status": "pending",
+      "title": "review_campaign 核验当前版本并按需返修"
+    },
+    {
+      "id": "s6",
+      "depends_on": [
+        "s5"
+      ],
+      "references": [],
+      "status": "pending",
+      "title": "record_dispositions 处置意见后 save_campaign 核实保存"
+    }
+  ],
+  "recovery": null,
+  "gaps": [
+    {
+      "source": "brief",
+      "question": "背景音乐最终采用已授权商用曲目还是运营原创鼓点？",
+      "impact": "影响第3-4段卡点演示的节拍来源与版权核对；两条路径都可行，不阻塞方案提交",
+      "blocking": false
+    },
+    {
+      "source": "brief",
+      "question": "演示用手机型号与系统版本是否均达到 iOS/Android 4.2 及以上？",
+      "impact": "影响录屏画面与功能表述适用范围，需在录制前核对",
+      "blocking": false
+    },
+    {
+      "source": "brief",
+      "question": "音乐采购、录屏制作、投放的真实费用预算是多少？",
+      "impact": "任务仅给出2000分模拟工具费用上限；真实活动费用未知，需单独估算",
+      "blocking": false
+    },
+    {
+      "source": "stop",
+      "stop_kind": "model_stop",
+      "question": "模拟截止时间早于方案准备所需时间：起始仅余 5000 ms，而必要路径估算 15000 ms",
+      "impact": "submit_script、submit_campaign、review_campaign、save_campaign 均无法执行；方案未能完成核验与保存",
+      "blocking": true
+    },
+    {
+      "source": "stop",
+      "stop_kind": "model_stop",
+      "question": "无已提交脚本版本与完整活动方案版本",
+      "impact": "交付物不完整；仅有已保存的业务简报 v1 可用作后续续做的基础",
+      "blocking": true
+    },
+    {
+      "source": "stop",
+      "stop_kind": "model_stop",
+      "question": "需要延长方案截止时间或重置模拟时钟，并确认时间锚点（deadline 与 sim_start 相差 5 秒）是否为预期输入",
+      "impact": "在获得可行的时限前，任何继续尝试都会重复被拒",
+      "blocking": true
+    }
+  ],
+  "mode_notice": "真实模型运行；小样本观察不代表生产质量或统计显著结论。",
+  "progress": {
+    "sim_start": "2026-10-29T00:00:00+08:00",
+    "sim_now": "2026-10-29T00:00:04+08:00",
+    "sim_elapsed_ms": 4000,
+    "used_rounds": 10,
+    "max_rounds": 24,
+    "paused": false,
+    "current_output": null,
+    "save": null,
+    "phase": "stopped",
+    "brief_version": 1,
+    "last_run_at": "2026-10-30T05:14:24+00:00"
+  },
+  "resources": {
+    "budget_cents": 2000,
+    "sim_spent_cents": 40,
+    "remaining_cents": 1960,
+    "real_requests": 10,
+    "mock_requests": 0,
+    "model_requests": 10,
+    "real_usage": {
+      "requests": 10,
+      "real_requests": 10,
+      "mock_requests": 0,
+      "unknown_usage_requests": 0,
+      "usage_complete": true,
+      "prompt_tokens": 127134,
+      "completion_tokens": 4747,
+      "cache_hit_tokens": 119040,
+      "cache_miss_tokens": 8094,
+      "elapsed_ms": 29351
+    },
+    "real_cost": null,
+    "amount_status": {
+      "simulated_tool_fee": "incurred_and_estimated",
+      "real_model_usage": "unknown",
+      "activity_costs": "not_applicable"
+    },
+    "simulated_tool_fee": {
+      "category": "simulated_tool_fee",
+      "unit": "CNY_cent",
+      "source": "pricing:2026-10-30.v2",
+      "nature": "incurred",
+      "incurred_cents": 40,
+      "ledger_entries": 2,
+      "estimated": {
+        "estimate_id": "e_b71bef483f0f7b94",
+        "kind": "cost_estimate",
+        "direction": null,
+        "search_mode": null,
+        "generation_mode": null,
+        "search_queries": null,
+        "include_revision": false,
+        "total_cost_cents": 210,
+        "total_duration_ms": 15000,
+        "incurred_cents": 40,
+        "remaining_cents": 1960,
+        "feasible": false,
+        "strategy_version": "2026-10-29.v2",
+        "pricing_version": "2026-10-30.v2",
+        "created_at": "2026-10-30T05:14:24+00:00",
+        "nature": "estimated"
+      },
+      "reserved": null,
+      "note": "预留与估算是可行性判断，不是实际支出；实际消耗只累计账本中 nature=incurred 的记录。"
+    },
+    "real_model_usage": {
+      "category": "real_model_usage",
+      "unit": "request/token",
+      "source": "DeepSeek API response usage（openai SDK）",
+      "nature": "actual_usage",
+      "requests": 10,
+      "real_requests": 10,
+      "mock_requests": 0,
+      "unknown_usage_requests": 0,
+      "prompt_tokens": 127134,
+      "completion_tokens": 4747,
+      "cache_hit_tokens": 119040,
+      "cache_miss_tokens": 8094,
+      "elapsed_ms": 29351,
+      "amount": {
+        "status": "unknown",
+        "value_cents": null,
+        "reason": "没有可靠的单价来源，不把 token 用量换算成金额；未发生真实请求时也不补成已核实零费用。"
+      }
+    },
+    "activity_costs": {
+      "category": "activity_cost",
+      "unit": "CNY_cent",
+      "source": "task_input/campaign.materials",
+      "status": "not_applicable",
+      "nature": "not_applicable",
+      "entries": [],
+      "reason": "任务输入、资料与执行未涉及活动制作或投放预算/实际支出。"
+    },
+    "unknown": [
+      "real_model_usage.amount"
+    ],
+    "not_applicable": [
+      "activity_costs"
+    ]
+  },
+  "pricing_overview": {
+    "version": "2026-10-30.v2",
+    "currency": "CNY_cent",
+    "source": "2026-10-30.v2.json",
+    "modes": {
+      "search_basic": {
+        "mode": "search_basic",
+        "label": "基础资料检索",
+        "cost_cents": 20,
+        "duration_ms": 2000,
+        "max_internal_requests": 1,
+        "max_requests": null,
+        "max_readbacks": null,
+        "candidates": null,
+        "failure_rule": "启动即计量；失败或中断不退还，实际重试新增尝试"
+      },
+      "search_extended": {
+        "mode": "search_extended",
+        "label": "扩展资料检索",
+        "cost_cents": 60,
+        "duration_ms": 6000,
+        "max_internal_requests": 3,
+        "max_requests": null,
+        "max_readbacks": null,
+        "candidates": null,
+        "failure_rule": "启动即计量；内部最多 3 次，失败不退还"
+      },
+      "review": {
+        "mode": "review",
+        "label": "内容核验",
+        "cost_cents": 80,
+        "duration_ms": 6000,
+        "max_internal_requests": null,
+        "max_requests": 3,
+        "max_readbacks": 2,
+        "candidates": null,
+        "failure_rule": "最多 3 次模型请求、2 次回读；触顶/中断不退还"
+      },
+      "revision": {
+        "mode": "revision",
+        "label": "返修",
+        "cost_cents": 120,
+        "duration_ms": 8000,
+        "max_internal_requests": null,
+        "max_requests": null,
+        "max_readbacks": null,
+        "candidates": null,
+        "failure_rule": "启动即计量；失败不退还"
+      },
+      "save": {
+        "mode": "save",
+        "label": "方案保存",
+        "cost_cents": 10,
+        "duration_ms": 1000,
+        "max_internal_requests": 1,
+        "max_requests": null,
+        "max_readbacks": null,
+        "candidates": null,
+        "failure_rule": "启动即计量；保存失败另行核实"
+      },
+      "submit_script": {
+        "mode": "submit_script",
+        "label": "正式提交脚本",
+        "cost_cents": 120,
+        "duration_ms": 8000,
+        "max_internal_requests": null,
+        "max_requests": null,
+        "max_readbacks": null,
+        "candidates": null,
+        "failure_rule": "启动即计量；失败或中断保留计量，同次恢复不重复收费"
+      }
+    }
+  },
+  "model_config": {
+    "provider": "deepseek",
+    "sdk": "openai",
+    "base_url": "https://api.deepseek.com",
+    "model": "deepseek-flash",
+    "api_key": "set",
+    "thinking": false,
+    "streaming": false,
+    "sdk_auto_retries": 0,
+    "network_route": "direct",
+    "keepalive_expiry_seconds": 180
+  },
+  "versions": {
+    "protocol": "direct-script-v1",
+    "incompatibility": null,
+    "app": "0.1.0",
+    "prompt": "main-2026-10-30.context-v1",
+    "materials": "2026-10-29.v1",
+    "pricing": "2026-10-30.v2",
+    "strategy": "2026-10-29.v2"
+  },
+  "artifacts": {
+    "campaign_versions": 0
+  },
+  "run": {
+    "rounds_used": 10,
+    "stop_reason": "stop_incomplete",
+    "requests": 10,
+    "explicit_resume": false,
+    "recovery": {
+      "explicit_resume": false,
+      "prior_status": "in_progress",
+      "prior_phase": "created",
+      "prior_reason": "已创建，尚未开始执行；当前没有已生成产物。",
+      "pending_calls": 0,
+      "recovered_calls": [],
+      "interrupted_calls": [],
+      "interrupted_attempts": [],
+      "interrupted_requests": [],
+      "save_unknown": null,
+      "unpaused": false,
+      "reused": {
+        "input_version": 1,
+        "brief_version": 0,
+        "output_version": null,
+        "review": null,
+        "save": null,
+        "knowledge": [],
+        "materials": {
+          "version": "2026-10-29.v1",
+          "count": 10
+        },
+        "search_results": 0,
+        "attempts": 0,
+        "spent_cents": 0
+      },
+      "todos": []
+    }
+  }
+}

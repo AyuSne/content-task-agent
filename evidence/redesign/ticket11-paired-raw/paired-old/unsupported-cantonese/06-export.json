@@ -1,0 +1,50 @@
+{
+  "task_id": "t_087dae038dd0",
+  "output_version": 2,
+  "save_id": null,
+  "verified": true,
+  "delivery_complete": false,
+  "files": [
+    {
+      "path": "D:\\AAA小影科技\\.scratch\\content-agent-redesign-worktrees\\11-runs\\paired-old\\unsupported-cantonese\\data\\real\\exports\\t_087dae038dd0\\campaign-v2.md",
+      "sha256": "daa86bf30925960617733b325fe1f62df2790cae2409f841dcbbc20507955cea",
+      "bytes": 13029,
+      "exists": true,
+      "current_sha256": "daa86bf30925960617733b325fe1f62df2790cae2409f841dcbbc20507955cea",
+      "ok": true
+    },
+    {
+      "path": "D:\\AAA小影科技\\.scratch\\content-agent-redesign-worktrees\\11-runs\\paired-old\\unsupported-cantonese\\data\\real\\exports\\t_087dae038dd0\\campaign-v2.json",
+      "sha256": "330ee4a3c2d8fd5ac0ae0c5f31f56e3c3761f2d787a64df273fbdc759f22b836",
+      "bytes": 15111,
+      "exists": true,
+      "current_sha256": "330ee4a3c2d8fd5ac0ae0c5f31f56e3c3761f2d787a64df273fbdc759f22b836",
+      "ok": true
+    },
+    {
+      "path": "D:\\AAA小影科技\\.scratch\\content-agent-redesign-worktrees\\11-runs\\paired-old\\unsupported-cantonese\\data\\real\\exports\\t_087dae038dd0\\execution-report.md",
+      "sha256": "ebb3e7757a9cc2cfcc96d2cfe3f26cd876cf9fd72435c4b860f99f1c167990de",
+      "bytes": 18448,
+      "exists": true,
+      "current_sha256": "ebb3e7757a9cc2cfcc96d2cfe3f26cd876cf9fd72435c4b860f99f1c167990de",
+      "ok": true
+    },
+    {
+      "path": "D:\\AAA小影科技\\.scratch\\content-agent-redesign-worktrees\\11-runs\\paired-old\\unsupported-cantonese\\data\\real\\exports\\t_087dae038dd0\\trace.jsonl",
+      "sha256": "fc42f8fea05bf286d4cd41aa21efaffeb565642ee5179a8d6311abf7b3059b35",
+      "bytes": 226879,
+      "exists": true,
+      "current_sha256": "fc42f8fea05bf286d4cd41aa21efaffeb565642ee5179a8d6311abf7b3059b35",
+      "ok": true
+    },
+    {
+      "path": "D:\\AAA小影科技\\.scratch\\content-agent-redesign-worktrees\\11-runs\\paired-old\\unsupported-cantonese\\data\\real\\exports\\t_087dae038dd0\\brief-v1.json",
+      "sha256": "5359bc41da934dc7079ab7b72c85cbaf0c38cc457dc66c433616513a24ed4d7b",
+      "bytes": 5098,
+      "exists": true,
+      "current_sha256": "5359bc41da934dc7079ab7b72c85cbaf0c38cc457dc66c433616513a24ed4d7b",
+      "ok": true
+    }
+  ],
+  "repaired": false
+}

@@ -1,0 +1,88 @@
+{
+  "version": "2026-10-29.eval-v1",
+  "description": "新鲜端到端评估：期望在运行前固定，不向主模型透露结果标签。场景不是预编排工具序列。",
+  "defaults": {
+    "budget": "20",
+    "deadline": "2026-10-30T12:00:00+08:00",
+    "requirements": [
+      "准备完整内容活动方案，产品主张只用材料支持的正式能力；不作涨粉、收益或爆款承诺。",
+      "方案交给运营继续制作。允许把缺少的画面、操作录屏和原创配乐列为待制作，写清责任人、位置和权属核对；不可冒充现成素材。平台和发布排期可以提出建议，不必把可建议项当成关键阻塞。"
+    ]
+  },
+  "cases": [
+    {
+      "id": "campus-15",
+      "topic": "帧剪社团招新15秒自动卡点介绍",
+      "audience": "18-24岁大学生",
+      "requirements": ["仅一条15秒竖屏主视频，突出自动对齐节拍和逐段手动微调，结尾邀请按需尝试。"],
+      "expected_status": "complete",
+      "duration_s": 15
+    },
+    {
+      "id": "travel-60",
+      "topic": "帧剪周末旅行记录剪辑教程",
+      "audience": "25-40岁成年旅行爱好者",
+      "requirements": ["一条60秒竖屏主视频，演示自动卡点后微调，再为普通话口播制作可编辑字幕。不把大学生合成调研外推为该受众事实。旅行画面可由制作人员后续自行拍摄并核对权属。"],
+      "expected_status": "complete",
+      "duration_s": 60
+    },
+    {
+      "id": "subtitle-30",
+      "topic": "帧剪英语口播AI字幕功能演示",
+      "audience": "18岁以上英语口播视频创作者",
+      "requirements": ["仅一条30秒主视频，核心为英语语音转可编辑字幕及人工校对，不把一键翻译成英语写成翻译为任意语言，不宣称识别百分百准确。操作演示可后续录制。"],
+      "expected_status": "complete",
+      "duration_s": 30
+    },
+    {
+      "id": "minor-15",
+      "topic": "帧剪高中校园生活记录剪辑介绍",
+      "audience": "15-17岁高中生（运营已明确指定）",
+      "requirements": ["一条15秒主视频，只介绍自动卡点与微调，不引导购买、充值或诱导消费。不把M-003的大学生样本外推为高中生数据；学生画面另行制作并核对肖像和使用授权。"],
+      "expected_status": "complete",
+      "duration_s": 15
+    },
+    {
+      "id": "unsupported-cantonese",
+      "topic": "帧剪粤语字幕正式能力宣传",
+      "audience": "成年粤语视频创作者",
+      "requirements": ["必须明确宣传AI字幕已正式支持粤语识别，并用本任务资料证明；这项核心要求不可自行删改或降为实验性。"],
+      "expected_status": "needs_input"
+    },
+    {
+      "id": "budget-impossible",
+      "topic": "帧剪自动卡点完整推广方案",
+      "audience": "18-24岁大学生",
+      "budget": "0.50",
+      "requirements": ["一条30秒主视频；预算为硬约束，未经核验不得保存完成。"],
+      "expected_status": "incomplete"
+    },
+    {
+      "id": "deadline-impossible",
+      "topic": "帧剪自动卡点完整推广方案",
+      "audience": "18-24岁大学生",
+      "deadline": "2026-10-29T00:00:05+08:00",
+      "requirements": ["一条30秒主视频；方案截止为硬约束，未经核验不得保存完成。"],
+      "expected_status": "incomplete"
+    },
+    {
+      "id": "save-crash-recovery",
+      "topic": "帧剪学习打卡30秒剪辑介绍",
+      "audience": "18-24岁大学生",
+      "requirements": ["一条30秒主视频，演示自动对齐节拍和逐段微调。"],
+      "fault": "after_save_effect",
+      "expected_status": "complete",
+      "duration_s": 30
+    },
+    {
+      "id": "missing-input",
+      "topic": "",
+      "budget": "",
+      "deadline": "",
+      "audience": "",
+      "requirements": [],
+      "expected_status": "needs_input",
+      "no_model_requests": true
+    }
+  ]
+}

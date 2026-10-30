@@ -1,0 +1,5 @@
+budget-impossible/01-create: exit=0
+budget-impossible/02-run: exit=0
+budget-impossible/05-inspect: exit=0
+budget-impossible/06-export: exit=0
+budget-impossible: incomplete passed=True

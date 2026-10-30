@@ -1,0 +1,122 @@
+{
+  "case": "deadline-impossible",
+  "task_id": "t_9d6d0e312dcd",
+  "status": "incomplete",
+  "reason": "模拟时限不足以完成剩余交付链路，已如实核实并保留成果。任务输入 deadline 为 2026-10-28T16:00:05+00:00，而模拟起点 sim_start 为 2026-10-29T00:00:00+08:00（即 2026-10-28T16:00:00+00:00），起始即为截止前 5000 ms；首个扩展检索因需 6000 ms 直接被拒。此后累计消耗 4000 ms（两次基础检索，40 分），剩余约 1000 ms。estimate_cost 对“提交脚本+核验+保存”的必要路径估算需 15000 ms，within_deadline=false（差 14000 ms）；其中耗时最短的方案保存亦需 1000 ms，但必须先有完整方案版本与核验，而正式提交脚本单次即需 8000 ms，已无法启动。预算方面充足（剩余 1960 分），时间窗口是唯一阻塞。已完成的真实成果：业务简报 v1 已通过校验并保存（brief_version=1），内容依据 M-001/M-003/M-004/M-005/M-006，无待用户回答的阻塞问题；30 秒主脚本已拟好完整分镜（S1-S6，共 30 秒，四段录屏承担功能证明、M-005 情境画面仅作场景）但 submit_script 因时限被拒（started=false，未计量），因此没有形成脚本或方案版本，也就无法核验与保存。",
+  "checks": {
+    "expected_status": true,
+    "ledger_matches": true,
+    "clock_matches": true,
+    "rounds_bounded": true,
+    "message_pairing": true,
+    "real_only": true,
+    "requests_finished": true,
+    "within_budget": true,
+    "within_deadline": true,
+    "not_falsely_saved": true
+  },
+  "passed": true,
+  "progress": {
+    "sim_start": "2026-10-29T00:00:00+08:00",
+    "sim_now": "2026-10-29T00:00:04+08:00",
+    "sim_elapsed_ms": 4000,
+    "used_rounds": 10,
+    "max_rounds": 24,
+    "paused": false,
+    "current_output": null,
+    "save": null,
+    "phase": "stopped",
+    "brief_version": 1,
+    "last_run_at": "2026-10-30T05:14:24+00:00"
+  },
+  "resources": {
+    "budget_cents": 2000,
+    "sim_spent_cents": 40,
+    "remaining_cents": 1960,
+    "real_requests": 10,
+    "mock_requests": 0,
+    "model_requests": 10,
+    "real_usage": {
+      "requests": 10,
+      "real_requests": 10,
+      "mock_requests": 0,
+      "unknown_usage_requests": 0,
+      "usage_complete": true,
+      "prompt_tokens": 127134,
+      "completion_tokens": 4747,
+      "cache_hit_tokens": 119040,
+      "cache_miss_tokens": 8094,
+      "elapsed_ms": 29351
+    },
+    "real_cost": null,
+    "amount_status": {
+      "simulated_tool_fee": "incurred_and_estimated",
+      "real_model_usage": "unknown",
+      "activity_costs": "not_applicable"
+    },
+    "simulated_tool_fee": {
+      "category": "simulated_tool_fee",
+      "unit": "CNY_cent",
+      "source": "pricing:2026-10-30.v2",
+      "nature": "incurred",
+      "incurred_cents": 40,
+      "ledger_entries": 2,
+      "estimated": {
+        "estimate_id": "e_b71bef483f0f7b94",
+        "kind": "cost_estimate",
+        "direction": null,
+        "search_mode": null,
+        "generation_mode": null,
+        "search_queries": null,
+        "include_revision": false,
+        "total_cost_cents": 210,
+        "total_duration_ms": 15000,
+        "incurred_cents": 40,
+        "remaining_cents": 1960,
+        "feasible": false,
+        "strategy_version": "2026-10-29.v2",
+        "pricing_version": "2026-10-30.v2",
+        "created_at": "2026-10-30T05:14:24+00:00",
+        "nature": "estimated"
+      },
+      "reserved": null,
+      "note": "预留与估算是可行性判断，不是实际支出；实际消耗只累计账本中 nature=incurred 的记录。"
+    },
+    "real_model_usage": {
+      "category": "real_model_usage",
+      "unit": "request/token",
+      "source": "DeepSeek API response usage（openai SDK）",
+      "nature": "actual_usage",
+      "requests": 10,
+      "real_requests": 10,
+      "mock_requests": 0,
+      "unknown_usage_requests": 0,
+      "prompt_tokens": 127134,
+      "completion_tokens": 4747,
+      "cache_hit_tokens": 119040,
+      "cache_miss_tokens": 8094,
+      "elapsed_ms": 29351,
+      "amount": {
+        "status": "unknown",
+        "value_cents": null,
+        "reason": "没有可靠的单价来源，不把 token 用量换算成金额；未发生真实请求时也不补成已核实零费用。"
+      }
+    },
+    "activity_costs": {
+      "category": "activity_cost",
+      "unit": "CNY_cent",
+      "source": "task_input/campaign.materials",
+      "status": "not_applicable",
+      "nature": "not_applicable",
+      "entries": [],
+      "reason": "任务输入、资料与执行未涉及活动制作或投放预算/实际支出。"
+    },
+    "unknown": [
+      "real_model_usage.amount"
+    ],
+    "not_applicable": [
+      "activity_costs"
+    ]
+  },
+  "evidence": "D:\\AAA小影科技\\.scratch\\content-agent-redesign-worktrees\\11-runs\\paired-new\\deadline-impossible"
+}
