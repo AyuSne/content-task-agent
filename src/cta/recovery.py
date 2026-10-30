@@ -30,6 +30,7 @@ from cta.repository import (
     task_llm_usage,
     task_spent,
 )
+from cta.tool_feedback import append_repeated_call_reminder, append_repeated_error_reminder, parse_arguments
 
 
 def recover_task(conn, task, config: Config, *, explicit: bool) -> dict:
@@ -72,6 +73,8 @@ def recover_task(conn, task, config: Config, *, explicit: bool) -> dict:
                 attempt_id=outcome["attempt_id"],
                 meta={"kind": "recovery_result", "category": outcome["category"]},
             )
+            append_repeated_error_reminder(conn, task["id"], call["function"]["name"], outcome["result"])
+            append_repeated_call_reminder(conn, task["id"], call["function"]["name"], outcome["result"])
         entry = {
             "tool": call["function"]["name"],
             "tool_call_id": call["id"],
@@ -167,14 +170,6 @@ def append_recovery_fact(conn, task, report: dict, *, unpaused: bool = False) ->
     return summary
 
 
-def _arguments(call) -> dict | None:
-    try:
-        parsed = json.loads(call.get("function", {}).get("arguments") or "{}")
-    except json.JSONDecodeError:
-        return None
-    return parsed if isinstance(parsed, dict) else None
-
-
 def _attempt_for(conn, task_id: str, call: dict, kind: str):
     rows = conn.execute("SELECT * FROM attempts WHERE task_id = ? ORDER BY rowid", (task_id,)).fetchall()
     for row in reversed(rows):
@@ -190,9 +185,9 @@ def _attempt_for(conn, task_id: str, call: dict, kind: str):
 
 def _recover_call(conn, task, call: dict, catalog: MaterialCatalog, config: Config) -> dict:
     name = call.get("function", {}).get("name", "")
-    parsed = _arguments(call)
-    if parsed is None:
-        return _outcome({"ok": False, "error": "invalid_arguments", "message": "工具参数不是合法 JSON；未产生业务动作。"}, category="interrupted")
+    parsed, error = parse_arguments(call.get("function", {}).get("arguments"))
+    if error is not None:
+        return _outcome({"ok": False, **error}, category="interrupted")
 
     if name == "search_materials":
         return _recover_search(conn, task, call, parsed, catalog)

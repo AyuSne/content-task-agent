@@ -61,6 +61,7 @@ from cta.service import (
     output_reuse_basis,
 )
 from cta.task_plan import update_plan
+from cta.tool_feedback import append_repeated_call_reminder, append_repeated_error_reminder, parse_arguments
 
 
 def _task(conn, task_id: str):
@@ -677,15 +678,17 @@ def _handle_response(
     parsed, error = _parse_call(call, tools if tools is not None else TOOL_DEFINITIONS)
     if error is not None:
         with transaction(conn):
+            rejection = {"ok": False, **error}
             append_message(
                 conn,
                 task["id"],
                 "tool",
-                json.dumps({"ok": False, **error}, ensure_ascii=False),
+                json.dumps(rejection, ensure_ascii=False),
                 tool_call_id=call.id,
                 name=call.name,
                 meta={"kind": "rejection"},
             )
+            append_repeated_error_reminder(conn, task["id"], call.name, rejection)
         return {"terminal": False}
 
     if call.name in LOCAL_TOOL_NAMES:
@@ -779,6 +782,8 @@ def _handle_response(
                    if call.name == "review_campaign" and result.get("review") else {}),
             },
         )
+        append_repeated_error_reminder(conn, task["id"], call.name, result)
+        append_repeated_call_reminder(conn, task["id"], call.name, result)
         if terminal:
             append_snapshot(conn, task["id"], snapshot_state(conn, task["id"]))
     stop_reason = {"propose_brief": "brief_ready", "propose_campaign": "draft_ready"}.get(call.name, call.name)
@@ -788,13 +793,7 @@ def _handle_response(
 def _parse_call(call, tools: list[dict]) -> tuple[dict, dict | None]:
     if call.name not in {item["function"]["name"] for item in tools}:
         return {}, {"error": "unknown_tool", "message": f"未知工具：{call.name}；本轮未执行任何业务动作。"}
-    try:
-        parsed = json.loads(call.arguments or "{}")
-    except json.JSONDecodeError:
-        return {}, {"error": "invalid_arguments", "message": "工具参数不是合法 JSON；本轮未执行任何业务动作。"}
-    if not isinstance(parsed, dict):
-        return {}, {"error": "invalid_arguments", "message": "工具参数必须是 JSON 对象。"}
-    return parsed, None
+    return parse_arguments(call.arguments)
 
 
 def _campaign_target_error(conn, task, parsed):
