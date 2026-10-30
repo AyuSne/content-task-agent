@@ -8,10 +8,11 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import sys
 from datetime import UTC, datetime
 
-from cta.config import MODES, load_config
+from cta.config import MODES, load_config, redact_secret
 from cta.identity import RawInput
 from cta.service import TaskNotFound, TaskService
 
@@ -94,11 +95,11 @@ def build_parser() -> argparse.ArgumentParser:
     return parser
 
 
-def _emit(document: dict, fmt: str) -> None:
+def _emit(document: dict, fmt: str, redact=str) -> None:
     if fmt == "json":
-        print(json.dumps(document, ensure_ascii=False, indent=2))
+        print(redact(json.dumps(document, ensure_ascii=False, indent=2)))
         return
-    print(_render_text(document))
+    print(redact(_render_text(document)))
 
 
 def _render_text(document: dict) -> str:
@@ -182,8 +183,11 @@ def main(argv: list[str] | None = None) -> int:
     try:
         config = load_config(mode=args.mode, data_dir=args.data_dir)
     except ValueError as exc:
-        _emit({"error": "bad_config", "message": str(exc)}, args.format)
+        _emit({"error": "bad_config", "message": redact_secret(str(exc), os.environ.get("DEEPSEEK_API_KEY", ""))}, args.format)
         return 2
+
+    def emit(document):
+        _emit(config.redact_data(document), args.format)
 
     service = TaskService(config)
     try:
@@ -191,12 +195,12 @@ def main(argv: list[str] | None = None) -> int:
                             "pause", "review", "save", "reconcile", "export"}:
             current = service.status(args.task_id)
             if current["versions"]["protocol"] != "direct-script-v1":
-                _emit({"error": "legacy_protocol", "task_id": args.task_id,
-                       "message": "旧任务使用旧业务协议；请用固定代码 836aa827d835e54a8e9385c18e7a3ff05ed3e600 及原采用资料恢复。"}, args.format)
+                emit({"error": "legacy_protocol", "task_id": args.task_id,
+                       "message": "旧任务使用旧业务协议；请用固定代码 836aa827d835e54a8e9385c18e7a3ff05ed3e600 及原采用资料恢复。"})
                 return 4
             incompatible = current["versions"]["incompatibility"]
             if incompatible is not None:
-                _emit({**incompatible, "task_id": args.task_id}, args.format)
+                emit({**incompatible, "task_id": args.task_id})
                 return 4
         if args.command == "create":
             raw = RawInput.from_args(
@@ -221,7 +225,7 @@ def main(argv: list[str] | None = None) -> int:
             )
             document = service.update(args.task_id, raw)
             if "update_error" in document:
-                _emit(document, args.format)
+                emit(document)
                 return 4
         elif args.command == "adopt-knowledge":
             document = service.adopt_knowledge(args.task_id, args.knowledge_id, args.version)
@@ -233,7 +237,7 @@ def main(argv: list[str] | None = None) -> int:
             try:
                 document = import_draft(config, args.task_id, args.file)
             except ImportDraftError as exc:
-                _emit({"error": exc.code, "message": exc.message, "details": exc.details}, args.format)
+                emit({"error": exc.code, "message": exc.message, "details": exc.details})
                 return 4
         elif args.command == "run":
             from cta.loop import run_task
@@ -254,19 +258,22 @@ def main(argv: list[str] | None = None) -> int:
                 document = review_task(config, args.task_id)
             except ReviewError as exc:
                 document = {"error": exc.code, "task_id": args.task_id, "message": str(exc)}
-                _emit(document, args.format)
+                emit(document)
                 return 4
         elif args.command == "save":
             from cta.save import save_task
 
             document = save_task(config, args.task_id)
             if "save_error" in document:
-                _emit(document, args.format)
+                emit(document)
                 return 4
         elif args.command == "export":
             from cta.export import export_task
 
             document = export_task(config, args.task_id, repair=args.repair)
+            if "error" in document:
+                emit(document)
+                return 4
         elif args.command == "calibrate":
             from cta.calibration import run_calibration
 
@@ -280,7 +287,7 @@ def main(argv: list[str] | None = None) -> int:
 
             document = reconcile_task(config, args.task_id)
             if document.get("save_error") or document.get("status") == "version_mismatch":
-                _emit(document, args.format)
+                emit(document)
                 return 4
         elif args.command == "list":
             document = service.list_tasks()
@@ -288,14 +295,14 @@ def main(argv: list[str] | None = None) -> int:
             raise SystemExit(2)
     except TaskNotFound as exc:
         document = {"error": "task_not_found", "task_id": exc.task_id, "message": str(exc)}
-        _emit(document, args.format)
+        emit(document)
         return 3
     except ValueError as exc:
         document = {"error": "operation_blocked", "task_id": getattr(args, "task_id", None), "message": str(exc)}
-        _emit(document, args.format)
+        emit(document)
         return 4
 
-    _emit(document, args.format)
+    emit(document)
     return 0
 
 

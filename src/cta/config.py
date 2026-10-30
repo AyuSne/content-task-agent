@@ -109,10 +109,7 @@ class Config:
         }
 
     def redact(self, text: str) -> str:
-        if self.api_key:
-            text = text.replace(self.api_key, "***redacted***")
-            text = text.replace(json.dumps(self.api_key, ensure_ascii=False)[1:-1], "***redacted***")
-        return text
+        return redact_secret(text, self.api_key)
 
     def redact_data(self, value):
         if isinstance(value, str):
@@ -120,8 +117,16 @@ class Config:
         if isinstance(value, list):
             return [self.redact_data(item) for item in value]
         if isinstance(value, dict):
-            return {key: self.redact_data(item) for key, item in value.items()}
+            return {self.redact(key) if isinstance(key, str) else key: self.redact_data(item)
+                    for key, item in value.items()}
         return value
+
+
+def redact_secret(text: str, secret: str) -> str:
+    if secret:
+        text = text.replace(secret, "***redacted***")
+        text = text.replace(json.dumps(secret, ensure_ascii=False)[1:-1], "***redacted***")
+    return text
 
 
 def load_config(mode: str | None = None, data_dir: str | os.PathLike[str] | None = None) -> Config:

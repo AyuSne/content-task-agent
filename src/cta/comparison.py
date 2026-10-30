@@ -25,8 +25,9 @@ def main(argv: list[str] | None = None) -> int:
     from cta.comparison_review import run_readback_comparison
 
     case = json.loads(args.case.read_text(encoding="utf-8"))
-    result = run_readback_comparison(load_config(args.mode, args.data_dir), case, args.output)
-    print(json.dumps(result, ensure_ascii=False, indent=2))
+    config = load_config(args.mode, args.data_dir)
+    result = run_readback_comparison(config, case, args.output)
+    print(json.dumps(config.redact_data(result), ensure_ascii=False, indent=2))
     return 0
 
 
