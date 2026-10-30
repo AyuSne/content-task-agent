@@ -21,6 +21,9 @@ def test_full_actual_request_after_updates_starts_with_stable_prefix_and_retains
     assert '[工作知识]' in first['messages'][2]['content']
     assert any('[适用费用能力概览]' in (message.get('content') or '') for message in first['messages'])
     assert any('当前原始要求' in (message.get('content') or '') for message in first['messages'])
+    updates = [json.loads(message['content'].split('] ', 1)[1]) for message in first['messages']
+               if (message.get('content') or '').startswith('[输入更新] ')]
+    assert [update['input_version'] for update in updates] == [2, 3]
     assert any('[状态快照]' in (message.get('content') or '') for message in first['messages'])
     assert len(first['tools']) == 13
     assert all(tool['function']['description'] and tool['function']['parameters'] for tool in first['tools'])
