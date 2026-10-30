@@ -21,7 +21,7 @@ def test_joint_submission_creates_both_versions_with_one_attempt(cli_env, model_
     assert len(view['attempts']) == len(view['ledger']) == 1
     assert view['resources']['sim_spent_cents'] == 120
     assert len(view['llm_requests']) == 1
-    assert view['versions']['prompt'] == 'main-2026-10-30.context-v1'
+    assert view['versions']['prompt'] == 'main-2026-10-30.tool-guidance-v1'
 
 @pytest.mark.parametrize('invalid', ['brief', 'script'])
 def test_invalid_joint_submission_is_atomic_and_can_be_corrected(cli_env, model_script, invalid):

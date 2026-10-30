@@ -32,6 +32,9 @@ def submit_campaign(conn, task, args, catalog):
                 errors.append(f"script.evidence[{index}] 的材料版本或引文不适用于本任务当前材料，请返修脚本")
     campaign = args.get("campaign")
     if set(args) != {"script_ref", "campaign"} or not isinstance(campaign, dict):
+        if set(args) == {"arguments"}:
+            return {"ok": False, "error": "invalid_campaign", "details":
+                    ["不要使用 arguments 包装或字符串；工具参数顶层必须直接包含 script_ref 和 campaign 对象。"]}
         return {"ok": False, "error": "invalid_campaign", "details": ["必须提供 script_ref 和 campaign"]}
     allowed = {"strategy", "activity", "materials", "production_steps", "evidence", "open_questions"}
     if set(campaign) != allowed:

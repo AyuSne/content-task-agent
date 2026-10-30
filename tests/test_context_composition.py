@@ -352,7 +352,7 @@ def test_intermediate_handlers_cannot_resume_with_combined_semantics(cli_env, tm
 
     script = tmp_path / 'intermediate-responses.json'
     script.write_text(json.dumps([{'name': 'stop_incomplete', 'arguments': {'reason': '旧代码'}}]), encoding='utf-8')
-    for commit in ('1dfb4c0', '96b9b4c', '3a2612a', '3ceb16b'):
+    for commit in ('1dfb4c0', '96b9b4c', '3a2612a', '3ceb16b', 'b49e8b5'):
         archive = subprocess.check_output(['git', 'archive', commit], cwd=REPO_ROOT)
         runtime = tmp_path / ('runtime-' + commit)
         runtime.mkdir()
@@ -370,7 +370,7 @@ def test_intermediate_handlers_cannot_resume_with_combined_semantics(cli_env, tm
         assert resumed.returncode == 4
         response = json.loads(resumed.stdout)
         assert response['error'] == 'incompatible_protocol' and commit in response['message']
-        if commit == '3ceb16b':
+        if commit in ('3ceb16b', 'b49e8b5'):
             actions = [
                 ('run', task_id), ('pause', task_id), ('review', task_id), ('save', task_id),
                 ('reconcile', task_id), ('export', task_id), ('export', task_id, '--repair'),
