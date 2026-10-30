@@ -1,0 +1,193 @@
+{
+  "version": "2026-10-29.eval-v1",
+  "source_sha": "836aa827d835e54a8e9385c18e7a3ff05ed3e600",
+  "results": [
+    {
+      "case": "save-crash-recovery",
+      "task_id": "t_322ffca2189f",
+      "status": "complete",
+      "reason": "核实导出修复后确认产物与交付文件一致。",
+      "checks": {
+        "expected_status": true,
+        "ledger_matches": true,
+        "clock_matches": true,
+        "rounds_bounded": true,
+        "message_pairing": true,
+        "real_only": true,
+        "requests_finished": true,
+        "within_budget": true,
+        "within_deadline": true,
+        "current_verified_save": true,
+        "current_review": true,
+        "saved_hashes": true,
+        "requested_duration": true,
+        "crash_observed": true,
+        "recovery_did_not_duplicate_save": true
+      },
+      "passed": true,
+      "progress": {
+        "sim_start": "2026-10-29T00:00:00+08:00",
+        "sim_now": "2026-10-29T00:00:19+08:00",
+        "sim_elapsed_ms": 19000,
+        "used_rounds": 13,
+        "max_rounds": 24,
+        "paused": false,
+        "current_output": {
+          "output_id": "o_2a04ae4fda52833f",
+          "version": 1,
+          "status": "draft",
+          "strategy": "user_scenario"
+        },
+        "save": {
+          "save_id": "s_9dd34732f7679899",
+          "output_version": 1,
+          "status": "verified",
+          "verified": true
+        },
+        "phase": "complete",
+        "brief_version": 1,
+        "last_run_at": "2026-10-30T07:55:19+00:00"
+      },
+      "resources": {
+        "budget_cents": 2000,
+        "sim_spent_cents": 250,
+        "remaining_cents": 1750,
+        "real_requests": 15,
+        "mock_requests": 0,
+        "model_requests": 15,
+        "real_usage": {
+          "requests": 15,
+          "real_requests": 15,
+          "mock_requests": 0,
+          "unknown_usage_requests": 0,
+          "usage_complete": true,
+          "prompt_tokens": 239783,
+          "completion_tokens": 12540,
+          "cache_hit_tokens": 208896,
+          "cache_miss_tokens": 30887,
+          "elapsed_ms": 68855
+        },
+        "real_cost": null,
+        "amount_status": {
+          "simulated_tool_fee": "incurred_and_estimated",
+          "real_model_usage": "unknown",
+          "activity_costs": "unknown"
+        },
+        "simulated_tool_fee": {
+          "category": "simulated_tool_fee",
+          "unit": "CNY_cent",
+          "source": "pricing:2026-10-29.v1",
+          "nature": "incurred",
+          "incurred_cents": 250,
+          "ledger_entries": 5,
+          "estimated": {
+            "estimate_id": "e_dec2b24797abc2fa",
+            "kind": "strategy_choice",
+            "direction": "user_scenario",
+            "search_mode": "search_basic",
+            "generation_mode": "generate_direct",
+            "search_queries": 0,
+            "include_revision": true,
+            "total_cost_cents": 410,
+            "total_duration_ms": 29000,
+            "incurred_cents": 40,
+            "remaining_cents": 1960,
+            "feasible": true,
+            "strategy_version": "2026-10-29.v2",
+            "pricing_version": "2026-10-29.v1",
+            "created_at": "2026-10-30T07:54:42+00:00",
+            "nature": "estimated"
+          },
+          "reserved": {
+            "selection_id": "st_f2cc18e902c082ba",
+            "direction": "user_scenario",
+            "search_mode": "search_basic",
+            "generation_mode": "generate_direct",
+            "search_queries": 0,
+            "include_revision": true,
+            "improvement": false,
+            "expected_benefit": null,
+            "rationale": "任务要求一条30秒学习打卡主视频演示自动对齐节拍与逐段微调，且受众为大学生。用户情境方向能用 M-005 已有授权的宿舍/教室情境素材引出「打卡视频剪不完」的需求，再用产品录屏（待制作）证明自动卡点与逐段微调，正好把「情境画面不证明能力」分开处理。M-003 显示该群体常做学习打卡、更愿保留手动调整，与逐段微调卖点吻合。三方向完整路径费用相同（210分含返修），无预算压力，故按表达效果与证据可分离性选择 user_scenario。相较之下：functional_demo 缺少情境吸引力且同样依赖待制作录屏；tutorial 在30秒内塞步骤易挤占核心演示，且同样需录屏。",
+            "total_cost_cents": 410,
+            "total_duration_ms": 29000,
+            "incurred_cents": 40,
+            "remaining_cents": 1960,
+            "strategy_version": "2026-10-29.v2",
+            "pricing_version": "2026-10-29.v1",
+            "created_at": "2026-10-30T07:54:42+00:00",
+            "nature": "reserved"
+          },
+          "note": "预留与估算是可行性判断，不是实际支出；实际消耗只累计账本中 nature=incurred 的记录。"
+        },
+        "real_model_usage": {
+          "category": "real_model_usage",
+          "unit": "request/token",
+          "source": "DeepSeek API response usage（openai SDK）",
+          "nature": "actual_usage",
+          "requests": 15,
+          "real_requests": 15,
+          "mock_requests": 0,
+          "unknown_usage_requests": 0,
+          "prompt_tokens": 239783,
+          "completion_tokens": 12540,
+          "cache_hit_tokens": 208896,
+          "cache_miss_tokens": 30887,
+          "elapsed_ms": 68855,
+          "amount": {
+            "status": "unknown",
+            "value_cents": null,
+            "reason": "没有可靠的单价来源，不把 token 用量换算成金额；未发生真实请求时也不补成已核实零费用。"
+          }
+        },
+        "activity_costs": {
+          "category": "activity_cost",
+          "unit": "CNY_cent",
+          "source": "campaign.materials",
+          "status": "unknown",
+          "nature": "unknown",
+          "entries": [
+            {
+              "name": "自动卡点操作录屏（导入片段→选曲→点击自动卡点→节拍对齐过程）",
+              "material_id": null,
+              "status": "to_create",
+              "amount_cents": null,
+              "nature": "unknown",
+              "source": "campaign.materials"
+            },
+            {
+              "name": "逐段微调 + 一键重新卡点操作录屏（微调前后对比）",
+              "material_id": null,
+              "status": "to_create",
+              "amount_cents": null,
+              "nature": "unknown",
+              "source": "campaign.materials"
+            },
+            {
+              "name": "原创鼓点或已获授权的节奏清晰配乐（约35秒，含结尾淡出）",
+              "material_id": null,
+              "status": "to_acquire",
+              "amount_cents": null,
+              "nature": "unknown",
+              "source": "campaign.materials"
+            },
+            {
+              "name": "补拍：宿舍灯下打卡日历/手机素材堆的画面（如 M-005 片段不足覆盖开头6秒）",
+              "material_id": null,
+              "status": "to_create",
+              "amount_cents": null,
+              "nature": "unknown",
+              "source": "campaign.materials"
+            }
+          ],
+          "reason": "方案含待获取或待制作素材，但任务输入与材料未给出活动预算或已发生支出金额。"
+        },
+        "unknown": [
+          "real_model_usage.amount",
+          "activity_costs"
+        ],
+        "not_applicable": []
+      },
+      "evidence": "D:\\AAA小影科技\\.scratch\\content-agent-redesign-worktrees\\11-runs\\tool-guidance-paired\\old\\save-crash-recovery"
+    }
+  ]
+}

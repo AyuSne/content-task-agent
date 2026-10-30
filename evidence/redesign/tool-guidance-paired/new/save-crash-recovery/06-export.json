@@ -1,0 +1,50 @@
+{
+  "task_id": "t_5124a010d4e5",
+  "output_version": 1,
+  "save_id": "s_463c7214aa6ec572",
+  "verified": true,
+  "delivery_complete": true,
+  "files": [
+    {
+      "path": "D:\\AAA小影科技\\.scratch\\content-agent-redesign-worktrees\\11-runs\\tool-guidance-paired\\new\\save-crash-recovery\\data\\real\\exports\\t_5124a010d4e5\\campaign-v1.md",
+      "sha256": "c0674f06c6bbe040316fc10a6f5ce8622e7e62b02fd870bf3794eff9ca3ecc25",
+      "bytes": 10042,
+      "exists": true,
+      "current_sha256": "c0674f06c6bbe040316fc10a6f5ce8622e7e62b02fd870bf3794eff9ca3ecc25",
+      "ok": true
+    },
+    {
+      "path": "D:\\AAA小影科技\\.scratch\\content-agent-redesign-worktrees\\11-runs\\tool-guidance-paired\\new\\save-crash-recovery\\data\\real\\exports\\t_5124a010d4e5\\campaign-v1.json",
+      "sha256": "4acf923adccb18c41f134780f6d76ab9e5b947d268531e2032ca2f7f8ad143a2",
+      "bytes": 12478,
+      "exists": true,
+      "current_sha256": "4acf923adccb18c41f134780f6d76ab9e5b947d268531e2032ca2f7f8ad143a2",
+      "ok": true
+    },
+    {
+      "path": "D:\\AAA小影科技\\.scratch\\content-agent-redesign-worktrees\\11-runs\\tool-guidance-paired\\new\\save-crash-recovery\\data\\real\\exports\\t_5124a010d4e5\\brief-v1.json",
+      "sha256": "a5b23cb66b7083f1e3a9a8b23cfa47e7392e9b89d05f0ab75d3f38ee2060b09a",
+      "bytes": 5302,
+      "exists": true,
+      "current_sha256": "a5b23cb66b7083f1e3a9a8b23cfa47e7392e9b89d05f0ab75d3f38ee2060b09a",
+      "ok": true
+    },
+    {
+      "path": "D:\\AAA小影科技\\.scratch\\content-agent-redesign-worktrees\\11-runs\\tool-guidance-paired\\new\\save-crash-recovery\\data\\real\\exports\\t_5124a010d4e5\\execution-report.md",
+      "sha256": "ed7b5f569f8f75d41e57d26949697ccdd8623bdd1c17f26b9f1e82a7b241bbdb",
+      "bytes": 18211,
+      "exists": true,
+      "current_sha256": "ed7b5f569f8f75d41e57d26949697ccdd8623bdd1c17f26b9f1e82a7b241bbdb",
+      "ok": true
+    },
+    {
+      "path": "D:\\AAA小影科技\\.scratch\\content-agent-redesign-worktrees\\11-runs\\tool-guidance-paired\\new\\save-crash-recovery\\data\\real\\exports\\t_5124a010d4e5\\trace.jsonl",
+      "sha256": "f1a1e27bf10b9a97c995055ef2e7f6ba489c29a27e4a1f125cfd10c1a48521f1",
+      "bytes": 253736,
+      "exists": true,
+      "current_sha256": "f1a1e27bf10b9a97c995055ef2e7f6ba489c29a27e4a1f125cfd10c1a48521f1",
+      "ok": true
+    }
+  ],
+  "repaired": false
+}
