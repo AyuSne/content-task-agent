@@ -14,7 +14,7 @@ from collections.abc import Callable
 from dataclasses import dataclass
 from datetime import UTC, datetime
 
-from cta.model import ModelClient, ModelResponse
+from cta.model import ModelClient, ModelResponse, ModelUnavailable, ensure_model_input_safe
 from cta.prompts import REVIEW_TOOL_DEFINITIONS
 
 MAX_REQUESTS = 3
@@ -166,6 +166,11 @@ def evaluate(
             on_message(message)
 
     for index in range(max_requests):
+        try:
+            ensure_model_input_safe(client, history, tools)
+        except ModelUnavailable as exc:
+            errors.append(str(exc))
+            break
         started = datetime.now(UTC)
         if on_request_started is not None:
             on_request_started(started, index + 1)

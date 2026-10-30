@@ -17,7 +17,7 @@ from cta.db import open_store, transaction
 from cta.faults import crash
 from cta.knowledge import freeze_bundles, read_skill, task_bundles
 from cta.materials import MaterialCatalog, load_catalog, load_task_catalog
-from cta.model import ModelResponse, create_client, main_request_record
+from cta.model import ModelResponse, ModelUnavailable, create_client, ensure_model_input_safe, main_request_record
 from cta.pricing import PriceTable, load_price_table
 from cta.prompts import (
     MAIN_SYSTEM_PROMPT,
@@ -233,6 +233,14 @@ def run_task(config: Config, task_id: str, *, max_rounds: int | None = None, exp
                 run_info["stop_reason"] = "deadline"
                 break
 
+            messages = api_messages(conn, task_id)
+            try:
+                ensure_model_input_safe(client, messages, protocol["tools"])
+            except ModelUnavailable as exc:
+                _set_incomplete(conn, task, str(exc), kind="sensitive_model_input",
+                                gaps=[{"gap": "模型输入包含配置凭据", "impact": "未发起请求，请移除内容或更换凭据后续跑"}])
+                run_info["stop_reason"] = "sensitive_model_input"
+                break
             round_index = int(task["used_rounds"])
             with transaction(conn):
                 conn.execute(
@@ -242,7 +250,6 @@ def run_task(config: Config, task_id: str, *, max_rounds: int | None = None, exp
             run_info["rounds_used"] += 1
             run_info["requests"] += 1
 
-            messages = api_messages(conn, task_id)
             started = datetime.now(UTC)
             request_id = start_llm_request(
                 conn, task_id=task_id, purpose=f"main_loop_round_{round_index + 1}", started_at=started,
