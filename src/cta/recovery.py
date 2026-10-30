@@ -20,14 +20,13 @@ from cta.repository import (
     find_pending_tool_calls,
     finish_attempt,
     input_version_applies,
-    latest_brief,
     latest_output,
     latest_review,
     latest_save,
     local_tool_result,
+    pending_todos,
     review_for_attempt,
     save_for_attempt,
-    pending_todos,
     task_llm_usage,
     task_spent,
 )
@@ -360,9 +359,8 @@ def _detect_unknown_save(conn, task, config: Config) -> dict | None:
         return None
     if save["output_id"] != output["output_id"] or save["verified"] or save["status"] == "failed":
         return None
-    from cta.save import reconcile_task
-
     from cta.export import verify_records
+    from cta.save import reconcile_task
     files_match = not save["files"] or verify_records(save["files"])[0]
     if files_match:
         try:

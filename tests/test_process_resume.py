@@ -9,13 +9,8 @@ import shutil
 
 from conftest import REPO_ROOT, cli_json, run_cli, run_cli_process, scripted_stage_rounds
 from test_campaign_draft import (
-    CAMPAIGN,
-    _brief_then_draft_script,
     _brief_tool,
-    _campaign_tool,
     _create,
-    _generation_item,
-    _run_until_draft,
     _tool,
 )
 
@@ -300,7 +295,7 @@ def _copy_runtime_inputs(tmp_path):
 
 
 def test_resume_recovers_exact_campaign_snapshot_without_new_attempt(cli_env, model_script):
-    from test_campaign_delivery_new import _script_ready, _campaign
+    from test_campaign_delivery_new import _campaign, _script_ready
     task, prefix, script_ref = _script_ready(model_script)
     path = model_script(prefix + [_tool('submit_campaign', {'script_ref': script_ref, 'campaign': _campaign()})])
     crashed = _run_process('resume', task['task_id'], '--max-rounds', '1', data_dir=cli_env / 'data',

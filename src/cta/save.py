@@ -20,8 +20,8 @@ from cta.export import (
     delivery_paths,
     execution_report_markdown,
     modified_delivery_files,
-    sha256_file,
     sensitive_delivery_content,
+    sha256_file,
     trace_text,
     verify_records,
 )

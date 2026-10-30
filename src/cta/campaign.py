@@ -23,6 +23,13 @@ def submit_campaign(conn, task, args, catalog):
         ).fetchone()
     if script_row is None or not input_version_applies(conn, task, script_row["input_version"]):
         errors.append("script_ref 必须引用本任务适用于当前输入的脚本版本")
+    if script_row is not None:
+        script = json.loads(script_row["content_json"])["script"]
+        for index, item in enumerate(script["evidence"]):
+            error = catalog.evidence_error(item["material_id"], item["material_version"], item["quote"],
+                                           normalize_whitespace=True)
+            if error:
+                errors.append(f"script.evidence[{index}] 的材料版本或引文不适用于本任务当前材料，请返修脚本")
     campaign = args.get("campaign")
     if set(args) != {"script_ref", "campaign"} or not isinstance(campaign, dict):
         return {"ok": False, "error": "invalid_campaign", "details": ["必须提供 script_ref 和 campaign"]}
@@ -111,7 +118,6 @@ def submit_campaign(conn, task, args, catalog):
                 errors.append(f"open_questions[{i}].blocking 必须是布尔值")
     if errors:
         return {"ok": False, "error": "invalid_campaign", "details": errors, "message": "方案未接收，请修正上述问题。"}
-    script = json.loads(script_row["content_json"])["script"]
     snapshot = {
         **campaign,
         "script_ref": ref,

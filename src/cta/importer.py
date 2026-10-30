@@ -17,7 +17,7 @@ from cta.campaign import submit_campaign
 from cta.config import Config, utc_now_iso
 from cta.db import open_store, transaction
 from cta.materials import load_task_catalog
-from cta.render import DRAFT_NOTICE, VERIFIED_NOTICE, campaign_markdown
+from cta.render import DRAFT_NOTICE, VERIFIED_NOTICE, _escape_evidence_id, _escape_fields, campaign_markdown
 from cta.repository import append_message, create_output, latest_output, new_id
 from cta.service import STATUS_IN_PROGRESS, TaskNotFound, TaskService
 
@@ -114,6 +114,8 @@ def parse_markdown(text: str) -> tuple[dict, dict]:
             match = re.fullmatch(r"- \[(.*?)\] (.*?)；依据 (.*?)（版本 (.*?)）「(.*?)」；范围：(.*?)；用途：(.*)", line)
             if not match:
                 reject(section, line)
+            if "] " in match[2]:
+                raise ImportDraftError("invalid_campaign", f"{section} 的证据 ID 或主张存在未转义的方括号；请使用 &#93;。")
             result.append(dict(zip(("id", "claim", "material_id", "material_version", "quote", "scope", "use"), match.groups())))
         return result
 
@@ -211,13 +213,17 @@ def parse_markdown(text: str) -> tuple[dict, dict]:
                              "theme": activity_map["主题"], "format": activity_map["形式"], "content_items": content_items},
                 "script": script, "materials": materials, "production_steps": steps,
                 "evidence": evidence_items(entries("证据关联"), "证据关联"), "open_questions": questions}
-    def decode(value):
+    def decode(value, key=None):
         if isinstance(value, str):
+            if key in ("id", "evidence_ids"):
+                parts = re.split(r"(&#\d+;)", value)
+                return "".join(chr(int(part[2:-1])) if re.fullmatch(r"&#\d+;", part)
+                               and int(part[2:-1]) <= 0x10FFFF else unescape(part) for part in parts)
             return unescape(value)
         if isinstance(value, list):
-            return [decode(item) for item in value]
+            return [decode(item, key) for item in value]
         if isinstance(value, dict):
-            return {key: decode(item) for key, item in value.items()}
+            return {field: decode(item, field) for field, item in value.items()}
         return value
 
     return decode(campaign), metadata
@@ -256,6 +262,16 @@ def import_draft(config: Config, task_id: str, file_path: str | Path) -> dict:
             )
 
         base = current_output["content"]
+        for evidence in base["script"]["evidence"] + base["evidence"]:
+            legacy_id = _escape_fields(evidence["id"])
+            if "] " in legacy_id and any(line.startswith(f"- [{legacy_id}] ") for line in text.splitlines()):
+                raise ImportDraftError("invalid_campaign", "旧格式证据 ID 存在歧义；请重新导出再编辑导入。")
+        for old, new in zip(base["script"]["segments"], campaign["script"]["segments"]):
+            legacy_ids = ", ".join(_escape_fields(item) for item in old["evidence_ids"])
+            current_ids = ", ".join(_escape_evidence_id(_escape_fields(item)) for item in old["evidence_ids"])
+            if (old["evidence_ids"] != new["evidence_ids"] and legacy_ids != current_ids
+                    and f"- 证据：{legacy_ids}" in text.splitlines()):
+                raise ImportDraftError("invalid_campaign", "旧格式证据引用存在歧义；请重新导出再编辑导入。")
         expected_fields = {key: base[key] for key in ("strategy", "activity", "script", "materials", "production_steps", "evidence", "open_questions")}
         try:
             rendered_base, _ = parse_markdown(campaign_markdown(base) + "\n<!-- cta:{} -->\n")

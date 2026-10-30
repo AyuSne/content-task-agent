@@ -4,7 +4,7 @@ import copy
 import json
 from pathlib import Path
 
-from conftest import cli_json
+from conftest import cli_json, run_cli
 from test_brief_loop import BRIEF
 from test_campaign_draft import CAMPAIGN, _create, _tool
 from test_direct_script import SCRIPT
@@ -30,6 +30,36 @@ def _campaign():
 
 def _result(view, name):
     return [json.loads(m["content"]) for m in view["messages"] if m["role"] == "tool" and m["name"] == name]
+
+
+def test_campaign_rejects_script_evidence_from_previously_adopted_materials(cli_env, model_script):
+    task, prefix, ref = _script_ready(model_script)
+    cli_json("adopt-material", task["task_id"], "--version", "2026-10-30.v1")
+    campaign = _campaign()
+    campaign["evidence"][0]["material_version"] = "2026-10-30.v1"
+    campaign["evidence"][0]["scope"] = "仅适用于受支持的移动端版本"
+    model_script(prefix + [_tool("submit_campaign", {"script_ref": ref, "campaign": campaign})])
+    cli_json("resume", task["task_id"], "--max-rounds", "1")
+    view = cli_json("inspect", task["task_id"])
+    result = _result(view, "submit_campaign")[-1]
+    assert result["ok"] is False and result["error"] == "invalid_campaign"
+    assert "script.evidence[0]" in str(result["details"])
+    assert not [output for output in view["outputs"] if output["kind"] == "campaign"]
+    assert view["resources"]["sim_spent_cents"] == 120
+
+    revised = copy.deepcopy(SCRIPT)
+    revised["evidence"][0]["material_version"] = "2026-10-30.v1"
+    revised["evidence"][0]["scope"] = "仅适用于受支持的移动端版本"
+    prefix += [_tool("submit_campaign", {"script_ref": ref, "campaign": campaign}),
+               _tool("submit_script", {"brief_version": 1, "script": revised, "revises_script_ref": ref})]
+    model_script(prefix)
+    cli_json("resume", task["task_id"], "--max-rounds", "1")
+    new_ref = _result(cli_json("inspect", task["task_id"]), "submit_script")[-1]["script_ref"]
+    model_script(prefix + [_tool("submit_campaign", {"script_ref": new_ref, "campaign": campaign})])
+    cli_json("resume", task["task_id"], "--max-rounds", "1")
+    view = cli_json("inspect", task["task_id"])
+    assert _result(view, "submit_campaign")[-1]["ok"] is True
+    assert next(output for output in view["outputs"] if output["kind"] == "campaign")["content"]["script"] == revised
 
 
 def test_campaign_references_script_snapshot_and_rejects_unknown_reference(cli_env, model_script):
@@ -133,6 +163,49 @@ def _new_draft_ready(model_script, review_item):
     cli_json("resume", task["task_id"], "--max-rounds", "1")
     assert cli_json("status", task["task_id"])["progress"]["phase"] == "draft_ready"
     return task
+
+
+def test_review_context_identifies_adopted_material_version_and_scope(cli_env, model_script):
+    task = _new_draft_ready(model_script, _review_item(REVIEW_PASS))
+    cli_json("review", task["task_id"])
+    view = cli_json("inspect", task["task_id"])
+    content = next(m["content"] for m in view["reviewer_messages"]
+                   if (m["content"] or "").startswith("[待核验方案] "))
+    context = json.loads(content.removeprefix("[待核验方案] "))
+    assert context["materials_version"] == "2026-10-29.v1"
+    material = next(item for item in context["evidence"] if item["material_id"] == "M-001")
+    assert "iOS/Android 4.2" in material["scope"]
+    assert context["campaign"]["script"]["evidence"][0]["scope"] == "iOS/Android 4.2 及以上"
+
+
+def test_review_cannot_pass_stale_evidence_after_explicit_material_adoption(cli_env, model_script):
+    task = _new_draft_ready(model_script, _review_item(REVIEW_PASS))
+    cli_json("adopt-material", task["task_id"], "--version", "2026-10-30.v1")
+    reviewed = cli_json("review", task["task_id"])
+    assert reviewed["review"]["status"] == "incomplete"
+    assert "材料" in str(reviewed["review"]["evidence_gaps"])
+    code, out, _ = run_cli("save", task["task_id"])
+    assert code != 0
+    assert json.loads(out)["status"] != "complete"
+
+
+def test_review_rejects_old_campaign_evidence_even_without_script_evidence(cli_env, model_script):
+    task = _create()
+    script = copy.deepcopy(SCRIPT)
+    script["evidence"] = []
+    script["segments"][0]["evidence_ids"] = []
+    prefix = [_tool("propose_brief", BRIEF), _tool("submit_script", {"brief_version": 1, "script": script})]
+    model_script(prefix)
+    cli_json("run", task["task_id"], "--max-rounds", "2")
+    ref = _result(cli_json("inspect", task["task_id"]), "submit_script")[-1]["script_ref"]
+    model_script(prefix + [_tool("submit_campaign", {"script_ref": ref, "campaign": _campaign()})])
+    cli_json("resume", task["task_id"], "--max-rounds", "1")
+    cli_json("adopt-material", task["task_id"], "--version", "2026-10-30.v1")
+    reviewed = cli_json("review", task["task_id"])
+    assert reviewed["review"]["status"] == "incomplete"
+    assert "方案证据[0]" in str(reviewed["review"]["evidence_gaps"])
+    code, out, _ = run_cli("save", task["task_id"])
+    assert code != 0 and json.loads(out)["status"] != "complete"
 
 
 def test_save_is_blocked_until_complete_review_and_wrong_reference_never_charges(cli_env, model_script):

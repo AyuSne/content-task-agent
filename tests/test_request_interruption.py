@@ -1,9 +1,8 @@
 """A model request interrupted in either real execution context keeps unknown usage."""
 
 from conftest import cli_json, run_cli_process
-from test_campaign_draft import _create, _tool
 from test_campaign_delivery_new import _campaign, _result, _script_ready
-from test_review_save import REVIEW_PASS, _review_item
+from test_campaign_draft import _create, _tool
 
 
 def _assert_request_is_retained(task_id, request_id, used):

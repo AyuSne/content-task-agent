@@ -20,6 +20,12 @@ def _escape_fields(value):
     return value
 
 
+def _escape_evidence_id(value):
+    if value == "无":
+        return "&#26080;"
+    return "".join(f"&#{ord(char)};" if char in "[]" or char.isspace() else char for char in value)
+
+
 def campaign_markdown(campaign: dict) -> str:
     campaign = _escape_fields(campaign)
     strategy = campaign.get("strategy", {})
@@ -61,13 +67,13 @@ def campaign_markdown(campaign: dict) -> str:
             f"- 画面：{segment.get('visual', '')}",
             f"- 音频：{segment.get('voiceover', '')}",
             f"- 字幕：{segment.get('on_screen_text', '')}",
-            f"- 证据：{', '.join(segment.get('evidence_ids', [])) or '无'}",
+            f"- 证据：{', '.join(_escape_evidence_id(item) for item in segment.get('evidence_ids', [])) or '无'}",
             "",
         ]
     lines += ["### 脚本证据", ""]
     for evidence in script.get("evidence", []):
         lines.append(
-            f"- [{evidence.get('id', '')}] {evidence.get('claim', '')}；依据 {evidence.get('material_id', '')}"
+            f"- [{_escape_evidence_id(evidence.get('id', ''))}] {evidence.get('claim', '').replace(']', '&#93;')}；依据 {evidence.get('material_id', '')}"
             f"（版本 {evidence.get('material_version', '')}）「{evidence.get('quote', '')}」；范围：{evidence.get('scope', '')}；用途：{evidence.get('use', '')}"
         )
     if not script.get("evidence"):
@@ -87,7 +93,7 @@ def campaign_markdown(campaign: dict) -> str:
     lines += ["", "## 证据关联", ""]
     for evidence in campaign.get("evidence", []):
         lines.append(
-            f"- [{evidence.get('id', '')}] {evidence.get('claim', '')}；依据 {evidence.get('material_id', '')}"
+            f"- [{_escape_evidence_id(evidence.get('id', ''))}] {evidence.get('claim', '').replace(']', '&#93;')}；依据 {evidence.get('material_id', '')}"
             f"（版本 {evidence.get('material_version', '')}）「{evidence.get('quote', '')}」；范围：{evidence.get('scope', '')}；用途：{evidence.get('use', '')}"
         )
     if not campaign.get("evidence"):

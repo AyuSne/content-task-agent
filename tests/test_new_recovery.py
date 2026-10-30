@@ -1,9 +1,8 @@
 import json
 
 import pytest
-
 from conftest import cli_json, run_cli_process
-from test_campaign_delivery_new import _script_ready, _campaign, _result
+from test_campaign_delivery_new import _campaign, _result, _script_ready
 from test_campaign_draft import _tool
 from test_review_save import REVIEW_PASS, _review_item
 
@@ -40,7 +39,7 @@ def test_interrupted_brief_does_not_claim_previous_brief_in_same_second(cli_env,
     model_script([first])
     cli_json('run', task['task_id'], '--max-rounds', '1')
     before = cli_json('inspect', task['task_id'])
-    path = model_script([first, first])
+    model_script([first, first])
     crashed = _frozen_cli_process('resume', task['task_id'], '--max-rounds', '1', crash='after_tool_request')
     assert crashed.returncode == 70
     resumed = _frozen_cli_process('resume', task['task_id'], '--max-rounds', '0')
@@ -52,7 +51,9 @@ def test_interrupted_brief_does_not_claim_previous_brief_in_same_second(cli_env,
 
 def test_status_reports_frozen_prompt_after_installed_prompt_changes(cli_env, tmp_path):
     import shutil
+
     from conftest import REPO_ROOT
+
     from cta.prompts import PROMPT_VERSION
     runtime = tmp_path / 'runtime'
     for name in ('src', 'fixtures', 'knowledge', '.agents/skills'):
@@ -75,6 +76,7 @@ def test_status_reports_frozen_prompt_after_installed_prompt_changes(cli_env, tm
 
 def test_changed_handler_protocol_rejects_resume_before_executing_history(cli_env, tmp_path):
     import shutil
+
     from conftest import REPO_ROOT
     runtime = tmp_path / 'runtime'
     for name in ('src', 'fixtures', 'knowledge', '.agents/skills'):
@@ -105,6 +107,7 @@ def test_previous_handler_task_is_readable_but_not_resumed_by_save_protection(cl
     import io
     import subprocess
     import tarfile
+
     from conftest import REPO_ROOT
 
     archive = subprocess.check_output(['git', 'archive', '1dfb4c0', 'src', 'fixtures', 'knowledge',
@@ -291,11 +294,13 @@ def test_search_started_but_interrupted_is_not_reexecuted_as_success(cli_env, mo
 
 
 def test_pre_recovery_new_protocol_remains_readable_but_cannot_execute_new_handler(cli_env, tmp_path):
-    from conftest import REPO_ROOT
+    import io
+
     # The old branch may later be cleaned; copy the pinned integration snapshot via git archive.
     import subprocess
     import tarfile
-    import io
+
+    from conftest import REPO_ROOT
     archive = subprocess.check_output(['git', 'archive', 'c5df5f9'], cwd=REPO_ROOT)
     old_root = tmp_path / 'old-runtime'
     old_root.mkdir()
@@ -321,7 +326,6 @@ def test_pre_recovery_new_protocol_remains_readable_but_cannot_execute_new_handl
 
 
 def test_pause_and_resume_keeps_clock_plan_and_adopted_inputs(cli_env, model_script, monkeypatch):
-    from pathlib import Path
     from test_brief_loop import BRIEF
     from test_direct_script import SCRIPT
     from test_process_resume import _copy_runtime_inputs
@@ -442,6 +446,7 @@ def test_save_failure_with_missing_receipt_remains_failure(cli_env, model_script
 
 def test_recover_revised_script_using_brief_from_resource_only_input_version(cli_env, model_script):
     from copy import deepcopy
+
     from test_direct_script import SCRIPT
 
     task, prefix, script_ref = _script_ready(model_script)
