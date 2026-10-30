@@ -1,0 +1,50 @@
+{
+  "task_id": "t_8ef16321aa07",
+  "output_version": 3,
+  "save_id": "s_c9e448cda9c2ed6b",
+  "verified": true,
+  "delivery_complete": true,
+  "files": [
+    {
+      "path": "D:\\AAA小影科技\\.scratch\\content-agent-redesign-worktrees\\11-runs\\driver-subtitle\\old\\subtitle-30\\data\\real\\exports\\t_8ef16321aa07\\campaign-v3.md",
+      "sha256": "1010e5a1807e4884f1ccfc26b2a5c5cff877382cc26bf7023a52e45fbf806ea6",
+      "bytes": 13413,
+      "exists": true,
+      "current_sha256": "1010e5a1807e4884f1ccfc26b2a5c5cff877382cc26bf7023a52e45fbf806ea6",
+      "ok": true
+    },
+    {
+      "path": "D:\\AAA小影科技\\.scratch\\content-agent-redesign-worktrees\\11-runs\\driver-subtitle\\old\\subtitle-30\\data\\real\\exports\\t_8ef16321aa07\\campaign-v3.json",
+      "sha256": "de552e2fe4c6b46363cdcc89482fa027422f68bdca923d85cea6c22075ae08f4",
+      "bytes": 16055,
+      "exists": true,
+      "current_sha256": "de552e2fe4c6b46363cdcc89482fa027422f68bdca923d85cea6c22075ae08f4",
+      "ok": true
+    },
+    {
+      "path": "D:\\AAA小影科技\\.scratch\\content-agent-redesign-worktrees\\11-runs\\driver-subtitle\\old\\subtitle-30\\data\\real\\exports\\t_8ef16321aa07\\brief-v1.json",
+      "sha256": "81c12797f22aa6a7e4c6f3a7ddd10acf80e207429323101e42b9791b0d374fb3",
+      "bytes": 7717,
+      "exists": true,
+      "current_sha256": "81c12797f22aa6a7e4c6f3a7ddd10acf80e207429323101e42b9791b0d374fb3",
+      "ok": true
+    },
+    {
+      "path": "D:\\AAA小影科技\\.scratch\\content-agent-redesign-worktrees\\11-runs\\driver-subtitle\\old\\subtitle-30\\data\\real\\exports\\t_8ef16321aa07\\execution-report.md",
+      "sha256": "63049c03d69cdc1920e92dbdbc7d7f39ee4fa06c0e67f619acf0570210f7edff",
+      "bytes": 19997,
+      "exists": true,
+      "current_sha256": "63049c03d69cdc1920e92dbdbc7d7f39ee4fa06c0e67f619acf0570210f7edff",
+      "ok": true
+    },
+    {
+      "path": "D:\\AAA小影科技\\.scratch\\content-agent-redesign-worktrees\\11-runs\\driver-subtitle\\old\\subtitle-30\\data\\real\\exports\\t_8ef16321aa07\\trace.jsonl",
+      "sha256": "2186625207c21e5ec7aa6e8c52443bd8af6a7195b5b0f4afe0f60fa4f05f586e",
+      "bytes": 283755,
+      "exists": true,
+      "current_sha256": "2186625207c21e5ec7aa6e8c52443bd8af6a7195b5b0f4afe0f60fa4f05f586e",
+      "ok": true
+    }
+  ],
+  "repaired": false
+}

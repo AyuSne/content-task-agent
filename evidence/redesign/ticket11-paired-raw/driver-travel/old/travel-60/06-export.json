@@ -1,0 +1,50 @@
+{
+  "task_id": "t_6bc5ea4d3981",
+  "output_version": 3,
+  "save_id": "s_0d935ae22e4d604e",
+  "verified": true,
+  "delivery_complete": true,
+  "files": [
+    {
+      "path": "D:\\AAA小影科技\\.scratch\\content-agent-redesign-worktrees\\11-runs\\driver-travel\\old\\travel-60\\data\\real\\exports\\t_6bc5ea4d3981\\campaign-v3.md",
+      "sha256": "b4b733318aa510ff93bacd52bcc03d7f9983b50529585d07f34c6649f74ce92c",
+      "bytes": 14476,
+      "exists": true,
+      "current_sha256": "b4b733318aa510ff93bacd52bcc03d7f9983b50529585d07f34c6649f74ce92c",
+      "ok": true
+    },
+    {
+      "path": "D:\\AAA小影科技\\.scratch\\content-agent-redesign-worktrees\\11-runs\\driver-travel\\old\\travel-60\\data\\real\\exports\\t_6bc5ea4d3981\\campaign-v3.json",
+      "sha256": "882ab6423b4342e2c6a22e4e50f4743a3e15cb7d30b8dcf41b193f7d2b309495",
+      "bytes": 17816,
+      "exists": true,
+      "current_sha256": "882ab6423b4342e2c6a22e4e50f4743a3e15cb7d30b8dcf41b193f7d2b309495",
+      "ok": true
+    },
+    {
+      "path": "D:\\AAA小影科技\\.scratch\\content-agent-redesign-worktrees\\11-runs\\driver-travel\\old\\travel-60\\data\\real\\exports\\t_6bc5ea4d3981\\brief-v1.json",
+      "sha256": "de8f2ab3c31d779ca43cdcbae522bb4de90dd4b08642960f6103625bcddbc02c",
+      "bytes": 8037,
+      "exists": true,
+      "current_sha256": "de8f2ab3c31d779ca43cdcbae522bb4de90dd4b08642960f6103625bcddbc02c",
+      "ok": true
+    },
+    {
+      "path": "D:\\AAA小影科技\\.scratch\\content-agent-redesign-worktrees\\11-runs\\driver-travel\\old\\travel-60\\data\\real\\exports\\t_6bc5ea4d3981\\execution-report.md",
+      "sha256": "6ad28dff5d0d55c2dc4d19778ecb24f6f2df550fa467acfbbbf9cb54797dc131",
+      "bytes": 17137,
+      "exists": true,
+      "current_sha256": "6ad28dff5d0d55c2dc4d19778ecb24f6f2df550fa467acfbbbf9cb54797dc131",
+      "ok": true
+    },
+    {
+      "path": "D:\\AAA小影科技\\.scratch\\content-agent-redesign-worktrees\\11-runs\\driver-travel\\old\\travel-60\\data\\real\\exports\\t_6bc5ea4d3981\\trace.jsonl",
+      "sha256": "677121355292b4fcee65f3cd58fbc7fd9fae5ded783e803dfcff398dcf5344df",
+      "bytes": 258059,
+      "exists": true,
+      "current_sha256": "677121355292b4fcee65f3cd58fbc7fd9fae5ded783e803dfcff398dcf5344df",
+      "ok": true
+    }
+  ],
+  "repaired": false
+}

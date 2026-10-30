@@ -32,9 +32,21 @@ def prepare(args) -> None:
             candidate = secrets.token_hex(8)
             paths = [root / case["id"] / "05-inspect.json" for root in roots]
             path = next((item for item in paths if item.is_file()), paths[0])
-            entry = {"candidate": candidate, "available": False, "content": None, "task_status": "unknown"}
+            entry = {"candidate": candidate, "available": False, "content": None, "task_status": "unknown",
+                     "source_error": "missing_inspect"}
             if path.is_file():
-                facts = read(path)
+                try:
+                    facts = read(path)
+                except (OSError, UnicodeError, json.JSONDecodeError):
+                    facts = None
+                if (not isinstance(facts, dict) or not isinstance(facts.get("status"), str)
+                        or not isinstance(facts.get("outputs"), list)):
+                    entry["source_error"] = "invalid_inspect"
+                    candidates.append(entry)
+                    mapping.append({"candidate": candidate, "case": case["id"], "side": side,
+                                    "source": str(path), "available": False})
+                    continue
+                entry["source_error"] = None
                 entry["task_status"] = facts["status"]
                 campaigns = [item for item in facts["outputs"] if item["kind"] == "campaign"]
                 save = facts.get("save") or {}

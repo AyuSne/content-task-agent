@@ -3,6 +3,8 @@ import subprocess
 import sys
 from pathlib import Path
 
+import pytest
+
 ROOT = Path(__file__).resolve().parents[1]
 
 
@@ -68,6 +70,22 @@ def test_blind_package_accepts_cases_from_multiple_run_roots(tmp_path):
                     "--new", str(tmp_path / "new"), "--output", str(target)], check=True)
     blind = json.loads((target / "blind" / "later.json").read_text(encoding="utf-8"))
     assert sum(item["available"] for item in blind["candidates"]) == 1
+
+
+@pytest.mark.parametrize("inspection", ["{not json", '{"error":"not_found"}'])
+def test_blind_package_preserves_unreadable_inspection_as_unavailable(tmp_path, inspection):
+    suite = tmp_path / "cases.json"
+    suite.write_text(json.dumps({"defaults": {}, "cases": [{"id": "broken"}]}), encoding="utf-8")
+    case_dir = tmp_path / "old" / "broken"
+    case_dir.mkdir(parents=True)
+    (case_dir / "05-inspect.json").write_text(inspection, encoding="utf-8")
+    target = tmp_path / "package"
+    subprocess.run([sys.executable, str(ROOT / "scripts/blind_paired_eval.py"), "prepare", "--cases", str(suite),
+                    "--old", str(tmp_path / "old"), "--new", str(tmp_path / "new"), "--output", str(target)],
+                   check=True)
+    blind = json.loads((target / "blind" / "broken.json").read_text(encoding="utf-8"))
+    assert {item["source_error"] for item in blind["candidates"]} == {"missing_inspect", "invalid_inspect"}
+    assert all(not item["available"] for item in blind["candidates"])
 
 
 def test_paired_runner_rejects_a_non_repository_old_baseline(tmp_path):

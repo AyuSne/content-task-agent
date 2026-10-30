@@ -1,0 +1,201 @@
+{
+  "case": "subtitle-30",
+  "task_id": "t_8ef16321aa07",
+  "status": "complete",
+  "reason": "核实导出修复后确认产物与交付文件一致。",
+  "checks": {
+    "expected_status": true,
+    "ledger_matches": true,
+    "clock_matches": true,
+    "rounds_bounded": true,
+    "message_pairing": true,
+    "real_only": true,
+    "requests_finished": true,
+    "within_budget": true,
+    "within_deadline": true,
+    "current_verified_save": true,
+    "current_review": true,
+    "saved_hashes": true,
+    "requested_duration": true
+  },
+  "passed": true,
+  "progress": {
+    "sim_start": "2026-10-29T00:00:00+08:00",
+    "sim_now": "2026-10-29T00:00:39+08:00",
+    "sim_elapsed_ms": 39000,
+    "used_rounds": 20,
+    "max_rounds": 24,
+    "paused": false,
+    "current_output": {
+      "output_id": "o_8eb8480c2c8ce0bf",
+      "version": 3,
+      "status": "draft",
+      "strategy": "functional_demo"
+    },
+    "save": {
+      "save_id": "s_c9e448cda9c2ed6b",
+      "output_version": 3,
+      "status": "verified",
+      "verified": true
+    },
+    "phase": "complete",
+    "brief_version": 1,
+    "last_run_at": "2026-10-30T05:55:56+00:00"
+  },
+  "resources": {
+    "budget_cents": 2000,
+    "sim_spent_cents": 530,
+    "remaining_cents": 1470,
+    "real_requests": 26,
+    "mock_requests": 0,
+    "model_requests": 26,
+    "real_usage": {
+      "requests": 26,
+      "real_requests": 26,
+      "mock_requests": 0,
+      "unknown_usage_requests": 0,
+      "usage_complete": true,
+      "prompt_tokens": 603014,
+      "completion_tokens": 27490,
+      "cache_hit_tokens": 523904,
+      "cache_miss_tokens": 79110,
+      "elapsed_ms": 149447
+    },
+    "real_cost": null,
+    "amount_status": {
+      "simulated_tool_fee": "incurred_and_estimated",
+      "real_model_usage": "unknown",
+      "activity_costs": "unknown"
+    },
+    "simulated_tool_fee": {
+      "category": "simulated_tool_fee",
+      "unit": "CNY_cent",
+      "source": "pricing:2026-10-29.v1",
+      "nature": "incurred",
+      "incurred_cents": 530,
+      "ledger_entries": 8,
+      "estimated": {
+        "estimate_id": "e_01f159a78af5ff7c",
+        "kind": "cost_estimate",
+        "direction": null,
+        "search_mode": "search_basic",
+        "generation_mode": "generate_direct",
+        "search_queries": 0,
+        "include_revision": false,
+        "total_cost_cents": 210,
+        "total_duration_ms": 15000,
+        "incurred_cents": 240,
+        "remaining_cents": 1760,
+        "feasible": true,
+        "strategy_version": "2026-10-29.v2",
+        "pricing_version": "2026-10-29.v1",
+        "created_at": "2026-10-30T05:54:46+00:00",
+        "nature": "estimated"
+      },
+      "reserved": {
+        "selection_id": "st_031e68b0596a212e",
+        "direction": "functional_demo",
+        "search_mode": "search_basic",
+        "generation_mode": "generate_direct",
+        "search_queries": 0,
+        "include_revision": true,
+        "improvement": false,
+        "expected_benefit": null,
+        "rationale": "任务目标单一且明确：30 秒内演示英语口播人声转可编辑字幕 + 人工校对，产品能力已有 M-002 原文支撑，资料需求已满足（无需新增检索）。功能演示最直接对应“演示”这一目标，且能把“可编辑、可校对、不承诺准确率”的限制讲清楚。三个方向在基础检索+直接生成下费用均为 410 分、时间约 29 秒，均在 2000 分预算与 2026-10-30 04:00 截止内，选择依据是表达匹配度而非成本。用户情境方向需更多受众/情境素材且 M-003 样本不可外推；教程方向在 30 秒内步骤密度受限，且核心是“演示”而非“教会操作”。仍会以短情境开场提升代入感，但主体保持功能演示结构。",
+        "total_cost_cents": 410,
+        "total_duration_ms": 29000,
+        "incurred_cents": 40,
+        "remaining_cents": 1960,
+        "strategy_version": "2026-10-29.v2",
+        "pricing_version": "2026-10-29.v1",
+        "created_at": "2026-10-30T05:53:46+00:00",
+        "nature": "reserved"
+      },
+      "note": "预留与估算是可行性判断，不是实际支出；实际消耗只累计账本中 nature=incurred 的记录。"
+    },
+    "real_model_usage": {
+      "category": "real_model_usage",
+      "unit": "request/token",
+      "source": "DeepSeek API response usage（openai SDK）",
+      "nature": "actual_usage",
+      "requests": 26,
+      "real_requests": 26,
+      "mock_requests": 0,
+      "unknown_usage_requests": 0,
+      "prompt_tokens": 603014,
+      "completion_tokens": 27490,
+      "cache_hit_tokens": 523904,
+      "cache_miss_tokens": 79110,
+      "elapsed_ms": 149447,
+      "amount": {
+        "status": "unknown",
+        "value_cents": null,
+        "reason": "没有可靠的单价来源，不把 token 用量换算成金额；未发生真实请求时也不补成已核实零费用。"
+      }
+    },
+    "activity_costs": {
+      "category": "activity_cost",
+      "unit": "CNY_cent",
+      "source": "campaign.materials",
+      "status": "unknown",
+      "nature": "unknown",
+      "entries": [
+        {
+          "name": "英语口播原片-开场",
+          "material_id": null,
+          "status": "to_create",
+          "amount_cents": null,
+          "nature": "unknown",
+          "source": "campaign.materials"
+        },
+        {
+          "name": "AI 字幕出稿录屏",
+          "material_id": null,
+          "status": "to_create",
+          "amount_cents": null,
+          "nature": "unknown",
+          "source": "campaign.materials"
+        },
+        {
+          "name": "手动改词与批量改样式录屏",
+          "material_id": null,
+          "status": "to_create",
+          "amount_cents": null,
+          "nature": "unknown",
+          "source": "campaign.materials"
+        },
+        {
+          "name": "校对对照录屏",
+          "material_id": null,
+          "status": "to_create",
+          "amount_cents": null,
+          "nature": "unknown",
+          "source": "campaign.materials"
+        },
+        {
+          "name": "原创轻量配乐",
+          "material_id": null,
+          "status": "to_create",
+          "amount_cents": null,
+          "nature": "unknown",
+          "source": "campaign.materials"
+        },
+        {
+          "name": "品牌收尾字幕卡",
+          "material_id": null,
+          "status": "to_create",
+          "amount_cents": null,
+          "nature": "unknown",
+          "source": "campaign.materials"
+        }
+      ],
+      "reason": "方案含待获取或待制作素材，但任务输入与材料未给出活动预算或已发生支出金额。"
+    },
+    "unknown": [
+      "real_model_usage.amount",
+      "activity_costs"
+    ],
+    "not_applicable": []
+  },
+  "evidence": "D:\\AAA小影科技\\.scratch\\content-agent-redesign-worktrees\\11-runs\\driver-subtitle\\old\\subtitle-30"
+}
