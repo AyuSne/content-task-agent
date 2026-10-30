@@ -1,6 +1,8 @@
 """Ticket 08: save reconciliation, file repair and honest unknown states."""
 
 import json
+
+import pytest
 from pathlib import Path
 
 from conftest import cli_json, run_cli_process
@@ -92,6 +94,67 @@ def test_export_detects_changed_file_without_overwriting_operator_edit(cli_env, 
     assert status["status"] == "incomplete"
     assert status["save"]["status"] == "unknown"
     assert status["resources"]["sim_spent_cents"] == 230
+
+
+@pytest.mark.parametrize('filename', ['campaign-v1.md', 'campaign-v1.json', 'brief-v1.json'])
+def test_first_save_does_not_overwrite_unimported_draft_edit(cli_env, model_script, filename):
+    task = _draft_ready(model_script, _review_item(REVIEW_PASS))
+    cli_json('review', task['task_id'])
+    exported = cli_json('export', task['task_id'])
+    campaign = Path(next(item['path'] for item in exported['files'] if item['path'].endswith(filename)))
+    campaign.write_text('运营的外部修改', encoding='utf-8')
+    before = cli_json('inspect', task['task_id'])
+    code, result = _save(task['task_id'])
+    assert code == 4 and result['save_error']['code'] == 'external_edit'
+    after = cli_json('inspect', task['task_id'])
+    assert campaign.read_text(encoding='utf-8') == '运营的外部修改'
+    assert len(after['attempts']) == len(before['attempts']) and after['save'] is None
+    assert after['resources']['sim_spent_cents'] == before['resources']['sim_spent_cents']
+
+
+@pytest.mark.parametrize('filename', ['execution-report.md', 'trace.jsonl'])
+def test_first_save_preserves_external_edits_to_exported_process_files(cli_env, model_script, filename):
+    task = _draft_ready(model_script, _review_item(REVIEW_PASS))
+    cli_json('review', task['task_id'])
+    exported = cli_json('export', task['task_id'])
+    file = Path(next(item['path'] for item in exported['files'] if item['path'].endswith(filename)))
+    file.write_text('运营的外部修改', encoding='utf-8')
+    before = cli_json('inspect', task['task_id'])
+    code, result = _save(task['task_id'])
+    assert code == 4 and result['save_error']['code'] == 'external_edit'
+    after = cli_json('inspect', task['task_id'])
+    assert file.read_text(encoding='utf-8') == '运营的外部修改'
+    assert len(after['attempts']) == len(before['attempts']) and after['save'] is None
+    assert after['resources']['sim_spent_cents'] == before['resources']['sim_spent_cents']
+    checked = cli_json('export', task['task_id'])
+    assert not checked['verified'] and filename in checked['changed_files']
+    assert file.read_text(encoding='utf-8') == '运营的外部修改'
+    repaired = cli_json('export', task['task_id'], '--repair')
+    assert repaired['verified'] and file.read_text(encoding='utf-8') != '运营的外部修改'
+    code, saved = _save(task['task_id'])
+    assert code == 0 and saved['status'] == 'complete'
+
+
+@pytest.mark.parametrize("command", ["run", "resume", "save"])
+def test_completed_task_does_not_overwrite_external_edit_without_explicit_repair(cli_env, model_script, command):
+    task, saved = _complete_task(model_script, cli_env)
+    campaign = Path(next(item['path'] for item in saved['save']['files'] if item['path'].endswith('campaign-v1.md')))
+    campaign.write_text('运营的外部修改', encoding='utf-8')
+    before = cli_json('inspect', task['task_id'])
+    from conftest import run_cli
+    code, out, _ = run_cli(command, task['task_id'])
+    assert code in (0, 4)
+    if command in ('run', 'resume'):
+        assert json.loads(out)['run']['stop_reason'] == 'save_unknown'
+    after = cli_json('inspect', task['task_id'])
+    assert campaign.read_text(encoding='utf-8') == '运营的外部修改'
+    assert after['status'] != 'complete' and not after['save']['verified']
+    assert after['save']['status'] == 'unknown'
+    assert len(after['attempts']) == len(before['attempts'])
+    assert after['resources']['sim_spent_cents'] == before['resources']['sim_spent_cents']
+    repaired = cli_json('export', task['task_id'], '--repair')
+    assert repaired['verified'] and repaired['delivery_complete']
+    assert campaign.read_text(encoding='utf-8') != '运营的外部修改'
 
 
 def test_export_repair_restores_missing_file_without_new_attempt(cli_env, model_script):

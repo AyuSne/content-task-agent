@@ -5,7 +5,7 @@ import json
 from cta.prompts import TOOL_DEFINITIONS
 
 # Bump when handler semantics change, even if the JSON schema stays the same.
-HANDLER_VERSION = "context-redaction-review-v1"
+HANDLER_VERSION = "save-redaction-review-v1"
 
 
 def _without_descriptions(value):
@@ -41,9 +41,11 @@ def incompatibility(conn, task_id):
     if handler:
         recovery = {
             "direct-script-recovery-v1": "804247d",
-            "context-composition-v2": "1dfb4c0",
+            "context-composition-v2": "1dfb4c0f10126b3267fa2a60e7194d7b15fd3a88",
             "context-composition-v3-redaction": "96b9b4c",
             "review-findings-v1": "3a2612a",
+            "context-redaction-review-v1": "87207eb",
+            "save-protection-v1": "ba6174e",
         }.get(handler) or (
             f"git log --all -S {handler} -- src/cta/protocol.py 查找对应提交"
         )

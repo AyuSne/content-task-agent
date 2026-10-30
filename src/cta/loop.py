@@ -177,8 +177,8 @@ def run_task(config: Config, task_id: str, *, max_rounds: int | None = None, exp
                 return _document(config, task_id, run_info)
 
         if task["status"] == STATUS_COMPLETE:
-            reconcile_task(config, task_id, refresh_exports=True)
-            run_info["stop_reason"] = "already_complete"
+            checked = reconcile_task(config, task_id, refresh_exports=True, automatic=True)
+            run_info["stop_reason"] = "already_complete" if checked.get("status") == STATUS_COMPLETE else "save_unknown"
             return _document(config, task_id, run_info)
         if task["used_rounds"] >= task["max_rounds"]:
             _set_incomplete(conn, task, f"达到主循环轮数上限（{task['max_rounds']} 轮），保留现有成果。")
@@ -301,7 +301,10 @@ def run_task(config: Config, task_id: str, *, max_rounds: int | None = None, exp
                 if task["status"] == STATUS_COMPLETE:
                     # The save's main-tool receipt is now durable; include it
                     # and the final snapshot in the same verified delivery.
-                    reconcile_task(config, task_id, refresh_exports=True)
+                    checked = reconcile_task(config, task_id, refresh_exports=True, automatic=True)
+                    if checked.get("status") != STATUS_COMPLETE:
+                        run_info["stop_reason"] = "save_unknown"
+                        break
                 run_info["stop_reason"] = outcome["stop_reason"]
                 break
 

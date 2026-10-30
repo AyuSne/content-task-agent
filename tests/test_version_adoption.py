@@ -206,5 +206,7 @@ def test_adopting_catalog_without_used_material_reports_review_gap(cli_env, mode
     view = cli_json('inspect', task_id)
     assert view['attempts'][-1]['kind'] == 'review_campaign'
     assert view['attempts'][-1]['status'] == 'failed'
+    assert reviewed['review']['attempt_id'] == view['attempts'][-1]['id']
+    assert any(entry['attempt_id'] == reviewed['review']['attempt_id'] for entry in view['ledger'])
     assert view['resources']['sim_spent_cents'] == 220
     assert view['progress']['phase'] == 'review_incomplete'

@@ -101,6 +101,37 @@ def test_changed_handler_protocol_rejects_resume_before_executing_history(cli_en
     assert after['progress']['used_rounds'] == before['progress']['used_rounds']
 
 
+def test_previous_handler_task_is_readable_but_not_resumed_by_save_protection(cli_env, tmp_path):
+    import io
+    import subprocess
+    import tarfile
+    from conftest import REPO_ROOT
+
+    archive = subprocess.check_output(['git', 'archive', '1dfb4c0', 'src', 'fixtures', 'knowledge',
+                                       '.agents/skills', 'pyproject.toml'], cwd=REPO_ROOT)
+    runtime = tmp_path / 'previous'
+    runtime.mkdir()
+    with tarfile.open(fileobj=io.BytesIO(archive)) as tar:
+        tar.extractall(runtime, filter='data')
+    script = tmp_path / 'responses.json'
+    script.write_text(json.dumps([_tool('stop_incomplete', {'reason': 'first'})]), encoding='utf-8')
+    data = cli_env / 'data'
+    old_env = {'PYTHONPATH': str(runtime / 'src'), 'CTA_MODEL_SCRIPT': str(script)}
+    created = run_cli_process('create', '--topic', '版本隔离', '--budget', '10', '--deadline', '2026-10-30',
+                              data_dir=data, extra_env=old_env)
+    task_id = json.loads(created.stdout)['task_id']
+    old_run = run_cli_process('run', task_id, '--max-rounds', '1', data_dir=data, extra_env=old_env)
+    assert old_run.returncode == 0, old_run.stderr
+    before = cli_json('inspect', task_id)
+    resumed = run_cli_process('resume', task_id, data_dir=data, extra_env={'PYTHONPATH': str(REPO_ROOT / 'src')})
+    assert resumed.returncode == 4
+    result = json.loads(resumed.stdout)
+    assert result['error'] == 'incompatible_protocol' and '1dfb4c0' in result['message']
+    after = cli_json('inspect', task_id)
+    assert after['messages'] == before['messages'] and after['attempts'] == before['attempts']
+    assert after['resources']['sim_spent_cents'] == before['resources']['sim_spent_cents']
+
+
 def test_save_after_record_is_reconciled_for_this_call_without_recharge(cli_env, model_script):
     task, prefix, script_ref = _script_ready(model_script)
     prefix += [_tool('submit_campaign', {'script_ref': script_ref, 'campaign': _campaign()})]
@@ -127,6 +158,42 @@ def test_save_after_record_is_reconciled_for_this_call_without_recharge(cli_env,
     assert after['resources']['sim_spent_cents'] == before['resources']['sim_spent_cents']
     assert len(result['save']['files']) >= 5 and all(file['ok'] for file in result['save']['files'])
 
+
+
+def test_save_after_record_preserves_previously_exported_operator_edit(cli_env, model_script):
+    from pathlib import Path
+
+    task, prefix, script_ref = _script_ready(model_script)
+    prefix += [_tool('submit_campaign', {'script_ref': script_ref, 'campaign': _campaign()})]
+    model_script(prefix)
+    cli_json('resume', task['task_id'], '--max-rounds', '1')
+    ref = _result(cli_json('inspect', task['task_id']), 'submit_campaign')[0]['campaign_ref']
+    prefix += [_tool('review_campaign', {'campaign_ref': ref}), _review_item(REVIEW_PASS)]
+    model_script(prefix)
+    cli_json('resume', task['task_id'], '--max-rounds', '1')
+    exported = cli_json('export', task['task_id'])
+    campaign_file = Path(next(f['path'] for f in exported['files'] if f['path'].endswith('campaign-v1.md')))
+    path = model_script(prefix + [_tool('save_campaign', {'campaign_ref': ref})])
+    crashed = run_cli_process('resume', task['task_id'], '--max-rounds', '1', data_dir=cli_env / 'data',
+                              extra_env={'CTA_MODEL_SCRIPT': str(path), 'CTA_FAULT_CRASH': 'save_after_record'})
+    assert crashed.returncode == 70
+    before = cli_json('inspect', task['task_id'])
+    assert before['save']['status'] == 'unknown' and not before['save']['files']
+    campaign_file.write_text('运营的外部修改', encoding='utf-8')
+    resumed = run_cli_process('resume', task['task_id'], '--max-rounds', '0', data_dir=cli_env / 'data',
+                              extra_env={'CTA_MODEL_SCRIPT': str(path)})
+    assert resumed.returncode == 0, resumed.stderr
+    after = cli_json('inspect', task['task_id'])
+    result = _result(after, 'save_campaign')[-1]
+    assert not result['ok'] and result['error'] == 'save_unknown'
+    assert after['status'] != 'complete' and not after['save']['verified']
+    assert campaign_file.read_text(encoding='utf-8') == '运营的外部修改'
+    assert len(after['attempts']) == len(before['attempts'])
+    assert after['resources']['sim_spent_cents'] == before['resources']['sim_spent_cents']
+    repaired = cli_json('export', task['task_id'], '--repair')
+    assert repaired['verified'] and repaired['delivery_complete']
+    assert campaign_file.read_text(encoding='utf-8') != '运营的外部修改'
+    assert cli_json('inspect', task['task_id'])['resources']['sim_spent_cents'] == before['resources']['sim_spent_cents']
 
 
 @pytest.mark.parametrize("fault", ["after_review_effect", "after_business_result_before_receipt"])
