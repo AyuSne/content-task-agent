@@ -1,0 +1,34 @@
+{
+  "task_id": "t_4ef8829de4ec",
+  "output_version": null,
+  "save_id": null,
+  "verified": true,
+  "delivery_complete": false,
+  "files": [
+    {
+      "path": "D:\\AAA小影科技\\.scratch\\content-agent-redesign-worktrees\\11-runs\\driver-real-budget\\old\\budget-impossible\\data\\real\\exports\\t_4ef8829de4ec\\execution-report.md",
+      "sha256": "3ba44ad1608045642c89a7021ed7ac0a2fbc3dc356a1c76270500949a86cdc55",
+      "bytes": 8988,
+      "exists": true,
+      "current_sha256": "3ba44ad1608045642c89a7021ed7ac0a2fbc3dc356a1c76270500949a86cdc55",
+      "ok": true
+    },
+    {
+      "path": "D:\\AAA小影科技\\.scratch\\content-agent-redesign-worktrees\\11-runs\\driver-real-budget\\old\\budget-impossible\\data\\real\\exports\\t_4ef8829de4ec\\trace.jsonl",
+      "sha256": "dc141f1dcba3dae1aa1ccc1c8bc81c28f9c632cd56a48c70688b14a83f937f4b",
+      "bytes": 42339,
+      "exists": true,
+      "current_sha256": "dc141f1dcba3dae1aa1ccc1c8bc81c28f9c632cd56a48c70688b14a83f937f4b",
+      "ok": true
+    },
+    {
+      "path": "D:\\AAA小影科技\\.scratch\\content-agent-redesign-worktrees\\11-runs\\driver-real-budget\\old\\budget-impossible\\data\\real\\exports\\t_4ef8829de4ec\\brief-v1.json",
+      "sha256": "1028430c6bb1870bb9e6944b82fdffe258ef07f8da27d496c5eba48d85c2c437",
+      "bytes": 6137,
+      "exists": true,
+      "current_sha256": "1028430c6bb1870bb9e6944b82fdffe258ef07f8da27d496c5eba48d85c2c437",
+      "ok": true
+    }
+  ],
+  "repaired": false
+}

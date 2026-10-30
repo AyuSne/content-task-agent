@@ -1,0 +1,241 @@
+{
+  "case": "travel-60",
+  "task_id": "t_6bc5ea4d3981",
+  "status": "complete",
+  "reason": "核实导出修复后确认产物与交付文件一致。",
+  "checks": {
+    "expected_status": true,
+    "ledger_matches": true,
+    "clock_matches": true,
+    "rounds_bounded": true,
+    "message_pairing": true,
+    "real_only": true,
+    "requests_finished": true,
+    "within_budget": true,
+    "within_deadline": true,
+    "current_verified_save": true,
+    "current_review": true,
+    "saved_hashes": true,
+    "requested_duration": true
+  },
+  "passed": true,
+  "progress": {
+    "sim_start": "2026-10-29T00:00:00+08:00",
+    "sim_now": "2026-10-29T00:00:47+08:00",
+    "sim_elapsed_ms": 47000,
+    "used_rounds": 16,
+    "max_rounds": 24,
+    "paused": false,
+    "current_output": {
+      "output_id": "o_fdb1564771374d56",
+      "version": 3,
+      "status": "draft",
+      "strategy": "tutorial"
+    },
+    "save": {
+      "save_id": "s_0d935ae22e4d604e",
+      "output_version": 3,
+      "status": "verified",
+      "verified": true
+    },
+    "phase": "complete",
+    "brief_version": 1,
+    "last_run_at": "2026-10-30T05:55:30+00:00"
+  },
+  "resources": {
+    "budget_cents": 2000,
+    "sim_spent_cents": 630,
+    "remaining_cents": 1370,
+    "real_requests": 22,
+    "mock_requests": 0,
+    "model_requests": 22,
+    "real_usage": {
+      "requests": 22,
+      "real_requests": 22,
+      "mock_requests": 0,
+      "unknown_usage_requests": 0,
+      "usage_complete": true,
+      "prompt_tokens": 457551,
+      "completion_tokens": 23486,
+      "cache_hit_tokens": 394368,
+      "cache_miss_tokens": 63183,
+      "elapsed_ms": 123196
+    },
+    "real_cost": null,
+    "amount_status": {
+      "simulated_tool_fee": "incurred_and_estimated",
+      "real_model_usage": "unknown",
+      "activity_costs": "unknown"
+    },
+    "simulated_tool_fee": {
+      "category": "simulated_tool_fee",
+      "unit": "CNY_cent",
+      "source": "pricing:2026-10-29.v1",
+      "nature": "incurred",
+      "incurred_cents": 630,
+      "ledger_entries": 7,
+      "estimated": {
+        "estimate_id": "e_3b321c772e90323d",
+        "kind": "strategy_choice",
+        "direction": "tutorial",
+        "search_mode": "search_basic",
+        "generation_mode": "generate_multi",
+        "search_queries": 0,
+        "include_revision": true,
+        "total_cost_cents": 590,
+        "total_duration_ms": 41000,
+        "incurred_cents": 80,
+        "remaining_cents": 1920,
+        "feasible": true,
+        "strategy_version": "2026-10-29.v2",
+        "pricing_version": "2026-10-29.v1",
+        "created_at": "2026-10-30T05:53:44+00:00",
+        "nature": "estimated"
+      },
+      "reserved": {
+        "selection_id": "st_4a68887d5e76264e",
+        "direction": "tutorial",
+        "search_mode": "search_basic",
+        "generation_mode": "generate_multi",
+        "search_queries": 0,
+        "include_revision": true,
+        "improvement": false,
+        "expected_benefit": null,
+        "rationale": "用户明确要求“旅行记录剪辑教程”，教程方向能按步骤把自动卡点、逐段微调与普通话口播字幕的操作、结果和边界一一对应，最贴合已确认目标与 60 秒竖屏单条主视频的形态。资料需求（M-001 能力与边界、M-002 字幕正式范围、M-004 品牌规则）已在简报阶段查证完毕，无需新增检索；操作录屏与旅行画面按用户要求列为待制作并写明责任人与权属核对。多候选择优可在 300 分内获得最多 3 条候选，剩余预算 1920 分足以覆盖含一次返修与复核的完整路径（估算 590 分），截止时间充裕。",
+        "total_cost_cents": 590,
+        "total_duration_ms": 41000,
+        "incurred_cents": 80,
+        "remaining_cents": 1920,
+        "strategy_version": "2026-10-29.v2",
+        "pricing_version": "2026-10-29.v1",
+        "created_at": "2026-10-30T05:53:44+00:00",
+        "nature": "reserved"
+      },
+      "note": "预留与估算是可行性判断，不是实际支出；实际消耗只累计账本中 nature=incurred 的记录。"
+    },
+    "real_model_usage": {
+      "category": "real_model_usage",
+      "unit": "request/token",
+      "source": "DeepSeek API response usage（openai SDK）",
+      "nature": "actual_usage",
+      "requests": 22,
+      "real_requests": 22,
+      "mock_requests": 0,
+      "unknown_usage_requests": 0,
+      "prompt_tokens": 457551,
+      "completion_tokens": 23486,
+      "cache_hit_tokens": 394368,
+      "cache_miss_tokens": 63183,
+      "elapsed_ms": 123196,
+      "amount": {
+        "status": "unknown",
+        "value_cents": null,
+        "reason": "没有可靠的单价来源，不把 token 用量换算成金额；未发生真实请求时也不补成已核实零费用。"
+      }
+    },
+    "activity_costs": {
+      "category": "activity_cost",
+      "unit": "CNY_cent",
+      "source": "campaign.materials",
+      "status": "unknown",
+      "nature": "unknown",
+      "entries": [
+        {
+          "name": "周末旅行实拍素材（返程车上翻看照片与素材）",
+          "material_id": null,
+          "status": "to_create",
+          "amount_cents": null,
+          "nature": "unknown",
+          "source": "campaign.materials"
+        },
+        {
+          "name": "自动卡点操作录屏（导入片段→选音乐→自动卡点）",
+          "material_id": null,
+          "status": "to_create",
+          "amount_cents": null,
+          "nature": "unknown",
+          "source": "campaign.materials"
+        },
+        {
+          "name": "逐段微调与一键重新卡点录屏",
+          "material_id": null,
+          "status": "to_create",
+          "amount_cents": null,
+          "nature": "unknown",
+          "source": "campaign.materials"
+        },
+        {
+          "name": "弱节拍/变速音乐示例录屏片段",
+          "material_id": null,
+          "status": "to_create",
+          "amount_cents": null,
+          "nature": "unknown",
+          "source": "campaign.materials"
+        },
+        {
+          "name": "普通话口播实拍",
+          "material_id": null,
+          "status": "to_create",
+          "amount_cents": null,
+          "nature": "unknown",
+          "source": "campaign.materials"
+        },
+        {
+          "name": "AI 字幕生成与样式调整录屏",
+          "material_id": null,
+          "status": "to_create",
+          "amount_cents": null,
+          "nature": "unknown",
+          "source": "campaign.materials"
+        },
+        {
+          "name": "成片预览合成素材",
+          "material_id": null,
+          "status": "to_create",
+          "amount_cents": null,
+          "nature": "unknown",
+          "source": "campaign.materials"
+        },
+        {
+          "name": "结尾品牌卡与行动引导图",
+          "material_id": null,
+          "status": "to_create",
+          "amount_cents": null,
+          "nature": "unknown",
+          "source": "campaign.materials"
+        },
+        {
+          "name": "背景音乐《Late Bus》（120 BPM）",
+          "material_id": "M-006",
+          "status": "to_acquire",
+          "amount_cents": null,
+          "nature": "unknown",
+          "source": "campaign.materials"
+        },
+        {
+          "name": "原创鼓点配乐（备用）",
+          "material_id": null,
+          "status": "to_create",
+          "amount_cents": null,
+          "nature": "unknown",
+          "source": "campaign.materials"
+        },
+        {
+          "name": "卡点提示音效",
+          "material_id": null,
+          "status": "to_create",
+          "amount_cents": null,
+          "nature": "unknown",
+          "source": "campaign.materials"
+        }
+      ],
+      "reason": "方案含待获取或待制作素材，但任务输入与材料未给出活动预算或已发生支出金额。"
+    },
+    "unknown": [
+      "real_model_usage.amount",
+      "activity_costs"
+    ],
+    "not_applicable": []
+  },
+  "evidence": "D:\\AAA小影科技\\.scratch\\content-agent-redesign-worktrees\\11-runs\\driver-travel\\old\\travel-60"
+}

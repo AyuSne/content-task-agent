@@ -1,0 +1,5 @@
+minor-15/01-create: exit=0
+minor-15/02-run: exit=0
+minor-15/05-inspect: exit=0
+minor-15/06-export: exit=0
+minor-15: complete passed=True

@@ -1,0 +1,166 @@
+{
+  "case": "subtitle-30",
+  "task_id": "t_d67d264f5aa8",
+  "status": "complete",
+  "reason": "核实导出修复后确认产物与交付文件一致。",
+  "checks": {
+    "expected_status": true,
+    "ledger_matches": true,
+    "clock_matches": true,
+    "rounds_bounded": true,
+    "message_pairing": true,
+    "real_only": true,
+    "requests_finished": true,
+    "within_budget": true,
+    "within_deadline": true,
+    "current_verified_save": true,
+    "current_review": true,
+    "saved_hashes": true,
+    "requested_duration": true
+  },
+  "passed": true,
+  "progress": {
+    "sim_start": "2026-10-29T00:00:00+08:00",
+    "sim_now": "2026-10-29T00:00:23+08:00",
+    "sim_elapsed_ms": 23000,
+    "used_rounds": 18,
+    "max_rounds": 24,
+    "paused": false,
+    "current_output": {
+      "output_id": "o_06d327bd4abe2dd8",
+      "version": 1,
+      "status": "draft",
+      "strategy": "真实操作演示：英语人声 → 可编辑字幕 → 人工校对"
+    },
+    "save": {
+      "save_id": "s_438f2ce1d93ed297",
+      "output_version": 1,
+      "status": "verified",
+      "verified": true
+    },
+    "phase": "complete",
+    "brief_version": 1,
+    "last_run_at": "2026-10-30T05:57:15+00:00"
+  },
+  "resources": {
+    "budget_cents": 2000,
+    "sim_spent_cents": 290,
+    "remaining_cents": 1710,
+    "real_requests": 19,
+    "mock_requests": 0,
+    "model_requests": 19,
+    "real_usage": {
+      "requests": 19,
+      "real_requests": 19,
+      "mock_requests": 0,
+      "unknown_usage_requests": 0,
+      "usage_complete": true,
+      "prompt_tokens": 417619,
+      "completion_tokens": 12517,
+      "cache_hit_tokens": 383872,
+      "cache_miss_tokens": 33747,
+      "elapsed_ms": 73664
+    },
+    "real_cost": null,
+    "amount_status": {
+      "simulated_tool_fee": "incurred_and_estimated",
+      "real_model_usage": "unknown",
+      "activity_costs": "unknown"
+    },
+    "simulated_tool_fee": {
+      "category": "simulated_tool_fee",
+      "unit": "CNY_cent",
+      "source": "pricing:2026-10-30.v2",
+      "nature": "incurred",
+      "incurred_cents": 290,
+      "ledger_entries": 5,
+      "estimated": null,
+      "reserved": null,
+      "note": "预留与估算是可行性判断，不是实际支出；实际消耗只累计账本中 nature=incurred 的记录。"
+    },
+    "real_model_usage": {
+      "category": "real_model_usage",
+      "unit": "request/token",
+      "source": "DeepSeek API response usage（openai SDK）",
+      "nature": "actual_usage",
+      "requests": 19,
+      "real_requests": 19,
+      "mock_requests": 0,
+      "unknown_usage_requests": 0,
+      "prompt_tokens": 417619,
+      "completion_tokens": 12517,
+      "cache_hit_tokens": 383872,
+      "cache_miss_tokens": 33747,
+      "elapsed_ms": 73664,
+      "amount": {
+        "status": "unknown",
+        "value_cents": null,
+        "reason": "没有可靠的单价来源，不把 token 用量换算成金额；未发生真实请求时也不补成已核实零费用。"
+      }
+    },
+    "activity_costs": {
+      "category": "activity_cost",
+      "unit": "CNY_cent",
+      "source": "campaign.materials",
+      "status": "unknown",
+      "nature": "unknown",
+      "entries": [
+        {
+          "name": "帧剪内AI字幕操作录屏（英语口播视频导入→AI字幕选英语→生成→逐句修改→批量改样式）",
+          "material_id": null,
+          "status": "to_create",
+          "amount_cents": null,
+          "nature": "unknown",
+          "source": "campaign.materials"
+        },
+        {
+          "name": "真人英语口播出镜画面（同一创作者，含原声）",
+          "material_id": null,
+          "status": "to_create",
+          "amount_cents": null,
+          "nature": "unknown",
+          "source": "campaign.materials"
+        },
+        {
+          "name": "“识别结果需人工校对”字幕条与“帧剪 AI 字幕”角标动效",
+          "material_id": null,
+          "status": "to_create",
+          "amount_cents": null,
+          "nature": "unknown",
+          "source": "campaign.materials"
+        },
+        {
+          "name": "原创轻快配乐（120BPM，保留口播原声为主声）",
+          "material_id": null,
+          "status": "to_create",
+          "amount_cents": null,
+          "nature": "unknown",
+          "source": "campaign.materials"
+        },
+        {
+          "name": "背景音乐《Late Bus》（备选）",
+          "material_id": "M-006",
+          "status": "to_acquire",
+          "amount_cents": null,
+          "nature": "unknown",
+          "source": "campaign.materials"
+        },
+        {
+          "name": "帧剪片尾 Logo 与品牌落板",
+          "material_id": null,
+          "status": "to_create",
+          "amount_cents": null,
+          "nature": "unknown",
+          "source": "campaign.materials"
+        }
+      ],
+      "reason": "方案含待获取或待制作素材，但任务输入与材料未给出活动预算或已发生支出金额。"
+    },
+    "unknown": [
+      "real_model_usage.amount",
+      "activity_costs"
+    ],
+    "not_applicable": []
+  },
+  "evidence": "D:\\AAA小影科技\\.scratch\\content-agent-redesign-worktrees\\11-runs\\driver-subtitle\\new\\subtitle-30"
+}

@@ -1,0 +1,5 @@
+deadline-impossible/01-create: exit=0
+deadline-impossible/02-run: exit=0
+deadline-impossible/05-inspect: exit=0
+deadline-impossible/06-export: exit=0
+deadline-impossible: incomplete passed=True

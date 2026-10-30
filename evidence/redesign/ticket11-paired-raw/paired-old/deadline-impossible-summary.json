@@ -1,0 +1,128 @@
+{
+  "version": "2026-10-29.eval-v1",
+  "source_sha": "836aa827d835e54a8e9385c18e7a3ff05ed3e600",
+  "results": [
+    {
+      "case": "deadline-impossible",
+      "task_id": "t_9e5046d0f718",
+      "status": "incomplete",
+      "reason": "业务简报已通过校验并保存（brief_version=1），但方案阶段无法推进：模拟时钟当前为 2026-10-29T00:00:04+08:00，方案硬截止为 2026-10-28T16:00:05+00:00，已过期约 8 小时。按版本化费用表，即便只走最省的精简路径（直接生成 8000ms + 核验 6000ms + 保存 1000ms = 15000ms），预计完成时刻也晚于截止；我先后尝试了含返修路径（410 分/29000ms）与精简路径（210 分/15000ms），choose_strategy 两次均以 deadline_exceeded 拒绝且未返回任何可行替代，cheapest_feasible 为空。预算方面 1960 分剩余足够，唯一阻塞是时间。为避免编造可行路径或违背“未经核验不得保存”的要求，现停止并保留已完成成果。",
+      "checks": {
+        "expected_status": true,
+        "ledger_matches": true,
+        "clock_matches": true,
+        "rounds_bounded": true,
+        "message_pairing": true,
+        "real_only": true,
+        "requests_finished": true,
+        "within_budget": true,
+        "within_deadline": true,
+        "not_falsely_saved": true
+      },
+      "passed": true,
+      "progress": {
+        "sim_start": "2026-10-29T00:00:00+08:00",
+        "sim_now": "2026-10-29T00:00:04+08:00",
+        "sim_elapsed_ms": 4000,
+        "used_rounds": 8,
+        "max_rounds": 24,
+        "paused": false,
+        "current_output": null,
+        "save": null,
+        "phase": "stopped",
+        "brief_version": 1,
+        "last_run_at": "2026-10-30T05:16:11+00:00"
+      },
+      "resources": {
+        "budget_cents": 2000,
+        "sim_spent_cents": 40,
+        "remaining_cents": 1960,
+        "real_requests": 8,
+        "mock_requests": 0,
+        "model_requests": 8,
+        "real_usage": {
+          "requests": 8,
+          "real_requests": 8,
+          "mock_requests": 0,
+          "unknown_usage_requests": 0,
+          "usage_complete": true,
+          "prompt_tokens": 87668,
+          "completion_tokens": 2890,
+          "cache_hit_tokens": 79104,
+          "cache_miss_tokens": 8564,
+          "elapsed_ms": 21717
+        },
+        "real_cost": null,
+        "amount_status": {
+          "simulated_tool_fee": "incurred_and_estimated",
+          "real_model_usage": "unknown",
+          "activity_costs": "not_applicable"
+        },
+        "simulated_tool_fee": {
+          "category": "simulated_tool_fee",
+          "unit": "CNY_cent",
+          "source": "pricing:2026-10-29.v1",
+          "nature": "incurred",
+          "incurred_cents": 40,
+          "ledger_entries": 2,
+          "estimated": {
+            "estimate_id": "e_a3bd12c29c4aa96b",
+            "kind": "strategy_choice",
+            "direction": "user_scenario",
+            "search_mode": "search_basic",
+            "generation_mode": "generate_direct",
+            "search_queries": 0,
+            "include_revision": false,
+            "total_cost_cents": 210,
+            "total_duration_ms": 15000,
+            "incurred_cents": 40,
+            "remaining_cents": 1960,
+            "feasible": false,
+            "strategy_version": "2026-10-29.v2",
+            "pricing_version": "2026-10-29.v1",
+            "created_at": "2026-10-30T05:16:11+00:00",
+            "nature": "estimated"
+          },
+          "reserved": null,
+          "note": "预留与估算是可行性判断，不是实际支出；实际消耗只累计账本中 nature=incurred 的记录。"
+        },
+        "real_model_usage": {
+          "category": "real_model_usage",
+          "unit": "request/token",
+          "source": "DeepSeek API response usage（openai SDK）",
+          "nature": "actual_usage",
+          "requests": 8,
+          "real_requests": 8,
+          "mock_requests": 0,
+          "unknown_usage_requests": 0,
+          "prompt_tokens": 87668,
+          "completion_tokens": 2890,
+          "cache_hit_tokens": 79104,
+          "cache_miss_tokens": 8564,
+          "elapsed_ms": 21717,
+          "amount": {
+            "status": "unknown",
+            "value_cents": null,
+            "reason": "没有可靠的单价来源，不把 token 用量换算成金额；未发生真实请求时也不补成已核实零费用。"
+          }
+        },
+        "activity_costs": {
+          "category": "activity_cost",
+          "unit": "CNY_cent",
+          "source": "task_input/campaign.materials",
+          "status": "not_applicable",
+          "nature": "not_applicable",
+          "entries": [],
+          "reason": "任务输入、资料与执行未涉及活动制作或投放预算/实际支出。"
+        },
+        "unknown": [
+          "real_model_usage.amount"
+        ],
+        "not_applicable": [
+          "activity_costs"
+        ]
+      },
+      "evidence": "D:\\AAA小影科技\\.scratch\\content-agent-redesign-worktrees\\11-runs\\paired-old\\deadline-impossible"
+    }
+  ]
+}

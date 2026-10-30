@@ -1,0 +1,733 @@
+{
+  "task_id": "t_8ef16321aa07",
+  "mode": "real",
+  "status": "complete",
+  "reason": "核实导出修复后确认产物与交付文件一致。",
+  "duplicate": false,
+  "created_at": "2026-10-30T05:53:23+00:00",
+  "updated_at": "2026-10-30T05:55:58+00:00",
+  "input": {
+    "version": 1,
+    "topic": "帧剪英语口播AI字幕功能演示",
+    "budget": "20.00",
+    "budget_cents": 2000,
+    "deadline": "2026-10-30T04:00:00+00:00",
+    "audience": "18岁以上英语口播视频创作者",
+    "requirements": [
+      "准备完整内容活动方案，产品主张只用材料支持的正式能力；不作涨粉、收益或爆款承诺。",
+      "方案交给运营继续制作。允许把缺少的画面、操作录屏和原创配乐列为待制作，写清责任人、位置和权属核对；不可冒充现成素材。平台和发布排期可以提出建议，不必把可建议项当成关键阻塞。",
+      "仅一条30秒主视频，核心为英语语音转可编辑字幕及人工校对，不把一键翻译成英语写成翻译为任意语言，不宣称识别百分百准确。操作演示可后续录制。"
+    ],
+    "raw": {
+      "topic": "帧剪英语口播AI字幕功能演示",
+      "budget": "20",
+      "deadline": "2026-10-30T12:00:00+08:00",
+      "audience": "18岁以上英语口播视频创作者",
+      "requirements": [
+        "准备完整内容活动方案，产品主张只用材料支持的正式能力；不作涨粉、收益或爆款承诺。",
+        "方案交给运营继续制作。允许把缺少的画面、操作录屏和原创配乐列为待制作，写清责任人、位置和权属核对；不可冒充现成素材。平台和发布排期可以提出建议，不必把可建议项当成关键阻塞。",
+        "仅一条30秒主视频，核心为英语语音转可编辑字幕及人工校对，不把一键翻译成英语写成翻译为任意语言，不宣称识别百分百准确。操作演示可后续录制。"
+      ]
+    },
+    "fingerprint": "b56e8aabad9d6b0a0db2d514f57046aefec2dff38e3aeda6b4c40e23cedb09e5"
+  },
+  "validation": {
+    "errors": [],
+    "interpretations": []
+  },
+  "brief": {
+    "version": 1,
+    "content": {
+      "goal": "用一条 30 秒短视频演示「帧剪」把英语口播人声转成可编辑字幕并人工校对的正式能力，为运营团队提供可直接继续制作的内容方案。",
+      "audience": "任务已确认受众为 18 岁以上英语口播视频创作者（用户输入）。可用于该受众的依据有限：M-003 的调研样本是 18-24 岁大学生、更常做社团记录/学习打卡/旅行 vlog，且报告限定不可外推到全体人群，因此仅作为「希望保留手动调整、不愿盲信一键出片」这类心态的参考，不直接用来说明英语口播创作者的行为习惯。",
+      "product_facts": [
+        {
+          "claim": "帧剪的 AI 字幕可把视频中的人声转成可编辑字幕，并支持批量修改字幕样式。",
+          "material_id": "M-002",
+          "quote": "AI 字幕可把视频中的人声转成可编辑字幕，支持批量改样式和一键翻译为英语。",
+          "scope": "当前正式支持普通话与英语识别；其他语言为实验性，不计入对外承诺。",
+          "use": "主脚本核心卖点：英语口播人声→可编辑字幕；演示中展示逐句修改与批量改样式。"
+        },
+        {
+          "claim": "英语是帧剪 AI 字幕正式支持的识别语言之一。",
+          "material_id": "M-002",
+          "quote": "普通话与英语为正式支持语言；粤语、日语等仍在小范围测试，识别质量不稳定。",
+          "scope": "正式支持语言为普通话与英语；粤语、日语等为小范围测试、质量不稳定。",
+          "use": "支撑「英语口播」这一题目场景；同时作为排除任意语言翻译宣称的依据。"
+        },
+        {
+          "claim": "一键翻译能力的对外范围限于翻译为英语。",
+          "material_id": "M-002",
+          "quote": "支持批量改样式和一键翻译为英语",
+          "scope": "该表述只覆盖“翻译为英语”这一个方向，不能推广为“翻译为任意语言”。",
+          "use": "约束脚本措辞：不得宣称可翻译为任意语言；本条功能不作为英语口播视频的主卖点。"
+        },
+        {
+          "claim": "自动识别结果需要人工校对，不能承诺完全准确。",
+          "material_id": "M-002",
+          "quote": "识别质量不稳定",
+          "scope": "该片段原文针对粤语、日语等测试语言的质量描述；因此本方案只主张“生成后可编辑、支持人工校对”，不主张识别百分百准确。",
+          "use": "脚本中保留“机器出稿 + 人工校对”的两步表述，避免准确率承诺。"
+        }
+      ],
+      "creative_requirements": [
+        {
+          "text": "仅一条 30 秒主视频。",
+          "source": "用户输入 requirements"
+        },
+        {
+          "text": "核心为英语语音转可编辑字幕及人工校对。",
+          "source": "用户输入 requirements"
+        },
+        {
+          "text": "不把一键翻译成英语写成翻译为任意语言；不宣称识别百分百准确。",
+          "source": "用户输入 requirements"
+        },
+        {
+          "text": "产品主张只用材料支持的正式能力；不作涨粉、收益或爆款承诺。",
+          "source": "用户输入 requirements"
+        },
+        {
+          "text": "允许把缺少的画面、操作录屏和原创配乐列为待制作，写清责任人、位置和权属核对；不可冒充现成素材。",
+          "source": "用户输入 requirements"
+        },
+        {
+          "text": "平台和发布排期可以提出建议，不必把可建议项当成关键阻塞。",
+          "source": "用户输入 requirements"
+        },
+        {
+          "text": "不得承诺涨粉、收益或爆款；不得把实验性功能写成正式能力；不得使用“最强”“唯一”等绝对化表述。",
+          "source": "M-004 品牌表达规则"
+        },
+        {
+          "text": "表达应轻快、真实、可操作。",
+          "source": "M-004 品牌表达规则"
+        }
+      ],
+      "assumptions": [
+        {
+          "text": "主视频按竖屏 9:16、口播记录类场景呈现，以便投放短视频平台。",
+          "basis": "用户只确认“英语口播创作者”与“30 秒主视频”，未指定画幅；这是可调创作假设，不改变目标与硬约束。"
+        },
+        {
+          "text": "演示用的英语口播原片由运营自行拍摄/录制，用于展示真实转写与校对过程。",
+          "basis": "用户明确允许把缺少的画面与操作录屏列为待制作。"
+        },
+        {
+          "text": "原创配乐由运营制作或采购，音量为轻量背景，不干扰口播声音。",
+          "basis": "用户允许原创配乐列为待制作；口播字幕演示需保证人声清晰。"
+        }
+      ],
+      "suggestions": [
+        {
+          "text": "采用“情境 + 功能演示”混合结构：前 5 秒口播创作者真实困境，中段录屏演示英语人声出可编辑字幕、逐句改动，结尾用人工校对提示收束。",
+          "basis": "用户要求以功能为核心且只有一个 30 秒主视频；M-004 要求可操作、真实；M-003 显示用户更愿保留手动调整，把“人工校对”作为卖点比“一键出片”更可信。"
+        },
+        {
+          "text": "镜头里同时呈现「机器出稿」与「手动改词」两步，明确字幕可编辑这件事，而不是只展示生成速度。",
+          "basis": "M-002 支持的正式能力是“转成可编辑字幕”，可编辑性与人工校对正是可被证据支撑的部分。"
+        },
+        {
+          "text": "建议主投放平台为抖音/小红书等竖屏短视频平台，发布节点建议在成片审核通过后的次个工作日，与方案截止脱钩。",
+          "basis": "用户允许平台与排期作为建议；方案截止只约束方案准备与保存。"
+        },
+        {
+          "text": "不使用 M-005 校园素材包作为本片主体画面，仅在有需要时借用少量场景镜头；其定位是情境画面，不能证明产品功能。",
+          "basis": "M-005 明确“只能说明使用场景，不能单独证明产品功能”，且受众与校园场景不完全一致。"
+        }
+      ],
+      "unknowns": [
+        {
+          "question": "英语口播演示原片的具体题材（如知识科普、口语教学、产品测评）由谁最终确认？",
+          "impact": "影响主脚本前 5 秒的代入场景与台词，但不影响核心功能演示与时长；运营可按脚本备注选择题材。",
+          "blocking": false
+        },
+        {
+          "question": "真实投放平台与发布日期的官方排期确认。",
+          "impact": "影响活动内容安排的平台标注；本方案已按建议平台给出，可在运营接手后调整。",
+          "blocking": false
+        },
+        {
+          "question": "音乐与字体采购、录屏制作、投放的实际费用。",
+          "impact": "任务输入只给出 2000 分（模拟工具费用）用于本方案准备，真实制作与投放费用未知，需另行估算，本方案不作预算承诺。",
+          "blocking": false
+        },
+        {
+          "question": "英语口播原片中出现的人物肖像权与音乐授权核对结果。",
+          "impact": "影响素材能否直接发布；发布前须核对，未完成则延后发布。",
+          "blocking": false
+        }
+      ],
+      "sources": [
+        {
+          "material_id": "M-002",
+          "used_for": "英语识别、可编辑字幕、批量改样式、一键翻译为英语的能力边界与适用语言范围"
+        },
+        {
+          "material_id": "M-004",
+          "used_for": "品牌禁语与表达风格约束"
+        },
+        {
+          "material_id": "M-003",
+          "used_for": "受众心态参考（保留手动调整），受样本范围限制不作为英语口播创作者行为证据"
+        },
+        {
+          "material_id": "M-005",
+          "used_for": "情境画面素材状态与使用限制"
+        }
+      ],
+      "blocking_unknowns": 0
+    },
+    "created_at": "2026-10-30T05:53:42+00:00"
+  },
+  "review": {
+    "review_id": "v_2671c7ef16636eb9",
+    "output_id": "o_8eb8480c2c8ce0bf",
+    "output_version": 3,
+    "status": "complete",
+    "verdict": "pass",
+    "completeness": "full",
+    "findings": [
+      {
+        "finding_id": "F1",
+        "severity": "optional",
+        "location": "campaign.script.segments 第 1 段 material_ids（[\"M-005\"]）与 evidence_ids（[]）",
+        "requirement": "事实支持与前后一致：情境素材不得充当能力证据，材料引用应反映实际使用状态",
+        "evidence": "第 1 段 visual 写明口播原片为“待制作画面（见素材表第 1 项）”，M-005 仅“可选空镜补镜（非必用）”；但 material_ids 只填 M-005，未标出口播原片，且 visual 中 8 处以上的使用限制（角标、不同框）已在合规复核第 6 项覆盖。",
+        "issue": "第 1 段的核心画面（口播原片）在 material_ids 中不可见，而可选、非必用的 M-005 被唯一列出，运营按 ID 检索时可能误以为第 1 段主体就是校园素材包；同时第 5 段引 E5（品牌表达规则）作 evidence_ids，属规则约束而非画面事实支撑，易被理解成画面证据。",
+        "suggestion": "可在第 1 段以文字备注“口播原片（待制作，素材表第 1 项）为主画面；M-005 为可选补镜”，并把 E5 的用途在第 5 段标注为“文案规则约束”而非画面事实依据。属可读性加固，不影响当前可制作性。",
+        "reviewed_version": "3"
+      },
+      {
+        "finding_id": "F2",
+        "severity": "optional",
+        "location": "campaign.open_questions 第 1 条与 production_steps 第 1 步",
+        "requirement": "不确定性清楚：待确认项应说明影响，并与执行步骤一致",
+        "evidence": "open_questions 第 1 条列为非阻塞、默认按“英语口语小知识”执行；production_steps 第 1 步 timing 为“建议发布日 D 前 4 天”，题材在该步确定。",
+        "issue": "“D 前 4 天”是相对锚点，但 D 本身只在第 7 步以“成片审核通过的次个工作日（建议）”出现，起点未单列，运营接手时需自行推算基准日；不影响方案成立，但排期可执行性可再明确一格。",
+        "suggestion": "可在 production_steps 开头补一句“D = 运营确认的发布日（建议项）”，使各相对时点有唯一锚点。",
+        "reviewed_version": "3"
+      }
+    ],
+    "summary": "版本 3 已按五项质量要求完整核对：上轮两项 must_fix 均已实质修复——分镜补齐 5 段且时间码 0-5/5-13/13-22/22-27/27-30 严格闭合 30 秒，第 5 段收尾卡写明画面、无旁白、字幕文案并挂 E5；第 1-4 段按素材名称+位置与实际素材对位，第 4 段补挂 E1 并把人工校对定位为通用编辑流程建议，E4 明确仅作不承诺准确率的稳妥约束。核心主张（英语人声→可编辑字幕、批量改样式）均可追到 M-002 原文且限于正式支持语言；无一键翻译任意语言、无准确率数值、无涨粉收益爆款、无绝对化表述；待制作素材（口播原片、三段录屏、原创配乐、收尾卡）均写明位置、责任人角色、时点、权属核对与发布前条件；平台与发布排期为建议项，方案截止与制作/发布排期已明确脱钩，2000 分仅标注为方案准备模拟费用。未发现新的 must_fix。",
+    "evidence_gaps": [],
+    "requests_used": 1,
+    "readbacks_used": 0,
+    "attempt_id": "a_23f2a727ff74c56d",
+    "created_at": "2026-10-30T05:55:56+00:00"
+  },
+  "content_reuse": null,
+  "save": {
+    "save_id": "s_c9e448cda9c2ed6b",
+    "output_id": "o_8eb8480c2c8ce0bf",
+    "output_version": 3,
+    "status": "verified",
+    "files": [
+      {
+        "path": "D:\\AAA小影科技\\.scratch\\content-agent-redesign-worktrees\\11-runs\\driver-subtitle\\old\\subtitle-30\\data\\real\\exports\\t_8ef16321aa07\\campaign-v3.md",
+        "sha256": "1010e5a1807e4884f1ccfc26b2a5c5cff877382cc26bf7023a52e45fbf806ea6",
+        "bytes": 13413,
+        "exists": true,
+        "current_sha256": "1010e5a1807e4884f1ccfc26b2a5c5cff877382cc26bf7023a52e45fbf806ea6",
+        "ok": true
+      },
+      {
+        "path": "D:\\AAA小影科技\\.scratch\\content-agent-redesign-worktrees\\11-runs\\driver-subtitle\\old\\subtitle-30\\data\\real\\exports\\t_8ef16321aa07\\campaign-v3.json",
+        "sha256": "de552e2fe4c6b46363cdcc89482fa027422f68bdca923d85cea6c22075ae08f4",
+        "bytes": 16055,
+        "exists": true,
+        "current_sha256": "de552e2fe4c6b46363cdcc89482fa027422f68bdca923d85cea6c22075ae08f4",
+        "ok": true
+      },
+      {
+        "path": "D:\\AAA小影科技\\.scratch\\content-agent-redesign-worktrees\\11-runs\\driver-subtitle\\old\\subtitle-30\\data\\real\\exports\\t_8ef16321aa07\\brief-v1.json",
+        "sha256": "81c12797f22aa6a7e4c6f3a7ddd10acf80e207429323101e42b9791b0d374fb3",
+        "bytes": 7717,
+        "exists": true,
+        "current_sha256": "81c12797f22aa6a7e4c6f3a7ddd10acf80e207429323101e42b9791b0d374fb3",
+        "ok": true
+      },
+      {
+        "path": "D:\\AAA小影科技\\.scratch\\content-agent-redesign-worktrees\\11-runs\\driver-subtitle\\old\\subtitle-30\\data\\real\\exports\\t_8ef16321aa07\\execution-report.md",
+        "sha256": "63049c03d69cdc1920e92dbdbc7d7f39ee4fa06c0e67f619acf0570210f7edff",
+        "bytes": 19997,
+        "exists": true,
+        "current_sha256": "63049c03d69cdc1920e92dbdbc7d7f39ee4fa06c0e67f619acf0570210f7edff",
+        "ok": true
+      },
+      {
+        "path": "D:\\AAA小影科技\\.scratch\\content-agent-redesign-worktrees\\11-runs\\driver-subtitle\\old\\subtitle-30\\data\\real\\exports\\t_8ef16321aa07\\trace.jsonl",
+        "sha256": "2186625207c21e5ec7aa6e8c52443bd8af6a7195b5b0f4afe0f60fa4f05f586e",
+        "bytes": 283755,
+        "exists": true,
+        "current_sha256": "2186625207c21e5ec7aa6e8c52443bd8af6a7195b5b0f4afe0f60fa4f05f586e",
+        "ok": true
+      }
+    ],
+    "verified": true,
+    "verified_at": "2026-10-30T05:55:58+00:00",
+    "error": null,
+    "attempt_id": "a_d2c65484aa1b3209",
+    "created_at": "2026-10-30T05:55:58+00:00"
+  },
+  "strategy": {
+    "table_version": "2026-10-29.v2",
+    "directions": [
+      {
+        "direction": "functional_demo",
+        "label": "功能演示",
+        "expression_goal": "直接展示当前任务目标功能能做什么、如何操作及其结果与限制",
+        "material_needs": [
+          "目标功能的操作录屏及其制作、权属状态",
+          "当前任务产品主张对应的正式能力原文与适用范围",
+          "本任务采用的品牌表达规则"
+        ],
+        "evidence_queries": [
+          "当前任务目标功能的正式能力与适用范围",
+          "对应操作演示素材的可用状态与权属"
+        ],
+        "required_queries": 2,
+        "risk": "操作录屏尚未制作时须安排制作及核对；展示结果应对应实际操作，纯功能演示对情境吸引力的帮助有限"
+      },
+      {
+        "direction": "user_scenario",
+        "label": "用户情境",
+        "expression_goal": "用当前任务指定受众的相关情境引出需求，再用目标功能的操作与结果回应需求",
+        "material_needs": [
+          "与本任务受众及场景相符的情境素材及可用、制作或权属状态",
+          "受众依据（仅在原资料支持范围内使用；没有调研时明确为创作建议）",
+          "实际选用的声音与画面的权属及可用状态，不预设必须使用背景音乐",
+          "目标功能的正式能力依据与操作演示"
+        ],
+        "evidence_queries": [
+          "当前指定受众及使用情境的依据与适用范围",
+          "本任务拟用画面和声音素材的可用、制作与授权状态",
+          "当前任务目标功能的正式能力与适用范围"
+        ],
+        "required_queries": 3,
+        "risk": "情境画面不能单独证明产品能力；调研不得外推到其他人群；待制作或待授权素材须有处理步骤与发布前条件"
+      },
+      {
+        "direction": "tutorial",
+        "label": "教程",
+        "expression_goal": "分步说明当前任务目标功能的实际操作，把步骤、结果和适用边界对应起来",
+        "material_needs": [
+          "当前任务目标功能的正式能力与边界",
+          "脚本实际涉及的其他能力依据（未使用的功能无需加入）",
+          "本任务采用的品牌与素材规则",
+          "与脚本步骤一致的操作录屏及其制作、权属状态"
+        ],
+        "evidence_queries": [
+          "当前任务目标功能的操作依据与能力边界",
+          "本脚本实际使用能力的正式支持范围",
+          "本任务的品牌表达与素材限制"
+        ],
+        "required_queries": 3,
+        "risk": "按任务指定时长取舍步骤密度；需要清楚的操作录屏和结果对应，不可擅改时长或核心要求"
+      }
+    ],
+    "latest_selection": {
+      "selection_id": "st_031e68b0596a212e",
+      "direction": "functional_demo",
+      "search_mode": "search_basic",
+      "generation_mode": "generate_direct",
+      "search_queries": 0,
+      "include_revision": true,
+      "improvement": false,
+      "expected_benefit": null,
+      "rationale": "任务目标单一且明确：30 秒内演示英语口播人声转可编辑字幕 + 人工校对，产品能力已有 M-002 原文支撑，资料需求已满足（无需新增检索）。功能演示最直接对应“演示”这一目标，且能把“可编辑、可校对、不承诺准确率”的限制讲清楚。三个方向在基础检索+直接生成下费用均为 410 分、时间约 29 秒，均在 2000 分预算与 2026-10-30 04:00 截止内，选择依据是表达匹配度而非成本。用户情境方向需更多受众/情境素材且 M-003 样本不可外推；教程方向在 30 秒内步骤密度受限，且核心是“演示”而非“教会操作”。仍会以短情境开场提升代入感，但主体保持功能演示结构。",
+      "strategy_version": "2026-10-29.v2",
+      "pricing_version": "2026-10-29.v1",
+      "path": {
+        "version": "2026-10-29.v1",
+        "currency": "CNY_cent",
+        "pricing_source": "2026-10-29.v1.json",
+        "search_queries": 0,
+        "include_revision": true,
+        "lines": [
+          {
+            "step": "generation",
+            "mode": "generate_direct",
+            "label": "直接生成",
+            "cost_cents": 120,
+            "duration_ms": 8000,
+            "max_internal_requests": 1,
+            "max_requests": null,
+            "max_readbacks": null,
+            "candidates": 1,
+            "failure_rule": "一次生成；失败或中断保留计量"
+          },
+          {
+            "step": "review",
+            "mode": "review",
+            "label": "内容核验",
+            "cost_cents": 80,
+            "duration_ms": 6000,
+            "max_internal_requests": null,
+            "max_requests": 3,
+            "max_readbacks": 2,
+            "candidates": null,
+            "failure_rule": "最多 3 次模型请求、2 次回读；触顶/中断不退还"
+          },
+          {
+            "step": "revision",
+            "mode": "revision",
+            "label": "返修",
+            "cost_cents": 120,
+            "duration_ms": 8000,
+            "max_internal_requests": 2,
+            "max_requests": null,
+            "max_readbacks": null,
+            "candidates": null,
+            "failure_rule": "启动即计量；失败不退还"
+          },
+          {
+            "step": "re_review",
+            "mode": "review",
+            "label": "内容核验",
+            "cost_cents": 80,
+            "duration_ms": 6000,
+            "max_internal_requests": null,
+            "max_requests": 3,
+            "max_readbacks": 2,
+            "candidates": null,
+            "failure_rule": "最多 3 次模型请求、2 次回读；触顶/中断不退还"
+          },
+          {
+            "step": "save",
+            "mode": "save",
+            "label": "方案保存",
+            "cost_cents": 10,
+            "duration_ms": 1000,
+            "max_internal_requests": 1,
+            "max_requests": null,
+            "max_readbacks": null,
+            "candidates": null,
+            "failure_rule": "启动即计量；保存失败另行核实"
+          }
+        ],
+        "total_cost_cents": 410,
+        "total_duration_ms": 29000,
+        "notes": "估算与预留不是实际支出；执行前仍须按当前预算与模拟截止检查。"
+      },
+      "total_cost_cents": 410,
+      "total_duration_ms": 29000,
+      "incurred_cents": 40,
+      "remaining_cents": 1960,
+      "created_at": "2026-10-30T05:53:46+00:00",
+      "nature": "reserved"
+    },
+    "selection_count": 1,
+    "mode_table_version": "2026-10-29.v1"
+  },
+  "plan": {
+    "version": "plan-2026-10-29.v1",
+    "steps": [
+      {
+        "step": "brief",
+        "title": "业务简报",
+        "status": "done"
+      },
+      {
+        "step": "campaign_draft",
+        "title": "完整活动方案草稿",
+        "status": "done"
+      },
+      {
+        "step": "review",
+        "title": "内容核验",
+        "status": "done"
+      },
+      {
+        "step": "save",
+        "title": "核实保存与导出",
+        "status": "done"
+      }
+    ]
+  },
+  "todos": [],
+  "recovery": null,
+  "gaps": [
+    {
+      "source": "brief",
+      "question": "英语口播演示原片的具体题材（如知识科普、口语教学、产品测评）由谁最终确认？",
+      "impact": "影响主脚本前 5 秒的代入场景与台词，但不影响核心功能演示与时长；运营可按脚本备注选择题材。",
+      "blocking": false
+    },
+    {
+      "source": "brief",
+      "question": "真实投放平台与发布日期的官方排期确认。",
+      "impact": "影响活动内容安排的平台标注；本方案已按建议平台给出，可在运营接手后调整。",
+      "blocking": false
+    },
+    {
+      "source": "brief",
+      "question": "音乐与字体采购、录屏制作、投放的实际费用。",
+      "impact": "任务输入只给出 2000 分（模拟工具费用）用于本方案准备，真实制作与投放费用未知，需另行估算，本方案不作预算承诺。",
+      "blocking": false
+    },
+    {
+      "source": "brief",
+      "question": "英语口播原片中出现的人物肖像权与音乐授权核对结果。",
+      "impact": "影响素材能否直接发布；发布前须核对，未完成则延后发布。",
+      "blocking": false
+    }
+  ],
+  "mode_notice": "真实模型运行；小样本观察不代表生产质量或统计显著结论。",
+  "progress": {
+    "sim_start": "2026-10-29T00:00:00+08:00",
+    "sim_now": "2026-10-29T00:00:39+08:00",
+    "sim_elapsed_ms": 39000,
+    "used_rounds": 20,
+    "max_rounds": 24,
+    "paused": false,
+    "current_output": {
+      "output_id": "o_8eb8480c2c8ce0bf",
+      "version": 3,
+      "status": "draft",
+      "strategy": "functional_demo"
+    },
+    "save": {
+      "save_id": "s_c9e448cda9c2ed6b",
+      "output_version": 3,
+      "status": "verified",
+      "verified": true
+    },
+    "phase": "complete",
+    "brief_version": 1,
+    "last_run_at": "2026-10-30T05:55:56+00:00"
+  },
+  "resources": {
+    "budget_cents": 2000,
+    "sim_spent_cents": 530,
+    "remaining_cents": 1470,
+    "real_requests": 26,
+    "mock_requests": 0,
+    "model_requests": 26,
+    "real_usage": {
+      "requests": 26,
+      "real_requests": 26,
+      "mock_requests": 0,
+      "unknown_usage_requests": 0,
+      "usage_complete": true,
+      "prompt_tokens": 603014,
+      "completion_tokens": 27490,
+      "cache_hit_tokens": 523904,
+      "cache_miss_tokens": 79110,
+      "elapsed_ms": 149447
+    },
+    "real_cost": null,
+    "amount_status": {
+      "simulated_tool_fee": "incurred_and_estimated",
+      "real_model_usage": "unknown",
+      "activity_costs": "unknown"
+    },
+    "simulated_tool_fee": {
+      "category": "simulated_tool_fee",
+      "unit": "CNY_cent",
+      "source": "pricing:2026-10-29.v1",
+      "nature": "incurred",
+      "incurred_cents": 530,
+      "ledger_entries": 8,
+      "estimated": {
+        "estimate_id": "e_01f159a78af5ff7c",
+        "kind": "cost_estimate",
+        "direction": null,
+        "search_mode": "search_basic",
+        "generation_mode": "generate_direct",
+        "search_queries": 0,
+        "include_revision": false,
+        "total_cost_cents": 210,
+        "total_duration_ms": 15000,
+        "incurred_cents": 240,
+        "remaining_cents": 1760,
+        "feasible": true,
+        "strategy_version": "2026-10-29.v2",
+        "pricing_version": "2026-10-29.v1",
+        "created_at": "2026-10-30T05:54:46+00:00",
+        "nature": "estimated"
+      },
+      "reserved": {
+        "selection_id": "st_031e68b0596a212e",
+        "direction": "functional_demo",
+        "search_mode": "search_basic",
+        "generation_mode": "generate_direct",
+        "search_queries": 0,
+        "include_revision": true,
+        "improvement": false,
+        "expected_benefit": null,
+        "rationale": "任务目标单一且明确：30 秒内演示英语口播人声转可编辑字幕 + 人工校对，产品能力已有 M-002 原文支撑，资料需求已满足（无需新增检索）。功能演示最直接对应“演示”这一目标，且能把“可编辑、可校对、不承诺准确率”的限制讲清楚。三个方向在基础检索+直接生成下费用均为 410 分、时间约 29 秒，均在 2000 分预算与 2026-10-30 04:00 截止内，选择依据是表达匹配度而非成本。用户情境方向需更多受众/情境素材且 M-003 样本不可外推；教程方向在 30 秒内步骤密度受限，且核心是“演示”而非“教会操作”。仍会以短情境开场提升代入感，但主体保持功能演示结构。",
+        "total_cost_cents": 410,
+        "total_duration_ms": 29000,
+        "incurred_cents": 40,
+        "remaining_cents": 1960,
+        "strategy_version": "2026-10-29.v2",
+        "pricing_version": "2026-10-29.v1",
+        "created_at": "2026-10-30T05:53:46+00:00",
+        "nature": "reserved"
+      },
+      "note": "预留与估算是可行性判断，不是实际支出；实际消耗只累计账本中 nature=incurred 的记录。"
+    },
+    "real_model_usage": {
+      "category": "real_model_usage",
+      "unit": "request/token",
+      "source": "DeepSeek API response usage（openai SDK）",
+      "nature": "actual_usage",
+      "requests": 26,
+      "real_requests": 26,
+      "mock_requests": 0,
+      "unknown_usage_requests": 0,
+      "prompt_tokens": 603014,
+      "completion_tokens": 27490,
+      "cache_hit_tokens": 523904,
+      "cache_miss_tokens": 79110,
+      "elapsed_ms": 149447,
+      "amount": {
+        "status": "unknown",
+        "value_cents": null,
+        "reason": "没有可靠的单价来源，不把 token 用量换算成金额；未发生真实请求时也不补成已核实零费用。"
+      }
+    },
+    "activity_costs": {
+      "category": "activity_cost",
+      "unit": "CNY_cent",
+      "source": "campaign.materials",
+      "status": "unknown",
+      "nature": "unknown",
+      "entries": [
+        {
+          "name": "英语口播原片-开场",
+          "material_id": null,
+          "status": "to_create",
+          "amount_cents": null,
+          "nature": "unknown",
+          "source": "campaign.materials"
+        },
+        {
+          "name": "AI 字幕出稿录屏",
+          "material_id": null,
+          "status": "to_create",
+          "amount_cents": null,
+          "nature": "unknown",
+          "source": "campaign.materials"
+        },
+        {
+          "name": "手动改词与批量改样式录屏",
+          "material_id": null,
+          "status": "to_create",
+          "amount_cents": null,
+          "nature": "unknown",
+          "source": "campaign.materials"
+        },
+        {
+          "name": "校对对照录屏",
+          "material_id": null,
+          "status": "to_create",
+          "amount_cents": null,
+          "nature": "unknown",
+          "source": "campaign.materials"
+        },
+        {
+          "name": "原创轻量配乐",
+          "material_id": null,
+          "status": "to_create",
+          "amount_cents": null,
+          "nature": "unknown",
+          "source": "campaign.materials"
+        },
+        {
+          "name": "品牌收尾字幕卡",
+          "material_id": null,
+          "status": "to_create",
+          "amount_cents": null,
+          "nature": "unknown",
+          "source": "campaign.materials"
+        }
+      ],
+      "reason": "方案含待获取或待制作素材，但任务输入与材料未给出活动预算或已发生支出金额。"
+    },
+    "unknown": [
+      "real_model_usage.amount",
+      "activity_costs"
+    ],
+    "not_applicable": []
+  },
+  "model_config": {
+    "provider": "deepseek",
+    "sdk": "openai",
+    "base_url": "https://api.deepseek.com",
+    "model": "deepseek-flash",
+    "api_key": "set",
+    "thinking": false,
+    "streaming": false,
+    "sdk_auto_retries": 0,
+    "network_route": "direct",
+    "keepalive_expiry_seconds": 180
+  },
+  "versions": {
+    "app": "0.1.0",
+    "prompt": "main-2026-10-29.v11",
+    "materials": "2026-10-29.v1",
+    "pricing": "2026-10-29.v1",
+    "strategy": "2026-10-29.v2"
+  },
+  "artifacts": {
+    "campaign_versions": 3
+  },
+  "run": {
+    "rounds_used": 20,
+    "stop_reason": "save_campaign",
+    "requests": 20,
+    "explicit_resume": false,
+    "recovery": {
+      "explicit_resume": false,
+      "prior_status": "in_progress",
+      "prior_phase": "created",
+      "prior_reason": "已创建，尚未开始执行；当前没有已生成产物。",
+      "pending_calls": 0,
+      "recovered_calls": [],
+      "interrupted_calls": [],
+      "interrupted_attempts": [],
+      "interrupted_requests": [],
+      "save_unknown": null,
+      "unpaused": false,
+      "reused": {
+        "input_version": 1,
+        "brief_version": 0,
+        "output_version": null,
+        "review": null,
+        "save": null,
+        "knowledge": [],
+        "materials": {
+          "version": "2026-10-29.v1",
+          "count": 10
+        },
+        "search_results": 0,
+        "attempts": 0,
+        "spent_cents": 0
+      },
+      "todos": [
+        {
+          "step": "brief",
+          "title": "业务简报",
+          "status": "current"
+        },
+        {
+          "step": "campaign_draft",
+          "title": "完整活动方案草稿",
+          "status": "pending"
+        },
+        {
+          "step": "review",
+          "title": "内容核验",
+          "status": "pending"
+        },
+        {
+          "step": "save",
+          "title": "核实保存与导出",
+          "status": "pending"
+        }
+      ]
+    }
+  }
+}

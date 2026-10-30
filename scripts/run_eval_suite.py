@@ -43,14 +43,16 @@ def checks_for(case: dict, facts: dict) -> dict:
             facts["input"]["deadline"]
         )
     if facts["status"] == "complete":
-        save, review, output = facts["save"], facts["review"], facts["outputs"][-1]
+        save, review = facts["save"], facts["review"]
+        output = next(item for item in facts["outputs"]
+                      if item["kind"] == "campaign" and item["version"] == save["output_version"])
         checks["current_verified_save"] = save["verified"] and save["output_version"] == output["version"]
         checks["current_review"] = review["status"] == "complete" and review["output_version"] == output["version"]
         checks["saved_hashes"] = all(
             Path(f["path"]).is_file() and hashlib.sha256(Path(f["path"]).read_bytes()).hexdigest() == f["sha256"]
             for f in save["files"]
         )
-        checks["requested_duration"] = output["content"]["script"]["duration_s"] == case["duration_s"]
+        checks["requested_duration"] = output["content"]["script"]["duration_seconds"] == case["duration_s"]
     else:
         checks["not_falsely_saved"] = facts["save"] is None or not facts["save"]["verified"]
     return checks

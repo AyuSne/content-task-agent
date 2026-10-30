@@ -1,0 +1,5 @@
+unsupported-cantonese/01-create: exit=0
+unsupported-cantonese/02-run: exit=0
+unsupported-cantonese/05-inspect: exit=0
+unsupported-cantonese/06-export: exit=0
+unsupported-cantonese: needs_input passed=True

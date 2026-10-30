@@ -1,0 +1,50 @@
+{
+  "task_id": "t_e5ec1cb6797b",
+  "output_version": 2,
+  "save_id": "s_f5fa79d0de34404d",
+  "verified": true,
+  "delivery_complete": true,
+  "files": [
+    {
+      "path": "D:\\AAA小影科技\\.scratch\\content-agent-redesign-worktrees\\11-runs\\driver-travel\\new\\travel-60\\data\\real\\exports\\t_e5ec1cb6797b\\campaign-v2.md",
+      "sha256": "6e9ace4c0930a149113934d265d0ef6661330beb3d48fa4fda2452526e2bfb47",
+      "bytes": 17207,
+      "exists": true,
+      "current_sha256": "6e9ace4c0930a149113934d265d0ef6661330beb3d48fa4fda2452526e2bfb47",
+      "ok": true
+    },
+    {
+      "path": "D:\\AAA小影科技\\.scratch\\content-agent-redesign-worktrees\\11-runs\\driver-travel\\new\\travel-60\\data\\real\\exports\\t_e5ec1cb6797b\\campaign-v2.json",
+      "sha256": "d844dd0ae30075514f72af15ccb2f677540d7424554f962f3f9b73ac26d60c46",
+      "bytes": 19854,
+      "exists": true,
+      "current_sha256": "d844dd0ae30075514f72af15ccb2f677540d7424554f962f3f9b73ac26d60c46",
+      "ok": true
+    },
+    {
+      "path": "D:\\AAA小影科技\\.scratch\\content-agent-redesign-worktrees\\11-runs\\driver-travel\\new\\travel-60\\data\\real\\exports\\t_e5ec1cb6797b\\brief-v1.json",
+      "sha256": "83d249410355599d3ae5e4544d493f91113818555ab29ac4b58e22a06b530882",
+      "bytes": 7013,
+      "exists": true,
+      "current_sha256": "83d249410355599d3ae5e4544d493f91113818555ab29ac4b58e22a06b530882",
+      "ok": true
+    },
+    {
+      "path": "D:\\AAA小影科技\\.scratch\\content-agent-redesign-worktrees\\11-runs\\driver-travel\\new\\travel-60\\data\\real\\exports\\t_e5ec1cb6797b\\execution-report.md",
+      "sha256": "54ec3cf1e08f1117f3bf3f17a03b6141651de6e6f8016b394ab78e6c2add14e8",
+      "bytes": 27993,
+      "exists": true,
+      "current_sha256": "54ec3cf1e08f1117f3bf3f17a03b6141651de6e6f8016b394ab78e6c2add14e8",
+      "ok": true
+    },
+    {
+      "path": "D:\\AAA小影科技\\.scratch\\content-agent-redesign-worktrees\\11-runs\\driver-travel\\new\\travel-60\\data\\real\\exports\\t_e5ec1cb6797b\\trace.jsonl",
+      "sha256": "f3da6f035f4c787e22f608dd2bb92df5943f5e6cd6acce5cf0e7db601cf70022",
+      "bytes": 281977,
+      "exists": true,
+      "current_sha256": "f3da6f035f4c787e22f608dd2bb92df5943f5e6cd6acce5cf0e7db601cf70022",
+      "ok": true
+    }
+  ],
+  "repaired": false
+}

@@ -1,0 +1,34 @@
+{
+  "task_id": "t_7b4b4e82a3d6",
+  "output_version": null,
+  "save_id": null,
+  "verified": true,
+  "delivery_complete": false,
+  "files": [
+    {
+      "path": "D:\\AAA小影科技\\.scratch\\content-agent-redesign-worktrees\\11-runs\\paired-new\\save-crash-recovery\\data\\real\\exports\\t_7b4b4e82a3d6\\execution-report.md",
+      "sha256": "066742150b8dab7110c858f5764ada6969b7f2eedfa42ee9f1c8cfd8f7382528",
+      "bytes": 11761,
+      "exists": true,
+      "current_sha256": "066742150b8dab7110c858f5764ada6969b7f2eedfa42ee9f1c8cfd8f7382528",
+      "ok": true
+    },
+    {
+      "path": "D:\\AAA小影科技\\.scratch\\content-agent-redesign-worktrees\\11-runs\\paired-new\\save-crash-recovery\\data\\real\\exports\\t_7b4b4e82a3d6\\trace.jsonl",
+      "sha256": "08d187220a61be28a3c348103179dbd55eb8e65f683b688b62aa064dcf935d4e",
+      "bytes": 323820,
+      "exists": true,
+      "current_sha256": "08d187220a61be28a3c348103179dbd55eb8e65f683b688b62aa064dcf935d4e",
+      "ok": true
+    },
+    {
+      "path": "D:\\AAA小影科技\\.scratch\\content-agent-redesign-worktrees\\11-runs\\paired-new\\save-crash-recovery\\data\\real\\exports\\t_7b4b4e82a3d6\\brief-v1.json",
+      "sha256": "11181c9b463310c03d6a9c5807829c65a58a9e338a5e1a3a9cacd90fda68ad4b",
+      "bytes": 9328,
+      "exists": true,
+      "current_sha256": "11181c9b463310c03d6a9c5807829c65a58a9e338a5e1a3a9cacd90fda68ad4b",
+      "ok": true
+    }
+  ],
+  "repaired": false
+}

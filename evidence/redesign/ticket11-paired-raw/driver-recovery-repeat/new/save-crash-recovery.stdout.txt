@@ -1,0 +1,7 @@
+save-crash-recovery/01-create: exit=0
+save-crash-recovery/02-run: exit=70
+save-crash-recovery/03-before-resume-0: exit=0
+save-crash-recovery/04-resume-0: exit=0
+save-crash-recovery/05-inspect: exit=0
+save-crash-recovery/06-export: exit=0
+save-crash-recovery: complete passed=True

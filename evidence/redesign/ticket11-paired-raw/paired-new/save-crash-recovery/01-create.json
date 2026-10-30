@@ -1,0 +1,292 @@
+{
+  "task_id": "t_7b4b4e82a3d6",
+  "mode": "real",
+  "status": "in_progress",
+  "reason": "已创建，尚未开始执行；当前没有已生成产物。",
+  "duplicate": false,
+  "created_at": "2026-10-30T05:14:29+00:00",
+  "updated_at": "2026-10-30T05:14:29+00:00",
+  "input": {
+    "version": 1,
+    "topic": "帧剪学习打卡30秒剪辑介绍",
+    "budget": "20.00",
+    "budget_cents": 2000,
+    "deadline": "2026-10-30T04:00:00+00:00",
+    "audience": "18-24岁大学生",
+    "requirements": [
+      "准备完整内容活动方案，产品主张只用材料支持的正式能力；不作涨粉、收益或爆款承诺。",
+      "方案交给运营继续制作。允许把缺少的画面、操作录屏和原创配乐列为待制作，写清责任人、位置和权属核对；不可冒充现成素材。平台和发布排期可以提出建议，不必把可建议项当成关键阻塞。",
+      "一条30秒主视频，演示自动对齐节拍和逐段微调。"
+    ],
+    "raw": {
+      "topic": "帧剪学习打卡30秒剪辑介绍",
+      "budget": "20",
+      "deadline": "2026-10-30T12:00:00+08:00",
+      "audience": "18-24岁大学生",
+      "requirements": [
+        "准备完整内容活动方案，产品主张只用材料支持的正式能力；不作涨粉、收益或爆款承诺。",
+        "方案交给运营继续制作。允许把缺少的画面、操作录屏和原创配乐列为待制作，写清责任人、位置和权属核对；不可冒充现成素材。平台和发布排期可以提出建议，不必把可建议项当成关键阻塞。",
+        "一条30秒主视频，演示自动对齐节拍和逐段微调。"
+      ]
+    },
+    "fingerprint": "0480e5bf116d84a74c3a6734570d98b34b946f76f3ee948ddef2166329d804f3"
+  },
+  "validation": {
+    "errors": [],
+    "interpretations": []
+  },
+  "brief": null,
+  "review": null,
+  "content_reuse": null,
+  "save": null,
+  "strategy": {
+    "table_version": "2026-10-29.v2",
+    "directions": [
+      {
+        "direction": "functional_demo",
+        "label": "功能演示",
+        "expression_goal": "直接展示当前任务目标功能能做什么、如何操作及其结果与限制",
+        "material_needs": [
+          "目标功能的操作录屏及其制作、权属状态",
+          "当前任务产品主张对应的正式能力原文与适用范围",
+          "本任务采用的品牌表达规则"
+        ],
+        "evidence_queries": [
+          "当前任务目标功能的正式能力与适用范围",
+          "对应操作演示素材的可用状态与权属"
+        ],
+        "required_queries": 2,
+        "risk": "操作录屏尚未制作时须安排制作及核对；展示结果应对应实际操作，纯功能演示对情境吸引力的帮助有限"
+      },
+      {
+        "direction": "user_scenario",
+        "label": "用户情境",
+        "expression_goal": "用当前任务指定受众的相关情境引出需求，再用目标功能的操作与结果回应需求",
+        "material_needs": [
+          "与本任务受众及场景相符的情境素材及可用、制作或权属状态",
+          "受众依据（仅在原资料支持范围内使用；没有调研时明确为创作建议）",
+          "实际选用的声音与画面的权属及可用状态，不预设必须使用背景音乐",
+          "目标功能的正式能力依据与操作演示"
+        ],
+        "evidence_queries": [
+          "当前指定受众及使用情境的依据与适用范围",
+          "本任务拟用画面和声音素材的可用、制作与授权状态",
+          "当前任务目标功能的正式能力与适用范围"
+        ],
+        "required_queries": 3,
+        "risk": "情境画面不能单独证明产品能力；调研不得外推到其他人群；待制作或待授权素材须有处理步骤与发布前条件"
+      },
+      {
+        "direction": "tutorial",
+        "label": "教程",
+        "expression_goal": "分步说明当前任务目标功能的实际操作，把步骤、结果和适用边界对应起来",
+        "material_needs": [
+          "当前任务目标功能的正式能力与边界",
+          "脚本实际涉及的其他能力依据（未使用的功能无需加入）",
+          "本任务采用的品牌与素材规则",
+          "与脚本步骤一致的操作录屏及其制作、权属状态"
+        ],
+        "evidence_queries": [
+          "当前任务目标功能的操作依据与能力边界",
+          "本脚本实际使用能力的正式支持范围",
+          "本任务的品牌表达与素材限制"
+        ],
+        "required_queries": 3,
+        "risk": "按任务指定时长取舍步骤密度；需要清楚的操作录屏和结果对应，不可擅改时长或核心要求"
+      }
+    ],
+    "latest_selection": null,
+    "selection_count": 0,
+    "mode_table_version": "2026-10-30.v2"
+  },
+  "plan": {
+    "version": 0,
+    "steps": []
+  },
+  "todos": [],
+  "recovery": null,
+  "gaps": [],
+  "mode_notice": "真实模型运行；小样本观察不代表生产质量或统计显著结论。",
+  "progress": {
+    "sim_start": "2026-10-29T00:00:00+08:00",
+    "sim_now": "2026-10-29T00:00:00+08:00",
+    "sim_elapsed_ms": 0,
+    "used_rounds": 0,
+    "max_rounds": 24,
+    "paused": false,
+    "current_output": null,
+    "save": null,
+    "phase": "created",
+    "brief_version": 0,
+    "last_run_at": null
+  },
+  "resources": {
+    "budget_cents": 2000,
+    "sim_spent_cents": 0,
+    "remaining_cents": 2000,
+    "real_requests": 0,
+    "mock_requests": 0,
+    "model_requests": 0,
+    "real_usage": {
+      "requests": 0,
+      "real_requests": 0,
+      "mock_requests": 0,
+      "unknown_usage_requests": 0,
+      "usage_complete": true,
+      "prompt_tokens": 0,
+      "completion_tokens": 0,
+      "cache_hit_tokens": 0,
+      "cache_miss_tokens": 0,
+      "elapsed_ms": 0
+    },
+    "real_cost": null,
+    "amount_status": {
+      "simulated_tool_fee": "incurred_and_estimated",
+      "real_model_usage": "unknown",
+      "activity_costs": "not_applicable"
+    },
+    "simulated_tool_fee": {
+      "category": "simulated_tool_fee",
+      "unit": "CNY_cent",
+      "source": "pricing:2026-10-30.v2",
+      "nature": "incurred",
+      "incurred_cents": 0,
+      "ledger_entries": 0,
+      "estimated": null,
+      "reserved": null,
+      "note": "预留与估算是可行性判断，不是实际支出；实际消耗只累计账本中 nature=incurred 的记录。"
+    },
+    "real_model_usage": {
+      "category": "real_model_usage",
+      "unit": "request/token",
+      "source": "DeepSeek API response usage（openai SDK）",
+      "nature": "actual_usage",
+      "requests": 0,
+      "real_requests": 0,
+      "mock_requests": 0,
+      "unknown_usage_requests": 0,
+      "prompt_tokens": 0,
+      "completion_tokens": 0,
+      "cache_hit_tokens": 0,
+      "cache_miss_tokens": 0,
+      "elapsed_ms": 0,
+      "amount": {
+        "status": "unknown",
+        "value_cents": null,
+        "reason": "没有可靠的单价来源，不把 token 用量换算成金额；未发生真实请求时也不补成已核实零费用。"
+      }
+    },
+    "activity_costs": {
+      "category": "activity_cost",
+      "unit": "CNY_cent",
+      "source": "task_input/campaign.materials",
+      "status": "not_applicable",
+      "nature": "not_applicable",
+      "entries": [],
+      "reason": "任务输入、资料与执行未涉及活动制作或投放预算/实际支出。"
+    },
+    "unknown": [
+      "real_model_usage.amount"
+    ],
+    "not_applicable": [
+      "activity_costs"
+    ]
+  },
+  "pricing_overview": {
+    "version": "2026-10-30.v2",
+    "currency": "CNY_cent",
+    "source": "2026-10-30.v2.json",
+    "modes": {
+      "search_basic": {
+        "mode": "search_basic",
+        "label": "基础资料检索",
+        "cost_cents": 20,
+        "duration_ms": 2000,
+        "max_internal_requests": 1,
+        "max_requests": null,
+        "max_readbacks": null,
+        "candidates": null,
+        "failure_rule": "启动即计量；失败或中断不退还，实际重试新增尝试"
+      },
+      "search_extended": {
+        "mode": "search_extended",
+        "label": "扩展资料检索",
+        "cost_cents": 60,
+        "duration_ms": 6000,
+        "max_internal_requests": 3,
+        "max_requests": null,
+        "max_readbacks": null,
+        "candidates": null,
+        "failure_rule": "启动即计量；内部最多 3 次，失败不退还"
+      },
+      "review": {
+        "mode": "review",
+        "label": "内容核验",
+        "cost_cents": 80,
+        "duration_ms": 6000,
+        "max_internal_requests": null,
+        "max_requests": 3,
+        "max_readbacks": 2,
+        "candidates": null,
+        "failure_rule": "最多 3 次模型请求、2 次回读；触顶/中断不退还"
+      },
+      "revision": {
+        "mode": "revision",
+        "label": "返修",
+        "cost_cents": 120,
+        "duration_ms": 8000,
+        "max_internal_requests": null,
+        "max_requests": null,
+        "max_readbacks": null,
+        "candidates": null,
+        "failure_rule": "启动即计量；失败不退还"
+      },
+      "save": {
+        "mode": "save",
+        "label": "方案保存",
+        "cost_cents": 10,
+        "duration_ms": 1000,
+        "max_internal_requests": 1,
+        "max_requests": null,
+        "max_readbacks": null,
+        "candidates": null,
+        "failure_rule": "启动即计量；保存失败另行核实"
+      },
+      "submit_script": {
+        "mode": "submit_script",
+        "label": "正式提交脚本",
+        "cost_cents": 120,
+        "duration_ms": 8000,
+        "max_internal_requests": null,
+        "max_requests": null,
+        "max_readbacks": null,
+        "candidates": null,
+        "failure_rule": "启动即计量；失败或中断保留计量，同次恢复不重复收费"
+      }
+    }
+  },
+  "model_config": {
+    "provider": "deepseek",
+    "sdk": "openai",
+    "base_url": "https://api.deepseek.com",
+    "model": "deepseek-flash",
+    "api_key": "set",
+    "thinking": false,
+    "streaming": false,
+    "sdk_auto_retries": 0,
+    "network_route": "direct",
+    "keepalive_expiry_seconds": 180
+  },
+  "versions": {
+    "protocol": "direct-script-v1",
+    "incompatibility": null,
+    "app": "0.1.0",
+    "prompt": null,
+    "materials": "2026-10-29.v1",
+    "pricing": "2026-10-30.v2",
+    "strategy": "2026-10-29.v2"
+  },
+  "artifacts": {
+    "campaign_versions": 0
+  }
+}

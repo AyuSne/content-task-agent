@@ -1,0 +1,26 @@
+{
+  "task_id": "t_954cbdd23ae3",
+  "output_version": null,
+  "save_id": null,
+  "verified": true,
+  "delivery_complete": false,
+  "files": [
+    {
+      "path": "D:\\AAA小影科技\\.scratch\\content-agent-redesign-worktrees\\11-runs\\paired-new\\budget-impossible\\data\\real\\exports\\t_954cbdd23ae3\\execution-report.md",
+      "sha256": "1e1998d20ffc29448f94adf02ed1440e21feca15bcb1d73cc1d0d1ca7ae6fb6c",
+      "bytes": 8061,
+      "exists": true,
+      "current_sha256": "1e1998d20ffc29448f94adf02ed1440e21feca15bcb1d73cc1d0d1ca7ae6fb6c",
+      "ok": true
+    },
+    {
+      "path": "D:\\AAA小影科技\\.scratch\\content-agent-redesign-worktrees\\11-runs\\paired-new\\budget-impossible\\data\\real\\exports\\t_954cbdd23ae3\\trace.jsonl",
+      "sha256": "338f597b4b47f76584e07cae7ec26f809ac0d40519c9801ba88e832d051c5137",
+      "bytes": 41307,
+      "exists": true,
+      "current_sha256": "338f597b4b47f76584e07cae7ec26f809ac0d40519c9801ba88e832d051c5137",
+      "ok": true
+    }
+  ],
+  "repaired": false
+}

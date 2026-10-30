@@ -1,0 +1,50 @@
+{
+  "task_id": "t_35be61da441b",
+  "output_version": 2,
+  "save_id": "s_3544f5748e853039",
+  "verified": true,
+  "delivery_complete": true,
+  "files": [
+    {
+      "path": "D:\\AAA小影科技\\.scratch\\content-agent-redesign-worktrees\\11-runs\\initial-new\\campus-15\\data\\real\\exports\\t_35be61da441b\\campaign-v2.md",
+      "sha256": "12f9de5223bff25a95a459005626dde6f4eed7718d50d06a571ab0ed8bf0f984",
+      "bytes": 14383,
+      "exists": true,
+      "current_sha256": "12f9de5223bff25a95a459005626dde6f4eed7718d50d06a571ab0ed8bf0f984",
+      "ok": true
+    },
+    {
+      "path": "D:\\AAA小影科技\\.scratch\\content-agent-redesign-worktrees\\11-runs\\initial-new\\campus-15\\data\\real\\exports\\t_35be61da441b\\campaign-v2.json",
+      "sha256": "0d9c2edc7963059e275e6bd14fa82c976859668f3b9f79deb0c144d10545105c",
+      "bytes": 16825,
+      "exists": true,
+      "current_sha256": "0d9c2edc7963059e275e6bd14fa82c976859668f3b9f79deb0c144d10545105c",
+      "ok": true
+    },
+    {
+      "path": "D:\\AAA小影科技\\.scratch\\content-agent-redesign-worktrees\\11-runs\\initial-new\\campus-15\\data\\real\\exports\\t_35be61da441b\\brief-v1.json",
+      "sha256": "3d816097e7abaf6a03e37f4b38d4cdcc0924cac5cd74918120616e75d6f1c239",
+      "bytes": 5767,
+      "exists": true,
+      "current_sha256": "3d816097e7abaf6a03e37f4b38d4cdcc0924cac5cd74918120616e75d6f1c239",
+      "ok": true
+    },
+    {
+      "path": "D:\\AAA小影科技\\.scratch\\content-agent-redesign-worktrees\\11-runs\\initial-new\\campus-15\\data\\real\\exports\\t_35be61da441b\\execution-report.md",
+      "sha256": "202764551c64dca60d64d41752684848de70dfba7a6b08ec67e0e8b05a96957a",
+      "bytes": 22159,
+      "exists": true,
+      "current_sha256": "202764551c64dca60d64d41752684848de70dfba7a6b08ec67e0e8b05a96957a",
+      "ok": true
+    },
+    {
+      "path": "D:\\AAA小影科技\\.scratch\\content-agent-redesign-worktrees\\11-runs\\initial-new\\campus-15\\data\\real\\exports\\t_35be61da441b\\trace.jsonl",
+      "sha256": "98de5c645b7668bed471d138c3db46e02411d36505acd1748efdc7eeec1e5a21",
+      "bytes": 207447,
+      "exists": true,
+      "current_sha256": "98de5c645b7668bed471d138c3db46e02411d36505acd1748efdc7eeec1e5a21",
+      "ok": true
+    }
+  ],
+  "repaired": false
+}

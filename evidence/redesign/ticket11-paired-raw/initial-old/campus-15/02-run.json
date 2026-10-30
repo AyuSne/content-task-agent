@@ -1,0 +1,705 @@
+{
+  "task_id": "t_81f1a485ca49",
+  "mode": "real",
+  "status": "complete",
+  "reason": "核实导出修复后确认产物与交付文件一致。",
+  "duplicate": false,
+  "created_at": "2026-10-30T05:04:10+00:00",
+  "updated_at": "2026-10-30T05:06:41+00:00",
+  "input": {
+    "version": 1,
+    "topic": "帧剪社团招新15秒自动卡点介绍",
+    "budget": "20.00",
+    "budget_cents": 2000,
+    "deadline": "2026-10-30T04:00:00+00:00",
+    "audience": "18-24岁大学生",
+    "requirements": [
+      "准备完整内容活动方案，产品主张只用材料支持的正式能力；不作涨粉、收益或爆款承诺。",
+      "方案交给运营继续制作。允许把缺少的画面、操作录屏和原创配乐列为待制作，写清责任人、位置和权属核对；不可冒充现成素材。平台和发布排期可以提出建议，不必把可建议项当成关键阻塞。",
+      "仅一条15秒竖屏主视频，突出自动对齐节拍和逐段手动微调，结尾邀请按需尝试。"
+    ],
+    "raw": {
+      "topic": "帧剪社团招新15秒自动卡点介绍",
+      "budget": "20",
+      "deadline": "2026-10-30T12:00:00+08:00",
+      "audience": "18-24岁大学生",
+      "requirements": [
+        "准备完整内容活动方案，产品主张只用材料支持的正式能力；不作涨粉、收益或爆款承诺。",
+        "方案交给运营继续制作。允许把缺少的画面、操作录屏和原创配乐列为待制作，写清责任人、位置和权属核对；不可冒充现成素材。平台和发布排期可以提出建议，不必把可建议项当成关键阻塞。",
+        "仅一条15秒竖屏主视频，突出自动对齐节拍和逐段手动微调，结尾邀请按需尝试。"
+      ]
+    },
+    "fingerprint": "fc11c62d2260c76234c68edd2bf848c55143c867bd9d6a59ad6cb5b411267e39"
+  },
+  "validation": {
+    "errors": [],
+    "interpretations": []
+  },
+  "brief": {
+    "version": 1,
+    "content": {
+      "goal": "为「帧剪」准备一条 15 秒竖屏短视频推广活动方案，面向 18-24 岁大学生，用社团招新场景展示自动对齐节拍与逐段手动微调，结尾邀请按需尝试。",
+      "audience": "18-24 岁大学生（已确认，来自任务输入）。合成调研（M-003，样本 120 名 18-24 岁大学生）显示该群体最常制作社团活动记录类内容，超过一半会在 30 分钟内完成一条成片，模板和自动卡点能明显减少重复操作，且对“一键出片”信任度一般、更愿意保留手动调整——这支持把“自动对齐 + 逐段微调”作为主线，而非主打全自动。该结论仅代表该合成样本，不外推为全体大学生。",
+      "product_facts": [
+        {
+          "claim": "帧剪的自动卡点会分析所选音乐的节拍，把用户选中的视频片段对齐到节拍点。",
+          "material_id": "M-001",
+          "quote": "自动卡点会分析所选音乐的节拍，把用户选中的视频片段对齐到节拍点。",
+          "scope": "iOS/Android 4.2 及以上；对节奏清晰的流行乐与鼓点识别更稳",
+          "use": "主脚本第 2 段核心卖点，画面配合实机录屏演示"
+        },
+        {
+          "claim": "用户可以逐段微调卡点结果，也可以一键重新卡点。",
+          "material_id": "M-001",
+          "quote": "用户可以逐段微调，也可以一键重新卡点。",
+          "scope": "iOS/Android 4.2 及以上",
+          "use": "主脚本第 3 段第二卖点，体现“人控最后一步”"
+        },
+        {
+          "claim": "自动卡点不承诺对所有曲风都准确，复杂变速或弱节拍音乐需要人工调整。",
+          "material_id": "M-001",
+          "quote": "该功能不承诺对所有曲风都准确，复杂变速或弱节拍音乐需要人工调整。",
+          "scope": "iOS/Android 4.2 及以上；对节奏清晰的流行乐与鼓点识别更稳",
+          "use": "作为能力边界，约束脚本措辞，不作“任何音乐都精准”的表达"
+        }
+      ],
+      "creative_requirements": [
+        {
+          "text": "准备完整内容活动方案，产品主张只用材料支持的正式能力；不作涨粉、收益或爆款承诺。",
+          "source": "任务输入 requirements[0]"
+        },
+        {
+          "text": "方案交给运营继续制作；允许把缺少的画面、操作录屏和原创配乐列为待制作，写清责任人、位置和权属核对，不可冒充现成素材。",
+          "source": "任务输入 requirements[1]"
+        },
+        {
+          "text": "平台和发布排期可以提出建议，不必把可建议项当成关键阻塞。",
+          "source": "任务输入 requirements[1]"
+        },
+        {
+          "text": "仅一条 15 秒竖屏主视频，突出自动对齐节拍和逐段手动微调，结尾邀请按需尝试。",
+          "source": "任务输入 requirements[2]"
+        },
+        {
+          "text": "表达应轻快、真实、可操作；不得承诺涨粉、收益或爆款；不得把实验性功能写成正式能力；不得使用“最强”“唯一”等绝对化表述。",
+          "source": "M-004 品牌表达规则"
+        },
+        {
+          "text": "校园场景素材已取得演员授权、限本题活动使用，且为情境画面，只能说明使用场景，不能单独证明产品功能。",
+          "source": "M-005 素材登记"
+        }
+      ],
+      "assumptions": [
+        {
+          "text": "主视频中的产品操作画面由运营使用帧剪 iOS/Android 4.2 及以上版本实机录屏，不作后期伪造界面。",
+          "basis": "M-001 能力范围以 4.2 及以上为准，且片段中陈述的成片时长选项含 15 秒；需在对应版本录制才能与主张一致"
+        },
+        {
+          "text": "配乐采用节奏清晰的流行乐或鼓点素材，落在 M-001 说明识别更稳的范围内。",
+          "basis": "M-001“对节奏清晰的流行乐与鼓点识别更稳；复杂变速或弱节拍音乐需要人工调整”"
+        },
+        {
+          "text": "活动仅一条主视频，不额外衍生切片或第二卖点。",
+          "basis": "任务输入 requirements[2]“仅一条 15 秒竖屏主视频”"
+        }
+      ],
+      "suggestions": [
+        {
+          "text": "建议主投放平台为抖音/视频号竖屏信息流，配合校园社群转发；这是建议而非已确认投放计划。",
+          "basis": "目标受众为 18-24 岁大学生，竖屏短视频是该群体常规消费场景；任务输入允许平台作为建议项"
+        },
+        {
+          "text": "建议主视频在校园社团招新季前发布，方案保存后按 D 日锚点倒排制作（D-3 录制、D-2 核对权属与节拍效果、D-1 审核）。",
+          "basis": "任务输入要求平台与排期只需给建议；制作依赖需要明确锚点"
+        },
+        {
+          "text": "结尾用“按需尝试”的邀请式字幕收束，而非“一键出片”式口号。",
+          "basis": "M-003 显示该群体对“一键出片”信任度一般、更愿意保留手动调整"
+        }
+      ],
+      "unknowns": [
+        {
+          "question": "音乐采购/原创配乐制作费用、录屏制作工时费用与投放费用未给出。",
+          "impact": "无法给出真实活动成本；方案中仅把已给出的 2000 分视为本次方案准备的模拟工具费用，上述费用单独标为待估。",
+          "blocking": false
+        },
+        {
+          "question": "具体发布平台账号与投放预算归属方未确认。",
+          "impact": "影响发布执行与排期落地，但不影响方案与脚本内容本身；作为待确认项交运营对接。",
+          "blocking": false
+        },
+        {
+          "question": "运营实机录屏能否在 4.2 及以上版本完成、所需社团招新画面是否覆盖所需节拍切换镜头。",
+          "impact": "若无法完成，需延后发布并在发布前替换/补充；方案中作为待制作项与风险处置写明。",
+          "blocking": false
+        }
+      ],
+      "sources": [
+        {
+          "material_id": "M-001",
+          "used_for": "自动对齐节拍、逐段微调、重新卡点与能力边界等产品事实"
+        },
+        {
+          "material_id": "M-003",
+          "used_for": "受众内容偏好与对“一键出片”信任度的判断"
+        },
+        {
+          "material_id": "M-004",
+          "used_for": "品牌表达与禁语约束"
+        },
+        {
+          "material_id": "M-005",
+          "used_for": "校园场景素材授权与使用范围"
+        }
+      ],
+      "blocking_unknowns": 0
+    },
+    "created_at": "2026-10-30T05:04:30+00:00"
+  },
+  "review": {
+    "review_id": "v_b1c6af8ae300d147",
+    "output_id": "o_8529ece08503000c",
+    "output_version": 3,
+    "status": "complete",
+    "verdict": "pass",
+    "completeness": "full",
+    "findings": [
+      {
+        "finding_id": "F6",
+        "severity": "optional",
+        "location": "script.segments[0].visual（0-4s 用 3-5 条 10-20 秒片段混剪为 4 秒）与 production_steps[0].note",
+        "requirement": "制作可用：剪辑安排应可执行，取舍标准与成片节奏匹配",
+        "evidence": "M-005 共 12 条 10-20 秒片段，社团招新为其中场景；production_steps[0] 仅要求挑选“至少 3 个可卡点切换镜头”，未给单镜时长与镜头数上限",
+        "issue": "把 10-20 秒原片压进 4 秒意味着每镜约 1-1.5 秒；只给下限不给上限，剪辑时可能镜头过密、观感混乱，影响 15 秒整体节奏，D-2 核对项也缺少对应标准",
+        "suggestion": "可在 production_steps[0] 补充“每镜约 1-1.5 秒、总计 3-4 个镜头”，并纳入 D-2 粗剪核对项；不影响事实引用与素材状态",
+        "reviewed_version": "3"
+      },
+      {
+        "finding_id": "F7",
+        "severity": "optional",
+        "location": "materials 表中 M-006 的 position 字段（对照 script.segments[0].audio）",
+        "requirement": "前后一致：待授权素材的标注措辞应与其他位置一致",
+        "evidence": "E7/M-006 为“待获取授权，未取得前不得作为已可用素材”；materials[M-006].position 写作“全片背景音，第 4 段渐弱收束”，而 script.segments[0].audio 已写明取得前不得直接用于发布",
+        "issue": "position 字段单独阅读时像是已确定使用，未同步标注“取得授权后采用，否则由原创鼓点替代”，与方案其他位置的谨慎措辞存在轻微不一致，交运营时易被误读",
+        "suggestion": "可将 position 改为“全片背景音（取得商用授权后采用；否则由原创鼓点覆盖全片），第 4 段渐弱收束”，仅加固表述，不改素材状态与排期",
+        "reviewed_version": "3"
+      },
+      {
+        "finding_id": "F8",
+        "severity": "optional",
+        "location": "script.segments[3].visual 与 open_questions[4]（结尾 Logo/图标为可选）",
+        "requirement": "不确定性清楚与前后一致：可选视觉元素与邀请式结尾的配合应写明",
+        "evidence": "第 4 段规定“未取得品牌使用授权则不出现图标，仅保留文字字幕”；字幕为“需要时，试试帧剪”，已点名产品；open_questions[4] 把 Logo 列为待确认",
+        "issue": "若 Logo 授权未落实，结尾仅剩短字卡，方案未给字卡可读时长或替代视觉要求，可能导致结尾识别度单薄，且无对应核对项",
+        "suggestion": "可在第 4 段 visual 补一句“若 Logo 未授权，结尾字卡停留不少于 1.5 秒，D-2 粗剪时确认字幕可读”，作为可选视觉细化，不影响事实与排期",
+        "reviewed_version": "3"
+      }
+    ],
+    "summary": "被审版本 3 已完整核对需求覆盖、事实支持、前后一致、制作可用、不确定性清楚五项：单条 15 秒竖屏主视频、双卖点（自动对齐节拍 + 逐段手动微调）、邀请式结尾均落实；产品主张全部对应 M-001 原文并限定在 iOS/Android 4.2 及以上、节奏清晰的流行乐/鼓点范围，未出现“任何音乐都精准”“一键出片”等越界表述；M-005 情境画面在第 1、4 段明确标注仅表达场景，产品主张由待制作的实机录屏承载，未以情境冒充能力证据；M-006 待授权、原创鼓点与音效待制作、Logo 待授权均有位置、负责人角色、时点、替换或省略路径与发布前条件，未把待办写成已可用素材；平台与发布排期为建议项，制作采用有锚点的 D-3/D-2/D-1 排期，剩余预算约 1550 分、方案截止与时点可行。前两轮可选意见（开场痛点标为创作假设、第 2 段取舍与音效归属、M-006 决策时点、微调交互中性化、原创鼓点最低条件）已真实落地且未引入新矛盾。剩余三条为不阻塞的可选细化。",
+    "evidence_gaps": [],
+    "requests_used": 2,
+    "readbacks_used": 0,
+    "attempt_id": "a_b28566c8deb5125e",
+    "created_at": "2026-10-30T05:06:38+00:00"
+  },
+  "content_reuse": null,
+  "save": {
+    "save_id": "s_2b790e54e0f6465b",
+    "output_id": "o_8529ece08503000c",
+    "output_version": 3,
+    "status": "verified",
+    "files": [
+      {
+        "path": "D:\\AAA小影科技\\.scratch\\content-agent-redesign-worktrees\\11-runs\\initial-old\\campus-15\\data\\real\\exports\\t_81f1a485ca49\\campaign-v3.md",
+        "sha256": "d8cfda13e26290c269354048063eaa9b3eb45e2ac68334031e9ca30ccb9d51e8",
+        "bytes": 14592,
+        "exists": true,
+        "current_sha256": "d8cfda13e26290c269354048063eaa9b3eb45e2ac68334031e9ca30ccb9d51e8",
+        "ok": true
+      },
+      {
+        "path": "D:\\AAA小影科技\\.scratch\\content-agent-redesign-worktrees\\11-runs\\initial-old\\campus-15\\data\\real\\exports\\t_81f1a485ca49\\campaign-v3.json",
+        "sha256": "fb008e90ba261193971b0a4ce717da3591907691888fc845d0242bf1429994b7",
+        "bytes": 17314,
+        "exists": true,
+        "current_sha256": "fb008e90ba261193971b0a4ce717da3591907691888fc845d0242bf1429994b7",
+        "ok": true
+      },
+      {
+        "path": "D:\\AAA小影科技\\.scratch\\content-agent-redesign-worktrees\\11-runs\\initial-old\\campus-15\\data\\real\\exports\\t_81f1a485ca49\\brief-v1.json",
+        "sha256": "fd4ba42ce550e1b95615fae2c9ef5566061b8af3b6768598a8fd3ada7ff4c28d",
+        "bytes": 6342,
+        "exists": true,
+        "current_sha256": "fd4ba42ce550e1b95615fae2c9ef5566061b8af3b6768598a8fd3ada7ff4c28d",
+        "ok": true
+      },
+      {
+        "path": "D:\\AAA小影科技\\.scratch\\content-agent-redesign-worktrees\\11-runs\\initial-old\\campus-15\\data\\real\\exports\\t_81f1a485ca49\\execution-report.md",
+        "sha256": "2010e8c2c9e42655e92390da08c40f1c305445f0c9d37d0f27862b44df6d4df3",
+        "bytes": 21078,
+        "exists": true,
+        "current_sha256": "2010e8c2c9e42655e92390da08c40f1c305445f0c9d37d0f27862b44df6d4df3",
+        "ok": true
+      },
+      {
+        "path": "D:\\AAA小影科技\\.scratch\\content-agent-redesign-worktrees\\11-runs\\initial-old\\campus-15\\data\\real\\exports\\t_81f1a485ca49\\trace.jsonl",
+        "sha256": "47220acb30d8f0a8149e6523163fde7a858ee342335c39aac9a60233f11a7e10",
+        "bytes": 272976,
+        "exists": true,
+        "current_sha256": "47220acb30d8f0a8149e6523163fde7a858ee342335c39aac9a60233f11a7e10",
+        "ok": true
+      }
+    ],
+    "verified": true,
+    "verified_at": "2026-10-30T05:06:41+00:00",
+    "error": null,
+    "attempt_id": "a_b198e3d4f4981bd5",
+    "created_at": "2026-10-30T05:06:41+00:00"
+  },
+  "strategy": {
+    "table_version": "2026-10-29.v2",
+    "directions": [
+      {
+        "direction": "functional_demo",
+        "label": "功能演示",
+        "expression_goal": "直接展示当前任务目标功能能做什么、如何操作及其结果与限制",
+        "material_needs": [
+          "目标功能的操作录屏及其制作、权属状态",
+          "当前任务产品主张对应的正式能力原文与适用范围",
+          "本任务采用的品牌表达规则"
+        ],
+        "evidence_queries": [
+          "当前任务目标功能的正式能力与适用范围",
+          "对应操作演示素材的可用状态与权属"
+        ],
+        "required_queries": 2,
+        "risk": "操作录屏尚未制作时须安排制作及核对；展示结果应对应实际操作，纯功能演示对情境吸引力的帮助有限"
+      },
+      {
+        "direction": "user_scenario",
+        "label": "用户情境",
+        "expression_goal": "用当前任务指定受众的相关情境引出需求，再用目标功能的操作与结果回应需求",
+        "material_needs": [
+          "与本任务受众及场景相符的情境素材及可用、制作或权属状态",
+          "受众依据（仅在原资料支持范围内使用；没有调研时明确为创作建议）",
+          "实际选用的声音与画面的权属及可用状态，不预设必须使用背景音乐",
+          "目标功能的正式能力依据与操作演示"
+        ],
+        "evidence_queries": [
+          "当前指定受众及使用情境的依据与适用范围",
+          "本任务拟用画面和声音素材的可用、制作与授权状态",
+          "当前任务目标功能的正式能力与适用范围"
+        ],
+        "required_queries": 3,
+        "risk": "情境画面不能单独证明产品能力；调研不得外推到其他人群；待制作或待授权素材须有处理步骤与发布前条件"
+      },
+      {
+        "direction": "tutorial",
+        "label": "教程",
+        "expression_goal": "分步说明当前任务目标功能的实际操作，把步骤、结果和适用边界对应起来",
+        "material_needs": [
+          "当前任务目标功能的正式能力与边界",
+          "脚本实际涉及的其他能力依据（未使用的功能无需加入）",
+          "本任务采用的品牌与素材规则",
+          "与脚本步骤一致的操作录屏及其制作、权属状态"
+        ],
+        "evidence_queries": [
+          "当前任务目标功能的操作依据与能力边界",
+          "本脚本实际使用能力的正式支持范围",
+          "本任务的品牌表达与素材限制"
+        ],
+        "required_queries": 3,
+        "risk": "按任务指定时长取舍步骤密度；需要清楚的操作录屏和结果对应，不可擅改时长或核心要求"
+      }
+    ],
+    "latest_selection": {
+      "selection_id": "st_5c51e9cd2e8b41b1",
+      "direction": "user_scenario",
+      "search_mode": "search_basic",
+      "generation_mode": "generate_direct",
+      "search_queries": 0,
+      "include_revision": true,
+      "improvement": false,
+      "expected_benefit": null,
+      "rationale": "任务要求“社团招新场景 + 15 秒竖屏 + 突出自动对齐节拍与逐段手动微调 + 结尾邀请尝试”，受众为 18-24 岁大学生。纯功能演示（录屏为主）缺少情境吸引力，难以在 15 秒内让招新主题成立；纯教程在 15 秒内步骤密度过高，且需额外能力依据。用户情境可用已授权的校园招新情境素材（M-005）快速建立场景，再用 M-001 的实机录屏承载两项产品主张，情境画面只表达场景、不证明能力，风险可控。所需受众（M-003）、能力（M-001）、品牌规则（M-004）、素材授权（M-005）均已检索，且已回读 M-001 正文，剩余检索次数为 0；直接生成单候选即可覆盖一条 15 秒主脚本，完整路径含一次返修与复核共约 410 分，预算 2000 分与截止时间内均可行。",
+      "strategy_version": "2026-10-29.v2",
+      "pricing_version": "2026-10-29.v1",
+      "path": {
+        "version": "2026-10-29.v1",
+        "currency": "CNY_cent",
+        "pricing_source": "2026-10-29.v1.json",
+        "search_queries": 0,
+        "include_revision": true,
+        "lines": [
+          {
+            "step": "generation",
+            "mode": "generate_direct",
+            "label": "直接生成",
+            "cost_cents": 120,
+            "duration_ms": 8000,
+            "max_internal_requests": 1,
+            "max_requests": null,
+            "max_readbacks": null,
+            "candidates": 1,
+            "failure_rule": "一次生成；失败或中断保留计量"
+          },
+          {
+            "step": "review",
+            "mode": "review",
+            "label": "内容核验",
+            "cost_cents": 80,
+            "duration_ms": 6000,
+            "max_internal_requests": null,
+            "max_requests": 3,
+            "max_readbacks": 2,
+            "candidates": null,
+            "failure_rule": "最多 3 次模型请求、2 次回读；触顶/中断不退还"
+          },
+          {
+            "step": "revision",
+            "mode": "revision",
+            "label": "返修",
+            "cost_cents": 120,
+            "duration_ms": 8000,
+            "max_internal_requests": 2,
+            "max_requests": null,
+            "max_readbacks": null,
+            "candidates": null,
+            "failure_rule": "启动即计量；失败不退还"
+          },
+          {
+            "step": "re_review",
+            "mode": "review",
+            "label": "内容核验",
+            "cost_cents": 80,
+            "duration_ms": 6000,
+            "max_internal_requests": null,
+            "max_requests": 3,
+            "max_readbacks": 2,
+            "candidates": null,
+            "failure_rule": "最多 3 次模型请求、2 次回读；触顶/中断不退还"
+          },
+          {
+            "step": "save",
+            "mode": "save",
+            "label": "方案保存",
+            "cost_cents": 10,
+            "duration_ms": 1000,
+            "max_internal_requests": 1,
+            "max_requests": null,
+            "max_readbacks": null,
+            "candidates": null,
+            "failure_rule": "启动即计量；保存失败另行核实"
+          }
+        ],
+        "total_cost_cents": 410,
+        "total_duration_ms": 29000,
+        "notes": "估算与预留不是实际支出；执行前仍须按当前预算与模拟截止检查。"
+      },
+      "total_cost_cents": 410,
+      "total_duration_ms": 29000,
+      "incurred_cents": 40,
+      "remaining_cents": 1960,
+      "created_at": "2026-10-30T05:04:34+00:00",
+      "nature": "reserved"
+    },
+    "selection_count": 1,
+    "mode_table_version": "2026-10-29.v1"
+  },
+  "plan": {
+    "version": "plan-2026-10-29.v1",
+    "steps": [
+      {
+        "step": "brief",
+        "title": "业务简报",
+        "status": "done"
+      },
+      {
+        "step": "campaign_draft",
+        "title": "完整活动方案草稿",
+        "status": "done"
+      },
+      {
+        "step": "review",
+        "title": "内容核验",
+        "status": "done"
+      },
+      {
+        "step": "save",
+        "title": "核实保存与导出",
+        "status": "done"
+      }
+    ]
+  },
+  "todos": [],
+  "recovery": null,
+  "gaps": [
+    {
+      "source": "brief",
+      "question": "音乐采购/原创配乐制作费用、录屏制作工时费用与投放费用未给出。",
+      "impact": "无法给出真实活动成本；方案中仅把已给出的 2000 分视为本次方案准备的模拟工具费用，上述费用单独标为待估。",
+      "blocking": false
+    },
+    {
+      "source": "brief",
+      "question": "具体发布平台账号与投放预算归属方未确认。",
+      "impact": "影响发布执行与排期落地，但不影响方案与脚本内容本身；作为待确认项交运营对接。",
+      "blocking": false
+    },
+    {
+      "source": "brief",
+      "question": "运营实机录屏能否在 4.2 及以上版本完成、所需社团招新画面是否覆盖所需节拍切换镜头。",
+      "impact": "若无法完成，需延后发布并在发布前替换/补充；方案中作为待制作项与风险处置写明。",
+      "blocking": false
+    }
+  ],
+  "mode_notice": "真实模型运行；小样本观察不代表生产质量或统计显著结论。",
+  "progress": {
+    "sim_start": "2026-10-29T00:00:00+08:00",
+    "sim_now": "2026-10-29T00:00:33+08:00",
+    "sim_elapsed_ms": 33000,
+    "used_rounds": 21,
+    "max_rounds": 24,
+    "paused": false,
+    "current_output": {
+      "output_id": "o_8529ece08503000c",
+      "version": 3,
+      "status": "draft",
+      "strategy": "user_scenario"
+    },
+    "save": {
+      "save_id": "s_2b790e54e0f6465b",
+      "output_version": 3,
+      "status": "verified",
+      "verified": true
+    },
+    "phase": "complete",
+    "brief_version": 1,
+    "last_run_at": "2026-10-30T05:06:38+00:00"
+  },
+  "resources": {
+    "budget_cents": 2000,
+    "sim_spent_cents": 430,
+    "remaining_cents": 1570,
+    "real_requests": 28,
+    "mock_requests": 0,
+    "model_requests": 28,
+    "real_usage": {
+      "requests": 28,
+      "real_requests": 28,
+      "mock_requests": 0,
+      "unknown_usage_requests": 0,
+      "usage_complete": true,
+      "prompt_tokens": 637822,
+      "completion_tokens": 30096,
+      "cache_hit_tokens": 571264,
+      "cache_miss_tokens": 66558,
+      "elapsed_ms": 147200
+    },
+    "real_cost": null,
+    "amount_status": {
+      "simulated_tool_fee": "incurred_and_estimated",
+      "real_model_usage": "unknown",
+      "activity_costs": "unknown"
+    },
+    "simulated_tool_fee": {
+      "category": "simulated_tool_fee",
+      "unit": "CNY_cent",
+      "source": "pricing:2026-10-29.v1",
+      "nature": "incurred",
+      "incurred_cents": 430,
+      "ledger_entries": 8,
+      "estimated": {
+        "estimate_id": "e_e2f45986e5475181",
+        "kind": "strategy_choice",
+        "direction": "user_scenario",
+        "search_mode": "search_basic",
+        "generation_mode": "generate_direct",
+        "search_queries": 0,
+        "include_revision": true,
+        "total_cost_cents": 410,
+        "total_duration_ms": 29000,
+        "incurred_cents": 40,
+        "remaining_cents": 1960,
+        "feasible": true,
+        "strategy_version": "2026-10-29.v2",
+        "pricing_version": "2026-10-29.v1",
+        "created_at": "2026-10-30T05:04:34+00:00",
+        "nature": "estimated"
+      },
+      "reserved": {
+        "selection_id": "st_5c51e9cd2e8b41b1",
+        "direction": "user_scenario",
+        "search_mode": "search_basic",
+        "generation_mode": "generate_direct",
+        "search_queries": 0,
+        "include_revision": true,
+        "improvement": false,
+        "expected_benefit": null,
+        "rationale": "任务要求“社团招新场景 + 15 秒竖屏 + 突出自动对齐节拍与逐段手动微调 + 结尾邀请尝试”，受众为 18-24 岁大学生。纯功能演示（录屏为主）缺少情境吸引力，难以在 15 秒内让招新主题成立；纯教程在 15 秒内步骤密度过高，且需额外能力依据。用户情境可用已授权的校园招新情境素材（M-005）快速建立场景，再用 M-001 的实机录屏承载两项产品主张，情境画面只表达场景、不证明能力，风险可控。所需受众（M-003）、能力（M-001）、品牌规则（M-004）、素材授权（M-005）均已检索，且已回读 M-001 正文，剩余检索次数为 0；直接生成单候选即可覆盖一条 15 秒主脚本，完整路径含一次返修与复核共约 410 分，预算 2000 分与截止时间内均可行。",
+        "total_cost_cents": 410,
+        "total_duration_ms": 29000,
+        "incurred_cents": 40,
+        "remaining_cents": 1960,
+        "strategy_version": "2026-10-29.v2",
+        "pricing_version": "2026-10-29.v1",
+        "created_at": "2026-10-30T05:04:34+00:00",
+        "nature": "reserved"
+      },
+      "note": "预留与估算是可行性判断，不是实际支出；实际消耗只累计账本中 nature=incurred 的记录。"
+    },
+    "real_model_usage": {
+      "category": "real_model_usage",
+      "unit": "request/token",
+      "source": "DeepSeek API response usage（openai SDK）",
+      "nature": "actual_usage",
+      "requests": 28,
+      "real_requests": 28,
+      "mock_requests": 0,
+      "unknown_usage_requests": 0,
+      "prompt_tokens": 637822,
+      "completion_tokens": 30096,
+      "cache_hit_tokens": 571264,
+      "cache_miss_tokens": 66558,
+      "elapsed_ms": 147200,
+      "amount": {
+        "status": "unknown",
+        "value_cents": null,
+        "reason": "没有可靠的单价来源，不把 token 用量换算成金额；未发生真实请求时也不补成已核实零费用。"
+      }
+    },
+    "activity_costs": {
+      "category": "activity_cost",
+      "unit": "CNY_cent",
+      "source": "campaign.materials",
+      "status": "unknown",
+      "nature": "unknown",
+      "entries": [
+        {
+          "name": "帧剪自动卡点与逐段微调实机录屏",
+          "material_id": null,
+          "status": "to_create",
+          "amount_cents": null,
+          "nature": "unknown",
+          "source": "campaign.materials"
+        },
+        {
+          "name": "背景音乐《Late Bus》（120 BPM，候选配乐）",
+          "material_id": "M-006",
+          "status": "to_acquire",
+          "amount_cents": null,
+          "nature": "unknown",
+          "source": "campaign.materials"
+        },
+        {
+          "name": "原创鼓点（配乐替换备选，合成或录制）",
+          "material_id": null,
+          "status": "to_create",
+          "amount_cents": null,
+          "nature": "unknown",
+          "source": "campaign.materials"
+        },
+        {
+          "name": "节拍点提示音效与微调操作音效",
+          "material_id": null,
+          "status": "to_create",
+          "amount_cents": null,
+          "nature": "unknown",
+          "source": "campaign.materials"
+        },
+        {
+          "name": "帧剪 App 图标 / 品牌 Logo（结尾可选）",
+          "material_id": null,
+          "status": "to_acquire",
+          "amount_cents": null,
+          "nature": "unknown",
+          "source": "campaign.materials"
+        }
+      ],
+      "reason": "方案含待获取或待制作素材，但任务输入与材料未给出活动预算或已发生支出金额。"
+    },
+    "unknown": [
+      "real_model_usage.amount",
+      "activity_costs"
+    ],
+    "not_applicable": []
+  },
+  "model_config": {
+    "provider": "deepseek",
+    "sdk": "openai",
+    "base_url": "https://api.deepseek.com",
+    "model": "deepseek-flash",
+    "api_key": "set",
+    "thinking": false,
+    "streaming": false,
+    "sdk_auto_retries": 0,
+    "network_route": "direct",
+    "keepalive_expiry_seconds": 180
+  },
+  "versions": {
+    "app": "0.1.0",
+    "prompt": "main-2026-10-29.v11",
+    "materials": "2026-10-29.v1",
+    "pricing": "2026-10-29.v1",
+    "strategy": "2026-10-29.v2"
+  },
+  "artifacts": {
+    "campaign_versions": 3
+  },
+  "run": {
+    "rounds_used": 21,
+    "stop_reason": "save_campaign",
+    "requests": 21,
+    "explicit_resume": false,
+    "recovery": {
+      "explicit_resume": false,
+      "prior_status": "in_progress",
+      "prior_phase": "created",
+      "prior_reason": "已创建，尚未开始执行；当前没有已生成产物。",
+      "pending_calls": 0,
+      "recovered_calls": [],
+      "interrupted_calls": [],
+      "interrupted_attempts": [],
+      "interrupted_requests": [],
+      "save_unknown": null,
+      "unpaused": false,
+      "reused": {
+        "input_version": 1,
+        "brief_version": 0,
+        "output_version": null,
+        "review": null,
+        "save": null,
+        "knowledge": [],
+        "materials": {
+          "version": "2026-10-29.v1",
+          "count": 10
+        },
+        "search_results": 0,
+        "attempts": 0,
+        "spent_cents": 0
+      },
+      "todos": [
+        {
+          "step": "brief",
+          "title": "业务简报",
+          "status": "current"
+        },
+        {
+          "step": "campaign_draft",
+          "title": "完整活动方案草稿",
+          "status": "pending"
+        },
+        {
+          "step": "review",
+          "title": "内容核验",
+          "status": "pending"
+        },
+        {
+          "step": "save",
+          "title": "核实保存与导出",
+          "status": "pending"
+        }
+      ]
+    }
+  }
+}
