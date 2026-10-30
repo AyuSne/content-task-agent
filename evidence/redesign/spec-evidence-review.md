@@ -13,6 +13,6 @@
 
 ## 验证
 
-- 用户独立报告：基于 `7812b9c` 及当时未提交修改，campaign、human import、version adoption、review dispositions、human collaboration 共 59 项通过，55.13 秒；这不是后续全部修改的完整回归。
+- 主 Agent 独立运行：基于 `7812b9c` 及当时未提交修改，campaign、human import、version adoption、review dispositions、human collaboration 共 59 项通过，55.13 秒；这不是后续全部修改的完整回归。
 - 旧协议恢复、所有 CLI 变更入口、未初始化任务、特殊 ID、旧文件歧义、新增人工编辑及错范围探针均执行过针对性测试；`ruff check src tests scripts` 和 `git diff --check` 通过。
 - 最终代码在 `58b72ac` 基础上运行 `PYTHONPATH=src python -m pytest -q`：317 项通过，退出码 0；非默认 scope 风险探针另行执行 1 项通过。仅 Mock 结果不代表真实评审质量。
