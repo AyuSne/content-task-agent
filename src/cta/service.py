@@ -13,8 +13,8 @@ from cta.config import Config, to_utc_iso, utc_now_iso
 from cta.db import open_store, transaction
 from cta.identity import Intake, RawInput, dedupe_key, normalize
 from cta.materials import load_catalog, load_task_catalog, store_task_catalog
-from cta.protocol import incompatibility
 from cta.pricing import load_price_table
+from cta.protocol import incompatibility
 from cta.repository import (
     append_message,
     append_snapshot,
@@ -267,9 +267,10 @@ class TaskService:
             modes = ["review", "save"]
         else:
             modes = (["search_basic"] if latest_brief(conn, task["id"]) is None else []) + ["submit_script", "review", "save"]
-        lines = [price.mode(mode).as_dict() for mode in modes]
-        cost = sum(line["cost_cents"] for line in lines)
-        duration = sum(line["duration_ms"] for line in lines)
+        estimate = price.estimate_actions(modes)
+        lines = estimate["lines"]
+        cost = estimate["total_cost_cents"]
+        duration = estimate["total_duration_ms"]
         spent = task_spent(conn, task["id"])
         sim_start = datetime.fromisoformat(task["sim_start"])
         end = sim_start + timedelta(milliseconds=task["sim_elapsed_ms"] + duration)

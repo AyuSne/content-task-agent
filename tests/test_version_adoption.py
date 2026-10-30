@@ -179,3 +179,32 @@ def test_resource_reassessment_respects_evidence_based_rejection(cli_env, model_
     updated = cli_json("update", task["task_id"], "--budget", "2.30")
     assert updated["resource_reassessment"]["projected_total_cents"] == 230
     assert updated["resource_reassessment"]["feasible"] is True
+
+
+def test_adopting_catalog_without_used_material_reports_review_gap(cli_env, model_script, monkeypatch):
+    from test_campaign_delivery_new import _new_draft_ready
+    from test_review_save import REVIEW_PASS, _review_item
+
+    from cta import materials
+
+    task_id = _new_draft_ready(model_script, _review_item(REVIEW_PASS))['task_id']
+    base = materials.load_catalog()
+    payload = json.loads((Path(__file__).resolve().parents[1] / 'fixtures/materials/catalog.json').read_text(encoding='utf-8'))
+    payload['version'] = 'missing-evidence-test'
+    payload['materials'] = [item for item in payload['materials'] if item['id'] != 'M-001']
+    original_load = materials.load_catalog
+    def load(root=None, version=None):
+        if version == 'missing-evidence-test':
+            return materials.MaterialCatalog(payload, cli_env / 'new-catalog.json')
+        return original_load(root, version)
+    monkeypatch.setattr(materials, 'load_catalog', load)
+    assert base.get('M-001') is not None
+    cli_json('adopt-material', task_id, '--version', 'missing-evidence-test')
+    reviewed = cli_json('review', task_id)
+    assert reviewed['review']['status'] == 'incomplete'
+    assert 'M-001' in json.dumps(reviewed['review'], ensure_ascii=False)
+    view = cli_json('inspect', task_id)
+    assert view['attempts'][-1]['kind'] == 'review_campaign'
+    assert view['attempts'][-1]['status'] == 'failed'
+    assert view['resources']['sim_spent_cents'] == 220
+    assert view['progress']['phase'] == 'review_incomplete'

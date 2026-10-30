@@ -179,10 +179,11 @@ def _script_errors(script, catalog):
             if identifier in ids:
                 errors.append(f"script.evidence[{index}].id 重复")
             ids.add(identifier)
-        material = catalog.get(item.get("material_id")) if isinstance(item.get("material_id"), str) else None
-        if material is None or item.get("material_version") != catalog.version:
+        error = catalog.evidence_error(item.get("material_id"), item.get("material_version"),
+                                       item.get("quote"), normalize_whitespace=True)
+        if error == "material":
             errors.append(f"script.evidence[{index}] 材料或版本不属于本任务")
-        elif not isinstance(item.get("quote"), str) or not item["quote"].strip() or " ".join(item["quote"].split()) not in " ".join(material.text.split()):
+        elif error == "quote":
             errors.append(f"script.evidence[{index}].quote 无法在材料正文中找到")
     segments = script.get("segments")
     if not isinstance(segments, list) or not segments:

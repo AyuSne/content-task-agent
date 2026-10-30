@@ -95,16 +95,11 @@ def submit_campaign(conn, task, args, catalog):
                 if identifier in ids:
                     errors.append(f"evidence[{i}].id 重复")
                 ids.add(identifier)
-            mid = item.get("material_id")
-            material = catalog.get(mid) if isinstance(mid, str) else None
-            quote = item.get("quote")
-            if material is None or item.get("material_version") != catalog.version:
+            error = catalog.evidence_error(item.get("material_id"), item.get("material_version"),
+                                           item.get("quote"), normalize_whitespace=True)
+            if error == "material":
                 errors.append(f"evidence[{i}] 材料或版本不属于本任务")
-            elif (
-                not isinstance(quote, str)
-                or not quote.strip()
-                or " ".join(quote.split()) not in " ".join(material.text.split())
-            ):
+            elif error == "quote":
                 errors.append(f"evidence[{i}].quote 无法在材料正文中找到")
     questions = campaign.get("open_questions")
     if not isinstance(questions, list):
