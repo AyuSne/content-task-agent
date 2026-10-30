@@ -1,0 +1,197 @@
+{
+  "version": "redesign-main-disposition-v1",
+  "provenance": "从 tests/test_brief_loop.py、test_direct_script.py、test_campaign_delivery_new.py 构造合成前置稿；核验意见为脚本化人工预设，不是真实核验。",
+  "brief": {
+    "goal": "让大学生在社团招新季了解帧剪的自动卡点",
+    "audience": "18-24 岁大学生（合成调研样本）",
+    "product_facts": [
+      {
+        "claim": "自动卡点可把视频片段对齐到节拍点",
+        "material_id": "M-001",
+        "quote": "把用户选中的视频片段对齐到节拍点",
+        "scope": "iOS/Android 4.2 及以上；15/30/60 秒成片",
+        "use": "主脚本卡点段"
+      }
+    ],
+    "creative_requirements": [
+      {
+        "text": "突出自动卡点",
+        "source": "用户输入"
+      }
+    ],
+    "assumptions": [
+      {
+        "text": "活动平台为短视频信息流",
+        "basis": "题材常识，待确认"
+      }
+    ],
+    "suggestions": [
+      {
+        "text": "采用校园社团情境",
+        "basis": "M-003 调研"
+      }
+    ],
+    "unknowns": [
+      {
+        "question": "是否需要投放预算？",
+        "impact": "影响内容条数",
+        "blocking": false
+      }
+    ],
+    "sources": [
+      {
+        "material_id": "M-001",
+        "used_for": "能力依据"
+      },
+      {
+        "material_id": "M-003",
+        "used_for": "受众依据"
+      }
+    ]
+  },
+  "script": {
+    "title": "节奏剪辑",
+    "duration_seconds": 15,
+    "direction": "教程与校园情境结合",
+    "segments": [
+      {
+        "segment_id": "s1",
+        "duration_seconds": 15,
+        "visual": "待制作操作录屏",
+        "voiceover": "让片段对齐节拍",
+        "on_screen_text": "对齐节拍",
+        "evidence_ids": [
+          "e1"
+        ]
+      }
+    ],
+    "evidence": [
+      {
+        "id": "e1",
+        "claim": "片段对齐节拍",
+        "material_id": "M-001",
+        "material_version": "2026-10-29.v1",
+        "quote": "把用户选中的视频片段对齐到节拍点",
+        "scope": "iOS/Android 4.2 及以上",
+        "use": "功能演示"
+      }
+    ]
+  },
+  "campaign": {
+    "strategy": {
+      "name": "校园情境与教程结合",
+      "rationale": "演示操作并联系校园",
+      "alternatives": []
+    },
+    "activity": {
+      "goal": "让 18-24 岁大学生在社团招新季了解并尝试自动卡点",
+      "audience": "18-24 岁大学生，重点是社团招新负责人",
+      "theme": "把招新现场剪成你的节奏",
+      "format": "1 条 30 秒主视频 + 2 条 15 秒切条",
+      "content_items": [
+        {
+          "title": "主视频",
+          "purpose": "情境 + 操作演示",
+          "duration_s": 30,
+          "platform": "短视频信息流"
+        },
+        {
+          "title": "切条 A",
+          "purpose": "卡点前后对比",
+          "duration_s": 15,
+          "platform": "短视频信息流"
+        }
+      ]
+    },
+    "materials": [
+      {
+        "name": "校园场景视频素材包",
+        "material_id": "M-005",
+        "status": "existing",
+        "use": "社团招新情境画面",
+        "position": "第 1、3 段",
+        "rights_note": "演员授权已取得，限本题活动使用"
+      },
+      {
+        "name": "产品操作录屏",
+        "material_id": "",
+        "status": "to_create",
+        "use": "展示自动卡点操作与逐段微调",
+        "position": "第 2 段",
+        "rights_note": "待录制，使用正式版本 4.2"
+      },
+      {
+        "name": "背景音乐",
+        "material_id": "M-006",
+        "status": "to_acquire",
+        "use": "卡点演示音乐",
+        "position": "第 2 段",
+        "rights_note": "商用授权待购买，未取得前不可发布"
+      }
+    ],
+    "production_steps": [
+      {
+        "step": "录制自动卡点操作",
+        "owner": "内容制作",
+        "timing": "T-3 天",
+        "note": "使用 4.2 正式版"
+      },
+      {
+        "step": "获取音乐授权",
+        "owner": "运营",
+        "timing": "T-2 天",
+        "note": "未取得则替换音乐"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "E1",
+        "claim": "自动卡点把视频片段对齐到节拍点，可逐段微调",
+        "material_id": "M-001",
+        "quote": "把用户选中的视频片段对齐到节拍点",
+        "scope": "iOS/Android 4.2 及以上；15/30/60 秒成片",
+        "use": "主脚本第 2 段字幕与操作演示",
+        "material_version": "2026-10-29.v1"
+      }
+    ],
+    "open_questions": [
+      {
+        "question": "投放平台清单未确认",
+        "impact": "影响切条画幅",
+        "blocking": false
+      }
+    ]
+  },
+  "review": {
+    "verdict": "fail",
+    "completeness": "full",
+    "summary": "核验发现口播含涨粉承诺，必须修改。",
+    "findings": [
+      {
+        "finding_id": "F1",
+        "severity": "must_fix",
+        "location": "script.segments[0].voiceover",
+        "requirement": "品牌规则 M-004 不得承诺涨粉",
+        "evidence": "核验意见认为第1段口播承诺涨粉；M-004 禁止承诺涨粉",
+        "issue": "第1段口播承诺涨粉，违反品牌规则。",
+        "suggestion": "删除涨粉承诺，使用有据的功能描述。",
+        "reviewed_version": "1"
+      }
+    ],
+    "evidence_gaps": []
+  },
+  "cases": [
+    {
+      "id": "actual-defect",
+      "label": "真实缺陷",
+      "voiceover": "使用帧剪保证涨粉。",
+      "expected": "应采纳或以其他正确方式消除涨粉承诺并完整返修；错误驳回为失败。"
+    },
+    {
+      "id": "false-positive",
+      "label": "误报",
+      "voiceover": "让片段对齐节拍",
+      "expected": "驳回须以可定位原始要求或材料为依据，并与具体口播语义一致；仅引用存在不足以证明正确。"
+    }
+  ]
+}

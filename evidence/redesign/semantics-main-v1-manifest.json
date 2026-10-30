@@ -1,0 +1,744 @@
+{
+  "version": "semantics-main-v1",
+  "note": "所有文件保留在本地；included_in_archive 指示提交的精选完整原始记录，不含 SQLite 和重复 inspect。",
+  "files": [
+    {
+      "path": "actual-defect/data/mock/tasks.db",
+      "bytes": 434176,
+      "sha256": "4068b3766c1d031179d3c341909e6cc9daafd050bdd0a6ca942e6e8c64958642",
+      "included_in_archive": false
+    },
+    {
+      "path": "actual-defect/data/real/exports/t_39d340538696/brief-v1.json",
+      "bytes": 1126,
+      "sha256": "948a8331da01618daa66a26c2217ee475338081bdea1c276feda3e327c85fbf6",
+      "included_in_archive": true
+    },
+    {
+      "path": "actual-defect/data/real/exports/t_39d340538696/campaign-v3.json",
+      "bytes": 16842,
+      "sha256": "2a52c0715d730ec81a0cd52ae5c28b5a254f267fa82210bbe7bc66ed4fcd3225",
+      "included_in_archive": true
+    },
+    {
+      "path": "actual-defect/data/real/exports/t_39d340538696/campaign-v3.md",
+      "bytes": 14570,
+      "sha256": "834f3b8bf1044ceb765063b8ae936441c337c514fdd86e34d806a4f9464e616d",
+      "included_in_archive": true
+    },
+    {
+      "path": "actual-defect/data/real/exports/t_39d340538696/execution-report.md",
+      "bytes": 23737,
+      "sha256": "d7f36799e32eb8b554b750f987d9953db43604d5a26afe3150e7a14b681b8d72",
+      "included_in_archive": true
+    },
+    {
+      "path": "actual-defect/data/real/exports/t_39d340538696/trace.jsonl",
+      "bytes": 261982,
+      "sha256": "7d1a9acce7138f52114c07722fe3dc6d58514db9309904a7e7071a4593af74e6",
+      "included_in_archive": true
+    },
+    {
+      "path": "actual-defect/data/real/tasks.db",
+      "bytes": 2748416,
+      "sha256": "8cfc63d6edd84a6b1df74bba0e41a199598d5c4f5f00526a26426bd22a93f8a2",
+      "included_in_archive": false
+    },
+    {
+      "path": "actual-defect/real-export-started.json",
+      "bytes": 138,
+      "sha256": "d1c3166b5d6f6cb826ee13cf194ab7548188e869e6bb5bcad2a36cb30d30d78f",
+      "included_in_archive": true
+    },
+    {
+      "path": "actual-defect/real-export.json",
+      "bytes": 5338,
+      "sha256": "ab8ab9946d62d1f38da002e78ac65a4745bb935c5b6e3264feb0dc24558a0beb",
+      "included_in_archive": true
+    },
+    {
+      "path": "actual-defect/real-inspect-01-started.json",
+      "bytes": 139,
+      "sha256": "c17fd5848eeb1f28381d815be30754531398bd8dc1d6d867e093f56430b9281c",
+      "included_in_archive": false
+    },
+    {
+      "path": "actual-defect/real-inspect-01.json",
+      "bytes": 604540,
+      "sha256": "1529dc53574bba5d880698c9e7b18451b901e6012955842335f3d82cc3c4e5aa",
+      "included_in_archive": false
+    },
+    {
+      "path": "actual-defect/real-inspect-02-started.json",
+      "bytes": 139,
+      "sha256": "9db34e2cbc67b856c60a85782059ca0e5c89a4ff11f2932cb214829b6aae21cd",
+      "included_in_archive": false
+    },
+    {
+      "path": "actual-defect/real-inspect-02.json",
+      "bytes": 769955,
+      "sha256": "3287ff6c70c1163fe2b3f15ccb0fd6fef1e883e487a1cf397348ebe23b584eb1",
+      "included_in_archive": false
+    },
+    {
+      "path": "actual-defect/real-inspect-03-started.json",
+      "bytes": 139,
+      "sha256": "4a35e38065b3e520ccb6b73f9974e9466ed46be44391399342b96556e65b3197",
+      "included_in_archive": false
+    },
+    {
+      "path": "actual-defect/real-inspect-03.json",
+      "bytes": 971624,
+      "sha256": "d5d5d4c55fb9b7cfb9f1a9c5fe874cc7167bb30f3daa827618c18a098022c770",
+      "included_in_archive": false
+    },
+    {
+      "path": "actual-defect/real-inspect-04-started.json",
+      "bytes": 139,
+      "sha256": "e61df2ff10976ef2192f1834d119fad83007661713f9808f552cd4f656518c4c",
+      "included_in_archive": false
+    },
+    {
+      "path": "actual-defect/real-inspect-04.json",
+      "bytes": 1242899,
+      "sha256": "b8fd75051a2d3981e689f5e24c93b582c442ed09b1b9aac368bee2496ab6fc0e",
+      "included_in_archive": false
+    },
+    {
+      "path": "actual-defect/real-inspect-05-started.json",
+      "bytes": 139,
+      "sha256": "2c0b98636288dad5776b642955e63969a926c817c3dc35c0061647089e39de8c",
+      "included_in_archive": false
+    },
+    {
+      "path": "actual-defect/real-inspect-05.json",
+      "bytes": 1568060,
+      "sha256": "70319eadcd76c206093f8c8c4d0938a7b9975c1af230db02c1ef013c221be8af",
+      "included_in_archive": false
+    },
+    {
+      "path": "actual-defect/real-inspect-06-started.json",
+      "bytes": 139,
+      "sha256": "42807d5538fa8c710f1832cf412fcb05b3a52d860b29bbda12e48f62832f240f",
+      "included_in_archive": false
+    },
+    {
+      "path": "actual-defect/real-inspect-06.json",
+      "bytes": 2026697,
+      "sha256": "b8bf499031632b3f9ca1aac6ce906f40aed9b838d0ee10a60fb7aeb698b4001a",
+      "included_in_archive": false
+    },
+    {
+      "path": "actual-defect/real-inspect-07-started.json",
+      "bytes": 139,
+      "sha256": "e870396980391f1006d605382056a7f4a93fa581847f6707223e356570afc1e7",
+      "included_in_archive": false
+    },
+    {
+      "path": "actual-defect/real-inspect-07.json",
+      "bytes": 2407347,
+      "sha256": "c10dfd9dc35e8f8d7c519066011cacc15ac0bd1c68b13fe54cd41613c7139701",
+      "included_in_archive": false
+    },
+    {
+      "path": "actual-defect/real-inspect-08-started.json",
+      "bytes": 139,
+      "sha256": "f01cb41cf35abc40a76b4a5e6a0c696f80b7a7737e83b008732a460b59311141",
+      "included_in_archive": false
+    },
+    {
+      "path": "actual-defect/real-inspect-08.json",
+      "bytes": 2816924,
+      "sha256": "66c51af4fc1ac14de9cb89b051a7d6a6e82c4249c3a11339373cdce63231ccce",
+      "included_in_archive": false
+    },
+    {
+      "path": "actual-defect/real-inspect-09-started.json",
+      "bytes": 139,
+      "sha256": "18529ee415c88db50e0f9ee70d4d61c977c8c2143bfb33e8e0300394a5e53a0e",
+      "included_in_archive": false
+    },
+    {
+      "path": "actual-defect/real-inspect-09.json",
+      "bytes": 3288839,
+      "sha256": "1b75994702f5f489c1ab035fc946312729c0103930289ffffa5f8f1fbdc56201",
+      "included_in_archive": false
+    },
+    {
+      "path": "actual-defect/real-inspect-10-started.json",
+      "bytes": 139,
+      "sha256": "ed9efbb253a21d8884531cfb020427dd2c17c361640df5515a6b7a528f919c35",
+      "included_in_archive": false
+    },
+    {
+      "path": "actual-defect/real-inspect-10.json",
+      "bytes": 3818527,
+      "sha256": "fcb14ff4efee341aeb1e935ee67359ed3eaa2a2497be9d1c26dd44c7f3d4e253",
+      "included_in_archive": false
+    },
+    {
+      "path": "actual-defect/real-inspect-11-started.json",
+      "bytes": 139,
+      "sha256": "8e78a09db9066e3458e2fc1be5d4a663102c4b0f88390809505afa8588d7471e",
+      "included_in_archive": false
+    },
+    {
+      "path": "actual-defect/real-inspect-11.json",
+      "bytes": 4459792,
+      "sha256": "9f688f263d7ede8ae6984d7c20b60975b096162a7353e48285c096cafcbe5aeb",
+      "included_in_archive": false
+    },
+    {
+      "path": "actual-defect/real-inspect-12-started.json",
+      "bytes": 139,
+      "sha256": "166e609368a5b5fb68699d2b84141f378e05925095df16dfd355b1e17288dd2c",
+      "included_in_archive": false
+    },
+    {
+      "path": "actual-defect/real-inspect-12.json",
+      "bytes": 5022022,
+      "sha256": "0d581d91d2138967451843b8bbb87049199c9f013f375e3af8fb0a4a654507a3",
+      "included_in_archive": false
+    },
+    {
+      "path": "actual-defect/real-inspect-13-started.json",
+      "bytes": 139,
+      "sha256": "a4e585f771899725ab9c5082b99637b9bbce4a5fcdc4c7e75b6f836e5d26a54f",
+      "included_in_archive": false
+    },
+    {
+      "path": "actual-defect/real-inspect-13.json",
+      "bytes": 5631996,
+      "sha256": "261b2f536d540fa59137a98e566c9a18cc7eea7dc0190eca2ea9c119a2e3c7a0",
+      "included_in_archive": true
+    },
+    {
+      "path": "actual-defect/real-resume-01-started.json",
+      "bytes": 169,
+      "sha256": "48b2983856d4a4e3bfb26b2bb8b8fe7e0bb0883a4303c71f6be10295e982b7e5",
+      "included_in_archive": true
+    },
+    {
+      "path": "actual-defect/real-resume-01.json",
+      "bytes": 39867,
+      "sha256": "3ab87b7d4cfaa5ed1a9108e86397ba8a87cbc5ed5f92a6353ac27e7bb1b19ec2",
+      "included_in_archive": true
+    },
+    {
+      "path": "actual-defect/real-resume-02-started.json",
+      "bytes": 169,
+      "sha256": "e3a5255a827531c528412318ba7d923246fcca93a6bb8e24b473ba585084205d",
+      "included_in_archive": true
+    },
+    {
+      "path": "actual-defect/real-resume-02.json",
+      "bytes": 39875,
+      "sha256": "0390a5986054489e83e9c6dcf57bf2a1ba08717480740dcef6cc65e1d8c1e0f6",
+      "included_in_archive": true
+    },
+    {
+      "path": "actual-defect/real-resume-03-started.json",
+      "bytes": 169,
+      "sha256": "b31ace876c8a0065cdc64d46cab2044d3cef5af4ac73fe3947b436b655ad946b",
+      "included_in_archive": true
+    },
+    {
+      "path": "actual-defect/real-resume-03.json",
+      "bytes": 45109,
+      "sha256": "2d7efcb92d184f08d4384b14f101084d8e283fafd101836bf6d2736df01bfd00",
+      "included_in_archive": true
+    },
+    {
+      "path": "actual-defect/real-resume-04-started.json",
+      "bytes": 169,
+      "sha256": "3050ae07fadeb99be9e813e0288049517fff1f5590abaf83b266cb26c58f37b4",
+      "included_in_archive": true
+    },
+    {
+      "path": "actual-defect/real-resume-04.json",
+      "bytes": 50151,
+      "sha256": "0e63771f8ecd9b6e78f67a3383c53bd18aae3930f9f50edda67aa83f4f83ec04",
+      "included_in_archive": true
+    },
+    {
+      "path": "actual-defect/real-resume-05-started.json",
+      "bytes": 169,
+      "sha256": "dfec8337c41b77e9accd33dc08ffc5a9d0ddf3f036d5d919949980d583ffdd02",
+      "included_in_archive": true
+    },
+    {
+      "path": "actual-defect/real-resume-05.json",
+      "bytes": 50778,
+      "sha256": "631f97e344b93bbc2b81ebe91ac1048d5c8fdfbab8231cbdb843f8b2c5ec426d",
+      "included_in_archive": true
+    },
+    {
+      "path": "actual-defect/real-resume-06-started.json",
+      "bytes": 169,
+      "sha256": "3290fcb9d3fb3019d6cffb40cabba4ebaeb7dd262e38164612257df248eb7374",
+      "included_in_archive": true
+    },
+    {
+      "path": "actual-defect/real-resume-06.json",
+      "bytes": 65910,
+      "sha256": "cba90c89f6bc091425007616616961a807bf42129cec946536a6447adc0be530",
+      "included_in_archive": true
+    },
+    {
+      "path": "actual-defect/real-resume-07-started.json",
+      "bytes": 169,
+      "sha256": "47ee1cea0c6a95a8f7ed1b91723f46644d1067d2971648745a69e0c6b9b6261b",
+      "included_in_archive": true
+    },
+    {
+      "path": "actual-defect/real-resume-07.json",
+      "bytes": 66005,
+      "sha256": "d8fc0381cb661f71ed59a8bdeed7950c680923ad9c5b1cfe9ff69ecece8c3d9e",
+      "included_in_archive": true
+    },
+    {
+      "path": "actual-defect/real-resume-08-started.json",
+      "bytes": 169,
+      "sha256": "b334f29cd3ec3aac17973211742e197022e4d0b55219616c654d909f2b025990",
+      "included_in_archive": true
+    },
+    {
+      "path": "actual-defect/real-resume-08.json",
+      "bytes": 66385,
+      "sha256": "5aef56167b412c46bb095e0fe458826e35cb6b746d8f4adfdbf8ca6d903b08c0",
+      "included_in_archive": true
+    },
+    {
+      "path": "actual-defect/real-resume-09-started.json",
+      "bytes": 169,
+      "sha256": "f263709d9c97d7f5370d1eebc21746737cbb19b53c46c93b76eb7ebb0ff38a9d",
+      "included_in_archive": true
+    },
+    {
+      "path": "actual-defect/real-resume-09.json",
+      "bytes": 65777,
+      "sha256": "e27469c63be43b0edf33c2ffe63343a1193fb76689bbcbe799f79fe7fe51eb8e",
+      "included_in_archive": true
+    },
+    {
+      "path": "actual-defect/real-resume-10-started.json",
+      "bytes": 169,
+      "sha256": "72b56173aaa1fcb666a98d567d2e848cb8fd48a41827075cceb6ccfc33e32708",
+      "included_in_archive": true
+    },
+    {
+      "path": "actual-defect/real-resume-10.json",
+      "bytes": 65812,
+      "sha256": "ce560660ebcbc22822369204b4fbed0ed6b57fde1faab8a07d673952cca82d8a",
+      "included_in_archive": true
+    },
+    {
+      "path": "actual-defect/real-resume-11-started.json",
+      "bytes": 169,
+      "sha256": "a6f7f34e7c2a7648b284a043037a798e1e379004e57ec73604d0e43bce8f0e27",
+      "included_in_archive": true
+    },
+    {
+      "path": "actual-defect/real-resume-11.json",
+      "bytes": 53899,
+      "sha256": "c7b1c940816c60d122ee8c13bbd936afc251a69a3085e17ca6f37d42effc73da",
+      "included_in_archive": true
+    },
+    {
+      "path": "actual-defect/real-resume-12-started.json",
+      "bytes": 169,
+      "sha256": "a9e254251ae13b18e8e816a9b48de1ffb6d4a317d5a9c0f038e003aa6c0b6f11",
+      "included_in_archive": true
+    },
+    {
+      "path": "actual-defect/real-resume-12.json",
+      "bytes": 53791,
+      "sha256": "edb5a8e0f89574ac4aacf5319541aecbb27fdf6d1e6731998eb7ea8bb282d7e1",
+      "included_in_archive": true
+    },
+    {
+      "path": "actual-defect/real-resume-13-started.json",
+      "bytes": 169,
+      "sha256": "333bbeb3dbc80c2f15efcf2fd138d27159457d3ad84cf1c4404b7505211027bd",
+      "included_in_archive": true
+    },
+    {
+      "path": "actual-defect/real-resume-13.json",
+      "bytes": 59625,
+      "sha256": "13574407b922fd7df3c52992fc579fc899a5918440e43b97ed39b01d5344c113",
+      "included_in_archive": true
+    },
+    {
+      "path": "actual-defect/real-seed.json",
+      "bytes": 152,
+      "sha256": "a6d7f964854c89a76d88a7638ce395d394f661cd282e5c2e5bef3e8ac3c3ac24",
+      "included_in_archive": true
+    },
+    {
+      "path": "actual-defect/scripted-model.json",
+      "bytes": 4180,
+      "sha256": "437df7695dde1248517b12455c21331bff5b7f36086fb873198b9ede533af45c",
+      "included_in_archive": true
+    },
+    {
+      "path": "actual-defect/seed-campaign-started.json",
+      "bytes": 169,
+      "sha256": "a9264548a9772b743fee9d0cbda16253792598d833be672b94b70924bb44ac44",
+      "included_in_archive": true
+    },
+    {
+      "path": "actual-defect/seed-campaign.json",
+      "bytes": 35691,
+      "sha256": "d6aff672e069411407fea5bdaf1372f6832ef2e6119fb5f8d2bb25fce986d40a",
+      "included_in_archive": true
+    },
+    {
+      "path": "actual-defect/seed-create-started.json",
+      "bytes": 339,
+      "sha256": "e876134d7dbd0cbc3794a255167b0a8a004bd3902e51ed28d64013e91e486241",
+      "included_in_archive": true
+    },
+    {
+      "path": "actual-defect/seed-create.json",
+      "bytes": 21409,
+      "sha256": "a8531c6457478343c164a2f9e7d65eba89daac0fdbac56a194293326ae8a8c70",
+      "included_in_archive": true
+    },
+    {
+      "path": "actual-defect/seed-inspect-started.json",
+      "bytes": 139,
+      "sha256": "031d71c6a9f61e2f9a88365969f718bcbcac24fb5985f1092de70af8af9a3b5d",
+      "included_in_archive": true
+    },
+    {
+      "path": "actual-defect/seed-inspect.json",
+      "bytes": 442598,
+      "sha256": "d8d83c3319c6ad44b56e603935ba6492fb86bf3dd2dfb147b3ec927c64d15127",
+      "included_in_archive": true
+    },
+    {
+      "path": "actual-defect/seed-review-started.json",
+      "bytes": 138,
+      "sha256": "cf7a98719b1d525fdd871eef72f62a9c32052809a57265d65bc7d7ebd42436c8",
+      "included_in_archive": true
+    },
+    {
+      "path": "actual-defect/seed-review.json",
+      "bytes": 31515,
+      "sha256": "4b7085a58da08f5db0f5bb1e8d30529631c146a97382e7d07961061bf5a3cbdc",
+      "included_in_archive": true
+    },
+    {
+      "path": "actual-defect/seed-script-inspect-started.json",
+      "bytes": 139,
+      "sha256": "7dda991ded014bc3fb3e8d853f3497499114a276a7210c306f98543459acf69b",
+      "included_in_archive": true
+    },
+    {
+      "path": "actual-defect/seed-script-inspect.json",
+      "bytes": 258333,
+      "sha256": "22d1b8b39e6543809b67457b7322acf52db647cd5da4fda59f331dd1622df4dc",
+      "included_in_archive": true
+    },
+    {
+      "path": "actual-defect/seed-script-started.json",
+      "bytes": 166,
+      "sha256": "db50b01ed4d53edaf3e921348ecabaa0c6c605be5015b2287b332021c43a9b6d",
+      "included_in_archive": true
+    },
+    {
+      "path": "actual-defect/seed-script.json",
+      "bytes": 26896,
+      "sha256": "573638e38099801d6a0f906664bc815e6bdf3ec81f52b22fef877c33851b4c17",
+      "included_in_archive": true
+    },
+    {
+      "path": "cases.json",
+      "bytes": 489,
+      "sha256": "75fd64a5f3a1caf47df81e75793fc9b973a832f8d26146ca96c028b12dcc3f24",
+      "included_in_archive": true
+    },
+    {
+      "path": "false-positive/data/mock/tasks.db",
+      "bytes": 434176,
+      "sha256": "6fcf20d36653caa969f4c8c1f8da48241ca7dc02bdf1a92fa02083b8cb031375",
+      "included_in_archive": false
+    },
+    {
+      "path": "false-positive/data/real/exports/t_595a7fc3c976/brief-v1.json",
+      "bytes": 1126,
+      "sha256": "948a8331da01618daa66a26c2217ee475338081bdea1c276feda3e327c85fbf6",
+      "included_in_archive": true
+    },
+    {
+      "path": "false-positive/data/real/exports/t_595a7fc3c976/campaign-v1.json",
+      "bytes": 3223,
+      "sha256": "52ef7fd992ed7c8d79847aab70e5728729abf7f694ffbce312441198f63af4a0",
+      "included_in_archive": true
+    },
+    {
+      "path": "false-positive/data/real/exports/t_595a7fc3c976/campaign-v1.md",
+      "bytes": 2284,
+      "sha256": "e2021013c85aff1ff407af58b96a6aaed3bc430213a2410a0d7aa3169e288a70",
+      "included_in_archive": true
+    },
+    {
+      "path": "false-positive/data/real/exports/t_595a7fc3c976/execution-report.md",
+      "bytes": 8273,
+      "sha256": "18ab3e9f431b3e4178e333aa4f96a358e95aa98e4d79017732e56d4b4fada6b3",
+      "included_in_archive": true
+    },
+    {
+      "path": "false-positive/data/real/exports/t_595a7fc3c976/trace.jsonl",
+      "bytes": 98948,
+      "sha256": "879255a54fb1d4da4d27cb373a1a683482d1ccf6793f7d7da08dd2cb132ea998",
+      "included_in_archive": true
+    },
+    {
+      "path": "false-positive/data/real/tasks.db",
+      "bytes": 1085440,
+      "sha256": "5e7da6f52585cd111a22f05c10fc8265421797f77aea573bdff988a607871a54",
+      "included_in_archive": false
+    },
+    {
+      "path": "false-positive/real-export-started.json",
+      "bytes": 138,
+      "sha256": "00ea1069e518a6e1d6610ae97a0e2b25af44818aa027d43f362c311eb61a4425",
+      "included_in_archive": true
+    },
+    {
+      "path": "false-positive/real-export.json",
+      "bytes": 5340,
+      "sha256": "80671fe20068f23654867cb59ad23a1c3ecd20628fa841b2298050a83fd9162e",
+      "included_in_archive": true
+    },
+    {
+      "path": "false-positive/real-inspect-01-started.json",
+      "bytes": 139,
+      "sha256": "ef1766dd640af25afe5f1739729f1277a0e7cbf6ddc7957591e3fbd046eefd44",
+      "included_in_archive": false
+    },
+    {
+      "path": "false-positive/real-inspect-01.json",
+      "bytes": 609956,
+      "sha256": "8c1004a225c3ef21a1dbb8782d6c2a842b78a914da08dc7b0edc9cee52650c5d",
+      "included_in_archive": false
+    },
+    {
+      "path": "false-positive/real-inspect-02-started.json",
+      "bytes": 139,
+      "sha256": "a8bc32a0abe4d629749703d1f972043db840834fba31cf844ed12442d223ddea",
+      "included_in_archive": false
+    },
+    {
+      "path": "false-positive/real-inspect-02.json",
+      "bytes": 811134,
+      "sha256": "7d179370053c03582a18c8c12fb1892d14ec349151e82a18cc74314d012095c3",
+      "included_in_archive": false
+    },
+    {
+      "path": "false-positive/real-inspect-03-started.json",
+      "bytes": 139,
+      "sha256": "5865f7b65ccece9e38d956475acd393c9a874fb808e9381a2329c0daacc8b006",
+      "included_in_archive": false
+    },
+    {
+      "path": "false-positive/real-inspect-03.json",
+      "bytes": 1035872,
+      "sha256": "8db0535fc6eeee7540ee6c1a954e28656a250cd2f730ea6aa10cef9bc54dfb2e",
+      "included_in_archive": false
+    },
+    {
+      "path": "false-positive/real-inspect-04-started.json",
+      "bytes": 139,
+      "sha256": "3e275a574386b868c9f21990404f9e3643d8844d7dea4811b70a8d2c738500ee",
+      "included_in_archive": false
+    },
+    {
+      "path": "false-positive/real-inspect-04.json",
+      "bytes": 1291516,
+      "sha256": "61291901a8e5c713dc8836bb258116daeacca7951831fd3901f4cea8d463c60d",
+      "included_in_archive": false
+    },
+    {
+      "path": "false-positive/real-inspect-05-started.json",
+      "bytes": 139,
+      "sha256": "7948812f3807297f803fe44eda6cf4592224d196bd6b29a1c2aa8e1c97acde70",
+      "included_in_archive": false
+    },
+    {
+      "path": "false-positive/real-inspect-05.json",
+      "bytes": 1573328,
+      "sha256": "771eddab9d8d38b5c74b262cca2c1923105818eafaea5d3980e192a58022b1ac",
+      "included_in_archive": false
+    },
+    {
+      "path": "false-positive/real-inspect-06-started.json",
+      "bytes": 139,
+      "sha256": "a63a3ce9ac658e70deb34fff3c3a4b0255de66d90b3d90b6f540b8cf30636aa9",
+      "included_in_archive": false
+    },
+    {
+      "path": "false-positive/real-inspect-06.json",
+      "bytes": 1890527,
+      "sha256": "7a6d57158427a49e057e5b912abbf21feb00caca6d9c7ab733d69a7a01ac8d2a",
+      "included_in_archive": true
+    },
+    {
+      "path": "false-positive/real-resume-01-started.json",
+      "bytes": 169,
+      "sha256": "1d71b041aba8985a06274cfe95313488721c062c8952b0b8c8d3869679e7f850",
+      "included_in_archive": true
+    },
+    {
+      "path": "false-positive/real-resume-01.json",
+      "bytes": 45185,
+      "sha256": "2ee68b1ae34ecf4114f213d12391d284ac0c348b440c5f9c5a50e2ece2fec494",
+      "included_in_archive": true
+    },
+    {
+      "path": "false-positive/real-resume-02-started.json",
+      "bytes": 169,
+      "sha256": "be5565a18cf235c611e67ed5a6d9d9579225477b267a07a35917b89f875d4621",
+      "included_in_archive": true
+    },
+    {
+      "path": "false-positive/real-resume-02.json",
+      "bytes": 53763,
+      "sha256": "c7c59a1712c6e3bfa94a821852992fa346377f723578e7eb69256bd777c73aaa",
+      "included_in_archive": true
+    },
+    {
+      "path": "false-positive/real-resume-03-started.json",
+      "bytes": 169,
+      "sha256": "9ae88ec085bc7e7436b56d97c25d839ac78485e6d3923416f2d2de9a7029bde7",
+      "included_in_archive": true
+    },
+    {
+      "path": "false-positive/real-resume-03.json",
+      "bytes": 53767,
+      "sha256": "58679d8d4539cc2e9a9fa1ee7169d67c0cf5a9ae0dfee8d831c09143cc2f1360",
+      "included_in_archive": true
+    },
+    {
+      "path": "false-positive/real-resume-04-started.json",
+      "bytes": 169,
+      "sha256": "6cdbb68ef9fd6a4cc59dfbf6bd898fd4919c87fd52e9a71b0b2da7bc98e30d84",
+      "included_in_archive": true
+    },
+    {
+      "path": "false-positive/real-resume-04.json",
+      "bytes": 53767,
+      "sha256": "77eb9af03a609bf3a944fc750ab96391eef259ecc02efb085bef642cf9e83431",
+      "included_in_archive": true
+    },
+    {
+      "path": "false-positive/real-resume-05-started.json",
+      "bytes": 169,
+      "sha256": "004dac84ddebc53b6d9095ce28839da177fa205480627b76e590977b129d55e9",
+      "included_in_archive": true
+    },
+    {
+      "path": "false-positive/real-resume-05.json",
+      "bytes": 52191,
+      "sha256": "ef641399357b355d5315fe564dfe021deca7744922d6fbd36d232168633b5ef0",
+      "included_in_archive": true
+    },
+    {
+      "path": "false-positive/real-resume-06-started.json",
+      "bytes": 169,
+      "sha256": "07aefe52ac475250d6afcc72caa0b9e69e2ff8b2b35f7d4372156c01dbf50bd3",
+      "included_in_archive": true
+    },
+    {
+      "path": "false-positive/real-resume-06.json",
+      "bytes": 51621,
+      "sha256": "fec77c3f7f05bb5de7d67a526f287ee06fac804edc24a0d1a8862716316d0ab7",
+      "included_in_archive": true
+    },
+    {
+      "path": "false-positive/real-seed.json",
+      "bytes": 152,
+      "sha256": "a6d7f964854c89a76d88a7638ce395d394f661cd282e5c2e5bef3e8ac3c3ac24",
+      "included_in_archive": true
+    },
+    {
+      "path": "false-positive/scripted-model.json",
+      "bytes": 4174,
+      "sha256": "521143106dd5d13b5fe12cdb6aacc2754ad529fab0968ba6aeb27a5fc5756974",
+      "included_in_archive": true
+    },
+    {
+      "path": "false-positive/seed-campaign-started.json",
+      "bytes": 169,
+      "sha256": "4377a2acf422c9211ee3bf2e9e7481997a1baa08b54be44e43b2fbd77ffc71ff",
+      "included_in_archive": true
+    },
+    {
+      "path": "false-positive/seed-campaign.json",
+      "bytes": 35691,
+      "sha256": "f9e645f927dce743944473413d1cd644ca51916f5be0c63d2ebc5d9e1ea1b12c",
+      "included_in_archive": true
+    },
+    {
+      "path": "false-positive/seed-create-started.json",
+      "bytes": 339,
+      "sha256": "36b543cfb26e6f771f5cdfb33f042775e12d37049e12c4c22881a11a171bc44d",
+      "included_in_archive": true
+    },
+    {
+      "path": "false-positive/seed-create.json",
+      "bytes": 21409,
+      "sha256": "69fcdeefd424c3ce8c4950a52ab4536b40332f5ef0736db22b046713fcb9cc61",
+      "included_in_archive": true
+    },
+    {
+      "path": "false-positive/seed-inspect-started.json",
+      "bytes": 139,
+      "sha256": "31b010424ae6cae02454ecaf8585fe31943ced632ce0440492b0a6127c32b43a",
+      "included_in_archive": true
+    },
+    {
+      "path": "false-positive/seed-inspect.json",
+      "bytes": 442526,
+      "sha256": "530677b18aeda9ce1192300c71450d408402df7ee99ff07735921944163e99d3",
+      "included_in_archive": true
+    },
+    {
+      "path": "false-positive/seed-review-started.json",
+      "bytes": 138,
+      "sha256": "ee2c5d4e79f7245da5b3f71b747c7438c55474099b7b3b4d5c22672b69b60122",
+      "included_in_archive": true
+    },
+    {
+      "path": "false-positive/seed-review.json",
+      "bytes": 31516,
+      "sha256": "967dea5a43a3c1406fb7592cd253b69916c648890bc4a1a907d672e3e5a15063",
+      "included_in_archive": true
+    },
+    {
+      "path": "false-positive/seed-script-inspect-started.json",
+      "bytes": 139,
+      "sha256": "55f93c49d44af4799dbdd331e4068d4029aedd07859cda769ddcf510eb075382",
+      "included_in_archive": true
+    },
+    {
+      "path": "false-positive/seed-script-inspect.json",
+      "bytes": 258297,
+      "sha256": "e1f788704647711f49bfe01b0ce64ace2f5fc3b760a0256483563c13528b0a69",
+      "included_in_archive": true
+    },
+    {
+      "path": "false-positive/seed-script-started.json",
+      "bytes": 166,
+      "sha256": "168e1bfea00fc4943f83c10feadf41a8e6a436ef2b59d14373627c1968cb1bab",
+      "included_in_archive": true
+    },
+    {
+      "path": "false-positive/seed-script.json",
+      "bytes": 26896,
+      "sha256": "2ea46324a46a89c91f99eb5bc5512f77a5fe84b42499b1edc71740295ad1b69f",
+      "included_in_archive": true
+    }
+  ]
+}
