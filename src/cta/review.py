@@ -183,6 +183,20 @@ def review_task(config: Config, task_id: str, *, tool_call_id: str | None = None
                 item["material_id"]
                 for item in brief.get("product_facts", []) + brief.get("sources", [])
             )
+        missing_ids = [mid for mid in sorted(used_material_ids) if catalog.get(mid) is None]
+        if missing_ids:
+            gap = f"采用资料版本 {catalog.version} 缺少方案引用材料：{', '.join(missing_ids)}；请补充材料或修订方案。"
+            with transaction(conn):
+                create_review(conn, task_id=task["id"], output_id=output["output_id"],
+                              output_version=output["version"], attempt_id=attempt_id, status="incomplete",
+                              verdict=None, completeness=None, findings=[], summary="核验未完成：" + gap,
+                              evidence_gaps=[gap], requests_used=0, readbacks_used=0)
+                finish_attempt(conn, attempt_id, status="failed", error=gap)
+                conn.execute("UPDATE tasks SET phase = 'review_incomplete', reason = ?, updated_at = ? WHERE id = ?",
+                             (gap, utc_now_iso(), task["id"]))
+            document = TaskService(config).status(task_id)
+            document["review"] = latest_review(conn, task_id)
+            return document
         input_row = conn.execute(
             "SELECT * FROM task_inputs WHERE task_id = ? AND version = ?", (task["id"], task["input_version"])
         ).fetchone()

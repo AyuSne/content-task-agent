@@ -880,10 +880,7 @@ def _search(
         result = {"ok": False, "error": "tool_failed", "injected": True,
                   "message": "检索执行失败：injected search failure (CTA_FAIL_SEARCH)；本次尝试与消耗已保留。"}
     else:
-        try:
-            result = catalog.search(query, mode)
-        except Exception as exc:  # noqa: BLE001 - business tool boundary
-            result = {"ok": False, "error": "tool_failed", "message": f"检索执行失败：{exc}"}
+        result = catalog.search(query, mode)
     result.update(attempt_id=attempt_id, cost_cents=spec.cost_cents, duration_ms=spec.duration_ms)
     error = None if result["ok"] else (result["message"] if "error" in result else result["gap"])
     finish_attempt(conn, attempt_id, status="success" if result["ok"] else "failed",
@@ -904,7 +901,7 @@ def _estimate(conn, task, parsed: dict, price: PriceTable) -> dict:
     review = latest_review(conn, task["id"])
     reviewed = output is not None and review is not None and review["output_id"] == output["output_id"] and review["status"] == "complete"
     required = ["save"]
-    if not reviewed or "revision" in actions:
+    if not reviewed or any(action in actions for action in ("submit_script", "revision")):
         required.insert(0, "review")
     missing = [action for action in required if action not in actions]
     if missing:

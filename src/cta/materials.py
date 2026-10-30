@@ -71,6 +71,18 @@ class MaterialCatalog:
     def get(self, material_id: str) -> Material | None:
         return self._materials.get(material_id)
 
+    def evidence_error(self, material_id, version, quote, *, normalize_whitespace=False):
+        """Locate cited text in the task's adopted material version."""
+        material = self.get(material_id) if isinstance(material_id, str) else None
+        if material is None or version != self.version:
+            return "material"
+        if not isinstance(quote, str) or not quote.strip():
+            return "quote"
+        text = material.text
+        if normalize_whitespace:
+            quote, text = " ".join(quote.split()), " ".join(text.split())
+        return None if quote in text else "quote"
+
     @staticmethod
     def _terms(text: str) -> list[str]:
         """Split on whitespace/punctuation and add CJK bigrams for partial matches."""

@@ -91,3 +91,38 @@ def test_budget_and_simulated_deadline_reject_before_search_starts(cli_env, mode
         assert not inspected["ledger"]
         feedback = json.loads(next(m["content"] for m in inspected["messages"] if m["name"] == "search_materials"))
         assert feedback["ok"] is False
+
+
+def test_new_script_estimate_after_review_requires_new_review(cli_env, model_script):
+    from test_campaign_delivery_new import _new_draft_ready
+    from test_review_save import REVIEW_PASS, _review_item
+
+    task = _new_draft_ready(model_script, _review_item(REVIEW_PASS))
+    cli_json('review', task['task_id'])
+    before = cli_json('inspect', task['task_id'])
+    model_script([_tool('stop_incomplete', {'reason': 'unused'})] * before['progress']['used_rounds'] + [
+        _tool('estimate_cost', {'actions': ['submit_script', 'save']})])
+    cli_json('run', task['task_id'], '--max-rounds', '1')
+    view = cli_json('inspect', task['task_id'])
+    result = json.loads(next(m['content'] for m in reversed(view['messages']) if m['name'] == 'estimate_cost'))
+    assert result['ok'] is False
+    assert result['missing_actions'] == ['review']
+    assert view['resources']['sim_spent_cents'] == before['resources']['sim_spent_cents']
+
+
+def test_search_programming_error_is_not_disguised_as_business_failure(cli_env, model_script, monkeypatch):
+    import pytest
+
+    from cta.materials import MaterialCatalog
+
+    task = _create()
+    model_script([_tool('search_materials', {'query': '自动卡点', 'mode': 'basic'})])
+    def broken(self, query, mode):
+        raise RuntimeError('unexpected internal failure')
+    monkeypatch.setattr(MaterialCatalog, 'search', broken)
+    with pytest.raises(RuntimeError, match='unexpected internal failure'):
+        cli_json('run', task['task_id'])
+    view = cli_json('inspect', task['task_id'])
+    assert view['resources']['sim_spent_cents'] == 20
+    assert len(view['attempts']) == 1
+    assert view['attempts'][0]['status'] == 'running'

@@ -40,12 +40,13 @@ def _locate_evidence(conn, task, output, evidence, catalog):
     if kind == 'material':
         if set(evidence) != {'kind', 'material_id', 'material_version', 'quote', 'scope'}:
             return '材料依据必须包含 material_id、material_version、quote 和 scope'
-        material = catalog.get(evidence['material_id']) if isinstance(evidence['material_id'], str) else None
-        scope = evidence['scope']
-        if material is None or evidence['material_version'] != catalog.version:
+        error = catalog.evidence_error(evidence['material_id'], evidence['material_version'], quote)
+        if error == 'material':
             return '材料或版本不属于本任务采用资料'
-        if quote not in material.text:
+        if error == 'quote':
             return 'quote 未在材料正文中找到'
+        material = catalog.get(evidence['material_id'])
+        scope = evidence['scope']
         if not isinstance(scope, str) or not scope.strip() or scope not in material.scope:
             return 'scope 未在材料适用范围中找到'
         return None
