@@ -354,6 +354,39 @@ def trace_events(conn, task) -> list[dict]:
     return events
 
 
+def delivery_paths(conn, config: Config, task, output: dict | None) -> list[Path]:
+    directory = config.exports_dir / task['id']
+    names = ['execution-report.md', 'trace.jsonl']
+    if output is None:
+        brief = latest_brief(conn, task['id'])
+    else:
+        from cta.campaign import campaign_brief
+        names += [f"campaign-v{output['version']}.md", f"campaign-v{output['version']}.json"]
+        brief = campaign_brief(conn, task['id'], output)
+    if brief is not None:
+        names.append(f"brief-v{brief['version']}.json")
+    return [directory / name for name in names]
+
+
+def modified_delivery_files(conn, config: Config, task, output: dict | None) -> list[str]:
+    """Compare on-disk delivery files with the last recorded writes."""
+    previous = {row['filename']: row['sha256'] for row in conn.execute(
+        'SELECT filename, sha256 FROM exported_files WHERE task_id = ?', (task['id'],))}
+    changed = []
+    for path in delivery_paths(conn, config, task, output):
+        expected = previous.get(path.name)
+        actual = sha256_file(path) if path.is_file() else ('not_a_file' if path.exists() else None)
+        if actual != expected:
+            changed.append(path.name)
+    return changed
+
+
+def _remember_file(conn, task_id: str, record: dict) -> None:
+    conn.execute("""INSERT INTO exported_files (task_id, filename, sha256) VALUES (?, ?, ?)
+                 ON CONFLICT(task_id, filename) DO UPDATE SET sha256 = excluded.sha256""",
+                 (task_id, Path(record['path']).name, record['sha256']))
+
+
 def campaign_export_markdown(conn, output: dict, task, *, verified: bool = False) -> str:
     from cta.service import output_reuse_basis
 
@@ -419,14 +452,18 @@ def build_files(
     records = []
     for path, content in files:
         _write_atomic(path, content)
-        records.append({"path": str(path), "sha256": sha256_file(path), "bytes": path.stat().st_size})
+        record = {"path": str(path), "sha256": sha256_file(path), "bytes": path.stat().st_size}
+        records.append(record)
+        _remember_file(conn, task['id'], record)
     return records
 
 
 def build_report_file(conn, config: Config, task, output: dict | None, review: dict | None, save: dict | None) -> dict:
     path = config.exports_dir / task["id"] / "execution-report.md"
     _write_atomic(path, execution_report_markdown(conn, task, output, review, save))
-    return record_file(path)
+    record = record_file(path)
+    _remember_file(conn, task['id'], record)
+    return record
 
 
 def trace_text(conn, task) -> str:
@@ -436,7 +473,9 @@ def trace_text(conn, task) -> str:
 def build_trace_file(conn, config: Config, task) -> dict:
     path = config.exports_dir / task["id"] / "trace.jsonl"
     _write_atomic(path, trace_text(conn, task))
-    return record_file(path)
+    record = record_file(path)
+    _remember_file(conn, task['id'], record)
+    return record
 
 
 def record_file(path: Path) -> dict:
@@ -465,13 +504,27 @@ def export_task(config: Config, task_id: str, *, repair: bool = False) -> dict:
         if task is None:
             raise TaskNotFound(task_id)
         output = latest_output(conn, task_id)
+        if not repair:
+            changed = modified_delivery_files(conn, config, task, output)
+            if changed:
+                save = latest_save(conn, task_id)
+                if save is not None:
+                    from cta.save import invalidate_export_verification
+                    invalidate_export_verification(conn, task_id, save['save_id'],
+                                                   '交付文件与已记录的导出不一致；保留外部修改。')
+                return {'task_id': task_id, 'verified': False, 'delivery_complete': False, 'files': [],
+                        'repaired': False, 'changed_files': changed,
+                        'message': '交付文件有外部修改；请显式导入或修复。'}
         if output is None:
             records = [build_report_file(conn, config, task, None, None, None), build_trace_file(conn, config, task)]
             brief = latest_brief(conn, task_id)
             if brief is not None:
                 path = config.exports_dir / task_id / f"brief-v{brief['version']}.json"
                 _write_atomic(path, json.dumps(brief["content"], ensure_ascii=False, indent=2) + "\n")
-                records.append(record_file(path))
+                record = record_file(path)
+                records.append(record)
+                _remember_file(conn, task_id, record)
+            conn.commit()
             ok, checked = verify_records(records)
             return {"task_id": task_id, "output_version": None, "save_id": None,
                     "verified": ok, "delivery_complete": False, "files": checked, "repaired": False}
@@ -490,7 +543,7 @@ def export_task(config: Config, task_id: str, *, repair: bool = False) -> dict:
             if repair or (save["verified"] and ok):
                 from cta.save import reconcile_task
 
-                reconciliation = reconcile_task(config, task_id)
+                reconciliation = reconcile_task(config, task_id, automatic=not repair)
                 rebuilt = reconciliation.get("reconcile", {}).get("reconciled", False)
                 task = conn.execute("SELECT * FROM tasks WHERE id = ?", (task_id,)).fetchone()
                 save = latest_save(conn, task_id)
@@ -504,6 +557,7 @@ def export_task(config: Config, task_id: str, *, repair: bool = False) -> dict:
             if not save["verified"]:
                 records = [build_report_file(conn, config, task, output, review, save), build_trace_file(conn, config, task)]
                 _, process_files = verify_records(records)
+                conn.commit()
                 return {"task_id": task_id, "output_version": output["version"], "save_id": save["save_id"],
                         "verified": False, "delivery_complete": False, "files": process_files,
                         "existing_save_file_checks": checked, "save_status": save["status"], "repaired": False,
@@ -524,11 +578,13 @@ def export_task(config: Config, task_id: str, *, repair: bool = False) -> dict:
             if actual != expected:
                 records = [build_report_file(conn, config, task, output, review, None), build_trace_file(conn, config, task)]
                 _, checked = verify_records(records)
+                conn.commit()
                 return {"task_id": task_id, "output_version": output["version"], "save_id": None,
                         "verified": False, "delivery_complete": False, "files": checked, "repaired": False,
                         "message": "当前活动稿含外部编辑，已保留。请显式import-draft或export --repair。"}
         records = build_files(conn, config, task, output, review, save)
         ok, checked = verify_records(records)
+        conn.commit()
         return {
             "task_id": task_id,
             "output_version": output["version"],

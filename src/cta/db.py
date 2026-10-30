@@ -263,6 +263,13 @@ CREATE TABLE IF NOT EXISTS saves (
     created_at TEXT NOT NULL
 );
 
+CREATE TABLE IF NOT EXISTS exported_files (
+    task_id TEXT NOT NULL REFERENCES tasks(id) ON DELETE CASCADE,
+    filename TEXT NOT NULL,
+    sha256 TEXT NOT NULL,
+    PRIMARY KEY (task_id, filename)
+);
+
 CREATE TABLE IF NOT EXISTS imports (
     id TEXT PRIMARY KEY,
     task_id TEXT NOT NULL REFERENCES tasks(id) ON DELETE CASCADE,

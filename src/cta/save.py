@@ -17,7 +17,10 @@ from cta.export import (
     build_report_file,
     build_trace_file,
     campaign_export_markdown,
+    delivery_paths,
     execution_report_markdown,
+    modified_delivery_files,
+    sha256_file,
     trace_text,
     verify_records,
 )
@@ -215,7 +218,31 @@ def _find_existing_save(conn, task_id: str, output: dict) -> dict | None:
     return None
 
 
-def _reconcile_existing(conn, config: Config, task, output: dict, review: dict | None, save: dict) -> dict | None:
+def _delivery_snapshot(conn, config: Config, task, output: dict) -> dict:
+    """Remember the state of files this attempt may write before it starts."""
+    return {path.name: sha256_file(path) if path.is_file() else ('not_a_file' if path.exists() else None)
+            for path in delivery_paths(conn, config, task, output)}
+
+
+def _reconcile_existing(conn, config: Config, task, output: dict, review: dict | None, save: dict,
+                        *, automatic: bool = False, refresh: bool = False) -> dict | None:
+    if automatic:
+        if save['files']:
+            try:
+                unchanged = verify_records(save['files'])[0]
+            except OSError:
+                unchanged = False
+        else:
+            attempt = conn.execute('SELECT meta_json FROM attempts WHERE id = ?', (save['attempt_id'],)).fetchone()
+            snapshot = json.loads(attempt['meta_json']).get('preexisting_delivery_files') if attempt else None
+            try:
+                unchanged = snapshot is not None and snapshot == _delivery_snapshot(conn, config, task, output)
+            except OSError:
+                unchanged = False
+        if not unchanged:
+            reason = '交付文件无法核实或已被外部修改；保留文件，请显式导入或修复。'
+            invalidate_export_verification(conn, task['id'], save['save_id'], reason)
+            return {**save, 'status': 'unknown', 'verified': False, 'error': reason, 'reconciled': False}
     if save["verified"] and save["files"]:
         try:
             ok, checked = verify_records(save["files"])
@@ -227,13 +254,13 @@ def _reconcile_existing(conn, config: Config, task, output: dict, review: dict |
                        == campaign_export_markdown(conn, output, task, verified=True)) if ok else False
         except OSError:
             ok, current = False, False
-        if ok and current and task["status"] == "complete":
+        if ok and current and task["status"] == "complete" and not refresh:
             return {**save, "files": checked, "reconciled": False}
     repaired = _repair_files(conn, config, task, output, review, save)
     return repaired
 
 
-def reconcile_task(config: Config, task_id: str, *, refresh_exports: bool = False) -> dict:
+def reconcile_task(config: Config, task_id: str, *, refresh_exports: bool = False, automatic: bool = False) -> dict:
     from cta.service import TaskNotFound, TaskService
 
     with open_store(config.db_path) as conn:
@@ -265,10 +292,8 @@ def reconcile_task(config: Config, task_id: str, *, refresh_exports: bool = Fals
             }
             return document
         review = latest_review(conn, task_id)
-        repaired = (
-            _repair_files(conn, config, task, output, review, save)
-            if refresh_exports else _reconcile_existing(conn, config, task, output, review, save)
-        )
+        repaired = _reconcile_existing(conn, config, task, output, review, save,
+                                       automatic=automatic, refresh=refresh_exports)
         document = TaskService(config).status(task_id)
         document["reconcile"] = repaired
         document["save"] = latest_save(conn, task_id)
@@ -306,7 +331,7 @@ def save_task(config: Config, task_id: str, *, tool_call_id: str | None = None, 
             return document
         if existing is not None and existing["status"] != "failed":
             review = latest_review(conn, task_id)
-            repaired = _reconcile_existing(conn, config, task, output, review, existing)
+            repaired = _reconcile_existing(conn, config, task, output, review, existing, automatic=True)
             if repaired is not None:
                 document = TaskService(config).status(task_id)
                 document["duplicate"] = bool(repaired.get("verified"))
@@ -327,6 +352,12 @@ def save_task(config: Config, task_id: str, *, tool_call_id: str | None = None, 
             document["duplicate"] = False
             return document
 
+        if modified_delivery_files(conn, config, task, output):
+            document = TaskService(config).status(task_id)
+            document['save_error'] = {'code': 'external_edit', 'message': '交付文件有未导入的外部修改；请显式导入或修复。'}
+            document['duplicate'] = False
+            return document
+
         attempt_id = start_attempt(
             conn,
             task=task,
@@ -335,7 +366,8 @@ def save_task(config: Config, task_id: str, *, tool_call_id: str | None = None, 
             cost_cents=spec.cost_cents,
             duration_ms=spec.duration_ms,
             pricing_version=price.version,
-            meta={"output_id": output["output_id"], "output_version": output["version"], "tool_call_id": tool_call_id, "request_seq": request_seq},
+            meta={"output_id": output["output_id"], "output_version": output["version"], "tool_call_id": tool_call_id, "request_seq": request_seq,
+                  "preexisting_delivery_files": _delivery_snapshot(conn, config, task, output)},
         )
         conn.commit()
         crash("save_after_start")

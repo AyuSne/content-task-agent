@@ -258,7 +258,7 @@ def _recover_call(conn, task, call: dict, catalog: MaterialCatalog, config: Conf
                             category="interrupted", attempt_id=attempt["id"])
         from cta.save import reconcile_task
         try:
-            document = reconcile_task(config, task["id"])
+            document = reconcile_task(config, task["id"], automatic=True)
             saved = document.get("save")
         except OSError:
             saved = save
@@ -366,7 +366,7 @@ def _detect_unknown_save(conn, task, config: Config) -> dict | None:
     files_match = not save["files"] or verify_records(save["files"])[0]
     if files_match:
         try:
-            document = reconcile_task(config, task["id"])
+            document = reconcile_task(config, task["id"], automatic=True)
             if document.get("save", {}).get("verified"):
                 return None
         except OSError:
