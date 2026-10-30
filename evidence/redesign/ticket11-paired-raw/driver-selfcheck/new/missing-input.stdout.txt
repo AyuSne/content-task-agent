@@ -1,0 +1,5 @@
+missing-input/01-create: exit=0
+missing-input/02-run: exit=0
+missing-input/05-inspect: exit=0
+missing-input/06-export: exit=0
+missing-input: needs_input passed=True
