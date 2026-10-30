@@ -2,7 +2,7 @@
 
 为虚构剪辑 App「帧剪」准备有证据、可核验、可续跑的内容活动方案。Python + uv + openai SDK + DeepSeek `deepseek-flash`；SQLite 是权威状态。
 
-历史代码基线 `836aa827d835e54a8e9385c18e7a3ff05ed3e600` 的真实运行与评审证据见[新鲜eval报告](docs/delivery/11-fresh-eval.md)和[修复验收报告](docs/delivery/10-repair-acceptance.md)，它们不代表新协议已通过真实验收。当前正在实施新协议：主 Agent 直接提交完整脚本，完整方案引用、核验和交付仍以各工单的实际状态为准。
+历史代码基线 `836aa827d835e54a8e9385c18e7a3ff05ed3e600` 的真实运行与评审证据见[新鲜eval报告](docs/delivery/11-fresh-eval.md)和[修复验收报告](docs/delivery/10-repair-acceptance.md)，它们不代表新协议已通过全部真实验收。当前新协议已实现主 Agent 直接提交完整脚本、引用方案、核验及核实交付；用户决定以现有成果结项，未验证的扩展验收和已知限制如实保留。
 
 ## 旧任务恢复
 
@@ -87,7 +87,7 @@ uv run cta export <task_id> --repair
 
 ## 证据与复现
 
-本次改造的工具前馈、错误纠偏与真实恢复对照见 [工具验证记录](evidence/redesign/tool-guidance-validation.md)；范围语义复测及标签争议见 [核验记录](evidence/redesign/scope-review-live-01-notes.md)。两次对照的源码、请求、状态与文件均留存；模型语义质量尚未完成独立人工复核，工单 11 仍未完成。
+本次改造的工具前馈、错误纠偏与真实恢复对照见 [工具验证记录](evidence/redesign/tool-guidance-validation.md)；范围语义复测及标签争议见 [核验记录](evidence/redesign/scope-review-live-01-notes.md)。两次对照的源码、请求、状态与文件均留存；工单 11 按用户决定以现有成果结项，但模型语义质量尚未完成独立人工复核，最终改造也未完成全范围独立双轴审查。
 
 - [题面要求与证据映射](docs/delivery/01-requirements-analysis.md) / [完整证据索引](docs/delivery/06-evidence-index.md)
 - [最新eval报告](docs/delivery/11-fresh-eval.md) / [机器汇总](examples/eval-2026-10-29/summary.json)：11个场景按完成、正确停止和待补充分列
