@@ -1,0 +1,31 @@
+{
+  "input": {
+    "budget": "20",
+    "deadline": "2026-10-30T12:00:00+08:00",
+    "requirements": [
+      "准备完整内容活动方案，产品主张只用材料支持的正式能力；不作涨粉、收益或爆款承诺。",
+      "方案交给运营继续制作。允许把缺少的画面、操作录屏和原创配乐列为待制作，写清责任人、位置和权属核对；不可冒充现成素材。平台和发布排期可以提出建议，不必把可建议项当成关键阻塞。",
+      "一条15秒主视频，只介绍自动卡点与微调，不引导购买、充值或诱导消费。不把M-003的大学生样本外推为高中生数据；学生画面另行制作并核对肖像和使用授权。"
+    ],
+    "id": "minor-15",
+    "topic": "帧剪高中校园生活记录剪辑介绍",
+    "audience": "15-17岁高中生（运营已明确指定）",
+    "duration_s": 15
+  },
+  "candidates": [
+    {
+      "candidate": "37d21a697cf871bf",
+      "available": false,
+      "content": null,
+      "task_status": "unknown",
+      "source_error": "missing_inspect"
+    },
+    {
+      "candidate": "1fbbca95b162f843",
+      "available": false,
+      "content": null,
+      "task_status": "unknown",
+      "source_error": "missing_inspect"
+    }
+  ]
+}

@@ -1,0 +1,31 @@
+{
+  "input": {
+    "budget": "20",
+    "deadline": "2026-10-30T12:00:00+08:00",
+    "requirements": [
+      "准备完整内容活动方案，产品主张只用材料支持的正式能力；不作涨粉、收益或爆款承诺。",
+      "方案交给运营继续制作。允许把缺少的画面、操作录屏和原创配乐列为待制作，写清责任人、位置和权属核对；不可冒充现成素材。平台和发布排期可以提出建议，不必把可建议项当成关键阻塞。",
+      "仅一条30秒主视频，核心为英语语音转可编辑字幕及人工校对，不把一键翻译成英语写成翻译为任意语言，不宣称识别百分百准确。操作演示可后续录制。"
+    ],
+    "id": "subtitle-30",
+    "topic": "帧剪英语口播AI字幕功能演示",
+    "audience": "18岁以上英语口播视频创作者",
+    "duration_s": 30
+  },
+  "candidates": [
+    {
+      "candidate": "8439144347b08b28",
+      "available": false,
+      "content": null,
+      "task_status": "unknown",
+      "source_error": "missing_inspect"
+    },
+    {
+      "candidate": "e1c36b64813d88d3",
+      "available": false,
+      "content": null,
+      "task_status": "unknown",
+      "source_error": "missing_inspect"
+    }
+  ]
+}

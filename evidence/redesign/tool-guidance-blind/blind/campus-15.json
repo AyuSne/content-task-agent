@@ -1,0 +1,31 @@
+{
+  "input": {
+    "budget": "20",
+    "deadline": "2026-10-30T12:00:00+08:00",
+    "requirements": [
+      "准备完整内容活动方案，产品主张只用材料支持的正式能力；不作涨粉、收益或爆款承诺。",
+      "方案交给运营继续制作。允许把缺少的画面、操作录屏和原创配乐列为待制作，写清责任人、位置和权属核对；不可冒充现成素材。平台和发布排期可以提出建议，不必把可建议项当成关键阻塞。",
+      "仅一条15秒竖屏主视频，突出自动对齐节拍和逐段手动微调，结尾邀请按需尝试。"
+    ],
+    "id": "campus-15",
+    "topic": "帧剪社团招新15秒自动卡点介绍",
+    "audience": "18-24岁大学生",
+    "duration_s": 15
+  },
+  "candidates": [
+    {
+      "candidate": "843ef13e446ba800",
+      "available": false,
+      "content": null,
+      "task_status": "unknown",
+      "source_error": "missing_inspect"
+    },
+    {
+      "candidate": "58c2617fa92719c6",
+      "available": false,
+      "content": null,
+      "task_status": "unknown",
+      "source_error": "missing_inspect"
+    }
+  ]
+}

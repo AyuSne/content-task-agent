@@ -1,0 +1,128 @@
+[
+  {
+    "candidate": "843ef13e446ba800",
+    "case": "campus-15",
+    "side": "old",
+    "source": "evidence\\redesign\\tool-guidance-paired\\old\\campus-15\\05-inspect.json",
+    "available": false
+  },
+  {
+    "candidate": "58c2617fa92719c6",
+    "case": "campus-15",
+    "side": "new",
+    "source": "evidence\\redesign\\tool-guidance-paired\\new\\campus-15\\05-inspect.json",
+    "available": false
+  },
+  {
+    "candidate": "ce5afbfec242f4ac",
+    "case": "travel-60",
+    "side": "old",
+    "source": "evidence\\redesign\\tool-guidance-paired\\old\\travel-60\\05-inspect.json",
+    "available": false
+  },
+  {
+    "candidate": "76eb771ee0d5eef4",
+    "case": "travel-60",
+    "side": "new",
+    "source": "evidence\\redesign\\tool-guidance-paired\\new\\travel-60\\05-inspect.json",
+    "available": false
+  },
+  {
+    "candidate": "e1c36b64813d88d3",
+    "case": "subtitle-30",
+    "side": "old",
+    "source": "evidence\\redesign\\tool-guidance-paired\\old\\subtitle-30\\05-inspect.json",
+    "available": false
+  },
+  {
+    "candidate": "8439144347b08b28",
+    "case": "subtitle-30",
+    "side": "new",
+    "source": "evidence\\redesign\\tool-guidance-paired\\new\\subtitle-30\\05-inspect.json",
+    "available": false
+  },
+  {
+    "candidate": "37d21a697cf871bf",
+    "case": "minor-15",
+    "side": "old",
+    "source": "evidence\\redesign\\tool-guidance-paired\\old\\minor-15\\05-inspect.json",
+    "available": false
+  },
+  {
+    "candidate": "1fbbca95b162f843",
+    "case": "minor-15",
+    "side": "new",
+    "source": "evidence\\redesign\\tool-guidance-paired\\new\\minor-15\\05-inspect.json",
+    "available": false
+  },
+  {
+    "candidate": "dab7212c61d03097",
+    "case": "unsupported-cantonese",
+    "side": "old",
+    "source": "evidence\\redesign\\tool-guidance-paired\\old\\unsupported-cantonese\\05-inspect.json",
+    "available": false
+  },
+  {
+    "candidate": "b72ac2393729c378",
+    "case": "unsupported-cantonese",
+    "side": "new",
+    "source": "evidence\\redesign\\tool-guidance-paired\\new\\unsupported-cantonese\\05-inspect.json",
+    "available": false
+  },
+  {
+    "candidate": "1c24ebe2062811df",
+    "case": "budget-impossible",
+    "side": "old",
+    "source": "evidence\\redesign\\tool-guidance-paired\\old\\budget-impossible\\05-inspect.json",
+    "available": false
+  },
+  {
+    "candidate": "748725946171b229",
+    "case": "budget-impossible",
+    "side": "new",
+    "source": "evidence\\redesign\\tool-guidance-paired\\new\\budget-impossible\\05-inspect.json",
+    "available": false
+  },
+  {
+    "candidate": "1fe5ccbc939e14bf",
+    "case": "deadline-impossible",
+    "side": "old",
+    "source": "evidence\\redesign\\tool-guidance-paired\\old\\deadline-impossible\\05-inspect.json",
+    "available": false
+  },
+  {
+    "candidate": "3753b3fc51c37c57",
+    "case": "deadline-impossible",
+    "side": "new",
+    "source": "evidence\\redesign\\tool-guidance-paired\\new\\deadline-impossible\\05-inspect.json",
+    "available": false
+  },
+  {
+    "candidate": "c848e8ef85c13a43",
+    "case": "save-crash-recovery",
+    "side": "old",
+    "source": "evidence\\redesign\\tool-guidance-paired\\old\\save-crash-recovery\\05-inspect.json",
+    "available": true
+  },
+  {
+    "candidate": "b7b8802d676f10aa",
+    "case": "save-crash-recovery",
+    "side": "new",
+    "source": "evidence\\redesign\\tool-guidance-paired\\new\\save-crash-recovery\\05-inspect.json",
+    "available": true
+  },
+  {
+    "candidate": "a7e61147b3444772",
+    "case": "missing-input",
+    "side": "old",
+    "source": "evidence\\redesign\\tool-guidance-paired\\old\\missing-input\\05-inspect.json",
+    "available": false
+  },
+  {
+    "candidate": "03f3689b962d08b3",
+    "case": "missing-input",
+    "side": "new",
+    "source": "evidence\\redesign\\tool-guidance-paired\\new\\missing-input\\05-inspect.json",
+    "available": false
+  }
+]
