@@ -21,6 +21,7 @@ from cta.export import (
     execution_report_markdown,
     modified_delivery_files,
     sha256_file,
+    sensitive_delivery_content,
     trace_text,
     verify_records,
 )
@@ -248,8 +249,8 @@ def _reconcile_existing(conn, config: Config, task, output: dict, review: dict |
             ok, checked = verify_records(save["files"])
             report = config.exports_dir / task["id"] / "execution-report.md"
             trace = config.exports_dir / task["id"] / "trace.jsonl"
-            current = (report.read_text(encoding="utf-8") == execution_report_markdown(conn, task, output, review, save)
-                       and trace.read_text(encoding="utf-8") == trace_text(conn, task)
+            current = (report.read_text(encoding="utf-8") == config.redact(execution_report_markdown(conn, task, output, review, save))
+                       and trace.read_text(encoding="utf-8") == trace_text(conn, task, config)
                        and (config.exports_dir / task["id"] / f"campaign-v{output['version']}.md").read_text(encoding="utf-8")
                        == campaign_export_markdown(conn, output, task, verified=True)) if ok else False
         except OSError:
@@ -270,6 +271,9 @@ def reconcile_task(config: Config, task_id: str, *, refresh_exports: bool = Fals
         output = latest_output(conn, task_id)
         if output is None:
             raise SaveBlocked("no_output", "任务还没有可核实的完整方案草稿。")
+        if sensitive_delivery_content(conn, config, task_id, output):
+            return {"task_id": task_id, "save_error": {"code": "sensitive_delivery_content", "message":
+                    "交付内容包含当前配置凭据；请修改方案或简报后重新核验。"}}
         save = latest_save(conn, task_id)
         if save is None:
             return {
@@ -312,6 +316,12 @@ def save_task(config: Config, task_id: str, *, tool_call_id: str | None = None, 
         output = latest_output(conn, task_id)
         if output is None:
             raise SaveBlocked("no_output", "任务还没有可保存的完整方案草稿。")
+        if sensitive_delivery_content(conn, config, task_id, output):
+            document = TaskService(config).status(task_id)
+            document["save_error"] = {"code": "sensitive_delivery_content", "message":
+                                      "交付内容包含当前配置凭据；请修改方案或简报后重新核验。"}
+            document["duplicate"] = False
+            return document
         existing = _find_existing_save(conn, task_id, output)
         if existing is not None and existing["status"] == "unknown" and not existing["verified"]:
             document = TaskService(config).status(task_id)

@@ -5,7 +5,7 @@ import json
 from cta.prompts import TOOL_DEFINITIONS
 
 # Bump when handler semantics change, even if the JSON schema stays the same.
-HANDLER_VERSION = "save-protection-v1"
+HANDLER_VERSION = "save-redaction-review-v1"
 
 
 def _without_descriptions(value):
@@ -42,7 +42,13 @@ def incompatibility(conn, task_id):
         recovery = {
             "direct-script-recovery-v1": "804247d",
             "context-composition-v2": "1dfb4c0f10126b3267fa2a60e7194d7b15fd3a88",
-        }.get(handler, f"git log --all -S {handler} -- src/cta/protocol.py 查找对应提交")
+            "context-composition-v3-redaction": "96b9b4c",
+            "review-findings-v1": "3a2612a",
+            "context-redaction-review-v1": "87207eb",
+            "save-protection-v1": "ba6174e",
+        }.get(handler) or (
+            f"git log --all -S {handler} -- src/cta/protocol.py 查找对应提交"
+        )
         return {"error": "incompatible_protocol", "message":
                 f"任务采用处理版本 {handler}，与当前程序不兼容；请使用 {recovery} 和原采用资料恢复。"}
     names = {tool["function"]["name"] for tool in protocol.get("tools", [])}

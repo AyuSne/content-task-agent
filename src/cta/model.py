@@ -95,6 +95,7 @@ class DeepSeekClient:
     def complete(
         self, messages: list[dict], tools: list[dict], *, cursor: int, channel: str = "main", json_mode: bool = False
     ) -> ModelResponse:
+        ensure_model_input_safe(self, messages, tools)
         started = time.time()
         request = chat_request(self.config.model, messages, tools, json_mode=json_mode)
         try:
@@ -135,6 +136,14 @@ class DeepSeekClient:
             raw_id=response.id,
             request_config=self.config.model_config_public(),
         )
+
+
+def ensure_model_input_safe(client: ModelClient, messages: list[dict], tools: list[dict]) -> None:
+    """Do not send the configured credential as task content to the remote provider."""
+    if isinstance(client, DeepSeekClient):
+        content = {"messages": messages, "tools": tools}
+        if client.config.redact_data(content) != content:
+            raise ModelUnavailable("模型输入包含当前配置凭据；请移除该内容或更换凭据后再继续。")
 
 
 class ScriptedClient:

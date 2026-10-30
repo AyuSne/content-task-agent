@@ -404,6 +404,19 @@ def campaign_export_markdown(conn, output: dict, task, *, verified: bool = False
     return body.rstrip() + "\n\n<!-- cta:" + json.dumps(metadata, ensure_ascii=False) + " -->\n"
 
 
+def sensitive_delivery_content(conn, config: Config, task_id: str, output: dict | None) -> bool:
+    """Detect credentials in authoritative deliverables without altering their content."""
+    if not config.api_key:
+        return False
+    from cta.campaign import campaign_brief
+
+    brief = campaign_brief(conn, task_id, output) if output is not None else latest_brief(conn, task_id)
+    values = [output.get("content"), output.get("content_md")] if output is not None else []
+    if brief is not None:
+        values.append(brief["content"])
+    return config.redact_data(values) != values
+
+
 def build_files(
     conn,
     config: Config,
@@ -417,6 +430,8 @@ def build_files(
     report_task=None,
     attempt_status_overrides: dict[str, str] | None = None,
 ) -> list[dict]:
+    if sensitive_delivery_content(conn, config, task["id"], output):
+        raise ValueError("交付内容包含当前配置凭据；请修改方案或简报后重新核验。")
     task_dir = config.exports_dir / task["id"]
     task_dir.mkdir(parents=True, exist_ok=True)
     campaign = output["content"]
@@ -430,18 +445,18 @@ def build_files(
         files.append(
             (
                 task_dir / "execution-report.md",
-                execution_report_markdown(
+                config.redact(execution_report_markdown(
                     conn,
                     report_task or task,
                     output,
                     review,
                     save,
                     attempt_status_overrides=attempt_status_overrides,
-                ),
+                )),
             )
         )
     if include_trace:
-        files.append((task_dir / "trace.jsonl", trace_text(conn, task)))
+        files.append((task_dir / "trace.jsonl", trace_text(conn, task, config)))
     from cta.campaign import campaign_brief
 
     brief = campaign_brief(conn, task["id"], output)
@@ -460,19 +475,19 @@ def build_files(
 
 def build_report_file(conn, config: Config, task, output: dict | None, review: dict | None, save: dict | None) -> dict:
     path = config.exports_dir / task["id"] / "execution-report.md"
-    _write_atomic(path, execution_report_markdown(conn, task, output, review, save))
+    _write_atomic(path, config.redact(execution_report_markdown(conn, task, output, review, save)))
     record = record_file(path)
     _remember_file(conn, task['id'], record)
     return record
 
 
-def trace_text(conn, task) -> str:
-    return "".join(json.dumps(event, ensure_ascii=False) + "\n" for event in trace_events(conn, task))
+def trace_text(conn, task, config: Config) -> str:
+    return "".join(json.dumps(config.redact_data(event), ensure_ascii=False) + "\n" for event in trace_events(conn, task))
 
 
 def build_trace_file(conn, config: Config, task) -> dict:
     path = config.exports_dir / task["id"] / "trace.jsonl"
-    _write_atomic(path, trace_text(conn, task))
+    _write_atomic(path, trace_text(conn, task, config))
     record = record_file(path)
     _remember_file(conn, task['id'], record)
     return record
@@ -504,6 +519,9 @@ def export_task(config: Config, task_id: str, *, repair: bool = False) -> dict:
         if task is None:
             raise TaskNotFound(task_id)
         output = latest_output(conn, task_id)
+        if sensitive_delivery_content(conn, config, task_id, output):
+            return {"error": "sensitive_delivery_content", "task_id": task_id,
+                    "message": "交付内容包含当前配置凭据；请修改方案或简报后重新核验。"}
         if not repair:
             changed = modified_delivery_files(conn, config, task, output)
             if changed:

@@ -341,3 +341,34 @@ def test_real_sdk_cli_request_record_matches_local_wire_payload(cli_env, monkeyp
         assert 'local-only-secret' not in json.dumps(request, ensure_ascii=False)
     finally:
         server.shutdown(); server.server_close(); thread.join(timeout=2)
+
+
+def test_intermediate_handlers_cannot_resume_with_combined_semantics(cli_env, tmp_path):
+    import io
+    import subprocess
+    import tarfile
+
+    from conftest import REPO_ROOT, run_cli_process
+
+    script = tmp_path / 'intermediate-responses.json'
+    script.write_text(json.dumps([{'name': 'stop_incomplete', 'arguments': {'reason': '旧代码'}}]), encoding='utf-8')
+    for commit in ('1dfb4c0', '96b9b4c', '3a2612a'):
+        archive = subprocess.check_output(['git', 'archive', commit], cwd=REPO_ROOT)
+        runtime = tmp_path / ('runtime-' + commit)
+        runtime.mkdir()
+        with tarfile.open(fileobj=io.BytesIO(archive)) as tar:
+            tar.extractall(runtime, filter='data')
+        data = tmp_path / ('data-' + commit)
+        env = {'PYTHONPATH': str(runtime / 'src'), 'CTA_MODEL_SCRIPT': str(script)}
+        created = run_cli_process('create', '--topic', '处理版本', '--budget', '10', '--deadline', '2026-10-30', data_dir=data, extra_env=env)
+        task_id = json.loads(created.stdout)['task_id']
+        assert run_cli_process('run', task_id, '--max-rounds', '1', data_dir=data, extra_env=env).returncode == 0
+        current_env = {'PYTHONPATH': str(REPO_ROOT / 'src'), 'CTA_MODEL_SCRIPT': str(script)}
+        before = run_cli_process('inspect', task_id, data_dir=data, extra_env=current_env)
+        assert before.returncode == 0
+        resumed = run_cli_process('resume', task_id, data_dir=data, extra_env=current_env)
+        assert resumed.returncode == 4
+        response = json.loads(resumed.stdout)
+        assert response['error'] == 'incompatible_protocol' and commit in response['message']
+        after = run_cli_process('inspect', task_id, data_dir=data, extra_env=current_env)
+        assert json.loads(before.stdout)['messages'] == json.loads(after.stdout)['messages']
