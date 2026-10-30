@@ -1,0 +1,50 @@
+{
+  "task_id": "t_1cc4680ab8fc",
+  "output_version": 1,
+  "save_id": "s_32d3b519c3d39ffc",
+  "verified": true,
+  "delivery_complete": true,
+  "files": [
+    {
+      "path": "D:\\AAA小影科技\\content-task-agent\\.scratch\\submission-offline-20261030-v2\\tool-failure-recovery\\data\\mock\\exports\\t_1cc4680ab8fc\\campaign-v1.md",
+      "sha256": "2a5fc11b13a1a0e7da383ae6307df3d591cf55457875c334bd5895cee21b70b7",
+      "bytes": 3672,
+      "exists": true,
+      "current_sha256": "2a5fc11b13a1a0e7da383ae6307df3d591cf55457875c334bd5895cee21b70b7",
+      "ok": true
+    },
+    {
+      "path": "D:\\AAA小影科技\\content-task-agent\\.scratch\\submission-offline-20261030-v2\\tool-failure-recovery\\data\\mock\\exports\\t_1cc4680ab8fc\\campaign-v1.json",
+      "sha256": "b7752277c4d0312a05c15bdd83c96100f1972f48d42539d1151067df3ed7cd59",
+      "bytes": 4792,
+      "exists": true,
+      "current_sha256": "b7752277c4d0312a05c15bdd83c96100f1972f48d42539d1151067df3ed7cd59",
+      "ok": true
+    },
+    {
+      "path": "D:\\AAA小影科技\\content-task-agent\\.scratch\\submission-offline-20261030-v2\\tool-failure-recovery\\data\\mock\\exports\\t_1cc4680ab8fc\\brief-v1.json",
+      "sha256": "889fe22da4d6f6e67bf4ff5dc0e91302c3b37eb25f8d4d9c5e32ccd1bb5c9351",
+      "bytes": 1220,
+      "exists": true,
+      "current_sha256": "889fe22da4d6f6e67bf4ff5dc0e91302c3b37eb25f8d4d9c5e32ccd1bb5c9351",
+      "ok": true
+    },
+    {
+      "path": "D:\\AAA小影科技\\content-task-agent\\.scratch\\submission-offline-20261030-v2\\tool-failure-recovery\\data\\mock\\exports\\t_1cc4680ab8fc\\execution-report.md",
+      "sha256": "7aeb30f61c2c207781a7ee7cd0078b0fdb9ebc342d53427a91bc6ceb1371b3fa",
+      "bytes": 8164,
+      "exists": true,
+      "current_sha256": "7aeb30f61c2c207781a7ee7cd0078b0fdb9ebc342d53427a91bc6ceb1371b3fa",
+      "ok": true
+    },
+    {
+      "path": "D:\\AAA小影科技\\content-task-agent\\.scratch\\submission-offline-20261030-v2\\tool-failure-recovery\\data\\mock\\exports\\t_1cc4680ab8fc\\trace.jsonl",
+      "sha256": "d7c1cfd61d04afda7c61178ac0fbcd5b8717bcd8888b4b3beff721ba2e00093d",
+      "bytes": 84026,
+      "exists": true,
+      "current_sha256": "d7c1cfd61d04afda7c61178ac0fbcd5b8717bcd8888b4b3beff721ba2e00093d",
+      "ok": true
+    }
+  ],
+  "repaired": false
+}

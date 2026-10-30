@@ -1,0 +1,46 @@
+{
+  "client_date": "2026-10-31",
+  "change": "submission layout migration",
+  "source_head": "1c266da715a392d04ee75623c087602e81659eb3",
+  "changed_code_and_tests": [
+    "scripts/eval_redesign_semantics.py",
+    "scripts/eval_redesign_semantics_main.py",
+    "scripts/run_eval_suite.py",
+    "src/cta/calibration.py",
+    "src/cta/materials.py",
+    "src/cta/pricing.py",
+    "src/cta/strategy.py",
+    "tests/test_new_recovery.py",
+    "tests/test_paired_blind_eval.py",
+    "tests/test_prepare_scope_retest.py",
+    "tests/test_process_resume.py",
+    "tests/test_protocol_freeze.py",
+    "tests/test_version_adoption.py"
+  ],
+  "code_changes_limited_to_data_directory": true,
+  "python": "3.13.11",
+  "dependencies": {
+    "openai": "2.54.0",
+    "httpx": "0.28.1",
+    "pytest": "9.2.0",
+    "ruff": "0.17.3"
+  },
+  "required_docs": [
+    "01-requirements.md",
+    "02-solution.md",
+    "03-evaluation.md",
+    "04-ai-usage.md",
+    "05-retrospective.md"
+  ],
+  "data_files_unchanged": 20,
+  "original_files_preserved": 85,
+  "user_ai_usage_text_preserved": true,
+  "user_retrospective_byte_identical": true,
+  "raw_sample_files_unchanged": 85,
+  "documents_checked": 72,
+  "local_links_checked": 379,
+  "pytest": {
+    "passed": 343,
+    "elapsed_seconds": 892.85
+  }
+}

@@ -1,0 +1,8 @@
+离线演示完成：Mock，真实模型请求 0 次。
+normal: complete，模拟工具费 2.70 元
+tool-failure-recovery: complete，模拟工具费 3.30 元
+missing-budget: needs_input，模拟工具费 0.00 元
+missing-deadline: needs_input，模拟工具费 0.00 元
+budget-stop: incomplete，模拟工具费 0.00 元
+deadline-stop: incomplete，模拟工具费 0.00 元
+结果目录：D:\AAA小影科技\content-task-agent\.scratch\submission-offline-final

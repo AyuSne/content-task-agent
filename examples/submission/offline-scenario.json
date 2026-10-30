@@ -1,0 +1,53 @@
+{
+  "input": {
+    "topic": "校园社团招新自动卡点推广",
+    "budget": "3.00",
+    "deadline": "2026-10-29T01:00:00+08:00",
+    "audience": "18—24岁大学生",
+    "requirements": ["准备一条30秒主视频的内容活动方案，演示自动卡点与逐段微调，说明素材状态和制作步骤"]
+  },
+  "plan": [
+    {"id": "research", "title": "查证产品与素材", "status": "done", "depends_on": [], "references": [{"kind": "tool_result", "id": "demo_search"}]},
+    {"id": "creation", "title": "完成业务简报、脚本和方案", "status": "current", "depends_on": ["research"], "references": []},
+    {"id": "review", "title": "核验完整方案", "status": "pending", "depends_on": ["creation"], "references": []},
+    {"id": "save", "title": "保存并核实交付", "status": "pending", "depends_on": ["review"], "references": []}
+  ],
+  "brief": {
+    "goal": "通过一条30秒视频展示自动卡点与逐段微调的使用方法",
+    "audience": "18—24岁大学生，校园社团视频制作者",
+    "product_facts": [{"claim": "自动卡点可对齐片段与节拍，并支持逐段微调", "material_id": "M-001", "quote": "把用户选中的视频片段对齐到节拍点。用户可以逐段微调", "scope": "iOS/Android 4.2及以上；复杂变速或弱节拍音乐需要人工调整", "use": "主视频功能演示"}],
+    "creative_requirements": [{"text": "30秒主视频，展示自动卡点与微调", "source": "用户输入"}],
+    "assumptions": [],
+    "suggestions": [{"text": "以校园社团招新素材导入作为开场", "basis": "与目标受众和推广主题一致"}],
+    "unknowns": [{"question": "正式发布账号和日期", "impact": "制作完成后由运营确定排期", "blocking": false}],
+    "sources": [{"material_id": "M-001", "used_for": "产品能力与使用范围"}, {"material_id": "M-005", "used_for": "校园情境素材"}]
+  },
+  "script": {
+    "title": "招新片段，剪出自己的节奏",
+    "direction": "校园情境引入，真实操作录屏展示自动卡点与微调",
+    "duration_seconds": 30,
+    "segments": [
+      {"segment_id": "S1", "duration_seconds": 6, "visual": "已有校园情境片段交代社团招新场景，随后切入待制作的导入操作录屏", "voiceover": "招新素材拍完了，想让片段跟上音乐节奏？", "on_screen_text": "社团招新 · 剪出你的节奏", "evidence_ids": []},
+      {"segment_id": "S2", "duration_seconds": 16, "visual": "待制作操作录屏：选择音乐与视频片段，演示自动卡点，再逐段微调；节拍清晰的音乐作为演示素材", "voiceover": "自动卡点把选中的片段对齐到节拍点。想换个节奏，还可以逐段微调。", "on_screen_text": "自动对齐节拍 · 逐段微调", "evidence_ids": ["E1"]},
+      {"segment_id": "S3", "duration_seconds": 8, "visual": "待制作：播放同一操作工程导出的片段，展示片尾字卡；注明复杂变速或弱节拍音乐需要人工调整", "voiceover": "选好片段，自动卡点，再调出自己的节奏。", "on_screen_text": "帧剪｜iOS/Android 4.2及以上；复杂或弱节拍音乐需人工调整", "evidence_ids": ["E1"]}
+    ],
+    "evidence": [{"id": "E1", "claim": "自动卡点支持片段对齐与逐段微调", "material_id": "M-001", "material_version": "2026-10-29.v1", "quote": "把用户选中的视频片段对齐到节拍点。用户可以逐段微调", "scope": "iOS/Android 4.2及以上；复杂变速或弱节拍音乐需要人工调整", "use": "S2和S3功能表达"}]
+  },
+  "campaign": {
+    "strategy": {"name": "校园情境与功能演示结合", "rationale": "用校园招新情境说明用途，用实际录屏展示产品功能", "alternatives": []},
+    "activity": {"goal": "让校园社团视频制作者了解自动卡点与微调", "audience": "18—24岁大学生", "theme": "校园社团招新自动卡点推广", "format": "30秒竖屏功能演示", "content_items": [{"title": "招新片段，剪出自己的节奏", "purpose": "展示自动卡点和微调方法", "duration_s": 30, "platform": "校园向短视频账号，正式渠道待运营确认"}]},
+    "materials": [
+      {"name": "校园情境片段", "material_id": "M-005", "status": "existing", "use": "开场情境", "position": "S1", "rights_note": "按本题素材使用范围，发布前核对授权；情境只表达场景"},
+      {"name": "操作录屏与同工程导出片段", "material_id": "", "status": "to_create", "use": "展示功能与操作", "position": "S2—S3", "rights_note": "剪辑在制作日完成录屏，核对版本、展示内容与个人信息"},
+      {"name": "节拍清晰的配乐", "material_id": "", "status": "to_acquire", "use": "演示自动卡点", "position": "全片", "rights_note": "运营在录屏前确认授权；未取得授权则更换，制作费用待估"}
+    ],
+    "production_steps": [
+      {"step": "核对配乐权利和产品版本", "owner": "运营与剪辑", "timing": "制作日录屏前", "note": "确认iOS/Android 4.2及以上和使用授权"},
+      {"step": "制作录屏并导出同工程片段", "owner": "剪辑", "timing": "制作日", "note": "按S2—S3演示并记录微调过程"},
+      {"step": "组装30秒主视频并审核", "owner": "剪辑与运营", "timing": "制作完成后、发布前", "note": "核对时长、字幕、功能范围和素材权利；确认后由运营安排发布"}
+    ],
+    "evidence": [{"id": "E1", "claim": "自动卡点支持片段对齐与逐段微调", "material_id": "M-001", "material_version": "2026-10-29.v1", "quote": "把用户选中的视频片段对齐到节拍点。用户可以逐段微调", "scope": "iOS/Android 4.2及以上；复杂变速或弱节拍音乐需要人工调整", "use": "主视频核心功能"}],
+    "open_questions": [{"question": "正式发布账号、日期和后续制作费用", "impact": "由运营在制作和发布前确认", "blocking": false}]
+  },
+  "mock_review": {"verdict": "pass", "completeness": "full", "findings": [], "summary": "离线演示预设核验结论，用于检查当前协议、计量和保存流程。", "evidence_gaps": []}
+}

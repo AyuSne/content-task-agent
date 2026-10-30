@@ -277,7 +277,7 @@ def compare_strategies(
 def load_strategy_table(project_root: Path | None = None, *, version: str | None = None) -> StrategyTable:
     root = project_root or find_project_root()
     version = version or os.environ.get("CTA_STRATEGY_VERSION") or DEFAULT_STRATEGY_VERSION
-    path = root / "fixtures" / "strategy" / f"{version}.json"
+    path = root / "data" / "strategy" / f"{version}.json"
     payload = json.loads(path.read_text(encoding="utf-8"))
     if payload["version"] != version:
         raise ValueError(f"strategy version mismatch: {path}")

@@ -1,0 +1,745 @@
+{
+  "task_id": "t_1cc4680ab8fc",
+  "mode": "mock",
+  "status": "complete",
+  "reason": "核实导出修复后确认产物与交付文件一致。",
+  "duplicate": false,
+  "created_at": "2026-10-30T15:10:03+00:00",
+  "updated_at": "2026-10-30T15:10:18+00:00",
+  "input": {
+    "version": 1,
+    "topic": "校园社团招新自动卡点推广",
+    "budget": "4.00",
+    "budget_cents": 400,
+    "deadline": "2026-10-28T17:00:00+00:00",
+    "audience": "18—24岁大学生",
+    "requirements": [
+      "准备一条30秒主视频的内容活动方案，演示自动卡点与逐段微调，说明素材状态和制作步骤"
+    ],
+    "raw": {
+      "topic": "校园社团招新自动卡点推广",
+      "budget": "4.00",
+      "deadline": "2026-10-29T01:00:00+08:00",
+      "audience": "18—24岁大学生",
+      "requirements": [
+        "准备一条30秒主视频的内容活动方案，演示自动卡点与逐段微调，说明素材状态和制作步骤"
+      ]
+    },
+    "fingerprint": "1df0d76c97c478d77ffd8775b9e76a2bf21c9eeb9ad6fa362bf9ffdf73f0776e"
+  },
+  "validation": {
+    "errors": [],
+    "interpretations": []
+  },
+  "brief": {
+    "version": 1,
+    "input_version": 1,
+    "content": {
+      "goal": "通过一条30秒视频展示自动卡点与逐段微调的使用方法",
+      "audience": "18—24岁大学生，校园社团视频制作者",
+      "product_facts": [
+        {
+          "claim": "自动卡点可对齐片段与节拍，并支持逐段微调",
+          "material_id": "M-001",
+          "quote": "把用户选中的视频片段对齐到节拍点。用户可以逐段微调",
+          "scope": "iOS/Android 4.2及以上；复杂变速或弱节拍音乐需要人工调整",
+          "use": "主视频功能演示"
+        }
+      ],
+      "creative_requirements": [
+        {
+          "text": "30秒主视频，展示自动卡点与微调",
+          "source": "用户输入"
+        }
+      ],
+      "assumptions": [],
+      "suggestions": [
+        {
+          "text": "以校园社团招新素材导入作为开场",
+          "basis": "与目标受众和推广主题一致"
+        }
+      ],
+      "unknowns": [
+        {
+          "question": "正式发布账号和日期",
+          "impact": "制作完成后由运营确定排期",
+          "blocking": false
+        }
+      ],
+      "sources": [
+        {
+          "material_id": "M-001",
+          "used_for": "产品能力与使用范围"
+        },
+        {
+          "material_id": "M-005",
+          "used_for": "校园情境素材"
+        }
+      ],
+      "blocking_unknowns": 0
+    },
+    "created_at": "2026-10-30T15:10:10+00:00"
+  },
+  "review": {
+    "review_id": "v_7774d7d2f32c488b",
+    "output_id": "o_34c306fe1936199d",
+    "output_version": 1,
+    "status": "complete",
+    "verdict": "pass",
+    "completeness": "full",
+    "findings": [],
+    "summary": "离线演示预设核验结论，用于检查当前协议、计量和保存流程。",
+    "evidence_gaps": [],
+    "requests_used": 1,
+    "readbacks_used": 0,
+    "attempt_id": "a_c96ccac2fbaedd14",
+    "created_at": "2026-10-30T15:10:18+00:00"
+  },
+  "content_reuse": null,
+  "save": {
+    "save_id": "s_32d3b519c3d39ffc",
+    "output_id": "o_34c306fe1936199d",
+    "output_version": 1,
+    "status": "verified",
+    "files": [
+      {
+        "path": "D:\\AAA小影科技\\content-task-agent\\.scratch\\submission-offline-20261030-v2\\tool-failure-recovery\\data\\mock\\exports\\t_1cc4680ab8fc\\campaign-v1.md",
+        "sha256": "2a5fc11b13a1a0e7da383ae6307df3d591cf55457875c334bd5895cee21b70b7",
+        "bytes": 3672,
+        "exists": true,
+        "current_sha256": "2a5fc11b13a1a0e7da383ae6307df3d591cf55457875c334bd5895cee21b70b7",
+        "ok": true
+      },
+      {
+        "path": "D:\\AAA小影科技\\content-task-agent\\.scratch\\submission-offline-20261030-v2\\tool-failure-recovery\\data\\mock\\exports\\t_1cc4680ab8fc\\campaign-v1.json",
+        "sha256": "b7752277c4d0312a05c15bdd83c96100f1972f48d42539d1151067df3ed7cd59",
+        "bytes": 4792,
+        "exists": true,
+        "current_sha256": "b7752277c4d0312a05c15bdd83c96100f1972f48d42539d1151067df3ed7cd59",
+        "ok": true
+      },
+      {
+        "path": "D:\\AAA小影科技\\content-task-agent\\.scratch\\submission-offline-20261030-v2\\tool-failure-recovery\\data\\mock\\exports\\t_1cc4680ab8fc\\brief-v1.json",
+        "sha256": "889fe22da4d6f6e67bf4ff5dc0e91302c3b37eb25f8d4d9c5e32ccd1bb5c9351",
+        "bytes": 1220,
+        "exists": true,
+        "current_sha256": "889fe22da4d6f6e67bf4ff5dc0e91302c3b37eb25f8d4d9c5e32ccd1bb5c9351",
+        "ok": true
+      },
+      {
+        "path": "D:\\AAA小影科技\\content-task-agent\\.scratch\\submission-offline-20261030-v2\\tool-failure-recovery\\data\\mock\\exports\\t_1cc4680ab8fc\\execution-report.md",
+        "sha256": "7c678fd96569be1ce32b8c42b45668eef4fd9931b93448a8a7fbc85b13239ee6",
+        "bytes": 8164,
+        "exists": true,
+        "current_sha256": "7c678fd96569be1ce32b8c42b45668eef4fd9931b93448a8a7fbc85b13239ee6",
+        "ok": true
+      },
+      {
+        "path": "D:\\AAA小影科技\\content-task-agent\\.scratch\\submission-offline-20261030-v2\\tool-failure-recovery\\data\\mock\\exports\\t_1cc4680ab8fc\\trace.jsonl",
+        "sha256": "74ac9b349ddef6f4abdd8844b0ee3ba3f3e2cfe71b7ff1c0242cb3220450363a",
+        "bytes": 84026,
+        "exists": true,
+        "current_sha256": "74ac9b349ddef6f4abdd8844b0ee3ba3f3e2cfe71b7ff1c0242cb3220450363a",
+        "ok": true
+      }
+    ],
+    "verified": true,
+    "verified_at": "2026-10-30T15:10:18+00:00",
+    "error": null,
+    "attempt_id": "a_4feac4d71b1b0ced",
+    "created_at": "2026-10-30T15:10:18+00:00"
+  },
+  "strategy": {
+    "table_version": "2026-10-29.v2",
+    "directions": [
+      {
+        "direction": "functional_demo",
+        "label": "功能演示",
+        "expression_goal": "直接展示当前任务目标功能能做什么、如何操作及其结果与限制",
+        "material_needs": [
+          "目标功能的操作录屏及其制作、权属状态",
+          "当前任务产品主张对应的正式能力原文与适用范围",
+          "本任务采用的品牌表达规则"
+        ],
+        "evidence_queries": [
+          "当前任务目标功能的正式能力与适用范围",
+          "对应操作演示素材的可用状态与权属"
+        ],
+        "required_queries": 2,
+        "risk": "操作录屏尚未制作时须安排制作及核对；展示结果应对应实际操作，纯功能演示对情境吸引力的帮助有限"
+      },
+      {
+        "direction": "user_scenario",
+        "label": "用户情境",
+        "expression_goal": "用当前任务指定受众的相关情境引出需求，再用目标功能的操作与结果回应需求",
+        "material_needs": [
+          "与本任务受众及场景相符的情境素材及可用、制作或权属状态",
+          "受众依据（仅在原资料支持范围内使用；没有调研时明确为创作建议）",
+          "实际选用的声音与画面的权属及可用状态，不预设必须使用背景音乐",
+          "目标功能的正式能力依据与操作演示"
+        ],
+        "evidence_queries": [
+          "当前指定受众及使用情境的依据与适用范围",
+          "本任务拟用画面和声音素材的可用、制作与授权状态",
+          "当前任务目标功能的正式能力与适用范围"
+        ],
+        "required_queries": 3,
+        "risk": "情境画面不能单独证明产品能力；调研不得外推到其他人群；待制作或待授权素材须有处理步骤与发布前条件"
+      },
+      {
+        "direction": "tutorial",
+        "label": "教程",
+        "expression_goal": "分步说明当前任务目标功能的实际操作，把步骤、结果和适用边界对应起来",
+        "material_needs": [
+          "当前任务目标功能的正式能力与边界",
+          "脚本实际涉及的其他能力依据（未使用的功能无需加入）",
+          "本任务采用的品牌与素材规则",
+          "与脚本步骤一致的操作录屏及其制作、权属状态"
+        ],
+        "evidence_queries": [
+          "当前任务目标功能的操作依据与能力边界",
+          "本脚本实际使用能力的正式支持范围",
+          "本任务的品牌表达与素材限制"
+        ],
+        "required_queries": 3,
+        "risk": "按任务指定时长取舍步骤密度；需要清楚的操作录屏和结果对应，不可擅改时长或核心要求"
+      }
+    ],
+    "latest_selection": null,
+    "selection_count": 0,
+    "mode_table_version": "2026-10-30.v2"
+  },
+  "plan": {
+    "version": 1,
+    "steps": [
+      {
+        "id": "research",
+        "title": "查证产品与素材",
+        "status": "done",
+        "depends_on": [],
+        "references": [
+          {
+            "kind": "tool_result",
+            "id": "demo_search"
+          }
+        ]
+      },
+      {
+        "id": "creation",
+        "title": "完成业务简报、脚本和方案",
+        "status": "current",
+        "depends_on": [
+          "research"
+        ],
+        "references": []
+      },
+      {
+        "id": "review",
+        "title": "核验完整方案",
+        "status": "pending",
+        "depends_on": [
+          "creation"
+        ],
+        "references": []
+      },
+      {
+        "id": "save",
+        "title": "保存并核实交付",
+        "status": "pending",
+        "depends_on": [
+          "review"
+        ],
+        "references": []
+      }
+    ],
+    "created_at": "2026-10-30T15:10:10+00:00"
+  },
+  "todos": [
+    {
+      "id": "creation",
+      "title": "完成业务简报、脚本和方案",
+      "status": "current",
+      "depends_on": [
+        "research"
+      ],
+      "references": []
+    },
+    {
+      "id": "review",
+      "title": "核验完整方案",
+      "status": "pending",
+      "depends_on": [
+        "creation"
+      ],
+      "references": []
+    },
+    {
+      "id": "save",
+      "title": "保存并核实交付",
+      "status": "pending",
+      "depends_on": [
+        "review"
+      ],
+      "references": []
+    }
+  ],
+  "recovery": {
+    "explicit_resume": true,
+    "prior_status": "in_progress",
+    "prior_phase": "draft_ready",
+    "prior_reason": "完整方案已接收，等待独立核验。",
+    "pending_calls": 0,
+    "recovered_calls": [],
+    "interrupted_calls": [],
+    "interrupted_attempts": [],
+    "interrupted_requests": [],
+    "save_unknown": null,
+    "unpaused": false,
+    "reused": {
+      "input_version": 1,
+      "brief_version": 1,
+      "output_version": 1,
+      "review": null,
+      "save": null,
+      "knowledge": [
+        {
+          "knowledge_id": "campaign-creation",
+          "version": "2026-10-30.v5",
+          "sha256": "92c3186355b927b5f4ceb8c96a8b52ed4770ba9a322f547040d043296de2e36b"
+        }
+      ],
+      "materials": {
+        "version": "2026-10-29.v1",
+        "count": 10
+      },
+      "search_results": 1,
+      "attempts": 3,
+      "spent_cents": 240
+    },
+    "todos": [
+      {
+        "id": "creation",
+        "title": "完成业务简报、脚本和方案",
+        "status": "current",
+        "depends_on": [
+          "research"
+        ],
+        "references": []
+      },
+      {
+        "id": "review",
+        "title": "核验完整方案",
+        "status": "pending",
+        "depends_on": [
+          "creation"
+        ],
+        "references": []
+      },
+      {
+        "id": "save",
+        "title": "保存并核实交付",
+        "status": "pending",
+        "depends_on": [
+          "review"
+        ],
+        "references": []
+      }
+    ],
+    "task_id": "t_1cc4680ab8fc",
+    "mode": "mock",
+    "input_version": 1,
+    "brief_version": 1,
+    "output_version": 1,
+    "review_id": null,
+    "save_status": null,
+    "save_verified": null,
+    "sim_elapsed_ms": 20000,
+    "sim_start": "2026-10-29T00:00:00+08:00",
+    "used_rounds": 7,
+    "max_rounds": 24,
+    "spent_cents": 240,
+    "requests": 7,
+    "instruction": "这是新进程追加的恢复事实。只继续未完成的有界步骤；已恢复的有效检索、草稿和评审直接复用，不要重新执行或重新计费；原预算、模拟截止和已用轮数不变，续跑不获得新额度。"
+  },
+  "gaps": [
+    {
+      "source": "brief",
+      "question": "正式发布账号和日期",
+      "impact": "制作完成后由运营确定排期",
+      "blocking": false
+    }
+  ],
+  "mode_notice": "Mock 仅验证流程、状态与确定性规则，不代表真实模型决策或语义质量。",
+  "progress": {
+    "sim_start": "2026-10-29T00:00:00+08:00",
+    "sim_now": "2026-10-29T00:00:27+08:00",
+    "sim_elapsed_ms": 27000,
+    "used_rounds": 9,
+    "max_rounds": 24,
+    "paused": false,
+    "current_output": {
+      "output_id": "o_34c306fe1936199d",
+      "version": 1,
+      "status": "draft",
+      "strategy": "校园情境与功能演示结合"
+    },
+    "save": {
+      "save_id": "s_32d3b519c3d39ffc",
+      "output_version": 1,
+      "status": "verified",
+      "verified": true
+    },
+    "phase": "complete",
+    "brief_version": 1,
+    "last_run_at": "2026-10-30T15:10:18+00:00"
+  },
+  "resources": {
+    "budget_cents": 400,
+    "sim_spent_cents": 330,
+    "remaining_cents": 70,
+    "real_requests": 0,
+    "mock_requests": 10,
+    "model_requests": 10,
+    "real_usage": {
+      "requests": 10,
+      "real_requests": 0,
+      "mock_requests": 10,
+      "unknown_usage_requests": 10,
+      "usage_complete": false,
+      "prompt_tokens": 0,
+      "completion_tokens": 0,
+      "cache_hit_tokens": 0,
+      "cache_miss_tokens": 0,
+      "elapsed_ms": 0
+    },
+    "real_cost": null,
+    "amount_status": {
+      "simulated_tool_fee": "incurred_and_estimated",
+      "real_model_usage": "unknown",
+      "activity_costs": "unknown"
+    },
+    "simulated_tool_fee": {
+      "category": "simulated_tool_fee",
+      "unit": "CNY_cent",
+      "source": "pricing:2026-10-30.v2",
+      "nature": "incurred",
+      "incurred_cents": 330,
+      "ledger_entries": 5,
+      "estimated": {
+        "estimate_id": "e_0f198a2de0c58cd0",
+        "kind": "cost_estimate",
+        "direction": null,
+        "search_mode": null,
+        "generation_mode": null,
+        "search_queries": null,
+        "include_revision": false,
+        "total_cost_cents": 210,
+        "total_duration_ms": 15000,
+        "incurred_cents": 120,
+        "remaining_cents": 280,
+        "feasible": true,
+        "strategy_version": "2026-10-29.v2",
+        "pricing_version": "2026-10-30.v2",
+        "created_at": "2026-10-30T15:10:10+00:00",
+        "nature": "estimated"
+      },
+      "reserved": null,
+      "note": "预留与估算是可行性判断，不是实际支出；实际消耗只累计账本中 nature=incurred 的记录。"
+    },
+    "real_model_usage": {
+      "category": "real_model_usage",
+      "unit": "request/token",
+      "source": "DeepSeek API response usage（openai SDK）",
+      "nature": "actual_usage",
+      "requests": 10,
+      "real_requests": 0,
+      "mock_requests": 10,
+      "unknown_usage_requests": 10,
+      "prompt_tokens": 0,
+      "completion_tokens": 0,
+      "cache_hit_tokens": 0,
+      "cache_miss_tokens": 0,
+      "elapsed_ms": 0,
+      "amount": {
+        "status": "unknown",
+        "value_cents": null,
+        "reason": "没有可靠的单价来源，不把 token 用量换算成金额；未发生真实请求时也不补成已核实零费用。"
+      }
+    },
+    "activity_costs": {
+      "category": "activity_cost",
+      "unit": "CNY_cent",
+      "source": "campaign.materials",
+      "status": "unknown",
+      "nature": "unknown",
+      "entries": [
+        {
+          "name": "操作录屏与同工程导出片段",
+          "material_id": null,
+          "status": "to_create",
+          "amount_cents": null,
+          "nature": "unknown",
+          "source": "campaign.materials"
+        },
+        {
+          "name": "节拍清晰的配乐",
+          "material_id": null,
+          "status": "to_acquire",
+          "amount_cents": null,
+          "nature": "unknown",
+          "source": "campaign.materials"
+        }
+      ],
+      "reason": "方案含待获取或待制作素材，但任务输入与材料未给出活动预算或已发生支出金额。"
+    },
+    "unknown": [
+      "real_model_usage.amount",
+      "activity_costs"
+    ],
+    "not_applicable": []
+  },
+  "pricing_overview": {
+    "version": "2026-10-30.v2",
+    "currency": "CNY_cent",
+    "source": "2026-10-30.v2.json",
+    "modes": {
+      "search_basic": {
+        "mode": "search_basic",
+        "label": "基础资料检索",
+        "cost_cents": 20,
+        "duration_ms": 2000,
+        "max_internal_requests": 1,
+        "max_requests": null,
+        "max_readbacks": null,
+        "candidates": null,
+        "failure_rule": "启动即计量；失败或中断不退还，实际重试新增尝试"
+      },
+      "search_extended": {
+        "mode": "search_extended",
+        "label": "扩展资料检索",
+        "cost_cents": 60,
+        "duration_ms": 6000,
+        "max_internal_requests": 3,
+        "max_requests": null,
+        "max_readbacks": null,
+        "candidates": null,
+        "failure_rule": "启动即计量；内部最多 3 次，失败不退还"
+      },
+      "review": {
+        "mode": "review",
+        "label": "内容核验",
+        "cost_cents": 80,
+        "duration_ms": 6000,
+        "max_internal_requests": null,
+        "max_requests": 3,
+        "max_readbacks": 2,
+        "candidates": null,
+        "failure_rule": "最多 3 次模型请求、2 次回读；触顶/中断不退还"
+      },
+      "revision": {
+        "mode": "revision",
+        "label": "返修",
+        "cost_cents": 120,
+        "duration_ms": 8000,
+        "max_internal_requests": null,
+        "max_requests": null,
+        "max_readbacks": null,
+        "candidates": null,
+        "failure_rule": "启动即计量；失败不退还"
+      },
+      "save": {
+        "mode": "save",
+        "label": "方案保存",
+        "cost_cents": 10,
+        "duration_ms": 1000,
+        "max_internal_requests": 1,
+        "max_requests": null,
+        "max_readbacks": null,
+        "candidates": null,
+        "failure_rule": "启动即计量；保存失败另行核实"
+      },
+      "submit_script": {
+        "mode": "submit_script",
+        "label": "正式提交脚本",
+        "cost_cents": 120,
+        "duration_ms": 8000,
+        "max_internal_requests": null,
+        "max_requests": null,
+        "max_readbacks": null,
+        "candidates": null,
+        "failure_rule": "启动即计量；失败或中断保留计量，同次恢复不重复收费"
+      }
+    }
+  },
+  "model_config": {
+    "provider": "deepseek",
+    "sdk": "openai",
+    "base_url": "https://api.deepseek.com",
+    "model": "deepseek-flash",
+    "api_key": "set",
+    "thinking": false,
+    "streaming": false,
+    "sdk_auto_retries": 0,
+    "network_route": "direct",
+    "keepalive_expiry_seconds": 180
+  },
+  "versions": {
+    "protocol": "direct-script-v1",
+    "incompatibility": null,
+    "app": "0.1.0",
+    "prompt": "main-2026-10-30.tool-guidance-v1",
+    "materials": "2026-10-29.v1",
+    "pricing": "2026-10-30.v2",
+    "strategy": "2026-10-29.v2"
+  },
+  "artifacts": {
+    "campaign_versions": 1
+  },
+  "run": {
+    "rounds_used": 2,
+    "stop_reason": "save_campaign",
+    "requests": 2,
+    "explicit_resume": true,
+    "recovery": {
+      "explicit_resume": true,
+      "prior_status": "in_progress",
+      "prior_phase": "draft_ready",
+      "prior_reason": "完整方案已接收，等待独立核验。",
+      "pending_calls": 0,
+      "recovered_calls": [],
+      "interrupted_calls": [],
+      "interrupted_attempts": [],
+      "interrupted_requests": [],
+      "save_unknown": null,
+      "unpaused": false,
+      "reused": {
+        "input_version": 1,
+        "brief_version": 1,
+        "output_version": 1,
+        "review": null,
+        "save": null,
+        "knowledge": [
+          {
+            "knowledge_id": "campaign-creation",
+            "version": "2026-10-30.v5",
+            "sha256": "92c3186355b927b5f4ceb8c96a8b52ed4770ba9a322f547040d043296de2e36b"
+          }
+        ],
+        "materials": {
+          "version": "2026-10-29.v1",
+          "count": 10
+        },
+        "search_results": 1,
+        "attempts": 3,
+        "spent_cents": 240
+      },
+      "todos": [
+        {
+          "id": "creation",
+          "title": "完成业务简报、脚本和方案",
+          "status": "current",
+          "depends_on": [
+            "research"
+          ],
+          "references": []
+        },
+        {
+          "id": "review",
+          "title": "核验完整方案",
+          "status": "pending",
+          "depends_on": [
+            "creation"
+          ],
+          "references": []
+        },
+        {
+          "id": "save",
+          "title": "保存并核实交付",
+          "status": "pending",
+          "depends_on": [
+            "review"
+          ],
+          "references": []
+        }
+      ]
+    },
+    "recovery_summary": {
+      "explicit_resume": true,
+      "prior_status": "in_progress",
+      "prior_phase": "draft_ready",
+      "prior_reason": "完整方案已接收，等待独立核验。",
+      "pending_calls": 0,
+      "recovered_calls": [],
+      "interrupted_calls": [],
+      "interrupted_attempts": [],
+      "interrupted_requests": [],
+      "save_unknown": null,
+      "unpaused": false,
+      "reused": {
+        "input_version": 1,
+        "brief_version": 1,
+        "output_version": 1,
+        "review": null,
+        "save": null,
+        "knowledge": [
+          {
+            "knowledge_id": "campaign-creation",
+            "version": "2026-10-30.v5",
+            "sha256": "92c3186355b927b5f4ceb8c96a8b52ed4770ba9a322f547040d043296de2e36b"
+          }
+        ],
+        "materials": {
+          "version": "2026-10-29.v1",
+          "count": 10
+        },
+        "search_results": 1,
+        "attempts": 3,
+        "spent_cents": 240
+      },
+      "todos": [
+        {
+          "id": "creation",
+          "title": "完成业务简报、脚本和方案",
+          "status": "current",
+          "depends_on": [
+            "research"
+          ],
+          "references": []
+        },
+        {
+          "id": "review",
+          "title": "核验完整方案",
+          "status": "pending",
+          "depends_on": [
+            "creation"
+          ],
+          "references": []
+        },
+        {
+          "id": "save",
+          "title": "保存并核实交付",
+          "status": "pending",
+          "depends_on": [
+            "review"
+          ],
+          "references": []
+        }
+      ],
+      "task_id": "t_1cc4680ab8fc",
+      "mode": "mock",
+      "input_version": 1,
+      "brief_version": 1,
+      "output_version": 1,
+      "review_id": null,
+      "save_status": null,
+      "save_verified": null,
+      "sim_elapsed_ms": 20000,
+      "sim_start": "2026-10-29T00:00:00+08:00",
+      "used_rounds": 7,
+      "max_rounds": 24,
+      "spent_cents": 240,
+      "requests": 7,
+      "instruction": "这是新进程追加的恢复事实。只继续未完成的有界步骤；已恢复的有效检索、草稿和评审直接复用，不要重新执行或重新计费；原预算、模拟截止和已用轮数不变，续跑不获得新额度。"
+    }
+  }
+}

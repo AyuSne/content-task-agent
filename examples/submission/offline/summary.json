@@ -1,0 +1,54 @@
+{
+  "mode": "mock",
+  "real_requests": 0,
+  "results": [
+    {
+      "case": "normal",
+      "task_id": "t_9c70e0a96159",
+      "status": "complete",
+      "sim_spent_cents": 270,
+      "real_requests": 0,
+      "mock_requests": 9
+    },
+    {
+      "case": "tool-failure-recovery",
+      "task_id": "t_1cc4680ab8fc",
+      "status": "complete",
+      "sim_spent_cents": 330,
+      "real_requests": 0,
+      "mock_requests": 10
+    },
+    {
+      "case": "missing-budget",
+      "task_id": "t_421e3836a370",
+      "status": "needs_input",
+      "sim_spent_cents": 0,
+      "real_requests": 0,
+      "mock_requests": 0
+    },
+    {
+      "case": "missing-deadline",
+      "task_id": "t_94964f598517",
+      "status": "needs_input",
+      "sim_spent_cents": 0,
+      "real_requests": 0,
+      "mock_requests": 0
+    },
+    {
+      "case": "budget-stop",
+      "task_id": "t_08ad4b625624",
+      "status": "incomplete",
+      "sim_spent_cents": 0,
+      "real_requests": 0,
+      "mock_requests": 2
+    },
+    {
+      "case": "deadline-stop",
+      "task_id": "t_1e39b62dbb2c",
+      "status": "incomplete",
+      "sim_spent_cents": 0,
+      "real_requests": 0,
+      "mock_requests": 2
+    }
+  ]
+}

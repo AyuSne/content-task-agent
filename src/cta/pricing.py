@@ -145,7 +145,7 @@ class PriceTable:
 def load_price_table(project_root: Path | None = None, *, version: str | None = None) -> PriceTable:
     root = project_root or find_project_root()
     version = version or os.environ.get("CTA_PRICING_VERSION") or DEFAULT_PRICING_VERSION
-    path = root / "fixtures" / "pricing" / f"{version}.json"
+    path = root / "data" / "pricing" / f"{version}.json"
     payload = json.loads(path.read_text(encoding="utf-8"))
     if payload["version"] != version:
         raise ValueError(f"pricing version mismatch: {path}")

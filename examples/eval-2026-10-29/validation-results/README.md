@@ -13,7 +13,7 @@
 
 [机器记录](results.json)列出原命令、源文件和SHA-256。复制后的四份输出均与原文件hash一致；退出码来自原执行记录及[运行说明](../../../evidence/eval-2026-10-29/environment-note.md)，不是由空日志推断。
 
-对应的场景输入/输出/Trace见[初始9场景](../live/)和[修复后2场景](../post-fix/)；业务状态、评审结果及失败说明见[完整eval报告](../../../docs/delivery/11-fresh-eval.md)。
+对应的场景输入/输出/Trace见[初始9场景](../live/)和[修复后2场景](../post-fix/)；业务状态、评审结果及失败说明见[完整eval报告](../../../notes/delivery/11-fresh-eval.md)。
 
 复现检查：
 

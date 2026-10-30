@@ -269,9 +269,9 @@
 ### 追溯入口
 
 - [项目约定](../../../AGENTS.md)与[领域术语](../../../GLOSSARY.md)。
-- [Q1至Q28及设计原则](../../docs/design-improvements.md)。
-- [主系统正文草案](../../docs/main-system-prompt-draft.md)、[模型输入与工具布局](../../docs/model-input-draft.md)、[创作与返修示例](../../docs/creation-turn-draft.md)。
-- [三篇文章及五维合理性分析](../../docs/design-reasonableness-review-2026-10-29.md)，其原文与取证入口按该文追溯。
-- [当前架构与旧实现事实](../../docs/architecture.md)、[既有eval证据及限制](../../docs/delivery/11-fresh-eval.md)。
+- [Q1至Q28及设计原则](../../notes/design-improvements.md)。
+- [主系统正文草案](../../notes/main-system-prompt-draft.md)、[模型输入与工具布局](../../notes/model-input-draft.md)、[创作与返修示例](../../notes/creation-turn-draft.md)。
+- [三篇文章及五维合理性分析](../../notes/design-reasonableness-review-2026-10-29.md)，其原文与取证入口按该文追溯。
+- [当前架构与旧实现事实](../../notes/architecture.md)、[既有eval证据及限制](../../notes/delivery/11-fresh-eval.md)。
 - [旧正式规格，仅作历史追溯](../../../.scratch/content-task-agent-build/spec.md)；其中已被后续确认替代的固定流程不覆盖本规格。
 - [尚未生效的工程技能setup草稿](../agent-skills-setup/preview.md)。

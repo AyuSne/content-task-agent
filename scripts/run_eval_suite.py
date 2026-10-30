@@ -123,7 +123,7 @@ def run_case(case: dict, defaults: dict, target: Path, resume_attempts: int) -> 
 
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--cases", type=Path, default=ROOT / "fixtures/eval/2026-10-29.v1.json")
+    parser.add_argument("--cases", type=Path, default=ROOT / "data/eval/2026-10-29.v1.json")
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--case", action="append", help="Run only the named case IDs")
     parser.add_argument("--resume-attempts", type=int, default=2,

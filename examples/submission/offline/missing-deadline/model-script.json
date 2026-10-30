@@ -1,0 +1,28 @@
+[
+  {
+    "name": "estimate_cost",
+    "arguments": {
+      "actions": [
+        "submit_script",
+        "review",
+        "save"
+      ]
+    },
+    "content": "核对剩余动作是否满足预算与截止。",
+    "id": "stop_estimate"
+  },
+  {
+    "name": "stop_incomplete",
+    "arguments": {
+      "reason": "现有资源无法覆盖脚本、核验和保存。",
+      "gaps": [
+        {
+          "gap": "资源不足",
+          "impact": "无法完成交付"
+        }
+      ]
+    },
+    "content": "保留实际记录，说明未完成原因。",
+    "id": "stop_result"
+  }
+]

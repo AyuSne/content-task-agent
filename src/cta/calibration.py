@@ -50,7 +50,7 @@ def _evaluate(config: Config, client, catalog, knowledge: str, pair: dict, campa
 
 def load_pairs(path: str | Path | None = None, project_root: Path | None = None) -> dict:
     root = project_root or find_project_root()
-    selected = Path(path) if path else root / "fixtures" / "calibration" / f"{DEFAULT_PAIRS}.json"
+    selected = Path(path) if path else root / "data" / "calibration" / f"{DEFAULT_PAIRS}.json"
     return json.loads(Path(selected).read_text(encoding="utf-8"))
 
 

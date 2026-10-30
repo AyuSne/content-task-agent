@@ -1,0 +1,152 @@
+{
+  "task_id": "t_fe6c563a4bfe",
+  "status": "complete",
+  "used_rounds": 17,
+  "max_rounds": 24,
+  "save": {
+    "save_id": "s_785814b85ffaa1bd",
+    "output_id": "o_7e250555224e8f9c",
+    "output_version": 2,
+    "status": "verified",
+    "verified": true,
+    "files": [
+      {
+        "path": "D:\\AAA小影科技\\content-task-agent\\.cta-runs\\manual-try\\real\\exports\\t_fe6c563a4bfe\\campaign-v2.md",
+        "sha256": "bd492361614a5c35fd199c2e7c2fa880fcf92fe889d837c73b4ca3a4ca80bdc7",
+        "bytes": 13487,
+        "exists": true,
+        "current_sha256": "bd492361614a5c35fd199c2e7c2fa880fcf92fe889d837c73b4ca3a4ca80bdc7",
+        "ok": true
+      },
+      {
+        "path": "D:\\AAA小影科技\\content-task-agent\\.cta-runs\\manual-try\\real\\exports\\t_fe6c563a4bfe\\campaign-v2.json",
+        "sha256": "d30bc8fff46d38b80c4ad7cebd242ca63190103315dde9cfdd64b9b9f8d3b726",
+        "bytes": 16005,
+        "exists": true,
+        "current_sha256": "d30bc8fff46d38b80c4ad7cebd242ca63190103315dde9cfdd64b9b9f8d3b726",
+        "ok": true
+      },
+      {
+        "path": "D:\\AAA小影科技\\content-task-agent\\.cta-runs\\manual-try\\real\\exports\\t_fe6c563a4bfe\\brief-v1.json",
+        "sha256": "3020b5b9f02f81e4e6078ced3e0dd8100ad6e7290697a03281381b7f7ad26d2e",
+        "bytes": 3626,
+        "exists": true,
+        "current_sha256": "3020b5b9f02f81e4e6078ced3e0dd8100ad6e7290697a03281381b7f7ad26d2e",
+        "ok": true
+      },
+      {
+        "path": "D:\\AAA小影科技\\content-task-agent\\.cta-runs\\manual-try\\real\\exports\\t_fe6c563a4bfe\\execution-report.md",
+        "sha256": "07e57f926151c60db1da112bd45492d905ab6ebce4695697f354b42d08c00483",
+        "bytes": 22343,
+        "exists": true,
+        "current_sha256": "07e57f926151c60db1da112bd45492d905ab6ebce4695697f354b42d08c00483",
+        "ok": true
+      },
+      {
+        "path": "D:\\AAA小影科技\\content-task-agent\\.cta-runs\\manual-try\\real\\exports\\t_fe6c563a4bfe\\trace.jsonl",
+        "sha256": "bc552bec3ee3b4039b1f63e0d6849f848587c213a605603d63e2a8a99dbada2e",
+        "bytes": 228669,
+        "exists": true,
+        "current_sha256": "bc552bec3ee3b4039b1f63e0d6849f848587c213a605603d63e2a8a99dbada2e",
+        "ok": true
+      }
+    ]
+  },
+  "resources": {
+    "budget_cents": 1000,
+    "sim_spent_cents": 470,
+    "remaining_cents": 530,
+    "real_requests": 20,
+    "mock_requests": 0,
+    "model_requests": 20,
+    "real_usage": {
+      "requests": 20,
+      "real_requests": 20,
+      "mock_requests": 0,
+      "unknown_usage_requests": 0,
+      "usage_complete": true,
+      "prompt_tokens": 493552,
+      "completion_tokens": 24160,
+      "cache_hit_tokens": 448640,
+      "cache_miss_tokens": 44912,
+      "elapsed_ms": 153944
+    },
+    "real_cost": null,
+    "amount_status": {
+      "simulated_tool_fee": "incurred_and_estimated",
+      "real_model_usage": "unknown",
+      "activity_costs": "unknown"
+    },
+    "simulated_tool_fee": {
+      "category": "simulated_tool_fee",
+      "unit": "CNY_cent",
+      "source": "pricing:2026-10-30.v2",
+      "nature": "incurred",
+      "incurred_cents": 470,
+      "ledger_entries": 6,
+      "estimated": null,
+      "reserved": null,
+      "note": "预留与估算是可行性判断，不是实际支出；实际消耗只累计账本中 nature=incurred 的记录。"
+    },
+    "real_model_usage": {
+      "category": "real_model_usage",
+      "unit": "request/token",
+      "source": "DeepSeek API response usage（openai SDK）",
+      "nature": "actual_usage",
+      "requests": 20,
+      "real_requests": 20,
+      "mock_requests": 0,
+      "unknown_usage_requests": 0,
+      "prompt_tokens": 493552,
+      "completion_tokens": 24160,
+      "cache_hit_tokens": 448640,
+      "cache_miss_tokens": 44912,
+      "elapsed_ms": 153944,
+      "amount": {
+        "status": "unknown",
+        "value_cents": null,
+        "reason": "没有可靠的单价来源，不把 token 用量换算成金额；未发生真实请求时也不补成已核实零费用。"
+      }
+    },
+    "activity_costs": {
+      "category": "activity_cost",
+      "unit": "CNY_cent",
+      "source": "campaign.materials",
+      "status": "unknown",
+      "nature": "unknown",
+      "entries": [
+        {
+          "name": "自动卡点与微调操作录屏及录屏导出成片（导入片段→自动卡点→逐段微调→一键重新卡点→导出回放）",
+          "material_id": null,
+          "status": "to_create",
+          "amount_cents": null,
+          "nature": "unknown",
+          "source": "campaign.materials"
+        },
+        {
+          "name": "背景音乐《Late Bus》（120 BPM）",
+          "material_id": "M-006",
+          "status": "to_acquire",
+          "amount_cents": null,
+          "nature": "unknown",
+          "source": "campaign.materials"
+        },
+        {
+          "name": "品牌名与片尾字卡版式（含字体）",
+          "material_id": null,
+          "status": "to_create",
+          "amount_cents": null,
+          "nature": "unknown",
+          "source": "campaign.materials"
+        }
+      ],
+      "reason": "方案含待获取或待制作素材，但任务输入与材料未给出活动预算或已发生支出金额。"
+    },
+    "unknown": [
+      "real_model_usage.amount",
+      "activity_costs"
+    ],
+    "not_applicable": []
+  },
+  "runtime_source_commit": "1c266da715a392d04ee75623c087602e81659eb3"
+}

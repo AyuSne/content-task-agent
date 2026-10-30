@@ -56,7 +56,7 @@ def test_status_reports_frozen_prompt_after_installed_prompt_changes(cli_env, tm
 
     from cta.prompts import PROMPT_VERSION
     runtime = tmp_path / 'runtime'
-    for name in ('src', 'fixtures', 'knowledge', '.agents/skills'):
+    for name in ('src', 'data', 'knowledge', '.agents/skills'):
         shutil.copytree(REPO_ROOT / name, runtime / name)
     shutil.copy2(REPO_ROOT / 'pyproject.toml', runtime / 'pyproject.toml')
     script = tmp_path / 'responses.json'
@@ -79,7 +79,7 @@ def test_changed_handler_protocol_rejects_resume_before_executing_history(cli_en
 
     from conftest import REPO_ROOT
     runtime = tmp_path / 'runtime'
-    for name in ('src', 'fixtures', 'knowledge', '.agents/skills'):
+    for name in ('src', 'data', 'knowledge', '.agents/skills'):
         shutil.copytree(REPO_ROOT / name, runtime / name)
     shutil.copy2(REPO_ROOT / 'pyproject.toml', runtime / 'pyproject.toml')
     script = tmp_path / 'responses.json'

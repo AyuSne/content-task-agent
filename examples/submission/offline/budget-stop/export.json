@@ -1,0 +1,26 @@
+{
+  "task_id": "t_08ad4b625624",
+  "output_version": null,
+  "save_id": null,
+  "verified": true,
+  "delivery_complete": false,
+  "files": [
+    {
+      "path": "D:\\AAA小影科技\\content-task-agent\\.scratch\\submission-offline-20261030-v2\\budget-stop\\data\\mock\\exports\\t_08ad4b625624\\execution-report.md",
+      "sha256": "41fed625db9aea19f2cf7647e84ca4bb87dbceefcb7a2b045d569c5e4d24369e",
+      "bytes": 2750,
+      "exists": true,
+      "current_sha256": "41fed625db9aea19f2cf7647e84ca4bb87dbceefcb7a2b045d569c5e4d24369e",
+      "ok": true
+    },
+    {
+      "path": "D:\\AAA小影科技\\content-task-agent\\.scratch\\submission-offline-20261030-v2\\budget-stop\\data\\mock\\exports\\t_08ad4b625624\\trace.jsonl",
+      "sha256": "9fe2448f35a05145c22b79dc4aa3781bb1798ce0441c85d6d575daeb74e58b6a",
+      "bytes": 11105,
+      "exists": true,
+      "current_sha256": "9fe2448f35a05145c22b79dc4aa3781bb1798ce0441c85d6d575daeb74e58b6a",
+      "ok": true
+    }
+  ],
+  "repaired": false
+}

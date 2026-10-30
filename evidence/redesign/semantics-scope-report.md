@@ -3,7 +3,7 @@
 ## 范围和来源
 
 - 基线：`16a1716fe52af7adad608989ae8f17d69769a32e`。本记录仅覆盖范围语义探针，不是工单 11 的完整验收。
-- [`redesign-semantics-scope-v1.json`](../../fixtures/eval/redesign-semantics-scope-v1.json) 派生自旧校准集第一对的合格稿；两稿只改变 `campaign.evidence[0].scope`。标签和依据附在样例文件，校准 CLI 不把标签传给模型。
+- [`redesign-semantics-scope-v1.json`](../../data/eval/redesign-semantics-scope-v1.json) 派生自旧校准集第一对的合格稿；两稿只改变 `campaign.evidence[0].scope`。标签和依据附在样例文件，校准 CLI 不把标签传给模型。
 - `M-001` 材料范围为「iOS/Android 4.2 及以上」，问题稿的 E1 范围却声称「所有 iOS 和 Android 版本，包括 4.2 以下」；合格稿沿用材料范围。两稿正文、引文和制作路径不变。问题是证据范围，不是字幕本身。
 - 校准入口构造独立核验上下文，包含待核验方案、原始要求和材料，但 `brief` 为 null；源方案来自旧校准稿，不是通过新协议提交的产物，不含新协议各处版本引用。因此这次只证明该入口对这个具体样例的判断，不能证明新协议生产核验、保存门禁、版本返修或其他范围措辞已通过。
 

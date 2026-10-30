@@ -36,7 +36,7 @@ def test_adopted_material_bodies_are_used_after_new_process_resume(cli_env, mode
 
 
 def test_materials_are_frozen_at_creation_before_the_first_run(cli_env, model_script, monkeypatch):
-    original = json.loads((Path(__file__).resolve().parents[1] / "fixtures/materials/catalog.json").read_text("utf-8"))
+    original = json.loads((Path(__file__).resolve().parents[1] / "data/materials/catalog.json").read_text("utf-8"))
     path = cli_env / "external-catalog.json"
     path.write_text(json.dumps(original, ensure_ascii=False), encoding="utf-8")
     monkeypatch.setenv("CTA_MATERIALS_PATH", str(path))
@@ -81,7 +81,7 @@ def test_adopted_knowledge_reaches_main_and_preserves_previous_body(cli_env, mod
 def test_import_validates_against_frozen_task_materials(cli_env, model_script, monkeypatch):
     task_id = _draft_with_review_script(model_script)["task_id"]
     path, text = _exported_markdown(task_id)
-    changed_catalog = json.loads((Path(__file__).resolve().parents[1] / "fixtures/materials/catalog.json").read_text("utf-8"))
+    changed_catalog = json.loads((Path(__file__).resolve().parents[1] / "data/materials/catalog.json").read_text("utf-8"))
     changed_catalog["version"] = "unadopted-version"
     changed_catalog["materials"][0]["text"] = "UNADOPTED BODY"
     external = cli_env / "external-catalog.json"
@@ -189,7 +189,7 @@ def test_adopting_catalog_without_used_material_reports_review_gap(cli_env, mode
 
     task_id = _new_draft_ready(model_script, _review_item(REVIEW_PASS))['task_id']
     base = materials.load_catalog()
-    payload = json.loads((Path(__file__).resolve().parents[1] / 'fixtures/materials/catalog.json').read_text(encoding='utf-8'))
+    payload = json.loads((Path(__file__).resolve().parents[1] / 'data/materials/catalog.json').read_text(encoding='utf-8'))
     payload['version'] = 'missing-evidence-test'
     payload['materials'] = [item for item in payload['materials'] if item['id'] != 'M-001']
     original_load = materials.load_catalog
@@ -231,7 +231,7 @@ def test_review_checks_brief_quote_against_adopted_material_body(cli_env, model_
     campaign['evidence'] = []
     model_script(prefix + [_tool('submit_campaign', {'script_ref': ref, 'campaign': campaign})])
     cli_json('resume', task_id, '--max-rounds', '1')
-    payload = json.loads((Path(__file__).resolve().parents[1] / 'fixtures/materials/catalog.json').read_text('utf-8'))
+    payload = json.loads((Path(__file__).resolve().parents[1] / 'data/materials/catalog.json').read_text('utf-8'))
     payload['version'] = 'changed-quote-test'
     next(item for item in payload['materials'] if item['id'] == 'M-001')['text'] = '新版材料不再包含旧引文。'
     original_load = materials.load_catalog

@@ -276,7 +276,7 @@ REVIEW_PASS = {
 
 def _copy_runtime_inputs(tmp_path):
     material_path = tmp_path / "catalog.json"
-    shutil.copy(REPO_ROOT / "fixtures" / "materials" / "catalog.json", material_path)
+    shutil.copy(REPO_ROOT / "data" / "materials" / "catalog.json", material_path)
     knowledge_dir = tmp_path / "knowledge"
     shutil.copytree(REPO_ROOT / "knowledge", knowledge_dir)
     shutil.copytree(REPO_ROOT / ".agents/skills", tmp_path / ".agents/skills")

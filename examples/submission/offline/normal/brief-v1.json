@@ -1,0 +1,44 @@
+{
+  "goal": "通过一条30秒视频展示自动卡点与逐段微调的使用方法",
+  "audience": "18—24岁大学生，校园社团视频制作者",
+  "product_facts": [
+    {
+      "claim": "自动卡点可对齐片段与节拍，并支持逐段微调",
+      "material_id": "M-001",
+      "quote": "把用户选中的视频片段对齐到节拍点。用户可以逐段微调",
+      "scope": "iOS/Android 4.2及以上；复杂变速或弱节拍音乐需要人工调整",
+      "use": "主视频功能演示"
+    }
+  ],
+  "creative_requirements": [
+    {
+      "text": "30秒主视频，展示自动卡点与微调",
+      "source": "用户输入"
+    }
+  ],
+  "assumptions": [],
+  "suggestions": [
+    {
+      "text": "以校园社团招新素材导入作为开场",
+      "basis": "与目标受众和推广主题一致"
+    }
+  ],
+  "unknowns": [
+    {
+      "question": "正式发布账号和日期",
+      "impact": "制作完成后由运营确定排期",
+      "blocking": false
+    }
+  ],
+  "sources": [
+    {
+      "material_id": "M-001",
+      "used_for": "产品能力与使用范围"
+    },
+    {
+      "material_id": "M-005",
+      "used_for": "校园情境素材"
+    }
+  ],
+  "blocking_unknowns": 0
+}

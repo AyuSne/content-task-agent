@@ -92,8 +92,8 @@ def test_paired_runner_rejects_a_non_repository_old_baseline(tmp_path):
     output = tmp_path / "result"
     result = subprocess.run([sys.executable, str(ROOT / "scripts/run_paired_eval.py"),
                              "--old", str(tmp_path), "--new", str(ROOT),
-                             "--cases", str(ROOT / "fixtures/eval/2026-10-29.v1.json"),
-                             "--materials", str(ROOT / "fixtures/materials/catalog.json"),
+                             "--cases", str(ROOT / "data/eval/2026-10-29.v1.json"),
+                             "--materials", str(ROOT / "data/materials/catalog.json"),
                              "--env-file", str(tmp_path / "missing.env"), "--output", str(output)],
                             capture_output=True, check=False)
     assert result.returncode != 0

@@ -1,0 +1,631 @@
+{
+  "selection": [
+    {
+      "case": "live-normal",
+      "mode": "real",
+      "source_commit": "1c266da715a392d04ee75623c087602e81659eb3",
+      "task_id": "t_fe6c563a4bfe",
+      "status": "complete",
+      "used_rounds": 17,
+      "sim_spent_cents": 470,
+      "real_requests": 20,
+      "verified": true
+    },
+    {
+      "case": "live-save-recovery",
+      "mode": "real",
+      "source_commit": "5a8920f91cb1d4afc7b45ee71714dfefcae14746",
+      "task_id": "t_ee3d81e66577",
+      "status": "complete",
+      "used_rounds": 14,
+      "sim_spent_cents": 250,
+      "real_requests": 15,
+      "checks": {
+        "expected_status": true,
+        "ledger_matches": true,
+        "clock_matches": true,
+        "rounds_bounded": true,
+        "message_pairing": true,
+        "real_only": true,
+        "requests_finished": true,
+        "within_budget": true,
+        "within_deadline": true,
+        "current_verified_save": true,
+        "current_review": true,
+        "saved_hashes": true,
+        "requested_duration": true,
+        "crash_observed": true,
+        "recovery_did_not_duplicate_save": true
+      }
+    },
+    {
+      "case": "live-budget-stop",
+      "mode": "real",
+      "source_commit": "52b79e830ff4766b87badaae08d30271f4334494",
+      "task_id": "t_b6ad05466043",
+      "status": "incomplete",
+      "used_rounds": 6,
+      "sim_spent_cents": 20,
+      "real_requests": 6,
+      "checks": {
+        "expected_status": true,
+        "ledger_matches": true,
+        "clock_matches": true,
+        "rounds_bounded": true,
+        "message_pairing": true,
+        "real_only": true,
+        "requests_finished": true,
+        "within_budget": true,
+        "within_deadline": true,
+        "not_falsely_saved": true
+      }
+    }
+  ],
+  "offline": {
+    "mode": "mock",
+    "real_requests": 0,
+    "results": [
+      {
+        "case": "normal",
+        "task_id": "t_9c70e0a96159",
+        "status": "complete",
+        "sim_spent_cents": 270,
+        "real_requests": 0,
+        "mock_requests": 9
+      },
+      {
+        "case": "tool-failure-recovery",
+        "task_id": "t_1cc4680ab8fc",
+        "status": "complete",
+        "sim_spent_cents": 330,
+        "real_requests": 0,
+        "mock_requests": 10
+      },
+      {
+        "case": "missing-budget",
+        "task_id": "t_421e3836a370",
+        "status": "needs_input",
+        "sim_spent_cents": 0,
+        "real_requests": 0,
+        "mock_requests": 0
+      },
+      {
+        "case": "missing-deadline",
+        "task_id": "t_94964f598517",
+        "status": "needs_input",
+        "sim_spent_cents": 0,
+        "real_requests": 0,
+        "mock_requests": 0
+      },
+      {
+        "case": "budget-stop",
+        "task_id": "t_08ad4b625624",
+        "status": "incomplete",
+        "sim_spent_cents": 0,
+        "real_requests": 0,
+        "mock_requests": 2
+      },
+      {
+        "case": "deadline-stop",
+        "task_id": "t_1e39b62dbb2c",
+        "status": "incomplete",
+        "sim_spent_cents": 0,
+        "real_requests": 0,
+        "mock_requests": 2
+      }
+    ]
+  },
+  "runtime_matches_recovery_source": true,
+  "copies": [
+    {
+      "source": ".cta-runs/manual-try/real/exports/t_fe6c563a4bfe/brief-v1.json",
+      "destination": "examples/submission/live-normal/brief-v1.json",
+      "sha256": "3020b5b9f02f81e4e6078ced3e0dd8100ad6e7290697a03281381b7f7ad26d2e",
+      "bytes": 3626
+    },
+    {
+      "source": ".cta-runs/manual-try/real/exports/t_fe6c563a4bfe/campaign-v2.json",
+      "destination": "examples/submission/live-normal/campaign-v2.json",
+      "sha256": "d30bc8fff46d38b80c4ad7cebd242ca63190103315dde9cfdd64b9b9f8d3b726",
+      "bytes": 16005
+    },
+    {
+      "source": ".cta-runs/manual-try/real/exports/t_fe6c563a4bfe/campaign-v2.md",
+      "destination": "examples/submission/live-normal/campaign-v2.md",
+      "sha256": "bd492361614a5c35fd199c2e7c2fa880fcf92fe889d837c73b4ca3a4ca80bdc7",
+      "bytes": 13487
+    },
+    {
+      "source": ".cta-runs/manual-try/real/exports/t_fe6c563a4bfe/execution-report.md",
+      "destination": "examples/submission/live-normal/execution-report.md",
+      "sha256": "07e57f926151c60db1da112bd45492d905ab6ebce4695697f354b42d08c00483",
+      "bytes": 22343
+    },
+    {
+      "source": ".cta-runs/manual-try/real/exports/t_fe6c563a4bfe/trace.jsonl",
+      "destination": "examples/submission/live-normal/trace.jsonl",
+      "sha256": "bc552bec3ee3b4039b1f63e0d6849f848587c213a605603d63e2a8a99dbada2e",
+      "bytes": 228669
+    },
+    {
+      "source": "evidence/redesign/reviewer-scope-paired/new/save-crash-recovery/01-create.json",
+      "destination": "examples/submission/live-save-recovery/01-create.json",
+      "sha256": "00e9551a74772655c313275ef0ac4fd71c3367e879eeca2f69c95163f4b183ea",
+      "bytes": 10777
+    },
+    {
+      "source": "evidence/redesign/reviewer-scope-paired/new/save-crash-recovery/02-run.json",
+      "destination": "examples/submission/live-save-recovery/02-run.json",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "source": "evidence/redesign/reviewer-scope-paired/new/save-crash-recovery/04-resume-0.json",
+      "destination": "examples/submission/live-save-recovery/04-resume-0.json",
+      "sha256": "1cbe3c289960c754361467e365b91f5269c74f99b5a58b1c051fc8f01d7d3411",
+      "bytes": 34358
+    },
+    {
+      "source": "evidence/redesign/reviewer-scope-paired/new/save-crash-recovery/05-inspect.json",
+      "destination": "examples/submission/live-save-recovery/05-inspect.json",
+      "sha256": "afdc06e8fc23c0cbb80eeedad81f68fd780912e5f1110d2250ccc953114ecd2a",
+      "bytes": 1462059
+    },
+    {
+      "source": "evidence/redesign/reviewer-scope-paired/new/save-crash-recovery/06-export.json",
+      "destination": "examples/submission/live-save-recovery/06-export.json",
+      "sha256": "f5a34a5171d7148bda9f0dbf2aed5a2e23d04abb11642068c754fd87c78e72d8",
+      "bytes": 2442
+    },
+    {
+      "source": "evidence/redesign/reviewer-scope-paired/new/save-crash-recovery/manifest.json",
+      "destination": "examples/submission/live-save-recovery/manifest.json",
+      "sha256": "bba3f2a729bd9b4e80671413b73b8d824a9fe4d17db7b11318a07b9924ba043d",
+      "bytes": 4816
+    },
+    {
+      "source": "evidence/redesign/reviewer-scope-paired/new/save-crash-recovery/result.json",
+      "destination": "examples/submission/live-save-recovery/result.json",
+      "sha256": "c503e064b58c99aac5ffe0fd3e64de230ada3fafedc2a86b19283bb99a43c0ad",
+      "bytes": 5446
+    },
+    {
+      "source": "evidence/redesign/reviewer-scope-paired/new/save-crash-recovery.summary.json",
+      "destination": "examples/submission/live-save-recovery/summary.json",
+      "sha256": "459163ac2b48770c2678c912244ccba732eef9fb6a06764873b93bdeac46d748",
+      "bytes": 6246
+    },
+    {
+      "source": "evidence/redesign/reviewer-scope-paired/new/save-crash-recovery/data/real/exports/t_ee3d81e66577/brief-v1.json",
+      "destination": "examples/submission/live-save-recovery/brief-v1.json",
+      "sha256": "22cb4699e243fadb78287ff7f09e22f146f283228431b98d1e372b79ee5b3259",
+      "bytes": 4794
+    },
+    {
+      "source": "evidence/redesign/reviewer-scope-paired/new/save-crash-recovery/data/real/exports/t_ee3d81e66577/campaign-v1.json",
+      "destination": "examples/submission/live-save-recovery/campaign-v1.json",
+      "sha256": "b273b46e694e97913c823108a5481645e9712fc33fdba0e5d12f3361df1cf37d",
+      "bytes": 12555
+    },
+    {
+      "source": "evidence/redesign/reviewer-scope-paired/new/save-crash-recovery/data/real/exports/t_ee3d81e66577/campaign-v1.md",
+      "destination": "examples/submission/live-save-recovery/campaign-v1.md",
+      "sha256": "755134ce8ce0baacf9c669bb4e8618acbc6e7861ad2994b83c4f529941ade19a",
+      "bytes": 10437
+    },
+    {
+      "source": "evidence/redesign/reviewer-scope-paired/new/save-crash-recovery/data/real/exports/t_ee3d81e66577/execution-report.md",
+      "destination": "examples/submission/live-save-recovery/execution-report.md",
+      "sha256": "1afbdac11621b4b4458e92b04504c6b7d9cf92d2a2aeb8e3b31236e6752f8e01",
+      "bytes": 15118
+    },
+    {
+      "source": "evidence/redesign/reviewer-scope-paired/new/save-crash-recovery/data/real/exports/t_ee3d81e66577/trace.jsonl",
+      "destination": "examples/submission/live-save-recovery/trace.jsonl",
+      "sha256": "05b36be788cd5ce83d412c8876da44493089a6e8b169a030cb7f865930c91968",
+      "bytes": 139481
+    },
+    {
+      "source": "evidence/redesign/ticket11-paired-raw/driver-real-budget/new/budget-impossible/01-create.json",
+      "destination": "examples/submission/live-budget-stop/01-create.json",
+      "sha256": "24bfdeffb929124eec045f065e4ec4c9f35f1d80945725a64db3d1f4f2c00299",
+      "bytes": 10798
+    },
+    {
+      "source": "evidence/redesign/ticket11-paired-raw/driver-real-budget/new/budget-impossible/02-run.json",
+      "destination": "examples/submission/live-budget-stop/02-run.json",
+      "sha256": "f59643e315c6532edad1d10508048b409f9a3f6debd2878fce682e7926cdb3ed",
+      "bytes": 16584
+    },
+    {
+      "source": "evidence/redesign/ticket11-paired-raw/driver-real-budget/new/budget-impossible/05-inspect.json",
+      "destination": "examples/submission/live-budget-stop/05-inspect.json",
+      "sha256": "f992aabd515345204f368919d834f14296cbb9d68ddadba069ffa0e68bc48665",
+      "bytes": 382102
+    },
+    {
+      "source": "evidence/redesign/ticket11-paired-raw/driver-real-budget/new/budget-impossible/06-export.json",
+      "destination": "examples/submission/live-budget-stop/06-export.json",
+      "sha256": "1dc2cfc4bc0b383f7f2dbb2f5c80cc4c3090aeecf6d7af48eb21d9b47d1b2a5f",
+      "bytes": 1068
+    },
+    {
+      "source": "evidence/redesign/ticket11-paired-raw/driver-real-budget/new/budget-impossible/manifest.json",
+      "destination": "examples/submission/live-budget-stop/manifest.json",
+      "sha256": "ae9cd185dd4d4bc50be5ca60a13e96316b2d17090a94cfc5afdf64ffba5da6ab",
+      "bytes": 3807
+    },
+    {
+      "source": "evidence/redesign/ticket11-paired-raw/driver-real-budget/new/budget-impossible/result.json",
+      "destination": "examples/submission/live-budget-stop/result.json",
+      "sha256": "44d57ffcf355c06fb2e0c554b5d6a37980a69d0d45e4cb40dbd83dce267624ff",
+      "bytes": 4215
+    },
+    {
+      "source": "evidence/redesign/ticket11-paired-raw/driver-real-budget/new/budget-impossible.summary.json",
+      "destination": "examples/submission/live-budget-stop/summary.json",
+      "sha256": "e574a51b7b25bc90fb3e4bb8b4239f10658bdc3c5e54f55076ddf9af97d64f87",
+      "bytes": 4827
+    },
+    {
+      "source": "evidence/redesign/ticket11-paired-raw/driver-real-budget/new/budget-impossible/data/real/exports/t_b6ad05466043/execution-report.md",
+      "destination": "examples/submission/live-budget-stop/execution-report.md",
+      "sha256": "1f738ed696f1ca3e94a64411eb0c902fa82ff5c3d703af9c17ceb3da3a17e884",
+      "bytes": 7854
+    },
+    {
+      "source": "evidence/redesign/ticket11-paired-raw/driver-real-budget/new/budget-impossible/data/real/exports/t_b6ad05466043/trace.jsonl",
+      "destination": "examples/submission/live-budget-stop/trace.jsonl",
+      "sha256": "12a9ca66e7207f8843e54eb82ccdcf259e7d34fbb28bd70b0a20c101b27997c6",
+      "bytes": 40997
+    },
+    {
+      "source": ".scratch/submission-offline-20261030-v2/normal/brief-v1.json",
+      "destination": "examples/submission/offline/normal/brief-v1.json",
+      "sha256": "889fe22da4d6f6e67bf4ff5dc0e91302c3b37eb25f8d4d9c5e32ccd1bb5c9351",
+      "bytes": 1220
+    },
+    {
+      "source": ".scratch/submission-offline-20261030-v2/normal/campaign-v1.json",
+      "destination": "examples/submission/offline/normal/campaign-v1.json",
+      "sha256": "f2d89573fa1a13d7180e1f53d9ce5f4dab8a6d6d78dca7b3b7cd637378642702",
+      "bytes": 4792
+    },
+    {
+      "source": ".scratch/submission-offline-20261030-v2/normal/campaign-v1.md",
+      "destination": "examples/submission/offline/normal/campaign-v1.md",
+      "sha256": "2f7a54c8c933b14dc54ce6e27b4a10e1462942fc50f9a7b956132bfc1743adb3",
+      "bytes": 3672
+    },
+    {
+      "source": ".scratch/submission-offline-20261030-v2/normal/create.json",
+      "destination": "examples/submission/offline/normal/create.json",
+      "sha256": "4f63396b20c2a0db0d70bba5480067b8f764fa091b4671157be941796fae34c1",
+      "bytes": 10099
+    },
+    {
+      "source": ".scratch/submission-offline-20261030-v2/normal/execution-report.md",
+      "destination": "examples/submission/offline/normal/execution-report.md",
+      "sha256": "4da2a82c6dfd47f096178d708316bd04c981bb5899963113f09f07839cd4b669",
+      "bytes": 7429
+    },
+    {
+      "source": ".scratch/submission-offline-20261030-v2/normal/export.json",
+      "destination": "examples/submission/offline/normal/export.json",
+      "sha256": "2548a57aecd06a185eba4fa1e084b242ee6087fc1eda55ba0ed93019040094d1",
+      "bytes": 2278
+    },
+    {
+      "source": ".scratch/submission-offline-20261030-v2/normal/input.json",
+      "destination": "examples/submission/offline/normal/input.json",
+      "sha256": "e1201805432608a5910be33492168a269d1151973186bddbce51c6d9abddc7f9",
+      "bytes": 314
+    },
+    {
+      "source": ".scratch/submission-offline-20261030-v2/normal/inspect.json",
+      "destination": "examples/submission/offline/normal/inspect.json",
+      "sha256": "462b2fbba2053c1ce103f7a4c19aa072cfe0e2cc90545434232be3c6ddfdbe2a",
+      "bytes": 657596
+    },
+    {
+      "source": ".scratch/submission-offline-20261030-v2/normal/model-script.json",
+      "destination": "examples/submission/offline/normal/model-script.json",
+      "sha256": "abb84d09397d545915113c2b92aa9aacd9b7c64137706720b30056e9bc53a6fb",
+      "bytes": 10232
+    },
+    {
+      "source": ".scratch/submission-offline-20261030-v2/normal/repeat.json",
+      "destination": "examples/submission/offline/normal/repeat.json",
+      "sha256": "d707672c6e340813c26ee33e9bf9ecf5bb66bd6a5e08ccfa0fa2eb2f77c80646",
+      "bytes": 105
+    },
+    {
+      "source": ".scratch/submission-offline-20261030-v2/normal/result.json",
+      "destination": "examples/submission/offline/normal/result.json",
+      "sha256": "360e13942fc4e3997f5951316917cc5af632c1ec8cc2e9a00b4ca37e742e1a0f",
+      "bytes": 24133
+    },
+    {
+      "source": ".scratch/submission-offline-20261030-v2/normal/trace.jsonl",
+      "destination": "examples/submission/offline/normal/trace.jsonl",
+      "sha256": "9e32164417a389b83f67308ce6e35b140d4a87ddaebee41a0a4801f69c559924",
+      "bytes": 78217
+    },
+    {
+      "source": ".scratch/submission-offline-20261030-v2/tool-failure-recovery/brief-v1.json",
+      "destination": "examples/submission/offline/tool-failure-recovery/brief-v1.json",
+      "sha256": "889fe22da4d6f6e67bf4ff5dc0e91302c3b37eb25f8d4d9c5e32ccd1bb5c9351",
+      "bytes": 1220
+    },
+    {
+      "source": ".scratch/submission-offline-20261030-v2/tool-failure-recovery/campaign-v1.json",
+      "destination": "examples/submission/offline/tool-failure-recovery/campaign-v1.json",
+      "sha256": "b7752277c4d0312a05c15bdd83c96100f1972f48d42539d1151067df3ed7cd59",
+      "bytes": 4792
+    },
+    {
+      "source": ".scratch/submission-offline-20261030-v2/tool-failure-recovery/campaign-v1.md",
+      "destination": "examples/submission/offline/tool-failure-recovery/campaign-v1.md",
+      "sha256": "2a5fc11b13a1a0e7da383ae6307df3d591cf55457875c334bd5895cee21b70b7",
+      "bytes": 3672
+    },
+    {
+      "source": ".scratch/submission-offline-20261030-v2/tool-failure-recovery/create.json",
+      "destination": "examples/submission/offline/tool-failure-recovery/create.json",
+      "sha256": "21192f6277306d28e67445fa238ed9326f0abe753322b69e2d4504247d9c2e01",
+      "bytes": 10099
+    },
+    {
+      "source": ".scratch/submission-offline-20261030-v2/tool-failure-recovery/execution-report.md",
+      "destination": "examples/submission/offline/tool-failure-recovery/execution-report.md",
+      "sha256": "7aeb30f61c2c207781a7ee7cd0078b0fdb9ebc342d53427a91bc6ceb1371b3fa",
+      "bytes": 8164
+    },
+    {
+      "source": ".scratch/submission-offline-20261030-v2/tool-failure-recovery/export.json",
+      "destination": "examples/submission/offline/tool-failure-recovery/export.json",
+      "sha256": "620ce47199583540c31cc2e83a574e9e4055c3e8f4e9af57ca31ff49747b9f06",
+      "bytes": 2353
+    },
+    {
+      "source": ".scratch/submission-offline-20261030-v2/tool-failure-recovery/injected-failure.json",
+      "destination": "examples/submission/offline/tool-failure-recovery/injected-failure.json",
+      "sha256": "12bd5e615d428645cd3285d051ffa5cedaf2db54a309b6b7680148b5c358e0c7",
+      "bytes": 11117
+    },
+    {
+      "source": ".scratch/submission-offline-20261030-v2/tool-failure-recovery/input.json",
+      "destination": "examples/submission/offline/tool-failure-recovery/input.json",
+      "sha256": "c06b85d89a9801803f1cc4aa9cf21ab85047ecccd335a5f3b242d27894f579ee",
+      "bytes": 314
+    },
+    {
+      "source": ".scratch/submission-offline-20261030-v2/tool-failure-recovery/inspect.json",
+      "destination": "examples/submission/offline/tool-failure-recovery/inspect.json",
+      "sha256": "05c3f0361f691d11eb4fc842d456b03beeb7fe9aada58d4462944502bbaac894",
+      "bytes": 737180
+    },
+    {
+      "source": ".scratch/submission-offline-20261030-v2/tool-failure-recovery/model-script.json",
+      "destination": "examples/submission/offline/tool-failure-recovery/model-script.json",
+      "sha256": "69bc4df64b4f7dce704e9c5b91b8b871cfa2882488f31e302dfd004f6b3b97c8",
+      "bytes": 10462
+    },
+    {
+      "source": ".scratch/submission-offline-20261030-v2/tool-failure-recovery/repeat.json",
+      "destination": "examples/submission/offline/tool-failure-recovery/repeat.json",
+      "sha256": "0b30e56926ff37f961ac2590a5cca8af8244bda26b3c1a5567c6fcc8418b8438",
+      "bytes": 107
+    },
+    {
+      "source": ".scratch/submission-offline-20261030-v2/tool-failure-recovery/result.json",
+      "destination": "examples/submission/offline/tool-failure-recovery/result.json",
+      "sha256": "44efa1b26c04def18623a724b982aa5604cbe87fc832349a4be60bc17607ce37",
+      "bytes": 24217
+    },
+    {
+      "source": ".scratch/submission-offline-20261030-v2/tool-failure-recovery/trace.jsonl",
+      "destination": "examples/submission/offline/tool-failure-recovery/trace.jsonl",
+      "sha256": "d7c1cfd61d04afda7c61178ac0fbcd5b8717bcd8888b4b3beff721ba2e00093d",
+      "bytes": 84026
+    },
+    {
+      "source": ".scratch/submission-offline-20261030-v2/missing-budget/create.json",
+      "destination": "examples/submission/offline/missing-budget/create.json",
+      "sha256": "8c7525f73a1d867e0632ff0c7f4def4aba191f648f192f970fdd53310732e271",
+      "bytes": 10241
+    },
+    {
+      "source": ".scratch/submission-offline-20261030-v2/missing-budget/execution-report.md",
+      "destination": "examples/submission/offline/missing-budget/execution-report.md",
+      "sha256": "daac1611aa1358a38127ff8ff919fa56c87c787951cc9ca9b00a06e96da1ae6e",
+      "bytes": 1804
+    },
+    {
+      "source": ".scratch/submission-offline-20261030-v2/missing-budget/export.json",
+      "destination": "examples/submission/offline/missing-budget/export.json",
+      "sha256": "ea735b2d03699610b9b3f9fa2c8891ba6e06002a0b882b3e20bc6f873a4ec1c6",
+      "bytes": 1028
+    },
+    {
+      "source": ".scratch/submission-offline-20261030-v2/missing-budget/input.json",
+      "destination": "examples/submission/offline/missing-budget/input.json",
+      "sha256": "1db082bc3effb0cc68e374366fd6762b58da7c7de66d22f1c39c37f595cced44",
+      "bytes": 293
+    },
+    {
+      "source": ".scratch/submission-offline-20261030-v2/missing-budget/inspect.json",
+      "destination": "examples/submission/offline/missing-budget/inspect.json",
+      "sha256": "15bc90dce6abc74ab5d433a375a76222b5bb55e44adcfe9e639abd2bf22c2f88",
+      "bytes": 14020
+    },
+    {
+      "source": ".scratch/submission-offline-20261030-v2/missing-budget/model-script.json",
+      "destination": "examples/submission/offline/missing-budget/model-script.json",
+      "sha256": "31f5ba22d5ab45ab678dc11a12c320f3532c0c33a9386a5aca26e57a600290f8",
+      "bytes": 616
+    },
+    {
+      "source": ".scratch/submission-offline-20261030-v2/missing-budget/result.json",
+      "destination": "examples/submission/offline/missing-budget/result.json",
+      "sha256": "35bee8a59952d8fc2eb5e2e3f900a0bab6fa378a655b30a3bfce8a138225bff3",
+      "bytes": 10390
+    },
+    {
+      "source": ".scratch/submission-offline-20261030-v2/missing-budget/trace.jsonl",
+      "destination": "examples/submission/offline/missing-budget/trace.jsonl",
+      "sha256": "57751c6c0ac95b652e56354a196434165a08174cca81b0331e6433990697001b",
+      "bytes": 143
+    },
+    {
+      "source": ".scratch/submission-offline-20261030-v2/missing-deadline/create.json",
+      "destination": "examples/submission/offline/missing-deadline/create.json",
+      "sha256": "141912eb8454d3721879fe6382072a894b2994d6687fec4640c10bb89b097874",
+      "bytes": 10228
+    },
+    {
+      "source": ".scratch/submission-offline-20261030-v2/missing-deadline/execution-report.md",
+      "destination": "examples/submission/offline/missing-deadline/execution-report.md",
+      "sha256": "a32735d8da7df90721376fc0f43b52dac0fb302080a70d3cc3aee6379a0e7d2d",
+      "bytes": 1814
+    },
+    {
+      "source": ".scratch/submission-offline-20261030-v2/missing-deadline/export.json",
+      "destination": "examples/submission/offline/missing-deadline/export.json",
+      "sha256": "66d3fdc1659b6d8f6a5cf32877347cac3ed8ee066220dbca218f47ec9a831594",
+      "bytes": 1032
+    },
+    {
+      "source": ".scratch/submission-offline-20261030-v2/missing-deadline/input.json",
+      "destination": "examples/submission/offline/missing-deadline/input.json",
+      "sha256": "8614f99742a865d0b4b9b0f8475b2612517c7a6b1f7762b0e0944274c5ff6941",
+      "bytes": 270
+    },
+    {
+      "source": ".scratch/submission-offline-20261030-v2/missing-deadline/inspect.json",
+      "destination": "examples/submission/offline/missing-deadline/inspect.json",
+      "sha256": "a4e08279e0dc5e02e51e1cf3678f8936dc88af29a8aaf84d7580b3512a2c3744",
+      "bytes": 13962
+    },
+    {
+      "source": ".scratch/submission-offline-20261030-v2/missing-deadline/model-script.json",
+      "destination": "examples/submission/offline/missing-deadline/model-script.json",
+      "sha256": "31f5ba22d5ab45ab678dc11a12c320f3532c0c33a9386a5aca26e57a600290f8",
+      "bytes": 616
+    },
+    {
+      "source": ".scratch/submission-offline-20261030-v2/missing-deadline/result.json",
+      "destination": "examples/submission/offline/missing-deadline/result.json",
+      "sha256": "799a51f865a7032f4ab999c1a5b504f8653f4661af2adc662e6aa33c23c69c70",
+      "bytes": 10377
+    },
+    {
+      "source": ".scratch/submission-offline-20261030-v2/missing-deadline/trace.jsonl",
+      "destination": "examples/submission/offline/missing-deadline/trace.jsonl",
+      "sha256": "5fc119564b61177eb3af5558c3766b87ff83d9ab10bcc47007a9563c83cb6501",
+      "bytes": 143
+    },
+    {
+      "source": ".scratch/submission-offline-20261030-v2/budget-stop/create.json",
+      "destination": "examples/submission/offline/budget-stop/create.json",
+      "sha256": "672ff7613f58d01ee1fc5bcc272902c6452ac0c69606c224634b9f9f0b1fd8d1",
+      "bytes": 10096
+    },
+    {
+      "source": ".scratch/submission-offline-20261030-v2/budget-stop/execution-report.md",
+      "destination": "examples/submission/offline/budget-stop/execution-report.md",
+      "sha256": "41fed625db9aea19f2cf7647e84ca4bb87dbceefcb7a2b045d569c5e4d24369e",
+      "bytes": 2750
+    },
+    {
+      "source": ".scratch/submission-offline-20261030-v2/budget-stop/export.json",
+      "destination": "examples/submission/offline/budget-stop/export.json",
+      "sha256": "39744a0bf723093c8cf2ac0ea1446eb1bed1265f0f81db17ef1e768079313a0d",
+      "bytes": 1024
+    },
+    {
+      "source": ".scratch/submission-offline-20261030-v2/budget-stop/input.json",
+      "destination": "examples/submission/offline/budget-stop/input.json",
+      "sha256": "b53591ec549e47ed912728b4c6868106e9a48f136bbbe8d60a7f81d48025244f",
+      "bytes": 314
+    },
+    {
+      "source": ".scratch/submission-offline-20261030-v2/budget-stop/inspect.json",
+      "destination": "examples/submission/offline/budget-stop/inspect.json",
+      "sha256": "ba06e7fb8b27d43f6ae69c3692627a27ecd96937347c1f8bd4217e9465b7e564",
+      "bytes": 123223
+    },
+    {
+      "source": ".scratch/submission-offline-20261030-v2/budget-stop/model-script.json",
+      "destination": "examples/submission/offline/budget-stop/model-script.json",
+      "sha256": "31f5ba22d5ab45ab678dc11a12c320f3532c0c33a9386a5aca26e57a600290f8",
+      "bytes": 616
+    },
+    {
+      "source": ".scratch/submission-offline-20261030-v2/budget-stop/result.json",
+      "destination": "examples/submission/offline/budget-stop/result.json",
+      "sha256": "cd32153eadbf52d41f3699ea50eab01041681dcc88a3ee8a101507645d2bec3e",
+      "bytes": 11850
+    },
+    {
+      "source": ".scratch/submission-offline-20261030-v2/budget-stop/trace.jsonl",
+      "destination": "examples/submission/offline/budget-stop/trace.jsonl",
+      "sha256": "9fe2448f35a05145c22b79dc4aa3781bb1798ce0441c85d6d575daeb74e58b6a",
+      "bytes": 11105
+    },
+    {
+      "source": ".scratch/submission-offline-20261030-v2/deadline-stop/create.json",
+      "destination": "examples/submission/offline/deadline-stop/create.json",
+      "sha256": "ebdf3db37643a1c141613fefb4e02507437ede8873b2d020a9e1ed55aaad5c24",
+      "bytes": 10099
+    },
+    {
+      "source": ".scratch/submission-offline-20261030-v2/deadline-stop/execution-report.md",
+      "destination": "examples/submission/offline/deadline-stop/execution-report.md",
+      "sha256": "aeb1b78960efe6c9c3235fc92d91cb106aa70006192baf120fbe48f89a39e27f",
+      "bytes": 2753
+    },
+    {
+      "source": ".scratch/submission-offline-20261030-v2/deadline-stop/export.json",
+      "destination": "examples/submission/offline/deadline-stop/export.json",
+      "sha256": "c4d61d2f7782500120e6dc235e7d14d12102770e3fe8841afd59b51d9e8446d4",
+      "bytes": 1028
+    },
+    {
+      "source": ".scratch/submission-offline-20261030-v2/deadline-stop/input.json",
+      "destination": "examples/submission/offline/deadline-stop/input.json",
+      "sha256": "ab8730fb057788825b1e7d88b52352c004b7e2dd2c3e3cc72fb867657c276d91",
+      "bytes": 314
+    },
+    {
+      "source": ".scratch/submission-offline-20261030-v2/deadline-stop/inspect.json",
+      "destination": "examples/submission/offline/deadline-stop/inspect.json",
+      "sha256": "6c689835618be222b876a0426fe4400dce3c43d2559827643777156f77177672",
+      "bytes": 123228
+    },
+    {
+      "source": ".scratch/submission-offline-20261030-v2/deadline-stop/model-script.json",
+      "destination": "examples/submission/offline/deadline-stop/model-script.json",
+      "sha256": "31f5ba22d5ab45ab678dc11a12c320f3532c0c33a9386a5aca26e57a600290f8",
+      "bytes": 616
+    },
+    {
+      "source": ".scratch/submission-offline-20261030-v2/deadline-stop/result.json",
+      "destination": "examples/submission/offline/deadline-stop/result.json",
+      "sha256": "2025fb7908a4100195342c0164f819026ec94091bb0a8cf1eaaad977cda9fdec",
+      "bytes": 11854
+    },
+    {
+      "source": ".scratch/submission-offline-20261030-v2/deadline-stop/trace.jsonl",
+      "destination": "examples/submission/offline/deadline-stop/trace.jsonl",
+      "sha256": "b6bab595c3535f7a7a7887bd1c089016193afe4bc55a81cbd555abc0b268e7b8",
+      "bytes": 11105
+    },
+    {
+      "source": ".scratch/submission-offline-20261030-v2/summary.json",
+      "destination": "examples/submission/offline/summary.json",
+      "sha256": "d45f837fbce4beac43f00117fad973c26aa96f2ebb568f99267f1d433e4cc98d",
+      "bytes": 1250
+    }
+  ]
+}

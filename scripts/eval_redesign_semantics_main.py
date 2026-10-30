@@ -14,7 +14,7 @@ from pathlib import Path
 from cta.config import load_env_file, redact_secret
 
 ROOT = Path(__file__).resolve().parents[1]
-FIXTURE = ROOT / "fixtures/eval/redesign-semantics-main-v1.json"
+FIXTURE = ROOT / "data/eval/redesign-semantics-main-v1.json"
 
 
 def write_json(path, value):

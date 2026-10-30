@@ -1,0 +1,19 @@
+{
+  "client_date": "2026-10-30",
+  "source_head": "1c266da715a392d04ee75623c087602e81659eb3",
+  "runtime_and_existing_tests_unchanged": true,
+  "python": "3.13.11",
+  "dependencies": {
+    "openai": "2.54.0",
+    "httpx": "0.28.1",
+    "pytest": "9.2.0",
+    "ruff": "0.17.3"
+  },
+  "pytest": {
+    "passed": 343,
+    "elapsed_seconds": 842.0
+  },
+  "markdown_documents": 17,
+  "local_links_checked": 142,
+  "files_scanned_for_credentials": 121
+}

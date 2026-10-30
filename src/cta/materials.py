@@ -14,11 +14,11 @@ DEFAULT_MATERIALS_VERSION = "2026-10-29.v1"
 
 
 def _catalog_path(project_root: Path) -> Path:
-    """Test-only override keeps an injected catalog outside the shared fixtures."""
+    """Test-only override keeps an injected catalog outside the shared data."""
     override = os.environ.get("CTA_MATERIALS_PATH")
     if override:
         return Path(override)
-    return project_root / "fixtures" / "materials" / "catalog.json"
+    return project_root / "data" / "materials" / "catalog.json"
 
 
 @dataclass(frozen=True)
@@ -169,7 +169,7 @@ class MaterialCatalog:
 def load_catalog(project_root: Path | None = None, version: str | None = None) -> MaterialCatalog:
     root = project_root or find_project_root()
     if version:
-        path = root / "fixtures" / "materials" / f"{version}.json"
+        path = root / "data" / "materials" / f"{version}.json"
     else:
         path = _catalog_path(root)
     payload = json.loads(path.read_text(encoding="utf-8"))
