@@ -21,3 +21,15 @@
 - 创作简报、脚本及方案的 `scope` 是非空的自由概括，不要求是材料范围的逐字片段；程序核对材料、适用版本和正文引文等结构和定位，但不判断自由概括是否语义等价或被支持。不能将处置依据的原文片段规则移植到此字段，否则会误拒合法概括，也不能声称非空即正确。
 - 驳回处置的材料依据是另一契约：`scope` 必须是所采用材料适用范围中的原文片段，材料版本和引文也须定位；程序验证的是位置而非是否足以支持驳回。主 Agent 对处置依据作语义判断，独立核验 Agent 获得当前方案和适用材料正文、范围，负责核验事实与范围是否被支持；程序限制核验完整性、版本、处置及核实保存，但不独立保证模型判断正确。
 - `tests/scope_risk_probe.py` 明确复现：材料限定 iOS/Android 4.2 及以上，错误概括覆盖更旧版本，脚本化核验预设 pass 后仍可核实保存。这说明存在错误范围通过保存的风险；Mock pass 既不证明真实核验会漏检，也不证明其能捕获。未增加提示词修饰或虚假的字面匹配保证；真实核验和主模型的语义表现、旧新对照留待工单 11，当前范围风险未解除。
+
+## 2026-10-30 合并者逐项核对
+
+`10a7ad2` 是 `6292739` 与 `5d407dd` 的非快进合并；合并前目标干净且后者直接以目标为父提交。以 `PYTHONPATH=src` 执行 `.venv/Scripts/python.exe -m pytest -p no:cacheprovider --basetemp D:/AAA小影科技/.scratch/t10merge-20261030 -q --tb=short tests tests/scope_risk_probe.py`，退出码 0；该次 pytest 的双重安静模式不显示摘要，随后收集核对总数并扣除事后新增用例，确定当次为 320 项。单独运行新增 `tests/test_ticket10_clarification.py`：1 项通过。`ruff check --no-cache src tests scripts` 和 `git diff --check` 通过。均为脚本化模型或本地假对端，不是外部真实模型。
+
+1. **完整请求**：`tests/test_ticket10_combinations.py::test_actual_request_has_consistent_system_tools_and_loaded_skill`、`tests/test_context_composition.py::test_full_actual_request_after_updates_starts_with_stable_prefix_and_retains_tool_history` 和 `examples/context-redesign/mock-request-roundtrip.json` 核对实际两轮请求、13 项工具、正文、Skill、目录、费用、状态及调用配对；SDK 与本地接收端的入参核对另见 `test_real_sdk_cli_request_record_matches_local_wire_payload`。
+2. **共同纪律**：上述完整请求及 `test_script_tool_contract_and_system_prompt_agree_on_material_evidence` 核对直接创作、接收不等于交付、素材字段一致性；`tests/test_strategy.py::test_new_toolset_excludes_fixed_comparison_selection_and_generation`、`tests/test_direct_script.py::test_direct_script_is_saved_and_charged_without_generator` 核对旧固定工具和独立生成不再出现。
+3. **当前事实**：`test_human_draft_semantic_change_and_interruption_preserve_current_facts` 和 `test_semantic_change_keeps_history_but_rejects_old_campaign_and_marks_conclusions_inapplicable` 核对当前输入、产物适用性及旧评审/保存失效，计划明确不构成成功证据；脚本化模型停止不证明真实模型自行选择正确方向。
+4. **相邻恢复**：前述人工稿组合跨进程故障恢复，核对历史、轮次及费用；`tests/test_context_composition.py` 的缺回执外部编辑导入/修复用例验证继续或停止。请求的 13 项工具集合无独立产物回读，历史消息保留。
+5. **查证、澄清、创作与停止**：`tests/test_brief_loop.py` 覆盖检索读取、缺口和待澄清状态，`tests/test_strategy.py` 覆盖补查与资源不足停止，`tests/test_direct_script.py` 覆盖直接创作及澄清保留成果；新增 `tests/test_ticket10_clarification.py` 验证两个阻塞问题同次返回、持久化并进入待补充。建议作为简报内容及依据由相关提交用例核对，真实模型在具体场景中的自主判断留 11。
+6. **双视图对账**：`test_delivery_views_reconcile_plan_disposition_cost_and_verified_version` 检查运营方案及执行报告与计划、处置、尝试、版本、210 分模拟费用和当前保存文件哈希；保存前未完成，核验及核实保存后完成。
+7. **新协议回归**：本次完整确定性测试包括直连本地对端、Mock 来源、脱敏、合法消息及轮次/恢复上限；风险探针通过意味着成功复现已知风险，而非范围语义合格。测试通过不代表真实模型质量或同场景对照通过。
