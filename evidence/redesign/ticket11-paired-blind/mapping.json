@@ -1,0 +1,128 @@
+[
+  {
+    "candidate": "e2cf2fd5a645ba73",
+    "case": "campus-15",
+    "side": "old",
+    "source": "evidence\\redesign\\ticket11-paired-raw\\initial-old\\campus-15\\05-inspect.json",
+    "available": true
+  },
+  {
+    "candidate": "7019653411c390ef",
+    "case": "campus-15",
+    "side": "new",
+    "source": "evidence\\redesign\\ticket11-paired-raw\\initial-new\\campus-15\\05-inspect.json",
+    "available": true
+  },
+  {
+    "candidate": "8b0ffaf8611a0386",
+    "case": "travel-60",
+    "side": "old",
+    "source": "evidence\\redesign\\ticket11-paired-raw\\paired-old\\travel-60\\05-inspect.json",
+    "available": false
+  },
+  {
+    "candidate": "ca4d178ca6cee073",
+    "case": "travel-60",
+    "side": "new",
+    "source": "evidence\\redesign\\ticket11-paired-raw\\paired-new\\travel-60\\05-inspect.json",
+    "available": false
+  },
+  {
+    "candidate": "a7a114d275132b16",
+    "case": "subtitle-30",
+    "side": "old",
+    "source": "evidence\\redesign\\ticket11-paired-raw\\paired-old\\subtitle-30\\05-inspect.json",
+    "available": false
+  },
+  {
+    "candidate": "4a95822bdbbf4186",
+    "case": "subtitle-30",
+    "side": "new",
+    "source": "evidence\\redesign\\ticket11-paired-raw\\paired-new\\subtitle-30\\05-inspect.json",
+    "available": false
+  },
+  {
+    "candidate": "45a3fa2b13ffb561",
+    "case": "minor-15",
+    "side": "old",
+    "source": "evidence\\redesign\\ticket11-paired-raw\\paired-old\\minor-15\\05-inspect.json",
+    "available": false
+  },
+  {
+    "candidate": "bf92111ee9bb3e26",
+    "case": "minor-15",
+    "side": "new",
+    "source": "evidence\\redesign\\ticket11-paired-raw\\paired-new\\minor-15\\05-inspect.json",
+    "available": false
+  },
+  {
+    "candidate": "dc3dc85076911ae2",
+    "case": "unsupported-cantonese",
+    "side": "old",
+    "source": "evidence\\redesign\\ticket11-paired-raw\\paired-old\\unsupported-cantonese\\05-inspect.json",
+    "available": true
+  },
+  {
+    "candidate": "38723a889e34c3d4",
+    "case": "unsupported-cantonese",
+    "side": "new",
+    "source": "evidence\\redesign\\ticket11-paired-raw\\paired-new\\unsupported-cantonese\\05-inspect.json",
+    "available": false
+  },
+  {
+    "candidate": "c4435489174bbc62",
+    "case": "budget-impossible",
+    "side": "old",
+    "source": "evidence\\redesign\\ticket11-paired-raw\\paired-old\\budget-impossible\\05-inspect.json",
+    "available": false
+  },
+  {
+    "candidate": "bc8106eb387a868f",
+    "case": "budget-impossible",
+    "side": "new",
+    "source": "evidence\\redesign\\ticket11-paired-raw\\paired-new\\budget-impossible\\05-inspect.json",
+    "available": false
+  },
+  {
+    "candidate": "c2b20489cdf415dd",
+    "case": "deadline-impossible",
+    "side": "old",
+    "source": "evidence\\redesign\\ticket11-paired-raw\\paired-old\\deadline-impossible\\05-inspect.json",
+    "available": false
+  },
+  {
+    "candidate": "b563386138947590",
+    "case": "deadline-impossible",
+    "side": "new",
+    "source": "evidence\\redesign\\ticket11-paired-raw\\paired-new\\deadline-impossible\\05-inspect.json",
+    "available": false
+  },
+  {
+    "candidate": "03a5e3764c970e74",
+    "case": "save-crash-recovery",
+    "side": "old",
+    "source": "evidence\\redesign\\ticket11-paired-raw\\paired-old\\save-crash-recovery\\05-inspect.json",
+    "available": true
+  },
+  {
+    "candidate": "ab0915d745071b6b",
+    "case": "save-crash-recovery",
+    "side": "new",
+    "source": "evidence\\redesign\\ticket11-paired-raw\\paired-new\\save-crash-recovery\\05-inspect.json",
+    "available": false
+  },
+  {
+    "candidate": "2e17e0a097065a1d",
+    "case": "missing-input",
+    "side": "old",
+    "source": "evidence\\redesign\\ticket11-paired-raw\\paired-old\\missing-input\\05-inspect.json",
+    "available": false
+  },
+  {
+    "candidate": "022be38ff9c2ab99",
+    "case": "missing-input",
+    "side": "new",
+    "source": "evidence\\redesign\\ticket11-paired-raw\\paired-new\\missing-input\\05-inspect.json",
+    "available": false
+  }
+]

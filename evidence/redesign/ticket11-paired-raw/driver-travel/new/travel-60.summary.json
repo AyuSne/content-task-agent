@@ -1,0 +1,164 @@
+{
+  "version": "2026-10-29.eval-v1",
+  "source_sha": "237408abadf5c0afab36bd69dc623b8861b8db98",
+  "results": [
+    {
+      "case": "travel-60",
+      "task_id": "t_e5ec1cb6797b",
+      "status": "complete",
+      "reason": "核实导出修复后确认产物与交付文件一致。",
+      "checks": {
+        "expected_status": true,
+        "ledger_matches": true,
+        "clock_matches": true,
+        "rounds_bounded": true,
+        "message_pairing": true,
+        "real_only": true,
+        "requests_finished": true,
+        "within_budget": true,
+        "within_deadline": true,
+        "current_verified_save": true,
+        "current_review": true,
+        "saved_hashes": true,
+        "requested_duration": true
+      },
+      "passed": true,
+      "progress": {
+        "sim_start": "2026-10-29T00:00:00+08:00",
+        "sim_now": "2026-10-29T00:00:37+08:00",
+        "sim_elapsed_ms": 37000,
+        "used_rounds": 24,
+        "max_rounds": 24,
+        "paused": false,
+        "current_output": {
+          "output_id": "o_676a03296918750c",
+          "version": 2,
+          "status": "draft",
+          "strategy": "“周末旅行 60 秒卡点成片”操作优先型教程"
+        },
+        "save": {
+          "save_id": "s_f5fa79d0de34404d",
+          "output_version": 2,
+          "status": "verified",
+          "verified": true
+        },
+        "phase": "complete",
+        "brief_version": 1,
+        "last_run_at": "2026-10-30T05:57:47+00:00"
+      },
+      "resources": {
+        "budget_cents": 2000,
+        "sim_spent_cents": 490,
+        "remaining_cents": 1510,
+        "real_requests": 27,
+        "mock_requests": 0,
+        "model_requests": 27,
+        "real_usage": {
+          "requests": 27,
+          "real_requests": 27,
+          "mock_requests": 0,
+          "unknown_usage_requests": 0,
+          "usage_complete": true,
+          "prompt_tokens": 815117,
+          "completion_tokens": 25324,
+          "cache_hit_tokens": 757632,
+          "cache_miss_tokens": 57485,
+          "elapsed_ms": 130770
+        },
+        "real_cost": null,
+        "amount_status": {
+          "simulated_tool_fee": "incurred_and_estimated",
+          "real_model_usage": "unknown",
+          "activity_costs": "unknown"
+        },
+        "simulated_tool_fee": {
+          "category": "simulated_tool_fee",
+          "unit": "CNY_cent",
+          "source": "pricing:2026-10-30.v2",
+          "nature": "incurred",
+          "incurred_cents": 490,
+          "ledger_entries": 7,
+          "estimated": null,
+          "reserved": null,
+          "note": "预留与估算是可行性判断，不是实际支出；实际消耗只累计账本中 nature=incurred 的记录。"
+        },
+        "real_model_usage": {
+          "category": "real_model_usage",
+          "unit": "request/token",
+          "source": "DeepSeek API response usage（openai SDK）",
+          "nature": "actual_usage",
+          "requests": 27,
+          "real_requests": 27,
+          "mock_requests": 0,
+          "unknown_usage_requests": 0,
+          "prompt_tokens": 815117,
+          "completion_tokens": 25324,
+          "cache_hit_tokens": 757632,
+          "cache_miss_tokens": 57485,
+          "elapsed_ms": 130770,
+          "amount": {
+            "status": "unknown",
+            "value_cents": null,
+            "reason": "没有可靠的单价来源，不把 token 用量换算成金额；未发生真实请求时也不补成已核实零费用。"
+          }
+        },
+        "activity_costs": {
+          "category": "activity_cost",
+          "unit": "CNY_cent",
+          "source": "campaign.materials",
+          "status": "unknown",
+          "nature": "unknown",
+          "entries": [
+            {
+              "name": "周末旅行实拍片段（负责：运营拍摄组；就绪条件：拍摄或收集 4-15 条，含人物的均签授权后可用）",
+              "material_id": null,
+              "status": "to_create",
+              "amount_cents": null,
+              "nature": "unknown",
+              "source": "campaign.materials"
+            },
+            {
+              "name": "帧剪操作录屏（负责：运营剪辑；就绪条件：4.2 及以上真机录屏不少于两轮，界面无实验性功能入口，片段量与 60 秒时长按真机实测调整并记录）",
+              "material_id": null,
+              "status": "to_create",
+              "amount_cents": null,
+              "nature": "unknown",
+              "source": "campaign.materials"
+            },
+            {
+              "name": "普通话口播录音 + AI 字幕录屏（负责：出镜同事录音、运营剪辑录屏；就绪条件：口播书面同意使用声音，字幕逐条校对完成）",
+              "material_id": null,
+              "status": "to_create",
+              "amount_cents": null,
+              "nature": "unknown",
+              "source": "campaign.materials"
+            },
+            {
+              "name": "背景音乐《Late Bus》（120 BPM；负责：运营采购 + 法务核对；就绪条件：取得商用授权凭证，或启用备选原创鼓点）",
+              "material_id": "M-006",
+              "status": "to_acquire",
+              "amount_cents": null,
+              "nature": "unknown",
+              "source": "campaign.materials"
+            },
+            {
+              "name": "原创鼓点节拍音轨（备选配乐；负责：运营或合作音乐人；就绪条件：有创作记录与授权声明并完成试剪）",
+              "material_id": null,
+              "status": "to_create",
+              "amount_cents": null,
+              "nature": "unknown",
+              "source": "campaign.materials"
+            }
+          ],
+          "reason": "方案含待获取或待制作素材，但任务输入与材料未给出活动预算或已发生支出金额。"
+        },
+        "unknown": [
+          "real_model_usage.amount",
+          "activity_costs"
+        ],
+        "not_applicable": []
+      },
+      "evidence": "D:\\AAA小影科技\\.scratch\\content-agent-redesign-worktrees\\11-runs\\driver-travel\\new\\travel-60"
+    }
+  ]
+}

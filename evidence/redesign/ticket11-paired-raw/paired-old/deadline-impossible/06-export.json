@@ -1,0 +1,34 @@
+{
+  "task_id": "t_9e5046d0f718",
+  "output_version": null,
+  "save_id": null,
+  "verified": true,
+  "delivery_complete": false,
+  "files": [
+    {
+      "path": "D:\\AAA小影科技\\.scratch\\content-agent-redesign-worktrees\\11-runs\\paired-old\\deadline-impossible\\data\\real\\exports\\t_9e5046d0f718\\execution-report.md",
+      "sha256": "b01d0db99be0e48d06f99c1f57c93e828c806f2ef3d440be7b1965a467ec1718",
+      "bytes": 9257,
+      "exists": true,
+      "current_sha256": "b01d0db99be0e48d06f99c1f57c93e828c806f2ef3d440be7b1965a467ec1718",
+      "ok": true
+    },
+    {
+      "path": "D:\\AAA小影科技\\.scratch\\content-agent-redesign-worktrees\\11-runs\\paired-old\\deadline-impossible\\data\\real\\exports\\t_9e5046d0f718\\trace.jsonl",
+      "sha256": "8beb0d695f9d80c3694b2080b12b4b7402e5cb028dd6dbfe717b4f45b3e92ca1",
+      "bytes": 48491,
+      "exists": true,
+      "current_sha256": "8beb0d695f9d80c3694b2080b12b4b7402e5cb028dd6dbfe717b4f45b3e92ca1",
+      "ok": true
+    },
+    {
+      "path": "D:\\AAA小影科技\\.scratch\\content-agent-redesign-worktrees\\11-runs\\paired-old\\deadline-impossible\\data\\real\\exports\\t_9e5046d0f718\\brief-v1.json",
+      "sha256": "153ce80edd707df3b080249058be88ae5ae8b523cddec6f683e27fd4e337bff6",
+      "bytes": 5891,
+      "exists": true,
+      "current_sha256": "153ce80edd707df3b080249058be88ae5ae8b523cddec6f683e27fd4e337bff6",
+      "ok": true
+    }
+  ],
+  "repaired": false
+}

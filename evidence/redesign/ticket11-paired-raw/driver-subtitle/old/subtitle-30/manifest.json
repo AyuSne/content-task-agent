@@ -1,0 +1,113 @@
+{
+  "case": {
+    "id": "subtitle-30",
+    "topic": "帧剪英语口播AI字幕功能演示",
+    "audience": "18岁以上英语口播视频创作者",
+    "requirements": [
+      "仅一条30秒主视频，核心为英语语音转可编辑字幕及人工校对，不把一键翻译成英语写成翻译为任意语言，不宣称识别百分百准确。操作演示可后续录制。"
+    ],
+    "expected_status": "complete",
+    "duration_s": 30
+  },
+  "input": {
+    "budget": "20",
+    "deadline": "2026-10-30T12:00:00+08:00",
+    "requirements": [
+      "准备完整内容活动方案，产品主张只用材料支持的正式能力；不作涨粉、收益或爆款承诺。",
+      "方案交给运营继续制作。允许把缺少的画面、操作录屏和原创配乐列为待制作，写清责任人、位置和权属核对；不可冒充现成素材。平台和发布排期可以提出建议，不必把可建议项当成关键阻塞。",
+      "仅一条30秒主视频，核心为英语语音转可编辑字幕及人工校对，不把一键翻译成英语写成翻译为任意语言，不宣称识别百分百准确。操作演示可后续录制。"
+    ],
+    "id": "subtitle-30",
+    "topic": "帧剪英语口播AI字幕功能演示",
+    "audience": "18岁以上英语口播视频创作者",
+    "expected_status": "complete",
+    "duration_s": 30
+  },
+  "commands": [
+    {
+      "label": "01-create",
+      "argv": [
+        "D:\\Python\\python.exe",
+        "-m",
+        "cta",
+        "--mode",
+        "real",
+        "--data-dir",
+        "D:\\AAA小影科技\\.scratch\\content-agent-redesign-worktrees\\11-runs\\driver-subtitle\\old\\subtitle-30\\data",
+        "create",
+        "--new",
+        "--topic",
+        "帧剪英语口播AI字幕功能演示",
+        "--budget",
+        "20",
+        "--deadline",
+        "2026-10-30T12:00:00+08:00",
+        "--audience",
+        "18岁以上英语口播视频创作者",
+        "--requirement",
+        "准备完整内容活动方案，产品主张只用材料支持的正式能力；不作涨粉、收益或爆款承诺。",
+        "--requirement",
+        "方案交给运营继续制作。允许把缺少的画面、操作录屏和原创配乐列为待制作，写清责任人、位置和权属核对；不可冒充现成素材。平台和发布排期可以提出建议，不必把可建议项当成关键阻塞。",
+        "--requirement",
+        "仅一条30秒主视频，核心为英语语音转可编辑字幕及人工校对，不把一键翻译成英语写成翻译为任意语言，不宣称识别百分百准确。操作演示可后续录制。"
+      ],
+      "exit_code": 0,
+      "wall_seconds": 0.466,
+      "fault": null
+    },
+    {
+      "label": "02-run",
+      "argv": [
+        "D:\\Python\\python.exe",
+        "-m",
+        "cta",
+        "--mode",
+        "real",
+        "--data-dir",
+        "D:\\AAA小影科技\\.scratch\\content-agent-redesign-worktrees\\11-runs\\driver-subtitle\\old\\subtitle-30\\data",
+        "run",
+        "t_8ef16321aa07"
+      ],
+      "exit_code": 0,
+      "wall_seconds": 154.357,
+      "fault": null
+    },
+    {
+      "label": "05-inspect",
+      "argv": [
+        "D:\\Python\\python.exe",
+        "-m",
+        "cta",
+        "--mode",
+        "real",
+        "--data-dir",
+        "D:\\AAA小影科技\\.scratch\\content-agent-redesign-worktrees\\11-runs\\driver-subtitle\\old\\subtitle-30\\data",
+        "inspect",
+        "t_8ef16321aa07"
+      ],
+      "exit_code": 0,
+      "wall_seconds": 0.275,
+      "fault": null
+    },
+    {
+      "label": "06-export",
+      "argv": [
+        "D:\\Python\\python.exe",
+        "-m",
+        "cta",
+        "--mode",
+        "real",
+        "--data-dir",
+        "D:\\AAA小影科技\\.scratch\\content-agent-redesign-worktrees\\11-runs\\driver-subtitle\\old\\subtitle-30\\data",
+        "export",
+        "t_8ef16321aa07"
+      ],
+      "exit_code": 0,
+      "wall_seconds": 0.274,
+      "fault": null
+    }
+  ],
+  "started_unix": 1793339603.5337763,
+  "finished_unix": 1793339758.9190924,
+  "task_id": "t_8ef16321aa07"
+}

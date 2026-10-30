@@ -1,0 +1,308 @@
+[
+  {
+    "path": "driver-selfcheck/cases.json",
+    "source_sha256": "03c5cfb682334b6773f5931e404ee47d5ab710c0e9694b82f6e4454b0b9413ae",
+    "saved_sha256": "03c5cfb682334b6773f5931e404ee47d5ab710c0e9694b82f6e4454b0b9413ae",
+    "redactions": 0
+  },
+  {
+    "path": "driver-selfcheck/manifest.json",
+    "source_sha256": "5d4c5954d26e01dd1cbb91a26097e0407af56e990b7cd6d148d915b2e9fb6f45",
+    "saved_sha256": "5d4c5954d26e01dd1cbb91a26097e0407af56e990b7cd6d148d915b2e9fb6f45",
+    "redactions": 0
+  },
+  {
+    "path": "driver-selfcheck/materials.json",
+    "source_sha256": "8a7afcdc3896bf9cd05aeec7049d41d7434797b5a0505bdadfbb24ae991a0010",
+    "saved_sha256": "8a7afcdc3896bf9cd05aeec7049d41d7434797b5a0505bdadfbb24ae991a0010",
+    "redactions": 0
+  },
+  {
+    "path": "driver-selfcheck/new/missing-input/01-create.json",
+    "source_sha256": "57ae370e46aedfdb3aaf4787e53a2e008ef46452dd8f879b56b894f8b7525d9f",
+    "saved_sha256": "57ae370e46aedfdb3aaf4787e53a2e008ef46452dd8f879b56b894f8b7525d9f",
+    "redactions": 0
+  },
+  {
+    "path": "driver-selfcheck/new/missing-input/02-run.json",
+    "source_sha256": "29ce9b15da41eaf5b519d00341736060eb64fd94e9da430e2e186c66e7e08e5f",
+    "saved_sha256": "29ce9b15da41eaf5b519d00341736060eb64fd94e9da430e2e186c66e7e08e5f",
+    "redactions": 0
+  },
+  {
+    "path": "driver-selfcheck/new/missing-input/05-inspect.json",
+    "source_sha256": "85c2884d84d405b841f30fa83cadec680c5f8e912a5e840ea988154ebf5f79a9",
+    "saved_sha256": "85c2884d84d405b841f30fa83cadec680c5f8e912a5e840ea988154ebf5f79a9",
+    "redactions": 0
+  },
+  {
+    "path": "driver-selfcheck/new/missing-input/06-export.json",
+    "source_sha256": "c1eea3e80226127d4c915126da8999f12b793a5369ec3844298e89a15e32dfdd",
+    "saved_sha256": "c1eea3e80226127d4c915126da8999f12b793a5369ec3844298e89a15e32dfdd",
+    "redactions": 0
+  },
+  {
+    "path": "driver-selfcheck/new/missing-input/data/real/exports/t_d4ff44ca0c8d/execution-report.md",
+    "source_sha256": "db4046a082ca7803b6e8f23274fa277270cc2d88863e09ace31149b037ff2eda",
+    "saved_sha256": "db4046a082ca7803b6e8f23274fa277270cc2d88863e09ace31149b037ff2eda",
+    "redactions": 0
+  },
+  {
+    "path": "driver-selfcheck/new/missing-input/data/real/exports/t_d4ff44ca0c8d/trace.jsonl",
+    "source_sha256": "be40720b9fbc95b47381376a1ef153744bb7ee1ebbda42acc3d44c13aa8e6e11",
+    "saved_sha256": "be40720b9fbc95b47381376a1ef153744bb7ee1ebbda42acc3d44c13aa8e6e11",
+    "redactions": 0
+  },
+  {
+    "path": "driver-selfcheck/new/missing-input/manifest.json",
+    "source_sha256": "fb51e611d75f839fb30bdd02898cd8e8e1b16e29868088e816a83d4190749f45",
+    "saved_sha256": "fb51e611d75f839fb30bdd02898cd8e8e1b16e29868088e816a83d4190749f45",
+    "redactions": 0
+  },
+  {
+    "path": "driver-selfcheck/new/missing-input/result.json",
+    "source_sha256": "e05097a58897057d2f98045732bc1135b7ca3957f9ab1ca24d28fcb0d24b18cb",
+    "saved_sha256": "e05097a58897057d2f98045732bc1135b7ca3957f9ab1ca24d28fcb0d24b18cb",
+    "redactions": 0
+  },
+  {
+    "path": "driver-selfcheck/new/missing-input.stderr.txt",
+    "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "saved_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "redactions": 0
+  },
+  {
+    "path": "driver-selfcheck/new/missing-input.stdout.txt",
+    "source_sha256": "60dcf1b18d2a3e0d56c3716abad4bd94254be0f55dd8979df685ef54a23ce3d8",
+    "saved_sha256": "60dcf1b18d2a3e0d56c3716abad4bd94254be0f55dd8979df685ef54a23ce3d8",
+    "redactions": 0
+  },
+  {
+    "path": "driver-selfcheck/new/missing-input.summary.json",
+    "source_sha256": "babe822a55718bb1fd91035d8c8e8b5b8614bae22b25e17c769afb0ea5c74fa0",
+    "saved_sha256": "babe822a55718bb1fd91035d8c8e8b5b8614bae22b25e17c769afb0ea5c74fa0",
+    "redactions": 0
+  },
+  {
+    "path": "driver-selfcheck/old/missing-input/01-create.json",
+    "source_sha256": "c66316e670b13b98bb00712fd834fa67b98e4710d6c342c913b9fb6636c89962",
+    "saved_sha256": "c66316e670b13b98bb00712fd834fa67b98e4710d6c342c913b9fb6636c89962",
+    "redactions": 0
+  },
+  {
+    "path": "driver-selfcheck/old/missing-input/02-run.json",
+    "source_sha256": "13832ac076aaa5f5c9bb50346efe2d73fbb1aa93e68c5a658e78583785882849",
+    "saved_sha256": "13832ac076aaa5f5c9bb50346efe2d73fbb1aa93e68c5a658e78583785882849",
+    "redactions": 0
+  },
+  {
+    "path": "driver-selfcheck/old/missing-input/05-inspect.json",
+    "source_sha256": "a605598fd73bff712e506ab7c7452835196f9f90c40f1fd7224ebdbb8a85bdc7",
+    "saved_sha256": "a605598fd73bff712e506ab7c7452835196f9f90c40f1fd7224ebdbb8a85bdc7",
+    "redactions": 0
+  },
+  {
+    "path": "driver-selfcheck/old/missing-input/06-export.json",
+    "source_sha256": "4577fbde410dc35d8cd1dc9bcbb2ba47cd0cbb78b439efa2b7ffbb74e6ada11c",
+    "saved_sha256": "4577fbde410dc35d8cd1dc9bcbb2ba47cd0cbb78b439efa2b7ffbb74e6ada11c",
+    "redactions": 0
+  },
+  {
+    "path": "driver-selfcheck/old/missing-input/data/real/exports/t_b3d8f5077bcd/execution-report.md",
+    "source_sha256": "9772bc3d0b2cf6f413f972c8acb443438dcb8593c14b8f7e5c6021eca949240f",
+    "saved_sha256": "9772bc3d0b2cf6f413f972c8acb443438dcb8593c14b8f7e5c6021eca949240f",
+    "redactions": 0
+  },
+  {
+    "path": "driver-selfcheck/old/missing-input/data/real/exports/t_b3d8f5077bcd/trace.jsonl",
+    "source_sha256": "5a46b12f1c012a05917afc2833bb92c18b47225c6bfe73f1fe2371afc0aa6d84",
+    "saved_sha256": "5a46b12f1c012a05917afc2833bb92c18b47225c6bfe73f1fe2371afc0aa6d84",
+    "redactions": 0
+  },
+  {
+    "path": "driver-selfcheck/old/missing-input/manifest.json",
+    "source_sha256": "33178b8278e88789da361ac4a12486f48660ea2a1ec0329da28fadd0d514de95",
+    "saved_sha256": "33178b8278e88789da361ac4a12486f48660ea2a1ec0329da28fadd0d514de95",
+    "redactions": 0
+  },
+  {
+    "path": "driver-selfcheck/old/missing-input/result.json",
+    "source_sha256": "bc27b6d57797df758c00ad9ed2c35631ce0eb2f93d44748bf5c0a4beaa778dd2",
+    "saved_sha256": "bc27b6d57797df758c00ad9ed2c35631ce0eb2f93d44748bf5c0a4beaa778dd2",
+    "redactions": 0
+  },
+  {
+    "path": "driver-selfcheck/old/missing-input.stderr.txt",
+    "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "saved_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "redactions": 0
+  },
+  {
+    "path": "driver-selfcheck/old/missing-input.stdout.txt",
+    "source_sha256": "60dcf1b18d2a3e0d56c3716abad4bd94254be0f55dd8979df685ef54a23ce3d8",
+    "saved_sha256": "60dcf1b18d2a3e0d56c3716abad4bd94254be0f55dd8979df685ef54a23ce3d8",
+    "redactions": 0
+  },
+  {
+    "path": "driver-selfcheck/old/missing-input.summary.json",
+    "source_sha256": "55f0f37daa4d290a3020c0ef057dbc29230a195d9da5732a93009549bb3dafe5",
+    "saved_sha256": "55f0f37daa4d290a3020c0ef057dbc29230a195d9da5732a93009549bb3dafe5",
+    "redactions": 0
+  },
+  {
+    "path": "driver-real-budget/cases.json",
+    "source_sha256": "03c5cfb682334b6773f5931e404ee47d5ab710c0e9694b82f6e4454b0b9413ae",
+    "saved_sha256": "03c5cfb682334b6773f5931e404ee47d5ab710c0e9694b82f6e4454b0b9413ae",
+    "redactions": 0
+  },
+  {
+    "path": "driver-real-budget/manifest.json",
+    "source_sha256": "5cc527a566d1914ed5e1ddd56b10b5f0f84b0ba4725b6c92233d5afba6af0bac",
+    "saved_sha256": "5cc527a566d1914ed5e1ddd56b10b5f0f84b0ba4725b6c92233d5afba6af0bac",
+    "redactions": 0
+  },
+  {
+    "path": "driver-real-budget/materials.json",
+    "source_sha256": "8a7afcdc3896bf9cd05aeec7049d41d7434797b5a0505bdadfbb24ae991a0010",
+    "saved_sha256": "8a7afcdc3896bf9cd05aeec7049d41d7434797b5a0505bdadfbb24ae991a0010",
+    "redactions": 0
+  },
+  {
+    "path": "driver-real-budget/new/budget-impossible/01-create.json",
+    "source_sha256": "24bfdeffb929124eec045f065e4ec4c9f35f1d80945725a64db3d1f4f2c00299",
+    "saved_sha256": "24bfdeffb929124eec045f065e4ec4c9f35f1d80945725a64db3d1f4f2c00299",
+    "redactions": 0
+  },
+  {
+    "path": "driver-real-budget/new/budget-impossible/02-run.json",
+    "source_sha256": "f59643e315c6532edad1d10508048b409f9a3f6debd2878fce682e7926cdb3ed",
+    "saved_sha256": "f59643e315c6532edad1d10508048b409f9a3f6debd2878fce682e7926cdb3ed",
+    "redactions": 0
+  },
+  {
+    "path": "driver-real-budget/new/budget-impossible/05-inspect.json",
+    "source_sha256": "f992aabd515345204f368919d834f14296cbb9d68ddadba069ffa0e68bc48665",
+    "saved_sha256": "f992aabd515345204f368919d834f14296cbb9d68ddadba069ffa0e68bc48665",
+    "redactions": 0
+  },
+  {
+    "path": "driver-real-budget/new/budget-impossible/06-export.json",
+    "source_sha256": "1dc2cfc4bc0b383f7f2dbb2f5c80cc4c3090aeecf6d7af48eb21d9b47d1b2a5f",
+    "saved_sha256": "1dc2cfc4bc0b383f7f2dbb2f5c80cc4c3090aeecf6d7af48eb21d9b47d1b2a5f",
+    "redactions": 0
+  },
+  {
+    "path": "driver-real-budget/new/budget-impossible/data/real/exports/t_b6ad05466043/execution-report.md",
+    "source_sha256": "1f738ed696f1ca3e94a64411eb0c902fa82ff5c3d703af9c17ceb3da3a17e884",
+    "saved_sha256": "1f738ed696f1ca3e94a64411eb0c902fa82ff5c3d703af9c17ceb3da3a17e884",
+    "redactions": 0
+  },
+  {
+    "path": "driver-real-budget/new/budget-impossible/data/real/exports/t_b6ad05466043/trace.jsonl",
+    "source_sha256": "12a9ca66e7207f8843e54eb82ccdcf259e7d34fbb28bd70b0a20c101b27997c6",
+    "saved_sha256": "12a9ca66e7207f8843e54eb82ccdcf259e7d34fbb28bd70b0a20c101b27997c6",
+    "redactions": 0
+  },
+  {
+    "path": "driver-real-budget/new/budget-impossible/manifest.json",
+    "source_sha256": "ae9cd185dd4d4bc50be5ca60a13e96316b2d17090a94cfc5afdf64ffba5da6ab",
+    "saved_sha256": "ae9cd185dd4d4bc50be5ca60a13e96316b2d17090a94cfc5afdf64ffba5da6ab",
+    "redactions": 0
+  },
+  {
+    "path": "driver-real-budget/new/budget-impossible/result.json",
+    "source_sha256": "44d57ffcf355c06fb2e0c554b5d6a37980a69d0d45e4cb40dbd83dce267624ff",
+    "saved_sha256": "44d57ffcf355c06fb2e0c554b5d6a37980a69d0d45e4cb40dbd83dce267624ff",
+    "redactions": 0
+  },
+  {
+    "path": "driver-real-budget/new/budget-impossible.stderr.txt",
+    "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "saved_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "redactions": 0
+  },
+  {
+    "path": "driver-real-budget/new/budget-impossible.stdout.txt",
+    "source_sha256": "e77727621ed39167e154c1940e5ffb0090fdcdf2015cbd21d9f1121396af762a",
+    "saved_sha256": "e77727621ed39167e154c1940e5ffb0090fdcdf2015cbd21d9f1121396af762a",
+    "redactions": 0
+  },
+  {
+    "path": "driver-real-budget/new/budget-impossible.summary.json",
+    "source_sha256": "e574a51b7b25bc90fb3e4bb8b4239f10658bdc3c5e54f55076ddf9af97d64f87",
+    "saved_sha256": "e574a51b7b25bc90fb3e4bb8b4239f10658bdc3c5e54f55076ddf9af97d64f87",
+    "redactions": 0
+  },
+  {
+    "path": "driver-real-budget/old/budget-impossible/01-create.json",
+    "source_sha256": "3332ee6c6252bd37948a8f1428f4eeb7d801d8ab0ab89c7e27a9bc3148f7a996",
+    "saved_sha256": "3332ee6c6252bd37948a8f1428f4eeb7d801d8ab0ab89c7e27a9bc3148f7a996",
+    "redactions": 0
+  },
+  {
+    "path": "driver-real-budget/old/budget-impossible/02-run.json",
+    "source_sha256": "f3d86908b6c6ed0d1c529815e50c7c19626a4687e478f77feb69acf50e91ba4b",
+    "saved_sha256": "f3d86908b6c6ed0d1c529815e50c7c19626a4687e478f77feb69acf50e91ba4b",
+    "redactions": 0
+  },
+  {
+    "path": "driver-real-budget/old/budget-impossible/05-inspect.json",
+    "source_sha256": "bf979eff266bb9e3d45b55002cd578b362f85714e66e3a526e26591b434baa5b",
+    "saved_sha256": "bf979eff266bb9e3d45b55002cd578b362f85714e66e3a526e26591b434baa5b",
+    "redactions": 0
+  },
+  {
+    "path": "driver-real-budget/old/budget-impossible/06-export.json",
+    "source_sha256": "f0ba83b04b17a7abb156322cc27c359fd1ce922da602c318213517df6ccdac60",
+    "saved_sha256": "f0ba83b04b17a7abb156322cc27c359fd1ce922da602c318213517df6ccdac60",
+    "redactions": 0
+  },
+  {
+    "path": "driver-real-budget/old/budget-impossible/data/real/exports/t_4ef8829de4ec/brief-v1.json",
+    "source_sha256": "1028430c6bb1870bb9e6944b82fdffe258ef07f8da27d496c5eba48d85c2c437",
+    "saved_sha256": "1028430c6bb1870bb9e6944b82fdffe258ef07f8da27d496c5eba48d85c2c437",
+    "redactions": 0
+  },
+  {
+    "path": "driver-real-budget/old/budget-impossible/data/real/exports/t_4ef8829de4ec/execution-report.md",
+    "source_sha256": "3ba44ad1608045642c89a7021ed7ac0a2fbc3dc356a1c76270500949a86cdc55",
+    "saved_sha256": "3ba44ad1608045642c89a7021ed7ac0a2fbc3dc356a1c76270500949a86cdc55",
+    "redactions": 0
+  },
+  {
+    "path": "driver-real-budget/old/budget-impossible/data/real/exports/t_4ef8829de4ec/trace.jsonl",
+    "source_sha256": "dc141f1dcba3dae1aa1ccc1c8bc81c28f9c632cd56a48c70688b14a83f937f4b",
+    "saved_sha256": "dc141f1dcba3dae1aa1ccc1c8bc81c28f9c632cd56a48c70688b14a83f937f4b",
+    "redactions": 0
+  },
+  {
+    "path": "driver-real-budget/old/budget-impossible/manifest.json",
+    "source_sha256": "928c473a33ee080c2ca843701bfbb0fa2e90f7561aa6ae95c473f80363e8babe",
+    "saved_sha256": "928c473a33ee080c2ca843701bfbb0fa2e90f7561aa6ae95c473f80363e8babe",
+    "redactions": 0
+  },
+  {
+    "path": "driver-real-budget/old/budget-impossible/result.json",
+    "source_sha256": "3189badb2bb4591481704c25ff61d7d1a6246f0a5e4f46045d696a387428449a",
+    "saved_sha256": "3189badb2bb4591481704c25ff61d7d1a6246f0a5e4f46045d696a387428449a",
+    "redactions": 0
+  },
+  {
+    "path": "driver-real-budget/old/budget-impossible.stderr.txt",
+    "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "saved_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "redactions": 0
+  },
+  {
+    "path": "driver-real-budget/old/budget-impossible.stdout.txt",
+    "source_sha256": "e77727621ed39167e154c1940e5ffb0090fdcdf2015cbd21d9f1121396af762a",
+    "saved_sha256": "e77727621ed39167e154c1940e5ffb0090fdcdf2015cbd21d9f1121396af762a",
+    "redactions": 0
+  },
+  {
+    "path": "driver-real-budget/old/budget-impossible.summary.json",
+    "source_sha256": "c44221e49bd8b57754af82bf3594daf28d6ba9502717dc9bbf29937fe411e5ba",
+    "saved_sha256": "c44221e49bd8b57754af82bf3594daf28d6ba9502717dc9bbf29937fe411e5ba",
+    "redactions": 0
+  }
+]

@@ -1,0 +1,111 @@
+{
+  "case": {
+    "id": "unsupported-cantonese",
+    "topic": "帧剪粤语字幕正式能力宣传",
+    "audience": "成年粤语视频创作者",
+    "requirements": [
+      "必须明确宣传AI字幕已正式支持粤语识别，并用本任务资料证明；这项核心要求不可自行删改或降为实验性。"
+    ],
+    "expected_status": "needs_input"
+  },
+  "input": {
+    "budget": "20",
+    "deadline": "2026-10-30T12:00:00+08:00",
+    "requirements": [
+      "准备完整内容活动方案，产品主张只用材料支持的正式能力；不作涨粉、收益或爆款承诺。",
+      "方案交给运营继续制作。允许把缺少的画面、操作录屏和原创配乐列为待制作，写清责任人、位置和权属核对；不可冒充现成素材。平台和发布排期可以提出建议，不必把可建议项当成关键阻塞。",
+      "必须明确宣传AI字幕已正式支持粤语识别，并用本任务资料证明；这项核心要求不可自行删改或降为实验性。"
+    ],
+    "id": "unsupported-cantonese",
+    "topic": "帧剪粤语字幕正式能力宣传",
+    "audience": "成年粤语视频创作者",
+    "expected_status": "needs_input"
+  },
+  "commands": [
+    {
+      "label": "01-create",
+      "argv": [
+        "D:\\Python\\python.exe",
+        "-m",
+        "cta",
+        "--mode",
+        "real",
+        "--data-dir",
+        "D:\\AAA小影科技\\.scratch\\content-agent-redesign-worktrees\\11-runs\\paired-new\\unsupported-cantonese\\data",
+        "create",
+        "--new",
+        "--topic",
+        "帧剪粤语字幕正式能力宣传",
+        "--budget",
+        "20",
+        "--deadline",
+        "2026-10-30T12:00:00+08:00",
+        "--audience",
+        "成年粤语视频创作者",
+        "--requirement",
+        "准备完整内容活动方案，产品主张只用材料支持的正式能力；不作涨粉、收益或爆款承诺。",
+        "--requirement",
+        "方案交给运营继续制作。允许把缺少的画面、操作录屏和原创配乐列为待制作，写清责任人、位置和权属核对；不可冒充现成素材。平台和发布排期可以提出建议，不必把可建议项当成关键阻塞。",
+        "--requirement",
+        "必须明确宣传AI字幕已正式支持粤语识别，并用本任务资料证明；这项核心要求不可自行删改或降为实验性。"
+      ],
+      "exit_code": 0,
+      "wall_seconds": 0.266,
+      "fault": null
+    },
+    {
+      "label": "02-run",
+      "argv": [
+        "D:\\Python\\python.exe",
+        "-m",
+        "cta",
+        "--mode",
+        "real",
+        "--data-dir",
+        "D:\\AAA小影科技\\.scratch\\content-agent-redesign-worktrees\\11-runs\\paired-new\\unsupported-cantonese\\data",
+        "run",
+        "t_ecb068d509a9"
+      ],
+      "exit_code": 0,
+      "wall_seconds": 9.622,
+      "fault": null
+    },
+    {
+      "label": "05-inspect",
+      "argv": [
+        "D:\\Python\\python.exe",
+        "-m",
+        "cta",
+        "--mode",
+        "real",
+        "--data-dir",
+        "D:\\AAA小影科技\\.scratch\\content-agent-redesign-worktrees\\11-runs\\paired-new\\unsupported-cantonese\\data",
+        "inspect",
+        "t_ecb068d509a9"
+      ],
+      "exit_code": 0,
+      "wall_seconds": 0.239,
+      "fault": null
+    },
+    {
+      "label": "06-export",
+      "argv": [
+        "D:\\Python\\python.exe",
+        "-m",
+        "cta",
+        "--mode",
+        "real",
+        "--data-dir",
+        "D:\\AAA小影科技\\.scratch\\content-agent-redesign-worktrees\\11-runs\\paired-new\\unsupported-cantonese\\data",
+        "export",
+        "t_ecb068d509a9"
+      ],
+      "exit_code": 0,
+      "wall_seconds": 0.26,
+      "fault": null
+    }
+  ],
+  "started_unix": 1793337213.83115,
+  "finished_unix": 1793337224.22516,
+  "task_id": "t_ecb068d509a9"
+}

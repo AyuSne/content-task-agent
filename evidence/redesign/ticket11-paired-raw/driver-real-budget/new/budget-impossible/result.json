@@ -1,0 +1,122 @@
+{
+  "case": "budget-impossible",
+  "task_id": "t_b6ad05466043",
+  "status": "incomplete",
+  "reason": "任务预算 50 分（0.50 元）是硬约束，但完成「完整内容活动方案」的最低必需动作已超出预算，且无更省路径可以形成可核验、可保存的方案。已完成可交付的检索成果：M-001 自动卡点能力说明、M-004 品牌表达规则、M-005 校园场景素材包（12 条 10-20 秒情境画面，已取得演员授权、限本题使用、不含 Logo 特写）。",
+  "checks": {
+    "expected_status": true,
+    "ledger_matches": true,
+    "clock_matches": true,
+    "rounds_bounded": true,
+    "message_pairing": true,
+    "real_only": true,
+    "requests_finished": true,
+    "within_budget": true,
+    "within_deadline": true,
+    "not_falsely_saved": true
+  },
+  "passed": true,
+  "progress": {
+    "sim_start": "2026-10-29T00:00:00+08:00",
+    "sim_now": "2026-10-29T00:00:02+08:00",
+    "sim_elapsed_ms": 2000,
+    "used_rounds": 6,
+    "max_rounds": 24,
+    "paused": false,
+    "current_output": null,
+    "save": null,
+    "phase": "stopped",
+    "brief_version": 0,
+    "last_run_at": "2026-10-30T05:47:16+00:00"
+  },
+  "resources": {
+    "budget_cents": 50,
+    "sim_spent_cents": 20,
+    "remaining_cents": 30,
+    "real_requests": 6,
+    "mock_requests": 0,
+    "model_requests": 6,
+    "real_usage": {
+      "requests": 6,
+      "real_requests": 6,
+      "mock_requests": 0,
+      "unknown_usage_requests": 0,
+      "usage_complete": true,
+      "prompt_tokens": 64373,
+      "completion_tokens": 922,
+      "cache_hit_tokens": 58496,
+      "cache_miss_tokens": 5877,
+      "elapsed_ms": 8815
+    },
+    "real_cost": null,
+    "amount_status": {
+      "simulated_tool_fee": "incurred_and_estimated",
+      "real_model_usage": "unknown",
+      "activity_costs": "not_applicable"
+    },
+    "simulated_tool_fee": {
+      "category": "simulated_tool_fee",
+      "unit": "CNY_cent",
+      "source": "pricing:2026-10-30.v2",
+      "nature": "incurred",
+      "incurred_cents": 20,
+      "ledger_entries": 1,
+      "estimated": {
+        "estimate_id": "e_fe96425b962f2dc6",
+        "kind": "cost_estimate",
+        "direction": null,
+        "search_mode": null,
+        "generation_mode": null,
+        "search_queries": null,
+        "include_revision": false,
+        "total_cost_cents": 210,
+        "total_duration_ms": 15000,
+        "incurred_cents": 20,
+        "remaining_cents": 30,
+        "feasible": false,
+        "strategy_version": "2026-10-29.v2",
+        "pricing_version": "2026-10-30.v2",
+        "created_at": "2026-10-30T05:47:16+00:00",
+        "nature": "estimated"
+      },
+      "reserved": null,
+      "note": "预留与估算是可行性判断，不是实际支出；实际消耗只累计账本中 nature=incurred 的记录。"
+    },
+    "real_model_usage": {
+      "category": "real_model_usage",
+      "unit": "request/token",
+      "source": "DeepSeek API response usage（openai SDK）",
+      "nature": "actual_usage",
+      "requests": 6,
+      "real_requests": 6,
+      "mock_requests": 0,
+      "unknown_usage_requests": 0,
+      "prompt_tokens": 64373,
+      "completion_tokens": 922,
+      "cache_hit_tokens": 58496,
+      "cache_miss_tokens": 5877,
+      "elapsed_ms": 8815,
+      "amount": {
+        "status": "unknown",
+        "value_cents": null,
+        "reason": "没有可靠的单价来源，不把 token 用量换算成金额；未发生真实请求时也不补成已核实零费用。"
+      }
+    },
+    "activity_costs": {
+      "category": "activity_cost",
+      "unit": "CNY_cent",
+      "source": "task_input/campaign.materials",
+      "status": "not_applicable",
+      "nature": "not_applicable",
+      "entries": [],
+      "reason": "任务输入、资料与执行未涉及活动制作或投放预算/实际支出。"
+    },
+    "unknown": [
+      "real_model_usage.amount"
+    ],
+    "not_applicable": [
+      "activity_costs"
+    ]
+  },
+  "evidence": "D:\\AAA小影科技\\.scratch\\content-agent-redesign-worktrees\\11-runs\\driver-real-budget\\new\\budget-impossible"
+}
