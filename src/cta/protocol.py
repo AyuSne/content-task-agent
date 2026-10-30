@@ -5,7 +5,7 @@ import json
 from cta.prompts import TOOL_DEFINITIONS
 
 # Bump when handler semantics change, even if the JSON schema stays the same.
-HANDLER_VERSION = "tool-guidance-feedback-v1"
+HANDLER_VERSION = "tool-guidance-review-scope-v1"
 
 
 def _without_descriptions(value):
@@ -48,6 +48,7 @@ def incompatibility(conn, task_id):
             "save-protection-v1": "ba6174e",
             "save-redaction-review-v1": "3ceb16b",
             "evidence-version-roundtrip-v1": "b49e8b5",
+            "tool-guidance-feedback-v1": "dd665dc",
         }.get(handler) or (
             f"git log --all -S {handler} -- src/cta/protocol.py 查找对应提交"
         )

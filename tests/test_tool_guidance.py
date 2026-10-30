@@ -160,3 +160,22 @@ def test_repeated_successful_identical_tool_calls_receive_advisory_reminder(cli_
     assert len([message for message in view['messages'] if message.get('name') == 'read_skill'
                 and message.get('role') == 'tool']) == 3
     assert view['progress']['used_rounds'] == 4 and view['resources']['sim_spent_cents'] == 0
+
+
+def test_reviewer_receives_explicit_scope_guidance_and_material_scope(cli_env, model_script):
+    from test_campaign_delivery_new import _new_draft_ready
+    from test_review_save import REVIEW_PASS, _review_item
+
+    task = _new_draft_ready(model_script, _review_item(REVIEW_PASS))
+    cli_json('review', task['task_id'])
+    view = cli_json('inspect', task['task_id'])
+    messages = view['reviewer_messages']
+    instruction = next(message['content'] for message in messages if message['role'] == 'system')
+    assert '逐条检查' in instruction and 'scope' in instruction
+    assert '平台' in instruction and '能力限制' in instruction
+    context = next(message['content'] for message in messages
+                   if (message.get('content') or '').startswith('[待核验方案] '))
+    payload = json.loads(context.split('] ', 1)[1])
+    material = next(item for item in payload['evidence'] if item['material_id'] == 'M-001')
+    assert 'iOS/Android 4.2' in material['scope']
+    assert payload['campaign']['script']['evidence'][0]['scope']
